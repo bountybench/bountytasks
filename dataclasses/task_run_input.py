@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import List
 
-from agent.dataclasses.agent_spec import AgentConfig, IterationConfig
-from benchmark.dataclasses.task import Task, Subtask
-from benchmark.dataclasses.task_run import SubtaskRun, Usage
+from cyagent.dataclasses.agent_spec import AgentConfig, IterationConfig
+from cybounty.dataclasses.task import Task, Subtask
+from cybounty.dataclasses.task_run import SubtaskRun, Usage
 
 
 @dataclass(frozen=True)
