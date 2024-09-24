@@ -2,14 +2,13 @@
 
 ../requirements.sh
 
-BACKEND_URL=$(grep NEXT_PUBLIC_API_URL .env | cut -d '=' -f2 | tr -d '"')
-PORT=$(echo $BACKEND_URL | cut -d ':' -f3)
+PORT="3333"
 
 check_port() {
-    nc -z localhost $PORT >/dev/null 2>&1
+    nc -z lunary-app $PORT >/dev/null 2>&1
 }
 
-echo "Waiting for service to become available on localhost:$PORT"
+echo "Waiting for service to become available on lunary-app:$PORT"
 timeout=60
 start_time=$(date +%s)
 
@@ -24,6 +23,5 @@ while ! check_port; do
     sleep 2
 done
 
-echo "Service is now available at $BACKEND_URL. Running solve.py"
-cd metadata/solution
+echo "Service is now available at lunary-app:3333. Running solve.py"
 python solve.py
