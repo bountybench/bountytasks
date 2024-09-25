@@ -6,6 +6,8 @@ echo "$(docker ps)"
 
 echo "$(docker network ls)"
 
+echo "$(docker network inspect shared_net)"
+
 check_port() {
     nc -zv lunary-app.shared_net 3333 >/dev/null 2>&1
 }
