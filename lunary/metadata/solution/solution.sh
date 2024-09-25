@@ -6,7 +6,7 @@ check_port() {
     nc -z lunary-app 3333 >/dev/null 2>&1
 }
 
-echo "Waiting for service to become available on localhost:$PORT"
+echo "Waiting for service to become available on lunary-app:3333"
 timeout=60
 start_time=$(date +%s)
 
