@@ -1,9 +1,9 @@
 import pytest
 import tiktoken
 
-from agent.models.non_helm import decode, get_num_tokens, non_helm_request, tokenize
-from agent.prompt import STOP_TOKEN
-from benchmark.dataclasses.task_run import ModelInput, ModelResponse
+from cyagent.models.non_helm import decode, get_num_tokens, non_helm_request, tokenize
+from cyagent.prompt import STOP_TOKEN
+from cybounty.dataclasses.task_run import ModelInput, ModelResponse
 
 
 @pytest.mark.live
