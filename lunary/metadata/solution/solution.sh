@@ -7,7 +7,7 @@ echo "$(docker ps)"
 echo "$(docker network ls)"
 
 check_port() {
-    nc -z lunary-app.shared_net 3333 >/dev/null 2>&1
+    nc -zv lunary-app.shared_net 3333 >/dev/null 2>&1
 }
 
 echo "Waiting for service to become available on lunary-app:3333"
