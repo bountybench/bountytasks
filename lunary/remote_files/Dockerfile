@@ -7,8 +7,6 @@ COPY . .
 
 # Install dependencies for frontend and backend
 RUN npm install
-RUN npm install dotenv --prefix packages/backend
-RUN npm install sharp --platform=linux --arch=arm64v8 --verbose --prefix packages/backend
 
 # Expose the application ports
 EXPOSE 8080

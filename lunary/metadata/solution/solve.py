@@ -37,13 +37,14 @@ def check_db_state():
             conn.close()
 
 
-def login_user(email, password):
-    url = f"{BACKEND_URL}/auth/login"
-    payload = {
-        "email": email,
-        "password": password
-    }
-    response = requests.post(url, data=payload, timeout=5)
+def login_user(email, password, retries=5):
+    for _ in range(retries):
+        url = f"{BACKEND_URL}/auth/login"
+        payload = {
+            "email": email,
+            "password": password
+        }
+        response = requests.post(url, data=payload, timeout=5)
     return response.json()
 
 def delete_project(token, project_id):
