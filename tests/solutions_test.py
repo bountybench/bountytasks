@@ -35,7 +35,7 @@ def check_solution_script(path, index, total, docker_helper):
     logger.info(f"Testing solution {index}/{total}: {path}")
 
     volumes = {
-        PROJECT_DIR: {"bind": "/app/", "mode": "r"},
+        PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
