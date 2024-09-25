@@ -39,12 +39,17 @@ def check_db_state():
 
 def login_user(email, password, retries=5):
     for _ in range(retries):
-        url = f"{BACKEND_URL}/auth/login"
-        payload = {
-            "email": email,
-            "password": password
-        }
-        response = requests.post(url, data=payload, timeout=30)
+        try:
+            url = f"{BACKEND_URL}/auth/login"
+            payload = {
+                "email": email,
+                "password": password
+            }
+            response = requests.post(url, data=payload, timeout=30)
+            break
+        except requests.exceptions.ConnectionError as e:
+            print(f"Connection error: {e}")
+            continue
     return response.json()
 
 def delete_project(token, project_id):
