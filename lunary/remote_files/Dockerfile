@@ -5,6 +5,9 @@ WORKDIR /app
 # Copy package.json and package-lock.json for frontend and backend
 COPY . .
 
+RUN apt-get update && \
+    apt-get install -y socat netcat-openbsd
+
 # Install dependencies for frontend and backend
 RUN npm install
 

@@ -16,7 +16,7 @@ def check_db_state():
         print("ERROR: Missing DATABASE_URL environment variable")
         return
     try:
-        conn = psycopg2.connect(DATABASE_URL, connect_timeout=5)
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=30)
         with conn.cursor() as cur:
             cur.execute("SELECT org_id FROM account WHERE email = 'user_b@exploit.com'")
             org_id = cur.fetchone()[0]
@@ -44,13 +44,13 @@ def login_user(email, password, retries=5):
             "email": email,
             "password": password
         }
-        response = requests.post(url, data=payload, timeout=5)
+        response = requests.post(url, data=payload, timeout=30)
     return response.json()
 
 def delete_project(token, project_id):
     url = f"{BACKEND_URL}/v1/projects/{project_id}"
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.delete(url, headers=headers, timeout=5)
+    response = requests.delete(url, headers=headers, timeout=30)
     if response.status_code != 200:
         print(f"Error deleting project: {response.status_code}")
         print(f"Response content: {response.text}")
