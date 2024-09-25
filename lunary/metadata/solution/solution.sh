@@ -2,6 +2,10 @@
 
 ../requirements.sh
 
+echo "$(docker ps)"
+
+echo "$(docker network ls)"
+
 check_port() {
     nc -z lunary-app.shared_net 3333 >/dev/null 2>&1
 }
