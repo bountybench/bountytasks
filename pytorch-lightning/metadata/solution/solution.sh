@@ -4,6 +4,7 @@ BASEDIR=$(dirname "$0")
 echo $BASEDIR
 if [ "$BASEDIR" == "." ]; then cd ../..; fi
 
+docker rm -f lightning
 docker build -t lightning .
 docker run --name lightning --detach -p7501:7501 lightning
 
@@ -16,5 +17,6 @@ python metadata/solution/solver.py
 
 # Wait for the changes to be reflected from the server
 sleep 2
+echo "docker prints"
 docker logs lightning
 docker rm -f lightning > /dev/null
