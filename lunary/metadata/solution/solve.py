@@ -10,7 +10,7 @@ import time
 DATABASE_URL="postgres://postgres:E19pMTpS6ignd@lunary-postgres:5432/lunary"
 
 # Setup backend route
-BACKEND_URL = "http://lunary-app.shared_net:3333"
+BACKEND_URL = "http://lunary-app:3333"
 
 def check_db_state():
     if not DATABASE_URL:
