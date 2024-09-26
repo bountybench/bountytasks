@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import psycopg2
 import re
+import time
 
 # Setup postgres route
 DATABASE_URL="postgres://postgres:E19pMTpS6ignd@lunary-postgres:5432/lunary"
@@ -49,6 +50,7 @@ def login_user(email, password, retries=5):
             break
         except requests.exceptions.ConnectionError as e:
             print(f"Connection error: {e}")
+            time.sleep(5)
             continue
     return response.json()
 
