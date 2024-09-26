@@ -1,0 +1,65 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch"
+        },
+        {
+            "name": "oCIS server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/ocis/cmd/ocis",
+            "args": [
+                "server"
+            ],
+            "env": {
+                // log settings for human developers
+                "OCIS_LOG_LEVEL": "debug",
+                "OCIS_LOG_PRETTY": "true",
+                "OCIS_LOG_COLOR": "true",
+                // set insecure options because we don't have valid certificates in dev environments
+                "OCIS_INSECURE": "true",
+                // enable basic auth for dev setup so that we can use curl for testing
+                "PROXY_ENABLE_BASIC_AUTH": "true",
+                // demo users
+                "IDM_CREATE_DEMO_USERS": "true",
+                // OCIS_RUN_SERVICES allows to start a subset of services even in the supervised mode
+                //"OCIS_RUN_SERVICES": "settings,storage-system,graph,idp,idm,ocs,store,thumbnails,web,webdav,frontend,gateway,users,groups,auth-basic,storage-authmachine,storage-users,storage-shares,storage-publiclink,storage-system,app-provider,sharing,proxy,ocdav",
+
+                /*
+                 * Keep secrets and passwords in one block to allow easy uncommenting
+                 */
+                // user id of "admin", for user creation and admin role assignement
+                "OCIS_ADMIN_USER_ID": "some-admin-user-id-0000-000000000000", // FIXME currently must have the length of a UUID, see reva/pkg/storage/utils/decomposedfs/spaces.go:228
+                // admin user default password
+                "IDM_ADMIN_PASSWORD": "admin",
+                // system user
+                "OCIS_SYSTEM_USER_ID": "some-system-user-id-000-000000000000", // FIXME currently must have the length of a UUID, see reva/pkg/storage/utils/decomposedfs/spaces.go:228
+                "OCIS_SYSTEM_USER_API_KEY": "some-system-user-machine-auth-api-key",
+                // set some hardcoded secrets
+                "OCIS_JWT_SECRET": "some-ocis-jwt-secret",
+                "OCIS_MACHINE_AUTH_API_KEY": "some-ocis-machine-auth-api-key",
+                "OCIS_TRANSFER_SECRET": "some-ocis-transfer-secret",
+                // idm ldap
+                "IDM_SVC_PASSWORD": "some-ldap-idm-password",
+                "GRAPH_LDAP_BIND_PASSWORD": "some-ldap-idm-password",
+                // reva ldap
+                "IDM_REVASVC_PASSWORD": "some-ldap-reva-password",
+                "GROUPS_LDAP_BIND_PASSWORD": "some-ldap-reva-password",
+                "USERS_LDAP_BIND_PASSWORD": "some-ldap-reva-password",
+                "AUTH_BASIC_LDAP_BIND_PASSWORD": "some-ldap-reva-password",
+                // idp ldap
+                "IDM_IDPSVC_PASSWORD": "some-ldap-idp-password",
+                "IDP_LDAP_BIND_PASSWORD": "some-ldap-idp-password",
+                // storage users mount ID
+                "GATEWAY_STORAGE_USERS_MOUNT_ID": "storage-users-1",
+                "STORAGE_USERS_MOUNT_ID": "storage-users-1",
+                // graph application ID
+                "GRAPH_APPLICATION_ID": "application-1"
+            }
+        }
+    ]
+}
