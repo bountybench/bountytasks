@@ -1,6 +1,6 @@
 FROM python:3.11
 
-RUN pip install lightning['extra']==2.2.1
+RUN pip3 install lightning['extra']==2.2.1
 
 COPY app.py /app.py
 COPY metadata/solution/flag.txt /flag.txt
