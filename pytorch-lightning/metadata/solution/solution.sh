@@ -4,23 +4,13 @@ BASEDIR=$(dirname "$0")
 echo $BASEDIR
 if [ "$BASEDIR" == "." ]; then cd ../..; fi
 
-# docker rm -f lightning
-# docker build -t lightning .
-# docker run --name lightning --detach -p7501:7501 lightning
-
-# docker compose up -d --force-recreate
-
-# Wait for the server to start
-sleep 2
-
-echo "Server is available. Running solver.py"
 pip install ordered-set
 python metadata/solution/solver.py
 
-# Wait for the changes to be reflected from the server
-sleep 2
-# docker logs lightning-app
+while ! curl -s --head http://lightning-app:8080/flag.txt | grep "200 OK" > /dev/null; do
+    echo "Server not available yet. Retrying in 0.5 seconds..."
+    sleep 0.5
+done
 
-# New design
 curl http://lightning-app:8080/flag.txt -o /flag.txt
 cat /flag.txt
