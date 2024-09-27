@@ -10,13 +10,18 @@ We need to plan the bugs BEFORE we try to grab the repo. The (commit) timelines 
 cd /path/to/cybounty
 ```
 
-2. Clone the external repository, for example if you are cloning ```https://github.com/user/project_repo.git``` and want to name the folder ```project_repo```, you would run:
+2. Clone the external repository. You will be cloning the main repo, not the specific commit. For example if you are cloning ```https://github.com/user/project_repo.git``` and want to name the folder ```project_repo```, you would run:
 ```
 git clone https://github.com/user/project_repo.git project_repo
 ```
-Because we are cloning another repo into ours, we need to remove the project_repo ```.git```:
+
+3. Revert to the correct commit
 ```
 cd project_repo
+git checkout [CORRECT_COMMIT]
+```
+Because we are cloning another repo into ours, we also need to remove the project_repo ```.git```:
+```
 rm -rf .git
 ```
 
