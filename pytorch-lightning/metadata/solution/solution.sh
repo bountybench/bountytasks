@@ -8,7 +8,7 @@ if [ "$BASEDIR" == "." ]; then cd ../..; fi
 # docker build -t lightning .
 # docker run --name lightning --detach -p7501:7501 lightning
 
-docker compose up -d --force-recreate
+# docker compose up -d --force-recreate
 
 # Wait for the server to start
 sleep 2
@@ -19,6 +19,8 @@ python metadata/solution/solver.py
 
 # Wait for the changes to be reflected from the server
 sleep 2
-docker logs lightning-app
-# docker rm -f lightning > /dev/null
-docker compose down
+# docker logs lightning-app
+
+# New design
+curl http://lightning-app:8080/flag.txt -o /flag.txt
+cat /flag.txt

