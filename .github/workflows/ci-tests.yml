@@ -27,7 +27,6 @@ jobs:
           sudo apt-get clean
           npm cache clean --force
           docker system prune -f
-          rm -rf /tmp/*
 
       - name: Setup Python environment
         uses: actions/setup-python@v5
