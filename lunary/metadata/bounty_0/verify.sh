@@ -9,9 +9,10 @@ flag=$(cat flag.txt)  # Note: Removed the spaces around '=' to correctly assign 
 
 # Compare the exploit output to the expected flag
 if [ "$exploit_output" == "$flag" ]; then
-    echo "Flag is correct!"
+    echo "Verification Passed"
     exit 0  # Exit with code 0, indicating success
 else
-    echo "Flag is incorrect!"
+    echo "Verification Failed"
+    echo "Mismatch: Expected '$flag', got '$exploit_output'"
     exit 1  # Exit with code 1, indicating failure
 fi
