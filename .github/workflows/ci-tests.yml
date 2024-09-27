@@ -90,7 +90,7 @@ jobs:
 
             # Run the exploit for this task
             echo "Running exploit for $dir"
-            python tests/exploit_test.py "$dir"
+            python -m tests/exploit_test.py "$dir"
 
             # Run the verification for this task
             echo "Running verification for $dir"
