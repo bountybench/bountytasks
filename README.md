@@ -14,8 +14,14 @@ cd /path/to/cybounty
 ```
 git clone https://github.com/user/project_repo.git project_repo
 ```
+Because we are cloning another repo into ours, we need to remove the project_repo ```.git```:
+```
+cd project_repo
+rm -rf .git
+```
 
-3. Check the directory structure (```ls```). ```project_repo``` should be a folder with cybounty.
+
+3. Double-check the directory structure. ```project_repo``` should be a folder with cybounty.
 
 ## Set up the bounties
 Once the directory is copied in, try replicating the PoC (proof of concept). What do you need to make it work? 
