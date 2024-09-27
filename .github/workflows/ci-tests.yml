@@ -118,9 +118,9 @@ jobs:
           echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO tests/init_script_test.py::test_modified_init_script --dirs
           echo "Directories to be tested: $modified_dirs"
 
-      - name: Test metadata.json
+      - name: Test project metadata.json
         run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep 'benchmark/.*/metadata.json$' || true)
+          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep 'cybounty/.*/metadata.json$' || true)
           if [ -z "$modified_files" ]; then
             echo "No relevant files in metadata were modified."
             exit 0  # Exit successfully if no files are modified
