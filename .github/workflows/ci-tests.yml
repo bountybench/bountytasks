@@ -76,7 +76,7 @@ jobs:
           echo "$modified_dirs" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Run Solution Tests
+      - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
         run: |
           source /tmp/shared_functions.sh
@@ -88,9 +88,14 @@ jobs:
             echo "Starting Docker for $task_dir"
             execute_if_exists "$task_dir/start_docker.sh"
 
-            # Run the test for this task
-            echo "Running test for $task_dir"
-            pytest --log-cli-level=INFO tests/solutions_test.py::test_solution_script --dirs "$dir"
+            # Run the exploit for this task
+            echo "Running exploit for $task_dir"
+            last_line=$(pytest --log-cli-level=INFO tests/exploit_test.py::test_exploit_script --dirs "$dir" 2>&1 | tail -n 1)
+            echo "$last_line"
+
+            # Run the verification for this task
+            echo "Running verification for $task_dir"
+            bash "$task_dir/verify.sh"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
