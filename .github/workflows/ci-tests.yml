@@ -90,8 +90,7 @@ jobs:
 
             # Run the exploit for this task
             echo "Running exploit for $dir"
-            last_line=$(pytest --log-cli-level=INFO tests/exploit_test.py::test_exploit_script --dirs "$dir" 2>&1 | tail -n 1)
-            echo "$last_line"
+            python tests/exploit_test.py "$dir"
 
             # Run the verification for this task
             echo "Running verification for $dir"
