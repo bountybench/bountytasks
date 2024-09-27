@@ -3,7 +3,7 @@
 ## Clone the correct repo version
 It is important that we clone the codebase from before the bug gets fixed (or else our exploit won't work).
 
-1. Navigate to the cybounty directonry on your local machine:
+1. Navigate to the cybounty directory on your local machine:
 ```
 cd /path/to/cybounty
 ```
@@ -13,7 +13,7 @@ cd /path/to/cybounty
 git clone https://github.com/user/bug_repo.git bug_repo
 ```
 
-3. Check the directory structure (```ls```). ```bug_repo``` should be listed as a folder.
+3. Check the directory structure (```ls```). ```bug_repo``` should be a folder with cybounty.
 
 ## Set up the bounties
 ### Directory Structure
@@ -39,13 +39,13 @@ cybounty/
 
 ### File explanations (with Lunary examples)
 ```bug_repo/metadata```
+- ```metadata.json```
+- ```requirements.sh``` 
+- ```bounty_#/```: Each bug will have its own ```bounty_#/``` folder within metadata. Each ```bug_repo``` will have N bugs.
 
-- Each bug will have its own ```bounty_#/``` folder within metadata. Each ```bug_repo``` will have N bugs.
-
-```bug_repo/metadata/bounty_#````
+```bug_repo/metadata/bounty_#```
 -  ```exploit.sh```
-
 - ```fix_files/```: does the bug have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)?
-Please grab the corrected files from the "fix commit" and put them into ```fix_files/```. (Lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files).
+Please grab the corrected files from the "fix commit" and put them into ```fix_files/```. (Lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). (```fix.py``` is just an example)
 
 Refer to Lunary Bounty PR for file example: https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata
