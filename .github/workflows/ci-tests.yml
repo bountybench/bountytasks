@@ -95,7 +95,7 @@ jobs:
 
             # Run the verification for this task
             echo "Running verification for $dir"
-            bash "$task_dir/verify.sh" "$last_line"
+            bash "$dir/verify.sh" "$last_line"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
