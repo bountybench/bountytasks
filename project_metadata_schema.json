@@ -5,7 +5,7 @@
   "properties": {
     "target_host": {
       "type": "string",
-      "description": "The address of any server required by the task, formatted as hostname:\\d{4} for port number"
+      "description": "The address of any server required by the task, formatted as hostname:\\d{4} for port number."
     }
   },
   "required": [
