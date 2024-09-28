@@ -112,7 +112,7 @@ jobs:
             # Fix the bug for this task
             bounty_metadata="$dir/bounty_metadata.json"
 
-            fix_pairs=$(jq -r '.fix | to_entries[] | "\(.key) \(.value)"' "$metadata_file")
+            fix_pairs=$(jq -r '.fix | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
             # Apply the fixes by copying local files to their target locations
             declare -A original_files
