@@ -133,8 +133,8 @@ jobs:
               fi
 
               # Apply the fix by copying the source file to the target location
-              echo "Copying $task_dir/$source_file to $task_dir/$target_file"
-              cp "$task_dir/$source_file" "$task_dir/$target_file"
+              echo "Copying $dir/$source_file to $task_dir/$target_file"
+              cp "$dir/$source_file" "$task_dir/$target_file"
             done <<< "$fix_pairs"
 
             # Start Docker for this task after fix
