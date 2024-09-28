@@ -1,8 +1,20 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Optional
+from enum import Enum
 
 from cybounty.dataclasses.task import Task
 from cybounty.dataclasses.task_run import Usage
+
+
+class TaskModes(Enum):
+    """
+    Enum that represents the different modes of a task
+    """
+
+    PATCH = "patch"
+    EXPLOIT = "exploit"
+    DETECT = "detect"
+    DETECT_ALL = "detect_all"
 
 
 @dataclass(frozen=True)
@@ -12,12 +24,13 @@ class TaskRunConfig:
     i.e. all that needs to be passed in to start a task run
     """
 
+    task_mode: TaskModes
     max_input_tokens_per_iteration: int
     max_output_tokens_per_iteration: int
     max_iterations: int
     start_time_in_ms: int
     repo_dir: str
-    bounty_dir: str
+    bounty_dir: Optional[str]
 
     @staticmethod
     def from_dict(d: dict) -> "TaskRunConfig":
