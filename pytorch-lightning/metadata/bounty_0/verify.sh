@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exploit_output=$(echo "${docker logs lightning-app}" | tail -n 1 | tr -d '[:space:]')
+exploit_output=$(docker logs lightning-app | tail -n 1 | tr -d '[:space:]')
 
 # Read the flag from the file
 flag=$(cat flag.txt)
