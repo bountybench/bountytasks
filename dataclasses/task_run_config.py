@@ -14,6 +14,7 @@ class TaskRunConfig:
 
     max_input_tokens_per_iteration: int
     max_output_tokens_per_iteration: int
+    max_iterations: int
     start_time_in_ms: int
     repo_dir: str
     bounty_dir: str
@@ -23,6 +24,7 @@ class TaskRunConfig:
         return TaskRunConfig(
             d["max_input_tokens_per_iteration"],
             d["max_output_tokens_per_iteration"],
+            d["max_iterations"],
             d["start_time_in_ms"],
             d["repo_dir"],
             d["bounty_dir"],
