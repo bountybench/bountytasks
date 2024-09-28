@@ -1,0 +1,87 @@
+import logging
+import os
+import unittest
+import subprocess
+from pathlib import Path
+import shutil
+import tempfile
+import json
+
+import pytest
+
+from tests.util import DOCKER_SOCKET, PROJECT_DIR, DockerHelper
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(scope="session")
+def dirs(request):
+    return request.config.getoption("--dirs")
+
+
+@pytest.fixture(scope="session")
+def docker_helper():
+    return DockerHelper()
+
+
+def test_fix_script(dirs, docker_helper):
+    """Test exploits within given directories."""
+    if not dirs:
+        logger.info("No directories provided. Skipping tests.")
+        return
+
+    for i, dir_path in enumerate(dirs):
+        run_exploit_script(dir_path, i + 1, len(dirs), docker_helper)
+
+
+def run_exploit_script(path, index, total, docker_helper):
+    logger.info(f"Testing exploit {index}/{total} after fix: {path}")
+
+    volumes = {
+        PROJECT_DIR: {"bind": "/app/", "mode": "ro"},
+        DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
+    }
+
+    container = docker_helper.run_container("./exploit.sh", f"/app/{path}", volumes)
+
+    try:
+        last_line = handle_container_logs(container)
+        run_verify_script(path, last_line)
+    finally:
+        container.remove()
+
+
+def run_verify_script(path, exploit_output):
+    logger.info(f"Running verify script for {path}")
+    logger.info(f"Exploit output: {exploit_output}")
+
+    # Run the verify script and capture the exit code
+    result = subprocess.run(
+        ["bash", "./verify.sh", exploit_output],
+        cwd=path,
+        capture_output=True,
+        text=True,
+    )
+
+    # Log the output from the verify script
+    if result.stdout:
+        logger.info(f"Verify script output:\n{result.stdout}")
+    if result.stderr:
+        logger.error(f"Verify script output:\n{result.stderr}")
+
+    # Check the return code
+    if result.returncode == 0:
+        # Mark pytest as failed if the verify script fails
+        pytest.fail(f"Fix failed for {path}.")
+
+
+def handle_container_logs(container):
+    """Retrieve and log container output."""
+    last_line = ""
+    try:
+        for line in container.logs(stdout=True, stderr=True, stream=True):
+            last_line = line.decode().strip()
+    except Exception as e:
+        logger.error(f"Error streaming logs: {e}")
+    return last_line

@@ -101,6 +101,65 @@ jobs:
           done
           echo "All tasks processed."
 
+      - name: Run Fix Tests
+        if: steps.modified-dirs.outputs.modified_dirs != ''
+        run: |
+          source /tmp/shared_functions.sh
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Processing bug bounty: $dir"
+
+            # Fix the bug for this task
+            bounty_metadata="$dir/bounty_metadata.json"
+
+            fix_pairs=$(jq -r '.fix | to_entries[] | "\(.key) \(.value)"' "$metadata_file")
+
+            # Apply the fixes by copying local files to their target locations
+            declare -A original_files
+            echo "Applying fixes for $dir"
+            while read -r source_file target_file; do
+              # Ensure the target directory exists
+              target_dir=$(dirname "$target_file")
+              if [ ! -d "$target_dir" ]; then
+                echo "Creating directory $target_dir"
+                mkdir -p "$target_dir"
+              fi
+
+              # Store the original file to restore later
+              original_files["$target_file"]=$(mktemp)
+              if [ -f "$target_file" ]; then
+                cp "$target_file" "${original_files["$target_file"]}"
+              fi
+
+              # Apply the fix by copying the source file to the target location
+              echo "Copying $source_file to $target_file"
+              cp "$source_file" "$target_file"
+            done <<< "$fix_pairs"
+
+            # Start Docker for this task after fix
+            echo "Starting Docker for $task_dir"
+            execute_if_exists "$task_dir/start_docker.sh"
+
+            # Run the fix test for this task
+            echo "Running fix test for $dir"
+            pytest --log-cli-level=INFO tests/exploit_test.py::test_exploit_script --dirs "$dir"
+
+            # Stop Docker for this task
+            echo "Stopping Docker for $task_dir"
+            execute_if_exists "$task_dir/stop_docker.sh"
+
+            # Restore the original files after testing
+            echo "Restoring original files for $dir"
+            for target_file in "${!original_files[@]}"; do
+              echo "Restoring $target_file"
+              mv "${original_files["$target_file"]}" "$target_file"
+            done
+
+            echo "Completed processing bug bounty: $dir"
+            echo "-----------------------------------"
+          done
+          echo "All tasks processed."
+
       - name: Test init_script.sh
         run: |
           modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
