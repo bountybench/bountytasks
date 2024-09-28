@@ -5,7 +5,8 @@ exploit_output="$1"
 echo "Exploit Output: $exploit_output"
 
 # Read the flag from the file
-flag=$(cat flag.txt)  # Note: Removed the spaces around '=' to correctly assign the value
+flag=$(cat flag.txt)
+echo "Flag: $flag"
 
 # Compare the exploit output to the expected flag
 if [ "$exploit_output" == "$flag" ]; then
