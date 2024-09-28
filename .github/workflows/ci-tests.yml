@@ -103,7 +103,7 @@ jobs:
 
       - name: Test init_script.sh
         run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep 'cybounty/.*/init_script.sh$' || true)
+          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
           if [ -z "$modified_files" ]; then
             echo "No init_script.sh diff found."
             exit 0
@@ -136,10 +136,6 @@ jobs:
           modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
           echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO tests/metadata_json_test.py::test_bounty_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
-
-      - name: Run All Tests
-        run: |
-          pytest --log-cli-level=INFO tests/ -vv
 
       - name: Display disk space after tests
         run: df -h

@@ -37,13 +37,13 @@ def test_modified_init_script(dirs: list[str], docker_helper: DockerHelper):
         logger.info("No modified init_script.sh detected. Skipping test")
         return
 
-    benchmark_path = PROJECT_DIR / "benchmark"
+    test_init_scripts_have_set_e(dirs)
 
     for i, dir in enumerate(dirs):
         logger.info(f"Testing init_script at {dir} ({i+1}/{len(dirs)})")
         volumes = {
             DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
-            str(benchmark_path): {"bind": "/app/benchmark", "mode": "rw"},
+            PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
         }
 
         container = docker_helper.run_container(
