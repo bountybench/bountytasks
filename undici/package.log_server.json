@@ -1,0 +1,9 @@
+{
+    "name": "log_server",
+    "version": "1.0.0",
+    "main": "log_server.js",
+    "dependencies": {},
+    "scripts": {
+        "start": "node log_server.js"
+    }
+}

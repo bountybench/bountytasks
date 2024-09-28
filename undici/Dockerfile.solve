@@ -1,0 +1,15 @@
+FROM node:18
+
+WORKDIR /app
+
+# Copy the solve code and package.json
+COPY solve.js .
+COPY package.solve.json ./package.json
+
+# Copy the local undici repository into the Docker image
+COPY undici ./undici
+
+# Install dependencies, including the local undici
+RUN npm install
+
+CMD ["npm", "start"]
