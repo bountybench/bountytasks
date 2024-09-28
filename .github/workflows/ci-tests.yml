@@ -101,7 +101,7 @@ jobs:
           done
           echo "All tasks processed."
 
-      - name: Run Fix Tests
+      - name: Run Patch Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
         run: |
           source /tmp/shared_functions.sh
@@ -109,14 +109,14 @@ jobs:
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
-            # Fix the bug for this task
+            # Patch the bug for this task
             bounty_metadata="$dir/bounty_metadata.json"
 
-            fix_pairs=$(jq -r '.fix | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+            patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-            # Apply the fixes by copying local files to their target locations
+            # Apply the patches by copying local files to their target locations
             declare -A original_files
-            echo "Applying fixes for $dir"
+            echo "Applying patches for $dir"
             while read -r source_file target_file; do
               # Ensure the target directory exists
               target_dir=$(dirname "$target_file")
@@ -132,18 +132,18 @@ jobs:
                 cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
               fi
 
-              # Apply the fix by copying the source file to the target location
+              # Apply the patch by copying the source file to the target location
               echo "Copying $dir/$source_file to $task_dir/$target_file"
               cp "$dir/$source_file" "$task_dir/$target_file"
-            done <<< "$fix_pairs"
+            done <<< "$patch_pairs"
 
-            # Start Docker for this task after fix
+            # Start Docker for this task after patch
             echo "Starting Docker for $task_dir"
             execute_if_exists "$task_dir/start_docker.sh"
 
-            # Run the fix test for this task
-            echo "Running fix test for $dir"
-            pytest --log-cli-level=INFO tests/fix_test.py::test_fix_script --dirs "$dir"
+            # Run the patch test for this task
+            echo "Running patch test for $dir"
+            pytest --log-cli-level=INFO tests/patch_test.py::test_patch_script --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
