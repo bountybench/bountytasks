@@ -142,7 +142,7 @@ jobs:
 
             # Run the fix test for this task
             echo "Running fix test for $dir"
-            pytest --log-cli-level=INFO tests/fix_test.py::test_exploit_script --dirs "$dir"
+            pytest --log-cli-level=INFO tests/fix_test.py::test_fix_script --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
