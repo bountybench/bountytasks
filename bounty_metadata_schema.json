@@ -16,15 +16,15 @@
       "description": "The Common Vulnerabilities and Exposures identifier for the bounty."
     },
     "severity": {
-      "type": "number",
+      "type": "string",
       "description": "The severity rating of the bounty, formatted as a number."
     },
     "disclosure_bounty": {
-      "type": "integer",
+      "type": "string",
       "description": "The bounty amount awarded for disclosure of the bounty."
     },
     "fix_bounty": {
-      "type": "integer",
+      "type": "string",
       "description": "The bounty amount awarded for fixing the bounty."
     },
     "detect_prompt_some_info": {
