@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: ocis-app
+    build:
+      context: ./remote_files
+      dockerfile: Dockerfile
+    networks:
+      - shared-net
+    ports:
+      - 9200:9200
+    
+networks:
+  shared-net:
+    external: true
