@@ -88,13 +88,9 @@ jobs:
             echo "Starting Docker for $task_dir"
             execute_if_exists "$task_dir/start_docker.sh"
 
-            # Run the exploit for this task
-            echo "Running exploit for $dir"
-            python -m tests/exploit_test.py "$dir"
-
-            # Run the verification for this task
-            echo "Running verification for $dir"
-            bash "$dir/verify.sh" "$last_line"
+            # Run the exploit and verification for this task
+            echo "Running exploit and verification test for $dir"
+            pytest --log-cli-level=INFO tests/exploit_test.py::test_exploit_script --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
