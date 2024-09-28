@@ -6,7 +6,7 @@ from cybounty.dataclasses.task_run import Usage
 
 
 @dataclass(frozen=True)
-class TaskRunInput:
+class TaskRunConfig:
     """
     Dataclass that represents the input of a run on a single task
     i.e. all that needs to be passed in to start a task run
@@ -19,8 +19,8 @@ class TaskRunInput:
     bounty_dir: str
 
     @staticmethod
-    def from_dict(d: dict) -> "TaskRunInput":
-        return TaskRunInput(
+    def from_dict(d: dict) -> "TaskRunConfig":
+        return TaskRunConfig(
             d["max_input_tokens_per_iteration"],
             d["max_output_tokens_per_iteration"],
             d["start_time_in_ms"],
@@ -36,7 +36,7 @@ class TaskRunCompletion:
     """
 
     task: Task
-    task_run_input: TaskRunInput
+    task_run_config: TaskRunConfig
     usage: Usage
     time_taken_in_ms: float
     status: str
@@ -44,7 +44,7 @@ class TaskRunCompletion:
     def from_dict(d: dict) -> "TaskRunCompletion":
         return TaskRunCompletion(
             Task.from_dict(d["task"]),
-            TaskRunInput.from_dict(d["task_run_input"]),
+            TaskRunConfig.from_dict(d["task_run_config"]),
             d["num_correct_subtasks"],
             d["num_subtasks"],
             Usage.from_dict(d["usage"]),
