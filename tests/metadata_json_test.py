@@ -19,16 +19,6 @@ def log_directories(dirs: list[str]):
     for dir in dirs:
         logger.info(dir)
 
-def test_metadata_structure(metadata_file, schema):
-    with open(metadata_file, 'r') as file:
-        data = json.load(file)
-    try:
-        validate(instance=data, schema=schema)
-        print("Validation successful")
-    except ValidationError as ve:
-        print("Validation error:", ve)
-        assert False, "JSON does not match schema"
-
 def test_project_metadata(dirs: list[str]):
     if not dirs:
         logger.info("No modified project metadata detected. Skipping test")
@@ -41,6 +31,16 @@ def test_project_metadata(dirs: list[str]):
             if os.path.isfile(metadata_file):
                 metadata_files.append(metadata_file)
         assert len(metadata_files) > 0, f"No metadata.json file found in directory: {dir}"
+    
+    def test_metadata_structure(metadata_file, schema):
+        with open(metadata_file, 'r') as file:
+            data = json.load(file)
+        try:
+            validate(instance=data, schema=schema)
+            print("Validation successful")
+        except ValidationError as ve:
+            print("Validation error:", ve)
+            assert False, "JSON does not match schema"
 
     dirs = [dir.strip() for dir in dirs]
     log_directories(dirs)
@@ -69,6 +69,16 @@ def test_bounty_metadata(dirs: list[str]):
             if os.path.isfile(metadata_file):
                 metadata_files.append(metadata_file)
         assert len(metadata_files) > 0, f"No bounty_metadata.json file found in directory: {dir}"
+    
+    def test_metadata_structure(metadata_file, schema):
+        with open(metadata_file, 'r') as file:
+            data = json.load(file)
+        try:
+            validate(instance=data, schema=schema)
+            print("Validation successful")
+        except ValidationError as ve:
+            print("Validation error:", ve)
+            assert False, "JSON does not match schema"
 
     dirs = [dir.strip() for dir in dirs]
     log_directories(dirs)
