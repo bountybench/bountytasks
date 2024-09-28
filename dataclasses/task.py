@@ -7,11 +7,11 @@ class Task:
     A task represents a single bug bounty problem.
     """
 
-    # Path to the repo
-    repo_path: str
+    # Directory to the repo
+    repo_dir: str
 
-    # Path to the bounty
-    bounty_path: str
+    # Directory to the bounty
+    bounty_dir: str
 
     # Link to the bounty
     bounty_link: str
