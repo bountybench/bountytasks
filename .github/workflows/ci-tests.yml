@@ -127,8 +127,8 @@ jobs:
 
               # Store the original file to restore later
               if [ -f "$task_dir/$target_file" ]; then
-                echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
                 original_files["$task_dir/$target_file"]=$(mktemp)
+                echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
                 cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
               fi
 
