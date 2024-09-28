@@ -2,9 +2,6 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
-from cyagent.dataclasses.agent_spec import IterationConfig
-from cybounty.dataclasses.task import Subtask
-
 
 @dataclass(frozen=True)
 class Usage:
@@ -24,33 +21,6 @@ class Usage:
             d["output_tokens_used"],
             d["total_tokens"],
             d["iterations_used"],
-        )
-
-
-@dataclass(frozen=True)
-class SubtaskRun:
-    """
-    Dataclass that represents a run on a single subtask, which consists of a list of iterations
-    """
-
-    iterations: List["Iteration"]
-    iteration_config: IterationConfig
-    subtask: Subtask
-    score: float
-    time_taken_in_ms: float
-    completion_status: "CompletionStatus"
-    solved_with_hint: bool
-
-    @staticmethod
-    def from_dict(d: dict) -> "SubtaskRun":
-        return SubtaskRun(
-            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
-            IterationConfig.from_dict(d["iteration_config"]),
-            Subtask.from_dict(d["subtask"]),
-            d["score"],
-            d["time_taken_in_ms"],
-            CompletionStatus(d["completion_status"]),
-            d["solved_with_hint"],
         )
 
 
