@@ -44,8 +44,8 @@ func DefaultConfig() *config.Config {
 			SkipUserInfo:            false,
 			UserinfoCache: &config.Cache{
 				Store:    "memory",
-				Nodes:    []string{"127.0.0.1:9233"},
-				Database: "cache-userinfo",
+				Database: "ocis",
+				Table:    "userinfo",
 				TTL:      time.Second * 10,
 			},
 			JWKS: config.JWKS{
@@ -124,11 +124,6 @@ func DefaultPolicies() []config.Policy {
 				},
 				{
 					// reroute oc10 notifications endpoint to userlog service
-					Endpoint: "/ocs/v2.php/apps/notifications/api/v1/notifications/sse",
-					Service:  "com.owncloud.sse.sse",
-				},
-				{
-					// reroute oc10 notifications endpoint to userlog service
 					Endpoint: "/ocs/v2.php/apps/notifications/api/v1/notifications",
 					Service:  "com.owncloud.userlog.userlog",
 				},
@@ -142,14 +137,6 @@ func DefaultPolicies() []config.Policy {
 					Endpoint:    "/ocs/v[12].php/config",
 					Service:     "com.owncloud.web.frontend",
 					Unprotected: true,
-				},
-				{
-					Endpoint: "/sciencemesh/",
-					Service:  "com.owncloud.web.ocm",
-				},
-				{
-					Endpoint: "/ocm/",
-					Service:  "com.owncloud.web.ocm",
 				},
 				{
 					Endpoint: "/ocs/",
@@ -276,6 +263,14 @@ func EnsureDefaults(cfg *config.Config) {
 		cfg.OIDC.UserinfoCache = &config.Cache{}
 	}
 
+	if cfg.TokenManager == nil && cfg.Commons != nil && cfg.Commons.TokenManager != nil {
+		cfg.TokenManager = &config.TokenManager{
+			JWTSecret: cfg.Commons.TokenManager.JWTSecret,
+		}
+	} else if cfg.TokenManager == nil {
+		cfg.TokenManager = &config.TokenManager{}
+	}
+
 	if cfg.MachineAuthAPIKey == "" && cfg.Commons != nil && cfg.Commons.MachineAuthAPIKey != "" {
 		cfg.MachineAuthAPIKey = cfg.Commons.MachineAuthAPIKey
 	}
@@ -292,7 +287,7 @@ func EnsureDefaults(cfg *config.Config) {
 // Sanitize sanitizes the configuration
 func Sanitize(cfg *config.Config) {
 	if cfg.Policies == nil {
-		cfg.Policies = mergePolicies(DefaultPolicies(), cfg.AdditionalPolicies)
+		cfg.Policies = DefaultPolicies()
 	}
 
 	if cfg.PolicySelector == nil {
@@ -306,22 +301,4 @@ func Sanitize(cfg *config.Config) {
 	if cfg.HTTP.Root != "/" {
 		cfg.HTTP.Root = strings.TrimSuffix(cfg.HTTP.Root, "/")
 	}
-}
-
-func mergePolicies(policies []config.Policy, additionalPolicies []config.Policy) []config.Policy {
-	for _, p := range additionalPolicies {
-		found := false
-		for i, po := range policies {
-			if po.Name == p.Name {
-				po.Routes = append(po.Routes, p.Routes...)
-				policies[i] = po
-				found = true
-				break
-			}
-		}
-		if !found {
-			policies = append(policies, p)
-		}
-	}
-	return policies
 }

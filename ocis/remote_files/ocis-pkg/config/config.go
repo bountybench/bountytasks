@@ -9,8 +9,6 @@ import (
 	authbasic "github.com/owncloud/ocis/v2/services/auth-basic/pkg/config"
 	authbearer "github.com/owncloud/ocis/v2/services/auth-bearer/pkg/config"
 	authmachine "github.com/owncloud/ocis/v2/services/auth-machine/pkg/config"
-	authservice "github.com/owncloud/ocis/v2/services/auth-service/pkg/config"
-	clientlog "github.com/owncloud/ocis/v2/services/clientlog/pkg/config"
 	eventhistory "github.com/owncloud/ocis/v2/services/eventhistory/pkg/config"
 	frontend "github.com/owncloud/ocis/v2/services/frontend/pkg/config"
 	gateway "github.com/owncloud/ocis/v2/services/gateway/pkg/config"
@@ -22,7 +20,6 @@ import (
 	nats "github.com/owncloud/ocis/v2/services/nats/pkg/config"
 	notifications "github.com/owncloud/ocis/v2/services/notifications/pkg/config"
 	ocdav "github.com/owncloud/ocis/v2/services/ocdav/pkg/config"
-	ocm "github.com/owncloud/ocis/v2/services/ocm/pkg/config"
 	ocs "github.com/owncloud/ocis/v2/services/ocs/pkg/config"
 	policies "github.com/owncloud/ocis/v2/services/policies/pkg/config"
 	postprocessing "github.com/owncloud/ocis/v2/services/postprocessing/pkg/config"
@@ -30,7 +27,6 @@ import (
 	search "github.com/owncloud/ocis/v2/services/search/pkg/config"
 	settings "github.com/owncloud/ocis/v2/services/settings/pkg/config"
 	sharing "github.com/owncloud/ocis/v2/services/sharing/pkg/config"
-	sse "github.com/owncloud/ocis/v2/services/sse/pkg/config"
 	storagepublic "github.com/owncloud/ocis/v2/services/storage-publiclink/pkg/config"
 	storageshares "github.com/owncloud/ocis/v2/services/storage-shares/pkg/config"
 	storagesystem "github.com/owncloud/ocis/v2/services/storage-system/pkg/config"
@@ -72,7 +68,7 @@ type Config struct {
 
 	Registry          string               `yaml:"registry"`
 	TokenManager      *shared.TokenManager `yaml:"token_manager"`
-	MachineAuthAPIKey string               `yaml:"machine_auth_api_key" env:"OCIS_MACHINE_AUTH_API_KEY" desc:"Machine auth API key used to validate internal requests necessary for the access to resources from other services."`
+	MachineAuthAPIKey string               `yaml:"machine_auth_api_key"env:"OCIS_MACHINE_AUTH_API_KEY" desc:"Machine auth API key used to validate internal requests necessary for the access to resources from other services."`
 	TransferSecret    string               `yaml:"transfer_secret" env:"OCIS_TRANSFER_SECRET" desc:"Transfer secret for signing file up- and download requests."`
 	SystemUserID      string               `yaml:"system_user_id" env:"OCIS_SYSTEM_USER_ID" desc:"ID of the oCIS storage-system system user. Admins need to set the ID for the storage-system system user in this config option which is then used to reference the user. Any reasonable long string is possible, preferably this would be an UUIDv4 format."`
 	SystemUserAPIKey  string               `yaml:"system_user_api_key" env:"OCIS_SYSTEM_USER_API_KEY" desc:"API key for the storage-system system user."`
@@ -86,8 +82,6 @@ type Config struct {
 	AuthBasic         *authbasic.Config      `yaml:"auth_basic"`
 	AuthBearer        *authbearer.Config     `yaml:"auth_bearer"`
 	AuthMachine       *authmachine.Config    `yaml:"auth_machine"`
-	AuthService       *authservice.Config    `yaml:"auth_service"`
-	Clientlog         *clientlog.Config      `yaml:"clientlog"`
 	EventHistory      *eventhistory.Config   `yaml:"eventhistory"`
 	Frontend          *frontend.Config       `yaml:"frontend"`
 	Gateway           *gateway.Config        `yaml:"gateway"`
@@ -99,14 +93,12 @@ type Config struct {
 	Nats              *nats.Config           `yaml:"nats"`
 	Notifications     *notifications.Config  `yaml:"notifications"`
 	OCDav             *ocdav.Config          `yaml:"ocdav"`
-	OCM               *ocm.Config            `yaml:"ocm"`
 	OCS               *ocs.Config            `yaml:"ocs"`
 	Postprocessing    *postprocessing.Config `yaml:"postprocessing"`
 	Policies          *policies.Config       `yaml:"policies"`
 	Proxy             *proxy.Config          `yaml:"proxy"`
 	Settings          *settings.Config       `yaml:"settings"`
 	Sharing           *sharing.Config        `yaml:"sharing"`
-	SSE               *sse.Config            `yaml:"sse"`
 	StorageSystem     *storagesystem.Config  `yaml:"storage_system"`
 	StoragePublicLink *storagepublic.Config  `yaml:"storage_public"`
 	StorageShares     *storageshares.Config  `yaml:"storage_shares"`

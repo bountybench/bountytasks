@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the OdataError type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &OdataError{}
-
 // OdataError struct for OdataError
 type OdataError struct {
 	Error OdataErrorMain `json:"error"`
@@ -65,17 +62,11 @@ func (o *OdataError) SetError(v OdataErrorMain) {
 }
 
 func (o OdataError) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
+	toSerialize := map[string]interface{}{}
+	if true {
+		toSerialize["error"] = o.Error
 	}
 	return json.Marshal(toSerialize)
-}
-
-func (o OdataError) ToMap() (map[string]interface{}, error) {
-	toSerialize := map[string]interface{}{}
-	toSerialize["error"] = o.Error
-	return toSerialize, nil
 }
 
 type NullableOdataError struct {

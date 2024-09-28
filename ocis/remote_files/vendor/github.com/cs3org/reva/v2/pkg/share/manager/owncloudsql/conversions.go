@@ -30,10 +30,9 @@ import (
 	collaboration "github.com/cs3org/go-cs3apis/cs3/sharing/collaboration/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	typespb "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
-	"github.com/cs3org/reva/v2/pkg/conversions"
+	conversions "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/status"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
-	"github.com/cs3org/reva/v2/pkg/utils"
 	"github.com/jellydator/ttlcache/v2"
 )
 
@@ -63,7 +62,6 @@ type DBShare struct {
 type UserConverter interface {
 	UserNameToUserID(ctx context.Context, username string) (*userpb.UserId, error)
 	UserIDToUserName(ctx context.Context, userid *userpb.UserId) (string, error)
-	GetUser(userid *userpb.UserId) (*userpb.User, error)
 }
 
 // GatewayUserConverter converts usernames and ids using the gateway
@@ -141,15 +139,6 @@ func (c *GatewayUserConverter) UserNameToUserID(ctx context.Context, username st
 	return getUserResponse.User.Id, nil
 }
 
-// GetUser gets the user
-func (c *GatewayUserConverter) GetUser(userid *userpb.UserId) (*userpb.User, error) {
-	gwc, err := pool.GetGatewayServiceClient(c.gwAddr)
-	if err != nil {
-		return nil, err
-	}
-	return utils.GetUser(userid, gwc)
-}
-
 func (m *mgr) formatGrantee(ctx context.Context, g *provider.Grantee) (int, string, error) {
 	var granteeType int
 	var formattedID string
@@ -214,7 +203,7 @@ func intTosharePerm(p int) (*provider.ResourcePermissions, error) {
 		return nil, err
 	}
 
-	return conversions.RoleFromOCSPermissions(perms, nil).CS3ResourcePermissions(), nil
+	return conversions.RoleFromOCSPermissions(perms).CS3ResourcePermissions(), nil
 }
 
 func intToShareState(g int) collaboration.ShareState {

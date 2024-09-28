@@ -61,6 +61,11 @@ type Property struct {
 	// hasValue indicates if a zero-value value means the property does not
 	// have a value or if it was the zero-value.
 	hasValue bool
+
+	// hasData indicates whether the created property contains data or not.
+	// Properties that do not contain data are invalid with no other check
+	// required.
+	hasData bool
 }
 
 // NewKeyProperty returns a new Property for key.
@@ -71,7 +76,7 @@ func NewKeyProperty(key string) (Property, error) {
 		return newInvalidProperty(), fmt.Errorf("%w: %q", errInvalidKey, key)
 	}
 
-	p := Property{key: key}
+	p := Property{key: key, hasData: true}
 	return p, nil
 }
 
@@ -90,6 +95,7 @@ func NewKeyValueProperty(key, value string) (Property, error) {
 		key:      key,
 		value:    value,
 		hasValue: true,
+		hasData:  true,
 	}
 	return p, nil
 }
@@ -111,7 +117,7 @@ func parseProperty(property string) (Property, error) {
 		return newInvalidProperty(), fmt.Errorf("%w: %q", errInvalidProperty, property)
 	}
 
-	var p Property
+	p := Property{hasData: true}
 	if match[1] != "" {
 		p.key = match[1]
 	} else {
@@ -128,6 +134,10 @@ func parseProperty(property string) (Property, error) {
 func (p Property) validate() error {
 	errFunc := func(err error) error {
 		return fmt.Errorf("invalid property: %w", err)
+	}
+
+	if !p.hasData {
+		return errFunc(fmt.Errorf("%w: %q", errInvalidProperty, p))
 	}
 
 	if !keyRe.MatchString(p.key) {
@@ -254,7 +264,7 @@ func NewMember(key, value string, props ...Property) (Member, error) {
 	if err := m.validate(); err != nil {
 		return newInvalidMember(), err
 	}
-	decodedValue, err := url.PathUnescape(value)
+	decodedValue, err := url.QueryUnescape(value)
 	if err != nil {
 		return newInvalidMember(), fmt.Errorf("%w: %q", errInvalidValue, value)
 	}
@@ -301,7 +311,7 @@ func parseMember(member string) (Member, error) {
 	// when converting the header into a data structure."
 	key = strings.TrimSpace(k)
 	var err error
-	value, err = url.PathUnescape(strings.TrimSpace(v))
+	value, err = url.QueryUnescape(strings.TrimSpace(v))
 	if err != nil {
 		return newInvalidMember(), fmt.Errorf("%w: %q", err, value)
 	}

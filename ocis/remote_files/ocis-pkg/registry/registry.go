@@ -13,7 +13,6 @@ import (
 	mdnsr "github.com/go-micro/plugins/v4/registry/mdns"
 	memr "github.com/go-micro/plugins/v4/registry/memory"
 	natsr "github.com/go-micro/plugins/v4/registry/nats"
-	"github.com/owncloud/ocis/v2/ocis-pkg/natsjsregistry"
 	mRegistry "go-micro.dev/v4/registry"
 	"go-micro.dev/v4/registry/cache"
 )
@@ -29,7 +28,6 @@ var (
 	reg       mRegistry.Registry
 )
 
-// Configure configures the registry
 func Configure(plugin string) {
 	if reg == nil {
 		regPlugin = plugin
@@ -68,10 +66,6 @@ func GetRegistry() mRegistry.Registry {
 			)
 		case "memory":
 			reg = memr.NewRegistry()
-		case "natsjs":
-			reg = natsjsregistry.NewRegistry(
-				mRegistry.Addrs(addresses...),
-			)
 		default:
 			reg = mdnsr.NewRegistry()
 		}

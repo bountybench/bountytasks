@@ -76,7 +76,7 @@ var strings = [...]string{
 	EOF:        "eof",
 	Whitespace: "whitespace",
 	Comment:    "comment",
-	Ident:      "identifier",
+	Ident:      "ident",
 	Package:    "package",
 	Import:     "import",
 	As:         "as",

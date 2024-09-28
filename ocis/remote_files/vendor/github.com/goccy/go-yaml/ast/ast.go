@@ -1506,7 +1506,9 @@ func (n *SequenceNode) Replace(idx int, value Node) error {
 func (n *SequenceNode) Merge(target *SequenceNode) {
 	column := n.Start.Position.Column - target.Start.Position.Column
 	target.AddColumn(column)
-	n.Values = append(n.Values, target.Values...)
+	for _, value := range target.Values {
+		n.Values = append(n.Values, value)
+	}
 }
 
 // SetIsFlowStyle set value to IsFlowStyle field recursively.

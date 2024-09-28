@@ -57,10 +57,7 @@ func Server(cfg *config.Config) *cli.Command {
 
 			gr.Add(func() error {
 				pidFile := path.Join(os.TempDir(), "revad-"+cfg.Service.Name+"-"+uuid.Must(uuid.NewV4()).String()+".pid")
-				rCfg, err := revaconfig.SharingConfigFromStruct(cfg, logger)
-				if err != nil {
-					return err
-				}
+				rCfg := revaconfig.SharingConfigFromStruct(cfg)
 				reg := registry.GetRegistry()
 
 				runtime.RunWithOptions(rCfg, pidFile,
@@ -77,7 +74,6 @@ func Server(cfg *config.Config) *cli.Command {
 					Msg("Shutting down server")
 
 				cancel()
-				os.Exit(1)
 			})
 
 			debugServer, err := debug.Server(

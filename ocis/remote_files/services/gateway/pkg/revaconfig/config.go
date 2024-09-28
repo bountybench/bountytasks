@@ -50,10 +50,7 @@ func GatewayConfigFromStruct(cfg *config.Config, logger log.Logger) map[string]i
 					// sharing is located on the sharing service
 					"usershareprovidersvc":          cfg.SharingEndpoint,
 					"publicshareprovidersvc":        cfg.SharingEndpoint,
-					"ocmshareprovidersvc":           cfg.OCMEndpoint,
-					"ocminvitemanagersvc":           cfg.OCMEndpoint,
-					"ocmproviderauthorizersvc":      cfg.OCMEndpoint,
-					"ocmcoresvc":                    cfg.OCMEndpoint,
+					"ocmshareprovidersvc":           cfg.SharingEndpoint,
 					"commit_share_to_storage_grant": cfg.CommitShareToStorageGrant,
 					"share_folder":                  cfg.ShareFolder, // ShareFolder is the location where to create shares in the recipient's storage provider.
 					// other
@@ -83,11 +80,9 @@ func GatewayConfigFromStruct(cfg *config.Config, logger log.Logger) map[string]i
 					"drivers": map[string]interface{}{
 						"static": map[string]interface{}{
 							"rules": map[string]interface{}{
-								"basic":           cfg.AuthBasicEndpoint,
-								"machine":         cfg.AuthMachineEndpoint,
-								"publicshares":    cfg.StoragePublicLinkEndpoint,
-								"serviceaccounts": cfg.AuthServiceEndpoint,
-								"ocmshares":       cfg.OCMEndpoint,
+								"basic":        cfg.AuthBasicEndpoint,
+								"machine":      cfg.AuthMachineEndpoint,
+								"publicshares": cfg.StoragePublicLinkEndpoint,
 							},
 						},
 					},

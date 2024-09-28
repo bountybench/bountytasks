@@ -8,10 +8,6 @@ import (
 	"github.com/cs3org/reva/v2/pkg/events/stream"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
-	"github.com/pkg/errors"
-	"go-micro.dev/v4"
-	"go-micro.dev/v4/events"
-
 	"github.com/owncloud/ocis/v2/ocis-pkg/account"
 	"github.com/owncloud/ocis/v2/ocis-pkg/cors"
 	"github.com/owncloud/ocis/v2/ocis-pkg/keycloak"
@@ -25,6 +21,9 @@ import (
 	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
 	graphMiddleware "github.com/owncloud/ocis/v2/services/graph/pkg/middleware"
 	svc "github.com/owncloud/ocis/v2/services/graph/pkg/service/v0"
+	"github.com/pkg/errors"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/events"
 )
 
 // Server initializes the http service and server.
@@ -84,7 +83,6 @@ func Server(opts ...Option) (http.Service, error) {
 	// how do we secure the api?
 	var requireAdminMiddleware func(stdhttp.Handler) stdhttp.Handler
 	var roleService svc.RoleService
-	var valueService settingssvc.ValueService
 	var gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
 	grpcClient, err := grpc.NewClient(append(grpc.GetClientOptions(options.Config.GRPCClientTLS), grpc.WithTraceProvider(options.TraceProvider))...)
 	if err != nil {
@@ -97,14 +95,7 @@ func Server(opts ...Option) (http.Service, error) {
 				account.JWTSecret(options.Config.TokenManager.JWTSecret),
 			))
 		roleService = settingssvc.NewRoleService("com.owncloud.api.settings", grpcClient)
-		valueService = settingssvc.NewValueService("com.owncloud.api.settings", grpcClient)
-		gatewaySelector, err = pool.GatewaySelector(
-			options.Config.Reva.Address,
-			append(
-				options.Config.Reva.GetRevaOptions(),
-				pool.WithRegistry(registry.GetRegistry()),
-				pool.WithTracerProvider(options.TraceProvider),
-			)...)
+		gatewaySelector, err = pool.GatewaySelector(options.Config.Reva.Address, append(options.Config.Reva.GetRevaOptions(), pool.WithRegistry(registry.GetRegistry()))...)
 		if err != nil {
 			return http.Service{}, errors.Wrap(err, "could not initialize gateway selector")
 		}
@@ -136,7 +127,6 @@ func Server(opts ...Option) (http.Service, error) {
 		svc.Middleware(middlewares...),
 		svc.EventsPublisher(publisher),
 		svc.WithRoleService(roleService),
-		svc.WithValueService(valueService),
 		svc.WithRequireAdminMiddleware(requireAdminMiddleware),
 		svc.WithGatewaySelector(gatewaySelector),
 		svc.WithSearchService(searchsvc.NewSearchProviderService("com.owncloud.api.search", grpcClient)),

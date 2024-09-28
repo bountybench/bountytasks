@@ -76,21 +76,10 @@ func (c *Config) MapOnExists(key string, dst any) error {
 //
 //	dbInfo := Db{}
 //	config.Structure("db", &dbInfo)
-func (c *Config) Structure(key string, dst any) (err error) {
+func (c *Config) Structure(key string, dst any) error {
 	var data any
-	// binding all data on key is empty.
+	// binding all data
 	if key == "" {
-		// fix: if c.data is nil, don't need to apply map structure
-		if len(c.data) == 0 {
-			// init default value by tag: default
-			if c.opts.ParseDefault {
-				err = structs.InitDefaults(dst, func(opt *structs.InitOptions) {
-					opt.ParseEnv = c.opts.ParseEnv
-				})
-			}
-			return
-		}
-
 		data = c.data
 	} else {
 		// binding sub-data of the config
@@ -101,22 +90,23 @@ func (c *Config) Structure(key string, dst any) (err error) {
 		}
 	}
 
-	// map structure from data
-	bindConf := c.opts.makeDecoderConfig()
-	// set result struct ptr
-	bindConf.Result = dst
-	decoder, err := mapstructure.NewDecoder(bindConf)
-	if err == nil {
-		if err = decoder.Decode(data); err != nil {
+	// init default value by tag: default
+	if c.opts.ParseDefault {
+		err := structs.InitDefaults(dst, func(opt *structs.InitOptions) {
+			opt.ParseEnv = c.opts.ParseEnv
+		})
+		if err != nil {
 			return err
 		}
 	}
 
-	// init default value by tag: default
-	if c.opts.ParseDefault {
-		err = structs.InitDefaults(dst, func(opt *structs.InitOptions) {
-			opt.ParseEnv = c.opts.ParseEnv
-		})
+	bindConf := c.opts.makeDecoderConfig()
+	// set result struct ptr
+	bindConf.Result = dst
+	decoder, err := mapstructure.NewDecoder(bindConf)
+
+	if err == nil {
+		err = decoder.Decode(data)
 	}
 	return err
 }

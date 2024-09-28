@@ -63,7 +63,6 @@ func Server(cfg *config.Config) *cli.Command {
 					Msg("Shutting down server")
 
 				cancel()
-				os.Exit(1)
 			})
 
 			debugServer, err := debug.Server(
@@ -76,16 +75,7 @@ func Server(cfg *config.Config) *cli.Command {
 				return err
 			}
 
-			gr.Add(debugServer.ListenAndServe, func(err error) {
-				logger.Error().Err(err).Str("server", cfg.Service.Name).
-					Msg("Shutting down debug server")
-				if err := debugServer.Shutdown(context.Background()); err != nil {
-					logger.Error().
-						Err(err).
-						Str("server", cfg.Service.Name).
-						Msg("Error during debug server shutdown")
-				}
-
+			gr.Add(debugServer.ListenAndServe, func(_ error) {
 				cancel()
 			})
 
@@ -104,22 +94,17 @@ func Server(cfg *config.Config) *cli.Command {
 					logger.Fatal().Err(err).Msg("can't connect to nats")
 				}
 
-				selector, err := pool.GatewaySelector(cfg.Reva.Address, pool.WithRegistry(registry.GetRegistry()), pool.WithTracerProvider(traceProvider))
+				selector, err := pool.GatewaySelector(cfg.Reva.Address, pool.WithRegistry(registry.GetRegistry()))
 				if err != nil {
 					return err
 				}
 
-				eventSVC, err := event.NewService(ctx, selector, stream, logger, *cfg)
+				eventSVC, err := event.NewService(selector, stream, logger, *cfg)
 				if err != nil {
-					logger.Fatal().Err(err).Msg("can't create event handler")
+					logger.Fatal().Err(err).Msg("can't create event service")
 				}
 
 				gr.Add(eventSVC.Run, func(_ error) {
-					logger.Error().
-						Err(err).
-						Str("server", cfg.Service.Name).
-						Msg("Shutting down event handler")
-
 					cancel()
 				})
 			}

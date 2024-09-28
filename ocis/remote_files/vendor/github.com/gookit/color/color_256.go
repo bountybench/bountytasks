@@ -43,8 +43,7 @@ const (
  * 8bit(256) Color: Bit8Color Color256
  *************************************************************/
 
-// Color256 256 color (8 bit), uint8 range at 0 - 255.
-// Support 256 color on windows CMD, PowerShell
+// Color256 256 color (8 bit), uint8 range at 0 - 255
 //
 // 颜色值使用10进制和16进制都可 0x98 = 152
 //
@@ -55,9 +54,10 @@ const (
 //
 // example:
 //
-//	fg color: [152, 0]
-//	bg color: [152, 1]
+//		fg color: [152, 0]
+//	 bg color: [152, 1]
 //
+// NOTICE: now support 256 color on windows CMD, PowerShell
 // lint warn - Name starts with package name
 type Color256 [2]uint8
 type Bit8Color = Color256 // alias
@@ -164,7 +164,9 @@ func (c Color256) String() string {
 }
 
 // IsFg color
-func (c Color256) IsFg() bool { return c[1] == AsFg }
+func (c Color256) IsFg() bool {
+	return c[1] == AsFg
+}
 
 // ToFg 256 color
 func (c Color256) ToFg() Color256 {
@@ -173,7 +175,9 @@ func (c Color256) ToFg() Color256 {
 }
 
 // IsBg color
-func (c Color256) IsBg() bool { return c[1] == AsBg }
+func (c Color256) IsBg() bool {
+	return c[1] == AsBg
+}
 
 // ToBg 256 color
 func (c Color256) ToBg() Color256 {
@@ -182,7 +186,9 @@ func (c Color256) ToBg() Color256 {
 }
 
 // IsEmpty value
-func (c Color256) IsEmpty() bool { return c[1] > 1 }
+func (c Color256) IsEmpty() bool {
+	return c[1] > 1
+}
 
 /*************************************************************
  * 8bit(256) Style

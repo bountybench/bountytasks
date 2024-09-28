@@ -66,11 +66,6 @@ func generateMarkdown(filepath string, servicename string) error {
 		return err
 	}
 
-	path := fmt.Sprintf("../../docs/services/%s", servicename)
-
-	if err := os.Mkdir(path, os.ModePerm); err != nil && !os.IsExist(err) {
-		return err
-	}
-
-	return os.WriteFile(path+"/_index.md", b.Bytes(), os.ModePerm)
+	targetFile := fmt.Sprintf("../../docs/services/%s/_index.md", servicename)
+	return os.WriteFile(targetFile, b.Bytes(), os.ModePerm)
 }

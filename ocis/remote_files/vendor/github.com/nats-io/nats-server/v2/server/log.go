@@ -66,20 +66,10 @@ func (s *Server) ConfigureLogger() {
 	}
 
 	if opts.LogFile != "" {
-		log = srvlog.NewFileLogger(opts.LogFile, opts.Logtime, opts.Debug, opts.Trace, true, srvlog.LogUTC(opts.LogtimeUTC))
+		log = srvlog.NewFileLogger(opts.LogFile, opts.Logtime, opts.Debug, opts.Trace, true)
 		if opts.LogSizeLimit > 0 {
 			if l, ok := log.(*srvlog.Logger); ok {
 				l.SetSizeLimit(opts.LogSizeLimit)
-			}
-		}
-		if opts.LogMaxFiles > 0 {
-			if l, ok := log.(*srvlog.Logger); ok {
-				al := int(opts.LogMaxFiles)
-				if int64(al) != opts.LogMaxFiles {
-					// set to default (no max) on overflow
-					al = 0
-				}
-				l.SetMaxNumFiles(al)
 			}
 		}
 	} else if opts.RemoteSyslog != "" {
@@ -94,7 +84,7 @@ func (s *Server) ConfigureLogger() {
 		if err != nil || (stat.Mode()&os.ModeCharDevice) == 0 {
 			colors = false
 		}
-		log = srvlog.NewStdLogger(opts.Logtime, opts.Debug, opts.Trace, colors, true, srvlog.LogUTC(opts.LogtimeUTC))
+		log = srvlog.NewStdLogger(opts.Logtime, opts.Debug, opts.Trace, colors, true)
 	}
 
 	s.SetLoggerV2(log, opts.Debug, opts.Trace, opts.TraceVerbose)
@@ -164,11 +154,8 @@ func (s *Server) ReOpenLogFile() {
 	if opts.LogFile == "" {
 		s.Noticef("File log re-open ignored, not a file logger")
 	} else {
-		fileLog := srvlog.NewFileLogger(
-			opts.LogFile, opts.Logtime,
-			opts.Debug, opts.Trace, true,
-			srvlog.LogUTC(opts.LogtimeUTC),
-		)
+		fileLog := srvlog.NewFileLogger(opts.LogFile,
+			opts.Logtime, opts.Debug, opts.Trace, true)
 		s.SetLogger(fileLog, opts.Debug, opts.Trace)
 		if opts.LogSizeLimit > 0 {
 			fileLog.SetSizeLimit(opts.LogSizeLimit)
@@ -225,14 +212,6 @@ func (s *Server) RateLimitWarnf(format string, v ...interface{}) {
 		return
 	}
 	s.Warnf("%s", statement)
-}
-
-func (s *Server) RateLimitDebugf(format string, v ...interface{}) {
-	statement := fmt.Sprintf(format, v...)
-	if _, loaded := s.rateLimitLogging.LoadOrStore(statement, time.Now()); loaded {
-		return
-	}
-	s.Debugf("%s", statement)
 }
 
 // Fatalf logs a fatal error

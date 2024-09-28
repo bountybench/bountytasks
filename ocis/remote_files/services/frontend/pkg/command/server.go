@@ -42,7 +42,7 @@ func Server(cfg *config.Config) *cli.Command {
 
 			defer cancel()
 
-			rCfg, err := revaconfig.FrontendConfigFromStruct(cfg, logger)
+			rCfg, err := revaconfig.FrontendConfigFromStruct(cfg)
 			if err != nil {
 				return err
 			}
@@ -65,7 +65,6 @@ func Server(cfg *config.Config) *cli.Command {
 					Msg("Shutting down server")
 
 				cancel()
-				os.Exit(1)
 			})
 
 			debugServer, err := debug.Server(
@@ -90,13 +89,6 @@ func Server(cfg *config.Config) *cli.Command {
 			if err := registry.RegisterService(ctx, httpSvc, logger); err != nil {
 				logger.Fatal().Err(err).Msg("failed to register the http service")
 			}
-
-			// add event handler
-			gr.Add(func() error {
-				return ListenForEvents(ctx, cfg, logger)
-			}, func(_ error) {
-				cancel()
-			})
 
 			return gr.Run()
 		},

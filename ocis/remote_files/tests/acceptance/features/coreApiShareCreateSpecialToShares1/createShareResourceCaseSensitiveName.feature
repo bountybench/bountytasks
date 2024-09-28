@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: Sharing resources with different case names with the sharee and checking the coexistence of resources on sharee/receivers side
   As a user
   I want to share resources with case sensitive names
@@ -9,7 +8,6 @@ Feature: Sharing resources with different case names with the sharee and checkin
       | username |
       | Alice    |
       | Brian    |
-    And user "Brian" has disabled auto-accepting 
 
 
   Scenario: sharing files with different case names with an internal user

@@ -26,10 +26,6 @@ There are three oCIS app driver containers that register Collabora and OnlyOffic
 
 The last four containers are the WOPI server, Collabora and OnlyOffice.
 
-## Overview Image
-
-{{< figure src="/ocis/deployment/ocis_and_wopi_drawio.svg" >}}
-
 ## Server Deployment
 
 ### Requirements

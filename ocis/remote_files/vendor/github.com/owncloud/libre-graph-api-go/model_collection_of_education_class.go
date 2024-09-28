@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the CollectionOfEducationClass type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CollectionOfEducationClass{}
-
 // CollectionOfEducationClass struct for CollectionOfEducationClass
 type CollectionOfEducationClass struct {
 	Value []EducationClass `json:"value,omitempty"`
@@ -41,7 +38,7 @@ func NewCollectionOfEducationClassWithDefaults() *CollectionOfEducationClass {
 
 // GetValue returns the Value field value if set, zero value otherwise.
 func (o *CollectionOfEducationClass) GetValue() []EducationClass {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		var ret []EducationClass
 		return ret
 	}
@@ -51,7 +48,7 @@ func (o *CollectionOfEducationClass) GetValue() []EducationClass {
 // GetValueOk returns a tuple with the Value field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *CollectionOfEducationClass) GetValueOk() ([]EducationClass, bool) {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		return nil, false
 	}
 	return o.Value, true
@@ -59,7 +56,7 @@ func (o *CollectionOfEducationClass) GetValueOk() ([]EducationClass, bool) {
 
 // HasValue returns a boolean if a field has been set.
 func (o *CollectionOfEducationClass) HasValue() bool {
-	if o != nil && !IsNil(o.Value) {
+	if o != nil && o.Value != nil {
 		return true
 	}
 
@@ -72,19 +69,11 @@ func (o *CollectionOfEducationClass) SetValue(v []EducationClass) {
 }
 
 func (o CollectionOfEducationClass) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o CollectionOfEducationClass) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Value) {
+	if o.Value != nil {
 		toSerialize["value"] = o.Value
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableCollectionOfEducationClass struct {

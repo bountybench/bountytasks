@@ -30,7 +30,6 @@ import (
 	"go-micro.dev/v4/client"
 	microevents "go-micro.dev/v4/events"
 	microstore "go-micro.dev/v4/store"
-	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 )
 
@@ -79,7 +78,7 @@ var _ = Describe("UserlogService", func() {
 
 		ul, err = service.NewUserlogService(
 			service.Config(cfg),
-			service.Stream(bus),
+			service.Consumer(bus),
 			service.Store(sto),
 			service.Logger(log.NewLogger()),
 			service.Mux(chi.NewMux()),
@@ -89,16 +88,16 @@ var _ = Describe("UserlogService", func() {
 			service.RegisteredEvents([]events.Unmarshaller{
 				events.SpaceDisabled{},
 			}),
-			service.TraceProvider(trace.NewNoopTracerProvider()),
 		)
 		Expect(err).ToNot(HaveOccurred())
+
 	})
 
 	It("it stores, returns and deletes a couple of events", func() {
 		ids := make(map[string]struct{})
-		ids[bus.publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
-		ids[bus.publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
-		ids[bus.publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
+		ids[bus.Publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
+		ids[bus.Publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
+		ids[bus.Publish(events.SpaceDisabled{Executant: &user.UserId{OpaqueId: "executinguserid"}})] = struct{}{}
 		// ids[bus.Publish(events.SpaceMembershipExpired{SpaceOwner: &user.UserId{OpaqueId: "userid"}})] = struct{}{}
 		// ids[bus.Publish(events.ShareCreated{Executant: &user.UserId{OpaqueId: "userid"}})] = struct{}{}
 
@@ -156,11 +155,7 @@ func (tb testBus) Consume(_ string, _ ...microevents.ConsumeOption) (<-chan micr
 	return ch, nil
 }
 
-func (tb testBus) Publish(_ string, _ interface{}, _ ...microevents.PublishOption) error {
-	return nil
-}
-
-func (tb testBus) publish(e interface{}) string {
+func (tb testBus) Publish(e interface{}) string {
 	ev := events.Event{
 		ID:    uuid.New().String(),
 		Type:  reflect.TypeOf(e).String(),

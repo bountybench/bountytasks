@@ -17,10 +17,6 @@ import (
 	"github.com/cs3org/reva/v2/pkg/storage/utils/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"github.com/riandyrn/otelchi"
-	merrors "go-micro.dev/v4/errors"
-	grpcmetadata "google.golang.org/grpc/metadata"
-
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/ocis-pkg/tracing"
@@ -30,6 +26,9 @@ import (
 	"github.com/owncloud/ocis/v2/services/webdav/pkg/config"
 	"github.com/owncloud/ocis/v2/services/webdav/pkg/constants"
 	"github.com/owncloud/ocis/v2/services/webdav/pkg/dav/requests"
+	"github.com/riandyrn/otelchi"
+	merrors "go-micro.dev/v4/errors"
+	"google.golang.org/grpc/metadata"
 )
 
 func init() {
@@ -79,7 +78,6 @@ func NewService(opts ...Option) (Service, error) {
 		pool.WithTLSCACert(conf.GRPCClientTLS.CACert),
 		pool.WithTLSMode(tm),
 		pool.WithRegistry(registry.GetRegistry()),
-		pool.WithTracerProvider(options.TraceProvider),
 	)
 	if err != nil {
 		return nil, err
@@ -114,7 +112,6 @@ func NewService(opts ...Option) (Service, error) {
 				r.Get("/remote.php/dav/files/{id}/*", svc.Thumbnail)
 				r.Get("/dav/files/{id}", svc.Thumbnail)
 				r.Get("/dav/files/{id}/*", svc.Thumbnail)
-
 				r.MethodFunc("REPORT", "/remote.php/dav/files*", svc.Search)
 				r.MethodFunc("REPORT", "/dav/files*", svc.Search)
 			})
@@ -243,7 +240,6 @@ func (g Webdav) SpacesThumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
-		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_Cs3Source{
 			Cs3Source: &thumbnailsmsg.CS3Source{
 				Path:          fullPath,
@@ -260,7 +256,7 @@ func (g Webdav) SpacesThumbnail(w http.ResponseWriter, r *http.Request) {
 			return
 		case http.StatusTooEarly:
 			// StatusTooEarly if file is processing
-			renderError(w, r, errTooEarly(e.Detail))
+			renderError(w, r, errTooEarly(err.Error()))
 			return
 		case http.StatusBadRequest:
 			renderError(w, r, errBadRequest(e.Detail))
@@ -312,7 +308,7 @@ func (g Webdav) Thumbnail(w http.ResponseWriter, r *http.Request) {
 		user = userRes.GetUser()
 	} else {
 		// look up user from URL via GetUserByClaim
-		ctx := grpcmetadata.AppendToOutgoingContext(r.Context(), TokenHeader, t)
+		ctx := metadata.AppendToOutgoingContext(r.Context(), TokenHeader, t)
 		userRes, err := gatewayClient.GetUserByClaim(ctx, &userv1beta1.GetUserByClaimRequest{
 			Claim: "username",
 			Value: tr.Identifier,
@@ -336,7 +332,6 @@ func (g Webdav) Thumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
-		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_Cs3Source{
 			Cs3Source: &thumbnailsmsg.CS3Source{
 				Path:          fullPath,
@@ -350,10 +345,6 @@ func (g Webdav) Thumbnail(w http.ResponseWriter, r *http.Request) {
 		case http.StatusNotFound:
 			// StatusNotFound is expected for unsupported files
 			renderError(w, r, errNotFound(notFoundMsg(tr.Filename)))
-			return
-		case http.StatusTooEarly:
-			// StatusTooEarly if file is processing
-			renderError(w, r, errTooEarly(e.Detail))
 			return
 		case http.StatusBadRequest:
 			renderError(w, r, errBadRequest(e.Detail))
@@ -381,7 +372,6 @@ func (g Webdav) PublicThumbnail(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
-		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_WebdavSource{
 			WebdavSource: &thumbnailsmsg.WebdavSource{
 				Url:             g.config.OcisPublicURL + r.URL.RequestURI(),
@@ -423,7 +413,6 @@ func (g Webdav) PublicThumbnailHead(w http.ResponseWriter, r *http.Request) {
 		ThumbnailType: extensionToThumbnailType(strings.TrimLeft(tr.Extension, ".")),
 		Width:         tr.Width,
 		Height:        tr.Height,
-		Processor:     tr.Processor,
 		Source: &thumbnailssvc.GetThumbnailRequest_WebdavSource{
 			WebdavSource: &thumbnailsmsg.WebdavSource{
 				Url:             g.config.OcisPublicURL + r.URL.RequestURI(),

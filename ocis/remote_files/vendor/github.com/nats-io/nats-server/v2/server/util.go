@@ -14,9 +14,7 @@
 package server
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -335,11 +333,4 @@ func copyStrings(src []string) []string {
 	dst := make([]string, len(src))
 	copy(dst, src)
 	return dst
-}
-
-// Returns a byte slice for the INFO protocol.
-func generateInfoJSON(info *Info) []byte {
-	b, _ := json.Marshal(info)
-	pcs := [][]byte{[]byte("INFO"), b, []byte(CR_LF)}
-	return bytes.Join(pcs, []byte(" "))
 }

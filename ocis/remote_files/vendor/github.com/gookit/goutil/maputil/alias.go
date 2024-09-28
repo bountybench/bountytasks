@@ -6,7 +6,7 @@ import "fmt"
 type Aliases map[string]string
 
 // AddAlias to the Aliases
-func (as Aliases) AddAlias(alias, real string) {
+func (as Aliases) AddAlias(real, alias string) {
 	if rn, ok := as[alias]; ok {
 		panic(fmt.Sprintf("The alias '%s' is already used by '%s'", alias, rn))
 	}
@@ -16,14 +16,14 @@ func (as Aliases) AddAlias(alias, real string) {
 // AddAliases to the Aliases
 func (as Aliases) AddAliases(real string, aliases []string) {
 	for _, a := range aliases {
-		as.AddAlias(a, real)
+		as.AddAlias(real, a)
 	}
 }
 
 // AddAliasMap to the Aliases
 func (as Aliases) AddAliasMap(alias2real map[string]string) {
 	for a, r := range alias2real {
-		as.AddAlias(a, r)
+		as.AddAlias(r, a)
 	}
 }
 

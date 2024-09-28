@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: create file or folder named similar to Shares folder
   As a user
   I want to be able to create files and folders when the Shares folder exists
@@ -11,6 +10,7 @@ Feature: create file or folder named similar to Shares folder
       | Brian    |
     And user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian" with permissions "read,update"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
 
 
   Scenario Outline: create a folder with a name similar to Shares

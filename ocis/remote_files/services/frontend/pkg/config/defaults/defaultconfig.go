@@ -83,11 +83,10 @@ func DefaultConfig() *config.Config {
 		EnableFavorites:          false,
 		EnableProjectSpaces:      true,
 		EnableShareJail:          true,
-		UploadMaxChunkSize:       1e+7,
+		UploadMaxChunkSize:       1e+8,
 		UploadHTTPMethodOverride: "",
 		DefaultUploadProtocol:    "tus",
 		EnableResharing:          true,
-		DefaultLinkPermissions:   1,
 		SearchMinLength:          3,
 		Edition:                  "Community",
 		Checksums: config.Checksums{
@@ -107,16 +106,13 @@ func DefaultConfig() *config.Config {
 			Prefix: "data",
 		},
 		OCS: config.OCS{
-			Prefix:                      "ocs",
-			SharePrefix:                 "/Shares",
-			HomeNamespace:               "/users/{{.Id.OpaqueId}}",
-			AdditionalInfoAttribute:     "{{.Mail}}",
-			StatCacheType:               "memory",
-			StatCacheNodes:              []string{"127.0.0.1:9233"},
-			StatCacheDatabase:           "cache-stat",
-			StatCacheTTL:                300 * time.Second,
-			ListOCMShares:               true,
-			PublicShareMustHavePassword: true,
+			Prefix:                  "ocs",
+			SharePrefix:             "/Shares",
+			HomeNamespace:           "/users/{{.Id.OpaqueId}}",
+			AdditionalInfoAttribute: "{{.Mail}}",
+			StatCacheType:           "noop",
+			StatCacheDatabase:       "ocis",
+			StatCacheTTL:            300 * time.Second,
 		},
 		Middleware: config.Middleware{
 			Auth: config.Auth{
@@ -124,19 +120,6 @@ func DefaultConfig() *config.Config {
 			},
 		},
 		LDAPServerWriteEnabled: true,
-		AutoAcceptShares:       true,
-		Events: config.Events{
-			Endpoint:  "127.0.0.1:9233",
-			Cluster:   "ocis-cluster",
-			EnableTLS: false,
-		},
-		PasswordPolicy: config.PasswordPolicy{
-			MinCharacters:          8,
-			MinLowerCaseCharacters: 1,
-			MinUpperCaseCharacters: 1,
-			MinDigits:              1,
-			MinSpecialCharacters:   1,
-		},
 	}
 }
 

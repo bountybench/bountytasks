@@ -2,13 +2,6 @@
 
 The `userlog` service is a mediator between the `eventhistory` service and clients who want to be informed about user related events. It provides an API to retrieve those.
 
-## The Log Service Ecosystem
-
-Log services like the `userlog`, `clientlog` and `sse` are responsible for composing notifications for a certain audience.
-  -   The `userlog` service translates and adjusts messages to be human readable.
-  -   The `clientlog` service composes machine readable messages, so clients can act without the need to query the server.
-  -   The `sse` service is only responsible for sending these messages. It does not care about their form or language.
-
 ## Prerequisites
 
 Running the `userlog` service without running the `eventhistory` service is not possible.
@@ -36,6 +29,10 @@ For the time being, the configuration which user related events are of interest 
 ## Retrieving
 
 The `userlog` service provides an API to retrieve configured events. For now, this API is mostly following the [oc10 notification GET API](https://doc.owncloud.com/server/next/developer_manual/core/apis/ocs-notification-endpoint-v1.html#get-user-notifications).
+
+## Subscribing
+
+Additionally to the oc10 API, the `userlog` service also provides an `/sse` (Server-Sent Events) endpoint to be informed by the server when an event happens. See [What is Server-Sent Events](https://medium.com/yemeksepeti-teknoloji/what-is-server-sent-events-sse-and-how-to-implement-it-904938bffd73) for a simple introduction and examples of server sent events. The `sse` endpoint will respect language changes of the user without needing to reconnect. Note that SSE has a limitation of six open connections per browser which can be reached if one has opened various tabs of the Web UI pointing to the same Infinite Scale instance.
 
 ## Posting
 
@@ -76,7 +73,3 @@ Important: For the time being, the embedded ownCloud Web frontend only supports 
 *   If a requested language code is not available, the service tries to fall back to the base language if available. For example, if the requested language-code `de_DE` is not available, the service tries to fall back to translations in the `de` folder.
 *   If the base language `de` is also not available, the service falls back to the system's default English (`en`),
 which is the source of the texts provided by the code.
-
-## Default Language
-
-The default language can be defined via the `OCIS_DEFAULT_LANGUAGE` environment variable. See the `settings` service for a detailed description.

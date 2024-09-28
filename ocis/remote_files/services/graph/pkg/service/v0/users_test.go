@@ -13,18 +13,14 @@ import (
 	userv1beta1 "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	typesv1beta1 "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
-	"github.com/go-chi/chi/v5"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	libregraph "github.com/owncloud/libre-graph-api-go"
-	"github.com/stretchr/testify/mock"
-	"go-micro.dev/v4/client"
-	"google.golang.org/grpc"
-
 	revactx "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/status"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	cs3mocks "github.com/cs3org/reva/v2/tests/cs3mocks/mocks"
+	"github.com/go-chi/chi/v5"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	libregraph "github.com/owncloud/libre-graph-api-go"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	settingsmsg "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/settings/v0"
 	settings "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
@@ -33,6 +29,9 @@ import (
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config/defaults"
 	identitymocks "github.com/owncloud/ocis/v2/services/graph/pkg/identity/mocks"
 	service "github.com/owncloud/ocis/v2/services/graph/pkg/service/v0"
+	"github.com/stretchr/testify/mock"
+	"go-micro.dev/v4/client"
+	"google.golang.org/grpc"
 )
 
 type userList struct {
@@ -41,16 +40,14 @@ type userList struct {
 
 var _ = Describe("Users", func() {
 	var (
-		svc               service.Service
-		ctx               context.Context
-		cfg               *config.Config
-		gatewayClient     *cs3mocks.GatewayAPIClient
-		gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
-		eventsPublisher   mocks.Publisher
-		roleService       *mocks.RoleService
-		valueService      *mocks.ValueService
-		permissionService *mocks.Permissions
-		identityBackend   *identitymocks.Backend
+		svc             service.Service
+		ctx             context.Context
+		cfg             *config.Config
+		gatewayClient   *cs3mocks.GatewayAPIClient
+		gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
+		eventsPublisher mocks.Publisher
+		roleService     *mocks.RoleService
+		identityBackend *identitymocks.Backend
 
 		rr *httptest.ResponseRecorder
 
@@ -76,8 +73,6 @@ var _ = Describe("Users", func() {
 
 		identityBackend = &identitymocks.Backend{}
 		roleService = &mocks.RoleService{}
-		valueService = &mocks.ValueService{}
-		permissionService = &mocks.Permissions{}
 
 		rr = httptest.NewRecorder()
 		ctx = context.Background()
@@ -95,8 +90,6 @@ var _ = Describe("Users", func() {
 			service.EventsPublisher(&eventsPublisher),
 			service.WithIdentityBackend(identityBackend),
 			service.WithRoleService(roleService),
-			service.WithValueService(valueService),
-			service.PermissionService(permissionService),
 		)
 	})
 
@@ -109,25 +102,6 @@ var _ = Describe("Users", func() {
 		})
 
 		It("gets the information", func() {
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
-
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/me", nil)
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.GetMe(rr, r)
@@ -143,24 +117,7 @@ var _ = Describe("Users", func() {
 				},
 			}
 			identityBackend.On("GetUser", mock.Anything, mock.Anything, mock.Anything).Return(user, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
+
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/me?$expand=memberOf", nil)
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.GetMe(rr, r)
@@ -188,24 +145,7 @@ var _ = Describe("Users", func() {
 				},
 			}
 			roleService.On("ListRoleAssignments", mock.Anything, mock.Anything, mock.Anything).Return(&settings.ListRoleAssignmentsResponse{Assignments: assignments}, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
+
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/me?$expand=appRoleAssignments", nil)
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.GetMe(rr, r)
@@ -237,13 +177,6 @@ var _ = Describe("Users", func() {
 		})
 
 		It("lists the users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
-
 			user := &libregraph.User{}
 			user.SetId("user1")
 			users := []*libregraph.User{user}
@@ -264,50 +197,6 @@ var _ = Describe("Users", func() {
 			Expect(len(res.Value)).To(Equal(1))
 			Expect(res.Value[0].GetId()).To(Equal("user1"))
 		})
-		It("denies listing for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users", nil)
-			svc.GetUsers(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
-		})
-		It("denies using to short search terms for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$search=a", nil)
-			svc.GetUsers(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
-		})
-		It("only returns a restricted set of attributes for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			user := &libregraph.User{}
-			user.SetId("user1")
-			user.SetPasswordProfile(
-				libregraph.PasswordProfile{
-					Password: libregraph.PtrString("password"),
-				},
-			)
-			user.SetUserType("usertype")
-			user.SetDisplayName("abc user")
-			users := []*libregraph.User{user}
-
-			identityBackend.On("GetUsers", mock.Anything, mock.Anything, mock.Anything).Return(users, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$search=abc", nil)
-			svc.GetUsers(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusOK))
-			data, err := io.ReadAll(rr.Body)
-			Expect(err).ToNot(HaveOccurred())
-
-			res := userList{}
-			err = json.Unmarshal(data, &res)
-			Expect(err).ToNot(HaveOccurred())
-			userMap, err := res.Value[0].ToMap()
-			Expect(err).ToNot(HaveOccurred())
-			for k, _ := range userMap {
-				Expect(k).Should(BeElementOf([]string{"mail", "displayName", "id", "userType"}))
-			}
-		})
 
 		It("sorts", func() {
 			user := &libregraph.User{}
@@ -323,13 +212,6 @@ var _ = Describe("Users", func() {
 			users := []*libregraph.User{user, user2}
 
 			identityBackend.On("GetUsers", mock.Anything, mock.Anything, mock.Anything).Return(users, nil)
-
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 
 			getUsers := func(path string) []*libregraph.User {
 				r := httptest.NewRequest(http.MethodGet, path, nil)
@@ -412,12 +294,6 @@ var _ = Describe("Users", func() {
 			users := []*libregraph.User{user, user2}
 			identityBackend.On("GetUsers", mock.Anything, mock.Anything, mock.Anything).Return(users, nil)
 
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			roleService.On("ListRoleAssignments", mock.Anything, mock.Anything, mock.Anything).Return(func(ctx context.Context, in *settings.ListRoleAssignmentsRequest, opts ...client.CallOption) *settings.ListRoleAssignmentsResponse {
 				return &settings.ListRoleAssignmentsResponse{Assignments: []*settingsmsg.UserRoleAssignment{
 					{
@@ -462,13 +338,6 @@ var _ = Describe("Users", func() {
 
 	DescribeTable("GetUsers handles unsupported or invalid filters",
 		func(filter string, status int) {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
-
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$filter="+url.QueryEscape(filter), nil)
 			svc.GetUsers(rr, r)
 
@@ -496,13 +365,6 @@ var _ = Describe("Users", func() {
 
 	DescribeTable("With a valid filter",
 		func(filter string, status int) {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
-
 			user := &libregraph.User{}
 			user.SetId("25cb7bc0-3168-4a0c-adbe-396f478ad494")
 			users := []*libregraph.User{user}
@@ -551,24 +413,6 @@ var _ = Describe("Users", func() {
 			user.SetId("user1")
 
 			identityBackend.On("GetUser", mock.Anything, mock.Anything, mock.Anything).Return(user, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users", nil)
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("userID", *user.Id)
@@ -611,24 +455,7 @@ var _ = Describe("Users", func() {
 					},
 				},
 			}, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
+
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$expand=drive", nil)
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("userID", *user.Id)
@@ -663,24 +490,7 @@ var _ = Describe("Users", func() {
 					},
 				},
 			}, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
+
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$expand=drives", nil)
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("userID", *user.Id)
@@ -711,24 +521,7 @@ var _ = Describe("Users", func() {
 				},
 			}
 			roleService.On("ListRoleAssignments", mock.Anything, mock.Anything, mock.Anything).Return(&settings.ListRoleAssignmentsResponse{Assignments: assignments}, nil)
-			valueService.On("GetValueByUniqueIdentifiers", mock.Anything, mock.Anything, mock.Anything).
-				Return(&settings.GetValueResponse{
-					Value: &settingsmsg.ValueWithIdentifier{
-						Value: &settingsmsg.Value{
-							Value: &settingsmsg.Value_ListValue{
-								ListValue: &settingsmsg.ListValue{
-									Values: []*settingsmsg.ListOptionValue{
-										{
-											Option: &settingsmsg.ListOptionValue_StringValue{
-												StringValue: "it",
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				}, nil)
+
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users/user1?$expand=appRoleAssignments", nil)
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("userID", user.GetId())
@@ -824,7 +617,7 @@ var _ = Describe("Users", func() {
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.PostUser(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusCreated))
+			Expect(rr.Code).To(Equal(http.StatusOK))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -849,7 +642,7 @@ var _ = Describe("Users", func() {
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.PostUser(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusCreated))
+			Expect(rr.Code).To(Equal(http.StatusOK))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -874,7 +667,7 @@ var _ = Describe("Users", func() {
 			r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 			svc.PostUser(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusCreated))
+			Expect(rr.Code).To(Equal(http.StatusOK))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -935,7 +728,7 @@ var _ = Describe("Users", func() {
 				r = r.WithContext(revactx.ContextSetUser(ctx, currentUser))
 				newSvc("none").PostUser(rr, r)
 
-				Expect(rr.Code).To(Equal(http.StatusCreated))
+				Expect(rr.Code).To(Equal(http.StatusOK))
 			})
 		})
 

@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the Application type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &Application{}
-
 // Application struct for Application
 type Application struct {
 	// The unique identifier for the object. 12345678-9abc-def0-1234-56789abcde. The value of the ID property is often, but not exclusively, in the form of a GUID. The value should be treated as an opaque identifier and not based in being a GUID. Null values are not allowed. Read-only.
@@ -71,7 +68,7 @@ func (o *Application) SetId(v string) {
 
 // GetAppRoles returns the AppRoles field value if set, zero value otherwise.
 func (o *Application) GetAppRoles() []AppRole {
-	if o == nil || IsNil(o.AppRoles) {
+	if o == nil || o.AppRoles == nil {
 		var ret []AppRole
 		return ret
 	}
@@ -81,7 +78,7 @@ func (o *Application) GetAppRoles() []AppRole {
 // GetAppRolesOk returns a tuple with the AppRoles field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Application) GetAppRolesOk() ([]AppRole, bool) {
-	if o == nil || IsNil(o.AppRoles) {
+	if o == nil || o.AppRoles == nil {
 		return nil, false
 	}
 	return o.AppRoles, true
@@ -89,7 +86,7 @@ func (o *Application) GetAppRolesOk() ([]AppRole, bool) {
 
 // HasAppRoles returns a boolean if a field has been set.
 func (o *Application) HasAppRoles() bool {
-	if o != nil && !IsNil(o.AppRoles) {
+	if o != nil && o.AppRoles != nil {
 		return true
 	}
 
@@ -103,7 +100,7 @@ func (o *Application) SetAppRoles(v []AppRole) {
 
 // GetDisplayName returns the DisplayName field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *Application) GetDisplayName() string {
-	if o == nil || IsNil(o.DisplayName.Get()) {
+	if o == nil || o.DisplayName.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -145,23 +142,17 @@ func (o *Application) UnsetDisplayName() {
 }
 
 func (o Application) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o Application) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["id"] = o.Id
-	if !IsNil(o.AppRoles) {
+	if true {
+		toSerialize["id"] = o.Id
+	}
+	if o.AppRoles != nil {
 		toSerialize["appRoles"] = o.AppRoles
 	}
 	if o.DisplayName.IsSet() {
 		toSerialize["displayName"] = o.DisplayName.Get()
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableApplication struct {

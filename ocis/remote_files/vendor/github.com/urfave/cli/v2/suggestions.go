@@ -21,7 +21,7 @@ func suggestFlag(flags []Flag, provided string, hideHelp bool) string {
 
 	for _, flag := range flags {
 		flagNames := flag.Names()
-		if !hideHelp && HelpFlag != nil {
+		if !hideHelp {
 			flagNames = append(flagNames, HelpFlag.Names()...)
 		}
 		for _, name := range flagNames {

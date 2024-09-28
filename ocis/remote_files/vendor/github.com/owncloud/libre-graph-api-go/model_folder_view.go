@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the FolderView type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &FolderView{}
-
 // FolderView A collection of properties defining the recommended view for the folder.
 type FolderView struct {
 	// The method by which the folder should be sorted.
@@ -46,7 +43,7 @@ func NewFolderViewWithDefaults() *FolderView {
 
 // GetSortBy returns the SortBy field value if set, zero value otherwise.
 func (o *FolderView) GetSortBy() string {
-	if o == nil || IsNil(o.SortBy) {
+	if o == nil || o.SortBy == nil {
 		var ret string
 		return ret
 	}
@@ -56,7 +53,7 @@ func (o *FolderView) GetSortBy() string {
 // GetSortByOk returns a tuple with the SortBy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *FolderView) GetSortByOk() (*string, bool) {
-	if o == nil || IsNil(o.SortBy) {
+	if o == nil || o.SortBy == nil {
 		return nil, false
 	}
 	return o.SortBy, true
@@ -64,7 +61,7 @@ func (o *FolderView) GetSortByOk() (*string, bool) {
 
 // HasSortBy returns a boolean if a field has been set.
 func (o *FolderView) HasSortBy() bool {
-	if o != nil && !IsNil(o.SortBy) {
+	if o != nil && o.SortBy != nil {
 		return true
 	}
 
@@ -78,7 +75,7 @@ func (o *FolderView) SetSortBy(v string) {
 
 // GetSortOrder returns the SortOrder field value if set, zero value otherwise.
 func (o *FolderView) GetSortOrder() string {
-	if o == nil || IsNil(o.SortOrder) {
+	if o == nil || o.SortOrder == nil {
 		var ret string
 		return ret
 	}
@@ -88,7 +85,7 @@ func (o *FolderView) GetSortOrder() string {
 // GetSortOrderOk returns a tuple with the SortOrder field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *FolderView) GetSortOrderOk() (*string, bool) {
-	if o == nil || IsNil(o.SortOrder) {
+	if o == nil || o.SortOrder == nil {
 		return nil, false
 	}
 	return o.SortOrder, true
@@ -96,7 +93,7 @@ func (o *FolderView) GetSortOrderOk() (*string, bool) {
 
 // HasSortOrder returns a boolean if a field has been set.
 func (o *FolderView) HasSortOrder() bool {
-	if o != nil && !IsNil(o.SortOrder) {
+	if o != nil && o.SortOrder != nil {
 		return true
 	}
 
@@ -110,7 +107,7 @@ func (o *FolderView) SetSortOrder(v string) {
 
 // GetViewType returns the ViewType field value if set, zero value otherwise.
 func (o *FolderView) GetViewType() string {
-	if o == nil || IsNil(o.ViewType) {
+	if o == nil || o.ViewType == nil {
 		var ret string
 		return ret
 	}
@@ -120,7 +117,7 @@ func (o *FolderView) GetViewType() string {
 // GetViewTypeOk returns a tuple with the ViewType field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *FolderView) GetViewTypeOk() (*string, bool) {
-	if o == nil || IsNil(o.ViewType) {
+	if o == nil || o.ViewType == nil {
 		return nil, false
 	}
 	return o.ViewType, true
@@ -128,7 +125,7 @@ func (o *FolderView) GetViewTypeOk() (*string, bool) {
 
 // HasViewType returns a boolean if a field has been set.
 func (o *FolderView) HasViewType() bool {
-	if o != nil && !IsNil(o.ViewType) {
+	if o != nil && o.ViewType != nil {
 		return true
 	}
 
@@ -141,25 +138,17 @@ func (o *FolderView) SetViewType(v string) {
 }
 
 func (o FolderView) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o FolderView) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.SortBy) {
+	if o.SortBy != nil {
 		toSerialize["sortBy"] = o.SortBy
 	}
-	if !IsNil(o.SortOrder) {
+	if o.SortOrder != nil {
 		toSerialize["sortOrder"] = o.SortOrder
 	}
-	if !IsNil(o.ViewType) {
+	if o.ViewType != nil {
 		toSerialize["viewType"] = o.ViewType
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableFolderView struct {

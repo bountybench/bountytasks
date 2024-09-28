@@ -41,8 +41,6 @@ type PhraseSearcher struct {
 	paths        []phrasePath
 	locations    []search.Location
 	initialized  bool
-	// map a term to a list of fuzzy terms that match it
-	fuzzyTermMatches map[string][]string
 }
 
 func (s *PhraseSearcher) Size() int {
@@ -66,42 +64,22 @@ func (s *PhraseSearcher) Size() int {
 	return sizeInBytes
 }
 
-func NewPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms []string,
-	fuzziness int, field string, boost float64, options search.SearcherOptions) (*PhraseSearcher, error) {
-
+func NewPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms []string, field string, options search.SearcherOptions) (*PhraseSearcher, error) {
 	// turn flat terms []string into [][]string
 	mterms := make([][]string, len(terms))
 	for i, term := range terms {
 		mterms[i] = []string{term}
 	}
-	return NewMultiPhraseSearcher(ctx, indexReader, mterms, fuzziness, field, boost, options)
+	return NewMultiPhraseSearcher(ctx, indexReader, mterms, field, options)
 }
 
-func NewMultiPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms [][]string,
-	fuzziness int, field string, boost float64, options search.SearcherOptions) (*PhraseSearcher, error) {
-
+func NewMultiPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms [][]string, field string, options search.SearcherOptions) (*PhraseSearcher, error) {
 	options.IncludeTermVectors = true
 	var termPositionSearchers []search.Searcher
-	var err error
-	var ts search.Searcher
-	var fuzzyTermMatches map[string][]string
-	if fuzziness > 0 {
-		fuzzyTermMatches = make(map[string][]string)
-		ctx = context.WithValue(ctx, search.FuzzyMatchPhraseKey, fuzzyTermMatches)
-	}
-	// in case of fuzzy multi-phrase, phrase and match-phrase queries we hardcode the
-	// prefix length to 0, as setting a per word matching prefix length would not
-	// make sense from a user perspective.
 	for _, termPos := range terms {
 		if len(termPos) == 1 && termPos[0] != "" {
 			// single term
-			if fuzziness > 0 {
-				// fuzzy
-				ts, err = NewFuzzySearcher(ctx, indexReader, termPos[0], 0, fuzziness, field, boost, options)
-			} else {
-				// non-fuzzy
-				ts, err = NewTermSearcher(ctx, indexReader, termPos[0], field, boost, options)
-			}
+			ts, err := NewTermSearcher(ctx, indexReader, termPos[0], field, 1.0, options)
 			if err != nil {
 				// close any searchers already opened
 				for _, ts := range termPositionSearchers {
@@ -117,13 +95,7 @@ func NewMultiPhraseSearcher(ctx context.Context, indexReader index.IndexReader, 
 				if term == "" {
 					continue
 				}
-				if fuzziness > 0 {
-					// fuzzy
-					ts, err = NewFuzzySearcher(ctx, indexReader, term, 0, fuzziness, field, boost, options)
-				} else {
-					// non-fuzzy
-					ts, err = NewTermSearcher(ctx, indexReader, term, field, boost, options)
-				}
+				ts, err := NewTermSearcher(ctx, indexReader, term, field, 1.0, options)
 				if err != nil {
 					// close any searchers already opened
 					for _, ts := range termPositionSearchers {
@@ -156,9 +128,8 @@ func NewMultiPhraseSearcher(ctx context.Context, indexReader index.IndexReader, 
 
 	// build our searcher
 	rv := PhraseSearcher{
-		mustSearcher:     mustSearcher,
-		terms:            terms,
-		fuzzyTermMatches: fuzzyTermMatches,
+		mustSearcher: mustSearcher,
+		terms:        terms,
 	}
 	rv.computeQueryNorm()
 	return &rv, nil
@@ -242,7 +213,7 @@ func (s *PhraseSearcher) Next(ctx *search.SearchContext) (*search.DocumentMatch,
 
 // checkCurrMustMatch is solely concerned with determining if the DocumentMatch
 // pointed to by s.currMust (which satisifies the pre-condition searcher)
-// also satisfies the phrase constraints.  if so, it returns a DocumentMatch
+// also satisfies the phase constraints.  if so, it returns a DocumentMatch
 // for this document, otherwise nil
 func (s *PhraseSearcher) checkCurrMustMatch(ctx *search.SearchContext) *search.DocumentMatch {
 	s.locations = s.currMust.Complete(s.locations)
@@ -273,7 +244,7 @@ func (s *PhraseSearcher) checkCurrMustMatch(ctx *search.SearchContext) *search.D
 
 // checkCurrMustMatchField is solely concerned with determining if one
 // particular field within the currMust DocumentMatch Locations
-// satisfies the phrase constraints (possibly more than once).  if so,
+// satisfies the phase constraints (possibly more than once).  if so,
 // the matching field term locations are appended to the provided
 // slice
 func (s *PhraseSearcher) checkCurrMustMatchField(ctx *search.SearchContext,
@@ -282,21 +253,7 @@ func (s *PhraseSearcher) checkCurrMustMatchField(ctx *search.SearchContext,
 	if s.path == nil {
 		s.path = make(phrasePath, 0, len(s.terms))
 	}
-	var tlmPtr *search.TermLocationMap = &tlm
-	if s.fuzzyTermMatches != nil {
-		// if fuzzy search, we need to expand the tlm to include all the fuzzy matches
-		// Example - term is "foo" and fuzzy matches are "foo", "fool", "food"
-		// the non expanded tlm will be:
-		//	foo  -> Locations[foo]
-		//	fool -> Locations[fool]
-		//	food -> Locations[food]
-		// the expanded tlm will be:
-		//   foo -> [Locations[foo], Locations[fool], Locations[food]]
-		expandedTlm := make(search.TermLocationMap)
-		s.expandFuzzyMatches(tlm, expandedTlm)
-		tlmPtr = &expandedTlm
-	}
-	s.paths = findPhrasePaths(0, nil, s.terms, *tlmPtr, s.path[:0], 0, s.paths[:0])
+	s.paths = findPhrasePaths(0, nil, s.terms, tlm, s.path[:0], 0, s.paths[:0])
 	for _, p := range s.paths {
 		for _, pp := range p {
 			ftls = append(ftls, search.FieldTermLocation{
@@ -312,16 +269,6 @@ func (s *PhraseSearcher) checkCurrMustMatchField(ctx *search.SearchContext,
 		}
 	}
 	return ftls
-}
-
-func (s *PhraseSearcher) expandFuzzyMatches(tlm search.TermLocationMap, expandedTlm search.TermLocationMap) {
-	for term, fuzzyMatches := range s.fuzzyTermMatches {
-		locations := tlm[term]
-		for _, fuzzyMatch := range fuzzyMatches {
-			locations = append(locations, tlm[fuzzyMatch]...)
-		}
-		expandedTlm[term] = locations
-	}
 }
 
 type phrasePart struct {
@@ -353,31 +300,26 @@ func (p phrasePath) String() string {
 	return rv
 }
 
-// findPhrasePaths is a function to identify phrase matches from a set
+// findPhrasePaths is a function to identify phase matches from a set
 // of known term locations.  it recursive so care must be taken with
 // arguments and return values.
 //
 // prevPos - the previous location, 0 on first invocation
-//
 // ap - array positions of the first candidate phrase part to
-// which further recursive phrase parts must match,
-// nil on initial invocation or when there are no array positions
-//
+//      which further recursive phrase parts must match,
+//      nil on initial invocation or when there are no array positions
 // phraseTerms - slice containing the phrase terms,
-// may contain empty string as placeholder (don't care)
-//
+//               may contain empty string as placeholder (don't care)
 // tlm - the Term Location Map containing all relevant term locations
-//
 // p - the current path being explored (appended to in recursive calls)
-// this is the primary state being built during the traversal
-//
+//     this is the primary state being built during the traversal
 // remainingSlop - amount of sloppiness that's allowed, which is the
-// sum of the editDistances from each matching phrase part, where 0 means no
-// sloppiness allowed (all editDistances must be 0), decremented during recursion
-//
+//        sum of the editDistances from each matching phrase part,
+//        where 0 means no sloppiness allowed (all editDistances must be 0),
+//        decremented during recursion
 // rv - the final result being appended to by all the recursive calls
 //
-// returns slice of paths, or nil if invocation did not find any successful paths
+// returns slice of paths, or nil if invocation did not find any successul paths
 func findPhrasePaths(prevPos uint64, ap search.ArrayPositions, phraseTerms [][]string,
 	tlm search.TermLocationMap, p phrasePath, remainingSlop int, rv []phrasePath) []phrasePath {
 	// no more terms

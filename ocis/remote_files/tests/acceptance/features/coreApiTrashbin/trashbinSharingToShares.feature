@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: using trashbin together with sharing
   As a user
   I want the deletion of the resources that I shared to end up in my trashbin
@@ -8,13 +7,14 @@ Feature: using trashbin together with sharing
     Given user "Alice" has been created with default attributes and without skeleton files
     And user "Alice" has uploaded file with content "file to delete" to "/textfile0.txt"
 
-  @smokeTest @issue-7555
+  @smokeTest
   Scenario Outline: deleting a received folder doesn't move it to trashbin
     Given using <dav-path-version> DAV path
     And user "Brian" has been created with default attributes and without skeleton files
     And user "Alice" has created folder "/shared"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/shared_file.txt"
     And user "Alice" has shared folder "/shared" with user "Brian"
+    And user "Brian" has accepted share "/shared" offered by user "Alice"
     And user "Brian" has moved folder "/Shares/shared" to "/Shares/renamed_shared"
     When user "Brian" deletes folder "/Shares/renamed_shared" using the WebDAV API
     Then the HTTP status code should be "204"
@@ -28,13 +28,14 @@ Feature: using trashbin together with sharing
       | dav-path-version |
       | spaces           |
 
-  @issue-7555
+
   Scenario Outline: deleting a file in a received folder moves it to trashbin of both users
     Given using <dav-path-version> DAV path
     And user "Brian" has been created with default attributes and without skeleton files
     And user "Alice" has created folder "/shared"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/shared_file.txt"
     And user "Alice" has shared folder "/shared" with user "Brian"
+    And user "Brian" has accepted share "/shared" offered by user "Alice"
     And user "Brian" has moved file "/Shares/shared" to "/Shares/renamed_shared"
     When user "Brian" deletes file "/Shares/renamed_shared/shared_file.txt" using the WebDAV API
     Then the HTTP status code should be "204"
@@ -60,6 +61,8 @@ Feature: using trashbin together with sharing
     And user "Alice" has created folder "/shared"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/shared_file.txt"
     And user "Alice" has shared folder "/shared" with group "grp1"
+    And user "Brian" has accepted share "/Shares/shared" offered by user "Alice"
+    And user "Carol" has accepted share "/Shares/shared" offered by user "Alice"
     When user "Brian" deletes file "/Shares/shared/shared_file.txt" using the WebDAV API
     Then the HTTP status code should be "204"
     And as "Brian" the file with original path "/Shares/shared/shared_file.txt" should exist in the trashbin
@@ -85,6 +88,8 @@ Feature: using trashbin together with sharing
     And user "Alice" has created folder "/shared"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/shared_file.txt"
     And user "Alice" has shared folder "/shared" with group "grp1"
+    And user "Brian" has accepted share "/Shares/shared" offered by user "Alice"
+    And user "Carol" has accepted share "/Shares/shared" offered by user "Alice"
     When user "Alice" deletes file "/shared/shared_file.txt" using the WebDAV API
     Then the HTTP status code should be "204"
     And as "Alice" the file with original path "/shared/shared_file.txt" should exist in the trashbin
@@ -111,6 +116,8 @@ Feature: using trashbin together with sharing
     And user "Alice" has created folder "/shared/sub"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/sub/shared_file.txt"
     And user "Alice" has shared folder "/shared" with group "grp1"
+    And user "Brian" has accepted share "/Shares/shared" offered by user "Alice"
+    And user "Carol" has accepted share "/Shares/shared" offered by user "Alice"
     When user "Brian" deletes file "/Shares/shared/sub/shared_file.txt" using the WebDAV API
     Then the HTTP status code should be "204"
     And as "Brian" the file with original path "/Shares/shared/sub/shared_file.txt" should exist in the trashbin
@@ -137,6 +144,8 @@ Feature: using trashbin together with sharing
     And user "Alice" has created folder "/shared/sub"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/sub/shared_file.txt"
     And user "Alice" has shared folder "/shared" with group "grp1"
+    And user "Brian" has accepted share "/Shares/shared" offered by user "Alice"
+    And user "Carol" has accepted share "/Shares/shared" offered by user "Alice"
     When user "Alice" deletes file "/shared/sub/shared_file.txt" using the WebDAV API
     Then the HTTP status code should be "204"
     And as "Alice" the file with original path "/shared/sub/shared_file.txt" should exist in the trashbin
@@ -151,13 +160,14 @@ Feature: using trashbin together with sharing
       | dav-path-version |
       | spaces           |
 
-  @issue-7555
+
   Scenario Outline: deleting a file in a received folder when restored it comes back to the original path
     Given using <dav-path-version> DAV path
     And user "Brian" has been created with default attributes and without skeleton files
     And user "Alice" has created folder "/shared"
     And user "Alice" has moved file "/textfile0.txt" to "/shared/shared_file.txt"
     And user "Alice" has shared folder "/shared" with user "Brian"
+    And user "Brian" has accepted share "/shared" offered by user "Alice"
     And user "Brian" has moved folder "/Shares/shared" to "/Shares/renamed_shared"
     And user "Brian" has deleted file "/Shares/renamed_shared/shared_file.txt"
     When user "Brian" restores the file with original path "/Shares/renamed_shared/shared_file.txt" using the trashbin API
@@ -184,6 +194,7 @@ Feature: using trashbin together with sharing
     And user "Brian" has been created with default attributes and without skeleton files
     And user "Brian" has created folder "shareFolderParent"
     And user "Brian" has shared folder "shareFolderParent" with user "Alice" with permissions "read"
+    And user "Alice" has accepted share "/shareFolderParent" offered by user "Brian"
     And as "Alice" folder "/Shares/shareFolderParent" should exist
     And user "Alice" has deleted file "/textfile0.txt"
     When user "Alice" restores the file with original path "/textfile0.txt" to "/Shares/shareFolderParent/textfile0.txt" using the trashbin API
@@ -207,6 +218,7 @@ Feature: using trashbin together with sharing
     And user "Brian" has created folder "shareFolderParent"
     And user "Brian" has created folder "shareFolderParent/shareFolderChild"
     And user "Brian" has shared folder "shareFolderParent" with user "Alice" with permissions "read"
+    And user "Alice" has accepted share "/shareFolderParent" offered by user "Brian"
     And as "Alice" folder "/Shares/shareFolderParent/shareFolderChild" should exist
     And user "Alice" has deleted file "/textfile0.txt"
     When user "Alice" restores the file with original path "/textfile0.txt" to "/Shares/shareFolderParent/shareFolderChild/textfile0.txt" using the trashbin API

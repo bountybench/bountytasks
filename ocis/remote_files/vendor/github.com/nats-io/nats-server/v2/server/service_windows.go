@@ -42,7 +42,6 @@ type winServiceWrapper struct {
 }
 
 var dockerized = false
-var startupDelay = 10 * time.Second
 
 func init() {
 	if v, exists := os.LookupEnv("NATS_DOCKERIZED"); exists && v == "1" {
@@ -67,15 +66,8 @@ func (w *winServiceWrapper) Execute(args []string, changes <-chan svc.ChangeRequ
 	status <- svc.Status{State: svc.StartPending}
 	go w.server.Start()
 
-	if v, exists := os.LookupEnv("NATS_STARTUP_DELAY"); exists {
-		if delay, err := time.ParseDuration(v); err == nil {
-			startupDelay = delay
-		} else {
-			w.server.Errorf("Failed to parse \"%v\" as a duration for startup: %s", v, err)
-		}
-	}
 	// Wait for accept loop(s) to be started
-	if !w.server.ReadyForConnections(startupDelay) {
+	if !w.server.ReadyForConnections(10 * time.Second) {
 		// Failed to start.
 		return false, 1
 	}

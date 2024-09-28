@@ -35,8 +35,8 @@ import (
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/errors"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/net"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/spacelookup"
+	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	"github.com/cs3org/reva/v2/pkg/conversions"
 	"github.com/cs3org/reva/v2/pkg/rhttp"
 	"github.com/cs3org/reva/v2/pkg/storagespace"
 	"github.com/cs3org/reva/v2/pkg/utils"
@@ -57,7 +57,7 @@ func (s *svc) handlePathTusPost(w http.ResponseWriter, r *http.Request, ns strin
 
 	// read filename from metadata
 	meta := tusd.ParseMetadataHeader(r.Header.Get(net.HeaderUploadMetadata))
-	if err := ValidateName(path.Base(meta["filename"]), s.nameValidators); err != nil {
+	if err := ValidateName(meta["filename"], s.nameValidators); err != nil {
 		w.WriteHeader(http.StatusPreconditionFailed)
 		return
 	}
@@ -81,7 +81,7 @@ func (s *svc) handleSpacesTusPost(w http.ResponseWriter, r *http.Request, spaceI
 
 	// read filename from metadata
 	meta := tusd.ParseMetadataHeader(r.Header.Get(net.HeaderUploadMetadata))
-	if err := ValidateName(path.Base(meta["filename"]), s.nameValidators); err != nil {
+	if err := ValidateName(meta["filename"], s.nameValidators); err != nil {
 		w.WriteHeader(http.StatusPreconditionFailed)
 		return
 	}

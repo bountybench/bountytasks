@@ -61,12 +61,13 @@ func Resize(s string, length int, align PosFlag) string {
 	}
 
 	if align == PosMiddle {
-		padLn := (length - len(s)) / 2
+		strLn := len(s)
+		padLn := (length - strLn) / 2
+		padStr := string(make([]byte, padLn))
+
 		if diff := length - padLn*2; diff > 0 {
 			s += " "
 		}
-
-		padStr := string(RepeatBytes(' ', padLn))
 		return padStr + s + padStr
 	}
 
@@ -84,19 +85,15 @@ func PadChars[T byte | rune](cs []T, pad T, length int, pos PosFlag) []T {
 
 	idx := length - ln
 	ns := make([]T, length)
+	ps := RepeatChars(pad, idx)
 	if pos == PosRight {
 		copy(ns, cs)
-		for i := ln; i < length; i++ {
-			ns[i] = pad
-		}
-		return ns
+		copy(ns[idx:], ps)
+	} else { // to left
+		copy(ns[:idx], ps)
+		copy(ns[idx:], cs)
 	}
 
-	// to left
-	for i := 0; i < idx; i++ {
-		ns[i] = pad
-	}
-	copy(ns[idx:], cs)
 	return ns
 }
 
@@ -134,29 +131,32 @@ func PadRunesRight(rs []rune, pad rune, length int) []rune {
  * String repeat operation
  *************************************************************/
 
-// Repeat a string by given times.
+// Repeat a string
 func Repeat(s string, times int) string {
-	if times < 1 {
+	if times <= 0 {
 		return ""
 	}
 	if times == 1 {
 		return s
 	}
 
-	var sb strings.Builder
-	sb.Grow(len(s) * times)
-
+	ss := make([]string, 0, times)
 	for i := 0; i < times; i++ {
-		sb.WriteString(s)
+		ss = append(ss, s)
 	}
-	return sb.String()
+
+	return strings.Join(ss, "")
 }
 
 // RepeatRune repeat a rune char.
-func RepeatRune(char rune, times int) []rune { return RepeatChars(char, times) }
+func RepeatRune(char rune, times int) []rune {
+	return RepeatChars(char, times)
+}
 
 // RepeatBytes repeat a byte char.
-func RepeatBytes(char byte, times int) []byte { return RepeatChars(char, times) }
+func RepeatBytes(char byte, times int) []byte {
+	return RepeatChars(char, times)
+}
 
 // RepeatChars repeat a byte char.
 func RepeatChars[T byte | rune](char T, times int) []T {
@@ -164,9 +164,9 @@ func RepeatChars[T byte | rune](char T, times int) []T {
 		return make([]T, 0)
 	}
 
-	chars := make([]T, times)
+	chars := make([]T, 0, times)
 	for i := 0; i < times; i++ {
-		chars[i] = char
+		chars = append(chars, char)
 	}
 	return chars
 }

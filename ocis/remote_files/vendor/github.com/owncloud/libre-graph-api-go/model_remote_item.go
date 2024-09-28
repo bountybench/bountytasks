@@ -15,9 +15,6 @@ import (
 	"time"
 )
 
-// checks if the RemoteItem type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &RemoteItem{}
-
 // RemoteItem Remote item data, if the item is shared from a drive other than the one being accessed. Read-only.
 type RemoteItem struct {
 	CreatedBy *IdentitySet `json:"createdBy,omitempty"`
@@ -74,7 +71,7 @@ func NewRemoteItemWithDefaults() *RemoteItem {
 
 // GetCreatedBy returns the CreatedBy field value if set, zero value otherwise.
 func (o *RemoteItem) GetCreatedBy() IdentitySet {
-	if o == nil || IsNil(o.CreatedBy) {
+	if o == nil || o.CreatedBy == nil {
 		var ret IdentitySet
 		return ret
 	}
@@ -84,7 +81,7 @@ func (o *RemoteItem) GetCreatedBy() IdentitySet {
 // GetCreatedByOk returns a tuple with the CreatedBy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetCreatedByOk() (*IdentitySet, bool) {
-	if o == nil || IsNil(o.CreatedBy) {
+	if o == nil || o.CreatedBy == nil {
 		return nil, false
 	}
 	return o.CreatedBy, true
@@ -92,7 +89,7 @@ func (o *RemoteItem) GetCreatedByOk() (*IdentitySet, bool) {
 
 // HasCreatedBy returns a boolean if a field has been set.
 func (o *RemoteItem) HasCreatedBy() bool {
-	if o != nil && !IsNil(o.CreatedBy) {
+	if o != nil && o.CreatedBy != nil {
 		return true
 	}
 
@@ -106,7 +103,7 @@ func (o *RemoteItem) SetCreatedBy(v IdentitySet) {
 
 // GetCreatedDateTime returns the CreatedDateTime field value if set, zero value otherwise.
 func (o *RemoteItem) GetCreatedDateTime() time.Time {
-	if o == nil || IsNil(o.CreatedDateTime) {
+	if o == nil || o.CreatedDateTime == nil {
 		var ret time.Time
 		return ret
 	}
@@ -116,7 +113,7 @@ func (o *RemoteItem) GetCreatedDateTime() time.Time {
 // GetCreatedDateTimeOk returns a tuple with the CreatedDateTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetCreatedDateTimeOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.CreatedDateTime) {
+	if o == nil || o.CreatedDateTime == nil {
 		return nil, false
 	}
 	return o.CreatedDateTime, true
@@ -124,7 +121,7 @@ func (o *RemoteItem) GetCreatedDateTimeOk() (*time.Time, bool) {
 
 // HasCreatedDateTime returns a boolean if a field has been set.
 func (o *RemoteItem) HasCreatedDateTime() bool {
-	if o != nil && !IsNil(o.CreatedDateTime) {
+	if o != nil && o.CreatedDateTime != nil {
 		return true
 	}
 
@@ -138,7 +135,7 @@ func (o *RemoteItem) SetCreatedDateTime(v time.Time) {
 
 // GetFile returns the File field value if set, zero value otherwise.
 func (o *RemoteItem) GetFile() OpenGraphFile {
-	if o == nil || IsNil(o.File) {
+	if o == nil || o.File == nil {
 		var ret OpenGraphFile
 		return ret
 	}
@@ -148,7 +145,7 @@ func (o *RemoteItem) GetFile() OpenGraphFile {
 // GetFileOk returns a tuple with the File field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetFileOk() (*OpenGraphFile, bool) {
-	if o == nil || IsNil(o.File) {
+	if o == nil || o.File == nil {
 		return nil, false
 	}
 	return o.File, true
@@ -156,7 +153,7 @@ func (o *RemoteItem) GetFileOk() (*OpenGraphFile, bool) {
 
 // HasFile returns a boolean if a field has been set.
 func (o *RemoteItem) HasFile() bool {
-	if o != nil && !IsNil(o.File) {
+	if o != nil && o.File != nil {
 		return true
 	}
 
@@ -170,7 +167,7 @@ func (o *RemoteItem) SetFile(v OpenGraphFile) {
 
 // GetFileSystemInfo returns the FileSystemInfo field value if set, zero value otherwise.
 func (o *RemoteItem) GetFileSystemInfo() FileSystemInfo {
-	if o == nil || IsNil(o.FileSystemInfo) {
+	if o == nil || o.FileSystemInfo == nil {
 		var ret FileSystemInfo
 		return ret
 	}
@@ -180,7 +177,7 @@ func (o *RemoteItem) GetFileSystemInfo() FileSystemInfo {
 // GetFileSystemInfoOk returns a tuple with the FileSystemInfo field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetFileSystemInfoOk() (*FileSystemInfo, bool) {
-	if o == nil || IsNil(o.FileSystemInfo) {
+	if o == nil || o.FileSystemInfo == nil {
 		return nil, false
 	}
 	return o.FileSystemInfo, true
@@ -188,7 +185,7 @@ func (o *RemoteItem) GetFileSystemInfoOk() (*FileSystemInfo, bool) {
 
 // HasFileSystemInfo returns a boolean if a field has been set.
 func (o *RemoteItem) HasFileSystemInfo() bool {
-	if o != nil && !IsNil(o.FileSystemInfo) {
+	if o != nil && o.FileSystemInfo != nil {
 		return true
 	}
 
@@ -202,7 +199,7 @@ func (o *RemoteItem) SetFileSystemInfo(v FileSystemInfo) {
 
 // GetFolder returns the Folder field value if set, zero value otherwise.
 func (o *RemoteItem) GetFolder() Folder {
-	if o == nil || IsNil(o.Folder) {
+	if o == nil || o.Folder == nil {
 		var ret Folder
 		return ret
 	}
@@ -212,7 +209,7 @@ func (o *RemoteItem) GetFolder() Folder {
 // GetFolderOk returns a tuple with the Folder field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetFolderOk() (*Folder, bool) {
-	if o == nil || IsNil(o.Folder) {
+	if o == nil || o.Folder == nil {
 		return nil, false
 	}
 	return o.Folder, true
@@ -220,7 +217,7 @@ func (o *RemoteItem) GetFolderOk() (*Folder, bool) {
 
 // HasFolder returns a boolean if a field has been set.
 func (o *RemoteItem) HasFolder() bool {
-	if o != nil && !IsNil(o.Folder) {
+	if o != nil && o.Folder != nil {
 		return true
 	}
 
@@ -234,7 +231,7 @@ func (o *RemoteItem) SetFolder(v Folder) {
 
 // GetDriveAlias returns the DriveAlias field value if set, zero value otherwise.
 func (o *RemoteItem) GetDriveAlias() string {
-	if o == nil || IsNil(o.DriveAlias) {
+	if o == nil || o.DriveAlias == nil {
 		var ret string
 		return ret
 	}
@@ -244,7 +241,7 @@ func (o *RemoteItem) GetDriveAlias() string {
 // GetDriveAliasOk returns a tuple with the DriveAlias field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetDriveAliasOk() (*string, bool) {
-	if o == nil || IsNil(o.DriveAlias) {
+	if o == nil || o.DriveAlias == nil {
 		return nil, false
 	}
 	return o.DriveAlias, true
@@ -252,7 +249,7 @@ func (o *RemoteItem) GetDriveAliasOk() (*string, bool) {
 
 // HasDriveAlias returns a boolean if a field has been set.
 func (o *RemoteItem) HasDriveAlias() bool {
-	if o != nil && !IsNil(o.DriveAlias) {
+	if o != nil && o.DriveAlias != nil {
 		return true
 	}
 
@@ -266,7 +263,7 @@ func (o *RemoteItem) SetDriveAlias(v string) {
 
 // GetPath returns the Path field value if set, zero value otherwise.
 func (o *RemoteItem) GetPath() string {
-	if o == nil || IsNil(o.Path) {
+	if o == nil || o.Path == nil {
 		var ret string
 		return ret
 	}
@@ -276,7 +273,7 @@ func (o *RemoteItem) GetPath() string {
 // GetPathOk returns a tuple with the Path field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetPathOk() (*string, bool) {
-	if o == nil || IsNil(o.Path) {
+	if o == nil || o.Path == nil {
 		return nil, false
 	}
 	return o.Path, true
@@ -284,7 +281,7 @@ func (o *RemoteItem) GetPathOk() (*string, bool) {
 
 // HasPath returns a boolean if a field has been set.
 func (o *RemoteItem) HasPath() bool {
-	if o != nil && !IsNil(o.Path) {
+	if o != nil && o.Path != nil {
 		return true
 	}
 
@@ -298,7 +295,7 @@ func (o *RemoteItem) SetPath(v string) {
 
 // GetRootId returns the RootId field value if set, zero value otherwise.
 func (o *RemoteItem) GetRootId() string {
-	if o == nil || IsNil(o.RootId) {
+	if o == nil || o.RootId == nil {
 		var ret string
 		return ret
 	}
@@ -308,7 +305,7 @@ func (o *RemoteItem) GetRootId() string {
 // GetRootIdOk returns a tuple with the RootId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetRootIdOk() (*string, bool) {
-	if o == nil || IsNil(o.RootId) {
+	if o == nil || o.RootId == nil {
 		return nil, false
 	}
 	return o.RootId, true
@@ -316,7 +313,7 @@ func (o *RemoteItem) GetRootIdOk() (*string, bool) {
 
 // HasRootId returns a boolean if a field has been set.
 func (o *RemoteItem) HasRootId() bool {
-	if o != nil && !IsNil(o.RootId) {
+	if o != nil && o.RootId != nil {
 		return true
 	}
 
@@ -330,7 +327,7 @@ func (o *RemoteItem) SetRootId(v string) {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *RemoteItem) GetId() string {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		var ret string
 		return ret
 	}
@@ -340,7 +337,7 @@ func (o *RemoteItem) GetId() string {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetIdOk() (*string, bool) {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		return nil, false
 	}
 	return o.Id, true
@@ -348,7 +345,7 @@ func (o *RemoteItem) GetIdOk() (*string, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *RemoteItem) HasId() bool {
-	if o != nil && !IsNil(o.Id) {
+	if o != nil && o.Id != nil {
 		return true
 	}
 
@@ -362,7 +359,7 @@ func (o *RemoteItem) SetId(v string) {
 
 // GetImage returns the Image field value if set, zero value otherwise.
 func (o *RemoteItem) GetImage() Image {
-	if o == nil || IsNil(o.Image) {
+	if o == nil || o.Image == nil {
 		var ret Image
 		return ret
 	}
@@ -372,7 +369,7 @@ func (o *RemoteItem) GetImage() Image {
 // GetImageOk returns a tuple with the Image field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetImageOk() (*Image, bool) {
-	if o == nil || IsNil(o.Image) {
+	if o == nil || o.Image == nil {
 		return nil, false
 	}
 	return o.Image, true
@@ -380,7 +377,7 @@ func (o *RemoteItem) GetImageOk() (*Image, bool) {
 
 // HasImage returns a boolean if a field has been set.
 func (o *RemoteItem) HasImage() bool {
-	if o != nil && !IsNil(o.Image) {
+	if o != nil && o.Image != nil {
 		return true
 	}
 
@@ -394,7 +391,7 @@ func (o *RemoteItem) SetImage(v Image) {
 
 // GetLastModifiedBy returns the LastModifiedBy field value if set, zero value otherwise.
 func (o *RemoteItem) GetLastModifiedBy() IdentitySet {
-	if o == nil || IsNil(o.LastModifiedBy) {
+	if o == nil || o.LastModifiedBy == nil {
 		var ret IdentitySet
 		return ret
 	}
@@ -404,7 +401,7 @@ func (o *RemoteItem) GetLastModifiedBy() IdentitySet {
 // GetLastModifiedByOk returns a tuple with the LastModifiedBy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetLastModifiedByOk() (*IdentitySet, bool) {
-	if o == nil || IsNil(o.LastModifiedBy) {
+	if o == nil || o.LastModifiedBy == nil {
 		return nil, false
 	}
 	return o.LastModifiedBy, true
@@ -412,7 +409,7 @@ func (o *RemoteItem) GetLastModifiedByOk() (*IdentitySet, bool) {
 
 // HasLastModifiedBy returns a boolean if a field has been set.
 func (o *RemoteItem) HasLastModifiedBy() bool {
-	if o != nil && !IsNil(o.LastModifiedBy) {
+	if o != nil && o.LastModifiedBy != nil {
 		return true
 	}
 
@@ -426,7 +423,7 @@ func (o *RemoteItem) SetLastModifiedBy(v IdentitySet) {
 
 // GetLastModifiedDateTime returns the LastModifiedDateTime field value if set, zero value otherwise.
 func (o *RemoteItem) GetLastModifiedDateTime() time.Time {
-	if o == nil || IsNil(o.LastModifiedDateTime) {
+	if o == nil || o.LastModifiedDateTime == nil {
 		var ret time.Time
 		return ret
 	}
@@ -436,7 +433,7 @@ func (o *RemoteItem) GetLastModifiedDateTime() time.Time {
 // GetLastModifiedDateTimeOk returns a tuple with the LastModifiedDateTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetLastModifiedDateTimeOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.LastModifiedDateTime) {
+	if o == nil || o.LastModifiedDateTime == nil {
 		return nil, false
 	}
 	return o.LastModifiedDateTime, true
@@ -444,7 +441,7 @@ func (o *RemoteItem) GetLastModifiedDateTimeOk() (*time.Time, bool) {
 
 // HasLastModifiedDateTime returns a boolean if a field has been set.
 func (o *RemoteItem) HasLastModifiedDateTime() bool {
-	if o != nil && !IsNil(o.LastModifiedDateTime) {
+	if o != nil && o.LastModifiedDateTime != nil {
 		return true
 	}
 
@@ -458,7 +455,7 @@ func (o *RemoteItem) SetLastModifiedDateTime(v time.Time) {
 
 // GetName returns the Name field value if set, zero value otherwise.
 func (o *RemoteItem) GetName() string {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		var ret string
 		return ret
 	}
@@ -468,7 +465,7 @@ func (o *RemoteItem) GetName() string {
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetNameOk() (*string, bool) {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		return nil, false
 	}
 	return o.Name, true
@@ -476,7 +473,7 @@ func (o *RemoteItem) GetNameOk() (*string, bool) {
 
 // HasName returns a boolean if a field has been set.
 func (o *RemoteItem) HasName() bool {
-	if o != nil && !IsNil(o.Name) {
+	if o != nil && o.Name != nil {
 		return true
 	}
 
@@ -490,7 +487,7 @@ func (o *RemoteItem) SetName(v string) {
 
 // GetETag returns the ETag field value if set, zero value otherwise.
 func (o *RemoteItem) GetETag() string {
-	if o == nil || IsNil(o.ETag) {
+	if o == nil || o.ETag == nil {
 		var ret string
 		return ret
 	}
@@ -500,7 +497,7 @@ func (o *RemoteItem) GetETag() string {
 // GetETagOk returns a tuple with the ETag field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetETagOk() (*string, bool) {
-	if o == nil || IsNil(o.ETag) {
+	if o == nil || o.ETag == nil {
 		return nil, false
 	}
 	return o.ETag, true
@@ -508,7 +505,7 @@ func (o *RemoteItem) GetETagOk() (*string, bool) {
 
 // HasETag returns a boolean if a field has been set.
 func (o *RemoteItem) HasETag() bool {
-	if o != nil && !IsNil(o.ETag) {
+	if o != nil && o.ETag != nil {
 		return true
 	}
 
@@ -522,7 +519,7 @@ func (o *RemoteItem) SetETag(v string) {
 
 // GetCTag returns the CTag field value if set, zero value otherwise.
 func (o *RemoteItem) GetCTag() string {
-	if o == nil || IsNil(o.CTag) {
+	if o == nil || o.CTag == nil {
 		var ret string
 		return ret
 	}
@@ -532,7 +529,7 @@ func (o *RemoteItem) GetCTag() string {
 // GetCTagOk returns a tuple with the CTag field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetCTagOk() (*string, bool) {
-	if o == nil || IsNil(o.CTag) {
+	if o == nil || o.CTag == nil {
 		return nil, false
 	}
 	return o.CTag, true
@@ -540,7 +537,7 @@ func (o *RemoteItem) GetCTagOk() (*string, bool) {
 
 // HasCTag returns a boolean if a field has been set.
 func (o *RemoteItem) HasCTag() bool {
-	if o != nil && !IsNil(o.CTag) {
+	if o != nil && o.CTag != nil {
 		return true
 	}
 
@@ -554,7 +551,7 @@ func (o *RemoteItem) SetCTag(v string) {
 
 // GetParentReference returns the ParentReference field value if set, zero value otherwise.
 func (o *RemoteItem) GetParentReference() ItemReference {
-	if o == nil || IsNil(o.ParentReference) {
+	if o == nil || o.ParentReference == nil {
 		var ret ItemReference
 		return ret
 	}
@@ -564,7 +561,7 @@ func (o *RemoteItem) GetParentReference() ItemReference {
 // GetParentReferenceOk returns a tuple with the ParentReference field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetParentReferenceOk() (*ItemReference, bool) {
-	if o == nil || IsNil(o.ParentReference) {
+	if o == nil || o.ParentReference == nil {
 		return nil, false
 	}
 	return o.ParentReference, true
@@ -572,7 +569,7 @@ func (o *RemoteItem) GetParentReferenceOk() (*ItemReference, bool) {
 
 // HasParentReference returns a boolean if a field has been set.
 func (o *RemoteItem) HasParentReference() bool {
-	if o != nil && !IsNil(o.ParentReference) {
+	if o != nil && o.ParentReference != nil {
 		return true
 	}
 
@@ -586,7 +583,7 @@ func (o *RemoteItem) SetParentReference(v ItemReference) {
 
 // GetShared returns the Shared field value if set, zero value otherwise.
 func (o *RemoteItem) GetShared() Shared {
-	if o == nil || IsNil(o.Shared) {
+	if o == nil || o.Shared == nil {
 		var ret Shared
 		return ret
 	}
@@ -596,7 +593,7 @@ func (o *RemoteItem) GetShared() Shared {
 // GetSharedOk returns a tuple with the Shared field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetSharedOk() (*Shared, bool) {
-	if o == nil || IsNil(o.Shared) {
+	if o == nil || o.Shared == nil {
 		return nil, false
 	}
 	return o.Shared, true
@@ -604,7 +601,7 @@ func (o *RemoteItem) GetSharedOk() (*Shared, bool) {
 
 // HasShared returns a boolean if a field has been set.
 func (o *RemoteItem) HasShared() bool {
-	if o != nil && !IsNil(o.Shared) {
+	if o != nil && o.Shared != nil {
 		return true
 	}
 
@@ -618,7 +615,7 @@ func (o *RemoteItem) SetShared(v Shared) {
 
 // GetSize returns the Size field value if set, zero value otherwise.
 func (o *RemoteItem) GetSize() int64 {
-	if o == nil || IsNil(o.Size) {
+	if o == nil || o.Size == nil {
 		var ret int64
 		return ret
 	}
@@ -628,7 +625,7 @@ func (o *RemoteItem) GetSize() int64 {
 // GetSizeOk returns a tuple with the Size field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetSizeOk() (*int64, bool) {
-	if o == nil || IsNil(o.Size) {
+	if o == nil || o.Size == nil {
 		return nil, false
 	}
 	return o.Size, true
@@ -636,7 +633,7 @@ func (o *RemoteItem) GetSizeOk() (*int64, bool) {
 
 // HasSize returns a boolean if a field has been set.
 func (o *RemoteItem) HasSize() bool {
-	if o != nil && !IsNil(o.Size) {
+	if o != nil && o.Size != nil {
 		return true
 	}
 
@@ -650,7 +647,7 @@ func (o *RemoteItem) SetSize(v int64) {
 
 // GetSpecialFolder returns the SpecialFolder field value if set, zero value otherwise.
 func (o *RemoteItem) GetSpecialFolder() SpecialFolder {
-	if o == nil || IsNil(o.SpecialFolder) {
+	if o == nil || o.SpecialFolder == nil {
 		var ret SpecialFolder
 		return ret
 	}
@@ -660,7 +657,7 @@ func (o *RemoteItem) GetSpecialFolder() SpecialFolder {
 // GetSpecialFolderOk returns a tuple with the SpecialFolder field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetSpecialFolderOk() (*SpecialFolder, bool) {
-	if o == nil || IsNil(o.SpecialFolder) {
+	if o == nil || o.SpecialFolder == nil {
 		return nil, false
 	}
 	return o.SpecialFolder, true
@@ -668,7 +665,7 @@ func (o *RemoteItem) GetSpecialFolderOk() (*SpecialFolder, bool) {
 
 // HasSpecialFolder returns a boolean if a field has been set.
 func (o *RemoteItem) HasSpecialFolder() bool {
-	if o != nil && !IsNil(o.SpecialFolder) {
+	if o != nil && o.SpecialFolder != nil {
 		return true
 	}
 
@@ -682,7 +679,7 @@ func (o *RemoteItem) SetSpecialFolder(v SpecialFolder) {
 
 // GetWebDavUrl returns the WebDavUrl field value if set, zero value otherwise.
 func (o *RemoteItem) GetWebDavUrl() string {
-	if o == nil || IsNil(o.WebDavUrl) {
+	if o == nil || o.WebDavUrl == nil {
 		var ret string
 		return ret
 	}
@@ -692,7 +689,7 @@ func (o *RemoteItem) GetWebDavUrl() string {
 // GetWebDavUrlOk returns a tuple with the WebDavUrl field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetWebDavUrlOk() (*string, bool) {
-	if o == nil || IsNil(o.WebDavUrl) {
+	if o == nil || o.WebDavUrl == nil {
 		return nil, false
 	}
 	return o.WebDavUrl, true
@@ -700,7 +697,7 @@ func (o *RemoteItem) GetWebDavUrlOk() (*string, bool) {
 
 // HasWebDavUrl returns a boolean if a field has been set.
 func (o *RemoteItem) HasWebDavUrl() bool {
-	if o != nil && !IsNil(o.WebDavUrl) {
+	if o != nil && o.WebDavUrl != nil {
 		return true
 	}
 
@@ -714,7 +711,7 @@ func (o *RemoteItem) SetWebDavUrl(v string) {
 
 // GetWebUrl returns the WebUrl field value if set, zero value otherwise.
 func (o *RemoteItem) GetWebUrl() string {
-	if o == nil || IsNil(o.WebUrl) {
+	if o == nil || o.WebUrl == nil {
 		var ret string
 		return ret
 	}
@@ -724,7 +721,7 @@ func (o *RemoteItem) GetWebUrl() string {
 // GetWebUrlOk returns a tuple with the WebUrl field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *RemoteItem) GetWebUrlOk() (*string, bool) {
-	if o == nil || IsNil(o.WebUrl) {
+	if o == nil || o.WebUrl == nil {
 		return nil, false
 	}
 	return o.WebUrl, true
@@ -732,7 +729,7 @@ func (o *RemoteItem) GetWebUrlOk() (*string, bool) {
 
 // HasWebUrl returns a boolean if a field has been set.
 func (o *RemoteItem) HasWebUrl() bool {
-	if o != nil && !IsNil(o.WebUrl) {
+	if o != nil && o.WebUrl != nil {
 		return true
 	}
 
@@ -745,79 +742,71 @@ func (o *RemoteItem) SetWebUrl(v string) {
 }
 
 func (o RemoteItem) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o RemoteItem) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.CreatedBy) {
+	if o.CreatedBy != nil {
 		toSerialize["createdBy"] = o.CreatedBy
 	}
-	if !IsNil(o.CreatedDateTime) {
+	if o.CreatedDateTime != nil {
 		toSerialize["createdDateTime"] = o.CreatedDateTime
 	}
-	if !IsNil(o.File) {
+	if o.File != nil {
 		toSerialize["file"] = o.File
 	}
-	if !IsNil(o.FileSystemInfo) {
+	if o.FileSystemInfo != nil {
 		toSerialize["fileSystemInfo"] = o.FileSystemInfo
 	}
-	if !IsNil(o.Folder) {
+	if o.Folder != nil {
 		toSerialize["folder"] = o.Folder
 	}
-	if !IsNil(o.DriveAlias) {
+	if o.DriveAlias != nil {
 		toSerialize["driveAlias"] = o.DriveAlias
 	}
-	if !IsNil(o.Path) {
+	if o.Path != nil {
 		toSerialize["path"] = o.Path
 	}
-	if !IsNil(o.RootId) {
+	if o.RootId != nil {
 		toSerialize["rootId"] = o.RootId
 	}
-	if !IsNil(o.Id) {
+	if o.Id != nil {
 		toSerialize["id"] = o.Id
 	}
-	if !IsNil(o.Image) {
+	if o.Image != nil {
 		toSerialize["image"] = o.Image
 	}
-	if !IsNil(o.LastModifiedBy) {
+	if o.LastModifiedBy != nil {
 		toSerialize["lastModifiedBy"] = o.LastModifiedBy
 	}
-	if !IsNil(o.LastModifiedDateTime) {
+	if o.LastModifiedDateTime != nil {
 		toSerialize["lastModifiedDateTime"] = o.LastModifiedDateTime
 	}
-	if !IsNil(o.Name) {
+	if o.Name != nil {
 		toSerialize["name"] = o.Name
 	}
-	if !IsNil(o.ETag) {
+	if o.ETag != nil {
 		toSerialize["eTag"] = o.ETag
 	}
-	if !IsNil(o.CTag) {
+	if o.CTag != nil {
 		toSerialize["cTag"] = o.CTag
 	}
-	if !IsNil(o.ParentReference) {
+	if o.ParentReference != nil {
 		toSerialize["parentReference"] = o.ParentReference
 	}
-	if !IsNil(o.Shared) {
+	if o.Shared != nil {
 		toSerialize["shared"] = o.Shared
 	}
-	if !IsNil(o.Size) {
+	if o.Size != nil {
 		toSerialize["size"] = o.Size
 	}
-	if !IsNil(o.SpecialFolder) {
+	if o.SpecialFolder != nil {
 		toSerialize["specialFolder"] = o.SpecialFolder
 	}
-	if !IsNil(o.WebDavUrl) {
+	if o.WebDavUrl != nil {
 		toSerialize["webDavUrl"] = o.WebDavUrl
 	}
-	if !IsNil(o.WebUrl) {
+	if o.WebUrl != nil {
 		toSerialize["webUrl"] = o.WebUrl
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableRemoteItem struct {

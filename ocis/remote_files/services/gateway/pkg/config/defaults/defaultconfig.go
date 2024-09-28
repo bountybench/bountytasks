@@ -39,17 +39,14 @@ func DefaultConfig() *config.Config {
 		DisableHomeCreationOnLogin: true,
 		TransferExpires:            24 * 60 * 60,
 		Cache: config.Cache{
-			StatCacheStore:          "noop", // NOTE: stat cache not working
+			StatCacheStore:          "noop",
 			StatCacheDatabase:       "ocis",
-			StatCacheNodes:          []string{"127.0.0.1:9233"},
 			StatCacheTTL:            300 * time.Second,
 			ProviderCacheStore:      "noop",
-			ProviderCacheNodes:      []string{"127.0.0.1:9233"},
-			ProviderCacheDatabase:   "cache-providers",
+			ProviderCacheDatabase:   "ocis",
 			ProviderCacheTTL:        300 * time.Second,
-			CreateHomeCacheStore:    "memory",
-			CreateHomeCacheNodes:    []string{"127.0.0.1:9233"},
-			CreateHomeCacheDatabase: "cache-createhome",
+			CreateHomeCacheStore:    "noop",
+			CreateHomeCacheDatabase: "ocis",
 			CreateHomeCacheTTL:      300 * time.Second,
 		},
 
@@ -58,7 +55,6 @@ func DefaultConfig() *config.Config {
 		AppRegistryEndpoint:       "com.owncloud.api.app-registry",
 		AuthBasicEndpoint:         "com.owncloud.api.auth-basic",
 		AuthMachineEndpoint:       "com.owncloud.api.auth-machine",
-		AuthServiceEndpoint:       "com.owncloud.api.auth-service",
 		GroupsEndpoint:            "com.owncloud.api.groups",
 		PermissionsEndpoint:       "com.owncloud.api.settings",
 		SharingEndpoint:           "com.owncloud.api.sharing",
@@ -66,7 +62,6 @@ func DefaultConfig() *config.Config {
 		StorageSharesEndpoint:     "com.owncloud.api.storage-shares",
 		StorageUsersEndpoint:      "com.owncloud.api.storage-users",
 		UsersEndpoint:             "com.owncloud.api.users",
-		OCMEndpoint:               "com.owncloud.api.ocm",
 
 		StorageRegistry: config.StorageRegistry{
 			Driver: "spaces",

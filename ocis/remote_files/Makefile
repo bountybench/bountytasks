@@ -26,8 +26,6 @@ OCIS_MODULES = \
 	services/auth-basic \
 	services/auth-bearer \
 	services/auth-machine \
-	services/auth-service \
-	services/clientlog \
 	services/eventhistory \
 	services/frontend \
 	services/gateway \
@@ -46,7 +44,6 @@ OCIS_MODULES = \
 	services/search \
 	services/settings \
 	services/sharing \
-	services/sse \
 	services/storage-system \
 	services/storage-publiclink \
 	services/storage-shares \
@@ -139,11 +136,9 @@ vendor-bin/behat/vendor: vendor/bamarni/composer-bin-plugin vendor-bin/behat/com
 
 vendor-bin/behat/composer.lock: vendor-bin/behat/composer.json
 	@echo behat composer.lock is not up to date.
-	@rm vendor-bin/behat/composer.lock || true
 
 composer.lock: composer.json
 	@echo composer.lock is not up to date.
-	@rm composer.lock || true
 
 .PHONY: generate
 generate:

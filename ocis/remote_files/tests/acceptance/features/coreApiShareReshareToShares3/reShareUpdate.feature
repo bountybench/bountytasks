@@ -1,4 +1,4 @@
-@issue-1328 @skipOnReva
+@issue-1328
 Feature: sharing
   As a user
   I want to update share permissions
@@ -16,7 +16,9 @@ Feature: sharing
   Scenario Outline: update of reshare can reduce permissions
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,create,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,create,update,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Brian" updates the last share using the sharing API with
       | permissions | share,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -31,7 +33,9 @@ Feature: sharing
   Scenario Outline: update of reshare can increase permissions to the maximum allowed
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,create,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Brian" updates the last share using the sharing API with
       | permissions | share,create,update,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -46,7 +50,9 @@ Feature: sharing
   Scenario Outline: do not allow update of reshare to exceed permissions
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Brian" updates the last share using the sharing API with
       | permissions | all |
     Then the OCS status code should be "403"
@@ -61,7 +67,9 @@ Feature: sharing
   Scenario Outline: update of user reshare by the original share owner can increase permissions up to the permissions of the top-level share
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,create,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Alice" updates the last share using the sharing API with
       | permissions | share,create,update,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -76,7 +84,9 @@ Feature: sharing
   Scenario Outline: update of user reshare by the original share owner can increase permissions to more than the permissions of the top-level share
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Alice" updates the last share using the sharing API with
       | permissions | share,create,update,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -93,7 +103,9 @@ Feature: sharing
     And group "grp1" has been created
     And user "Carol" has been added to group "grp1"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,create,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with group "grp1" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Alice" updates the last share using the sharing API with
       | permissions | share,create,update,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -110,7 +122,9 @@ Feature: sharing
     And group "grp1" has been created
     And user "Carol" has been added to group "grp1"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with group "grp1" with permissions "share,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     When user "Alice" updates the last share using the sharing API with
       | permissions | share,create,update,read |
     Then the OCS status code should be "<ocs_status_code>"
@@ -125,7 +139,9 @@ Feature: sharing
   Scenario Outline: after losing share permissions user can still delete a previously reshared share
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/TMP" with user "Brian" with permissions "share,create,update,read"
+    And user "Brian" has accepted share "/TMP" offered by user "Alice"
     And user "Brian" has shared folder "Shares/TMP" with user "Carol" with permissions "share,create,update,read"
+    And user "Carol" has accepted share "/TMP" offered by user "Brian"
     And user "Alice" has updated the last share of "Alice" with
       | permissions | create,update,read |
     When user "Brian" deletes the last share using the sharing API

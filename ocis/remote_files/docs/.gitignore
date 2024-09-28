@@ -2,4 +2,3 @@ hugo/
 grpc_apis/
 mutagen.yml.lock
 helpers/output/*
-services/**/_index.md

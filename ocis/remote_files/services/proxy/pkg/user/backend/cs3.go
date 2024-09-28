@@ -13,13 +13,12 @@ import (
 	revactx "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	libregraph "github.com/owncloud/libre-graph-api-go"
-	"go-micro.dev/v4/selector"
-
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/oidc"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
-	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
+	"github.com/owncloud/ocis/v2/services/proxy/pkg/autoprovision"
+	"go-micro.dev/v4/selector"
 )
 
 type cs3backend struct {
@@ -32,11 +31,11 @@ type Option func(o *Options)
 
 // Options defines the available options for this package.
 type Options struct {
-	logger            log.Logger
-	gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
-	machineAuthAPIKey string
-	oidcISS           string
-	serviceAccount    config.ServiceAccount
+	logger              log.Logger
+	gatewaySelector     pool.Selectable[gateway.GatewayAPIClient]
+	machineAuthAPIKey   string
+	oidcISS             string
+	autoProvsionCreator autoprovision.Creator
 }
 
 // WithLogger sets the logger option
@@ -67,10 +66,10 @@ func WithOIDCissuer(oidcISS string) Option {
 	}
 }
 
-// WithServiceAccount configures the service account creator to use
-func WithServiceAccount(c config.ServiceAccount) Option {
+// WithAutoProvisonCreator configures the autoprovision creator to use
+func WithAutoProvisonCreator(c autoprovision.Creator) Option {
 	return func(o *Options) {
-		o.serviceAccount = c
+		o.autoProvsionCreator = c
 	}
 }
 
@@ -146,25 +145,13 @@ func (c *cs3backend) Authenticate(ctx context.Context, username string, password
 // user. If the user already exist this is not considered an error and the
 // function will just return the existing user.
 func (c *cs3backend) CreateUserFromClaims(ctx context.Context, claims map[string]interface{}) (*cs3.User, error) {
-	gatewayClient, err := c.gatewaySelector.Next()
-	if err != nil {
-		c.logger.Error().Err(err).Msg("could not select next gateway client")
-		return nil, err
-	}
 	newctx := context.Background()
-	authRes, err := gatewayClient.Authenticate(newctx, &gateway.AuthenticateRequest{
-		Type:         "serviceaccounts",
-		ClientId:     c.serviceAccount.ServiceAccountID,
-		ClientSecret: c.serviceAccount.ServiceAccountSecret,
-	})
+	token, err := c.autoProvsionCreator.GetAutoProvisionAdminToken(newctx)
 	if err != nil {
+		c.logger.Error().Err(err).Msg("Error generating token for autoprovisioning user.")
 		return nil, err
 	}
-	if authRes.GetStatus().GetCode() != rpcv1beta1.Code_CODE_OK {
-		return nil, fmt.Errorf("error authenticating service user: %s", authRes.Status.Message)
-	}
-
-	lgClient, err := c.setupLibregraphClient(newctx, authRes.Token)
+	lgClient, err := c.setupLibregraphClient(ctx, token)
 	if err != nil {
 		c.logger.Error().Err(err).Msg("Error setting up libregraph client.")
 		return nil, err
@@ -232,7 +219,7 @@ func (c cs3backend) setupLibregraphClient(ctx context.Context, cs3token string) 
 	lgconf := libregraph.NewConfiguration()
 	lgconf.Servers = libregraph.ServerConfigurations{
 		{
-			URL: fmt.Sprintf("%s://%s/graph", node.Metadata["protocol"], node.Address),
+			URL: fmt.Sprintf("%s://%s/graph/v1.0", node.Metadata["protocol"], node.Address),
 		},
 	}
 

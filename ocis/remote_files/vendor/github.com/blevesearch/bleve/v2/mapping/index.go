@@ -17,14 +17,13 @@ package mapping
 import (
 	"encoding/json"
 	"fmt"
+	index "github.com/blevesearch/bleve_index_api"
 
 	"github.com/blevesearch/bleve/v2/analysis"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
 	"github.com/blevesearch/bleve/v2/analysis/datetime/optional"
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
-	index "github.com/blevesearch/bleve_index_api"
 )
 
 var MappingJSONStrict = false
@@ -204,7 +203,7 @@ func (im *IndexMappingImpl) mappingForType(docType string) *DocumentMapping {
 func (im *IndexMappingImpl) UnmarshalJSON(data []byte) error {
 
 	var tmp map[string]json.RawMessage
-	err := util.UnmarshalJSON(data, &tmp)
+	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}
@@ -227,57 +226,57 @@ func (im *IndexMappingImpl) UnmarshalJSON(data []byte) error {
 	for k, v := range tmp {
 		switch k {
 		case "analysis":
-			err := util.UnmarshalJSON(v, &im.CustomAnalysis)
+			err := json.Unmarshal(v, &im.CustomAnalysis)
 			if err != nil {
 				return err
 			}
 		case "type_field":
-			err := util.UnmarshalJSON(v, &im.TypeField)
+			err := json.Unmarshal(v, &im.TypeField)
 			if err != nil {
 				return err
 			}
 		case "default_type":
-			err := util.UnmarshalJSON(v, &im.DefaultType)
+			err := json.Unmarshal(v, &im.DefaultType)
 			if err != nil {
 				return err
 			}
 		case "default_analyzer":
-			err := util.UnmarshalJSON(v, &im.DefaultAnalyzer)
+			err := json.Unmarshal(v, &im.DefaultAnalyzer)
 			if err != nil {
 				return err
 			}
 		case "default_datetime_parser":
-			err := util.UnmarshalJSON(v, &im.DefaultDateTimeParser)
+			err := json.Unmarshal(v, &im.DefaultDateTimeParser)
 			if err != nil {
 				return err
 			}
 		case "default_field":
-			err := util.UnmarshalJSON(v, &im.DefaultField)
+			err := json.Unmarshal(v, &im.DefaultField)
 			if err != nil {
 				return err
 			}
 		case "default_mapping":
-			err := util.UnmarshalJSON(v, &im.DefaultMapping)
+			err := json.Unmarshal(v, &im.DefaultMapping)
 			if err != nil {
 				return err
 			}
 		case "types":
-			err := util.UnmarshalJSON(v, &im.TypeMapping)
+			err := json.Unmarshal(v, &im.TypeMapping)
 			if err != nil {
 				return err
 			}
 		case "store_dynamic":
-			err := util.UnmarshalJSON(v, &im.StoreDynamic)
+			err := json.Unmarshal(v, &im.StoreDynamic)
 			if err != nil {
 				return err
 			}
 		case "index_dynamic":
-			err := util.UnmarshalJSON(v, &im.IndexDynamic)
+			err := json.Unmarshal(v, &im.IndexDynamic)
 			if err != nil {
 				return err
 			}
 		case "docvalues_dynamic":
-			err := util.UnmarshalJSON(v, &im.DocValuesDynamic)
+			err := json.Unmarshal(v, &im.DocValuesDynamic)
 			if err != nil {
 				return err
 			}
@@ -416,6 +415,23 @@ func (im *IndexMappingImpl) DateTimeParserNamed(name string) analysis.DateTimePa
 		return nil
 	}
 	return dateTimeParser
+}
+
+func (im *IndexMappingImpl) datetimeParserNameForPath(path string) string {
+
+	// first we look for explicit mapping on the field
+	for _, docMapping := range im.TypeMapping {
+		pathMapping, _ := docMapping.documentMappingForPath(path)
+		if pathMapping != nil {
+			if len(pathMapping.Fields) > 0 {
+				if pathMapping.Fields[0].Analyzer != "" {
+					return pathMapping.Fields[0].Analyzer
+				}
+			}
+		}
+	}
+
+	return im.DefaultDateTimeParser
 }
 
 func (im *IndexMappingImpl) AnalyzeText(analyzerName string, text []byte) (analysis.TokenStream, error) {

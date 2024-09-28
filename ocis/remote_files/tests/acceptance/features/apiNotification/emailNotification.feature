@@ -78,8 +78,8 @@ Feature: Email notification
     And group "group1" has been created
     And user "Brian" has been added to group "group1"
     And user "Carol" has been added to group "group1"
-    And user "Brian" has switched the system language to "es" using the Graph API
-    And user "Carol" has switched the system language to "de" using the Graph API
+    And user "Brian" has switched the system language to "es"
+    And user "Carol" has switched the system language to "de"
     And user "Alice" has created folder "/HelloWorld"
     When user "Alice" shares folder "HelloWorld" with group "group1" using the sharing API
     Then the HTTP status code should be "200"
@@ -107,8 +107,8 @@ Feature: Email notification
     And group "group1" has been created
     And user "Brian" has been added to group "group1"
     And user "Carol" has been added to group "group1"
-    And user "Brian" has switched the system language to "es" using the Graph API
-    And user "Carol" has switched the system language to "de" using the Graph API
+    And user "Brian" has switched the system language to "es"
+    And user "Carol" has switched the system language to "de"
     And user "Alice" has uploaded file with content "hello world" to "text.txt"
     When user "Alice" shares file "text.txt" with group "group1" using the sharing API
     Then the HTTP status code should be "200"
@@ -137,8 +137,8 @@ Feature: Email notification
     And group "group1" has been created
     And user "Brian" has been added to group "group1"
     And user "Carol" has been added to group "group1"
-    And user "Brian" has switched the system language to "es" using the Graph API
-    And user "Carol" has switched the system language to "de" using the Graph API
+    And user "Brian" has switched the system language to "es"
+    And user "Carol" has switched the system language to "de"
     And user "Alice" has created a space "new-space" with the default quota using the Graph API
     When user "Alice" shares a space "new-space" with settings:
       | shareWith | group1 |
@@ -179,32 +179,4 @@ Feature: Email notification
       You might still have access through your other groups or direct membership.
 
       Click here to check it: %base_url%/f/%space_id%
-      """
-
-  @env-config
-  Scenario: group members get an email notification in default language when someone shares a file with the group
-    Given the config "OCIS_DEFAULT_LANGUAGE" has been set to "de"
-    And user "Carol" has been created with default attributes and without skeleton files
-    And group "group1" has been created
-    And user "Brian" has been added to group "group1"
-    And user "Carol" has been added to group "group1"
-    And user "Alice" has uploaded file with content "hello world" to "text.txt"
-    When user "Alice" shares file "text.txt" with group "group1" using the sharing API
-    Then the HTTP status code should be "200"
-    And the OCS status code should be "100"
-    And user "Brian" should have received the following email from user "Alice"
-      """
-      Hallo Brian Murphy
-
-      %displayname% hat "text.txt" mit Ihnen geteilt.
-
-      Zum Ansehen hier klicken: %base_url%/files/shares/with-me
-      """
-    And user "Carol" should have received the following email from user "Alice"
-      """
-      Hallo Carol King
-
-      %displayname% hat "text.txt" mit Ihnen geteilt.
-
-      Zum Ansehen hier klicken: %base_url%/files/shares/with-me
       """

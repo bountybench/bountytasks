@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/cs3org/reva/v2/pkg/events"
 	"github.com/cs3org/reva/v2/pkg/events/stream"
@@ -82,7 +81,7 @@ func Server(cfg *config.Config) *cli.Command {
 
 			defer cancel()
 
-			stream, err := stream.NatsFromConfig(cfg.Service.Name, stream.NatsConfig(cfg.Events))
+			consumer, err := stream.NatsFromConfig(cfg.Service.Name, stream.NatsConfig(cfg.Events))
 			if err != nil {
 				return err
 			}
@@ -122,7 +121,7 @@ func Server(cfg *config.Config) *cli.Command {
 					http.Config(cfg),
 					http.Metrics(mtrcs),
 					http.Store(st),
-					http.Stream(stream),
+					http.Consumer(consumer),
 					http.GatewaySelector(gatewaySelector),
 					http.History(hClient),
 					http.Value(vClient),
@@ -145,7 +144,6 @@ func Server(cfg *config.Config) *cli.Command {
 						Msg("Shutting down server")
 
 					cancel()
-					os.Exit(1)
 				})
 			}
 

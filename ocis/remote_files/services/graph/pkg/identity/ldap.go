@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -14,10 +13,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/libregraph/idm/pkg/ldapdn"
 	libregraph "github.com/owncloud/libre-graph-api-go"
-
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
+	"golang.org/x/exp/slices"
 )
 
 const (
@@ -582,7 +581,7 @@ func (i *LDAP) GetUsers(ctx context.Context, oreq *godata.GoDataRequest) ([]*lib
 	if search != "" {
 		search = ldap.EscapeFilter(search)
 		userFilter = fmt.Sprintf(
-			"(|(%s=*%s*)(%s=*%s*)(%s=*%s*))",
+			"(|(%s=%s*)(%s=%s*)(%s=%s*))",
 			i.userAttributeMap.userName, search,
 			i.userAttributeMap.mail, search,
 			i.userAttributeMap.displayName, search,
@@ -923,7 +922,7 @@ func (i *LDAP) removeEntryByDNAndAttributeFromEntry(entry *ldap.Entry, dn string
 	}
 
 	currentValues := entry.GetEqualFoldAttributeValues(attribute)
-	i.logger.Debug().Interface("members", currentValues).Msg("current values")
+	i.logger.Error().Interface("members", currentValues).Msg("current values")
 	found := false
 	for _, currentValue := range currentValues {
 		if currentValue == "" {

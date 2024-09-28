@@ -5,12 +5,6 @@ import (
 	"encoding/hex"
 )
 
-// BytesEncodeFunc type
-type BytesEncodeFunc func(src []byte) []byte
-
-// BytesDecodeFunc type
-type BytesDecodeFunc func(src []byte) ([]byte, error)
-
 // BytesEncoder interface
 type BytesEncoder interface {
 	Encode(src []byte) []byte
@@ -19,12 +13,12 @@ type BytesEncoder interface {
 
 // StdEncoder implement the BytesEncoder
 type StdEncoder struct {
-	encodeFn BytesEncodeFunc
-	decodeFn BytesDecodeFunc
+	encodeFn func(src []byte) []byte
+	decodeFn func(src []byte) ([]byte, error)
 }
 
 // NewStdEncoder instance
-func NewStdEncoder(encFn BytesEncodeFunc, decFn BytesDecodeFunc) *StdEncoder {
+func NewStdEncoder(encFn func(src []byte) []byte, decFn func(src []byte) ([]byte, error)) *StdEncoder {
 	return &StdEncoder{
 		encodeFn: encFn,
 		decodeFn: decFn,

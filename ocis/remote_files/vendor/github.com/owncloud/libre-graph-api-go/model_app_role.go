@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the AppRole type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &AppRole{}
-
 // AppRole struct for AppRole
 type AppRole struct {
 	// Specifies whether this app role can be assigned to users and groups (by setting to ['User']), to other application's (by setting to ['Application'], or both (by setting to ['User', 'Application']). App roles supporting assignment to other applications' service principals are also known as application permissions. The 'Application' value is only supported for app roles defined on application entities.
@@ -49,7 +46,7 @@ func NewAppRoleWithDefaults() *AppRole {
 
 // GetAllowedMemberTypes returns the AllowedMemberTypes field value if set, zero value otherwise.
 func (o *AppRole) GetAllowedMemberTypes() []string {
-	if o == nil || IsNil(o.AllowedMemberTypes) {
+	if o == nil || o.AllowedMemberTypes == nil {
 		var ret []string
 		return ret
 	}
@@ -59,7 +56,7 @@ func (o *AppRole) GetAllowedMemberTypes() []string {
 // GetAllowedMemberTypesOk returns a tuple with the AllowedMemberTypes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *AppRole) GetAllowedMemberTypesOk() ([]string, bool) {
-	if o == nil || IsNil(o.AllowedMemberTypes) {
+	if o == nil || o.AllowedMemberTypes == nil {
 		return nil, false
 	}
 	return o.AllowedMemberTypes, true
@@ -67,7 +64,7 @@ func (o *AppRole) GetAllowedMemberTypesOk() ([]string, bool) {
 
 // HasAllowedMemberTypes returns a boolean if a field has been set.
 func (o *AppRole) HasAllowedMemberTypes() bool {
-	if o != nil && !IsNil(o.AllowedMemberTypes) {
+	if o != nil && o.AllowedMemberTypes != nil {
 		return true
 	}
 
@@ -81,7 +78,7 @@ func (o *AppRole) SetAllowedMemberTypes(v []string) {
 
 // GetDescription returns the Description field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRole) GetDescription() string {
-	if o == nil || IsNil(o.Description.Get()) {
+	if o == nil || o.Description.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -124,7 +121,7 @@ func (o *AppRole) UnsetDescription() {
 
 // GetDisplayName returns the DisplayName field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRole) GetDisplayName() string {
-	if o == nil || IsNil(o.DisplayName.Get()) {
+	if o == nil || o.DisplayName.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -190,16 +187,8 @@ func (o *AppRole) SetId(v string) {
 }
 
 func (o AppRole) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o AppRole) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.AllowedMemberTypes) {
+	if o.AllowedMemberTypes != nil {
 		toSerialize["allowedMemberTypes"] = o.AllowedMemberTypes
 	}
 	if o.Description.IsSet() {
@@ -208,8 +197,10 @@ func (o AppRole) ToMap() (map[string]interface{}, error) {
 	if o.DisplayName.IsSet() {
 		toSerialize["displayName"] = o.DisplayName.Get()
 	}
-	toSerialize["id"] = o.Id
-	return toSerialize, nil
+	if true {
+		toSerialize["id"] = o.Id
+	}
+	return json.Marshal(toSerialize)
 }
 
 type NullableAppRole struct {

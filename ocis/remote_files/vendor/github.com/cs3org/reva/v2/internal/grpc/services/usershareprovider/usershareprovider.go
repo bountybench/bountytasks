@@ -23,15 +23,9 @@ import (
 	"regexp"
 
 	userpb "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
-	rpc "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	collaboration "github.com/cs3org/go-cs3apis/cs3/sharing/collaboration/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
-	"github.com/mitchellh/mapstructure"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
-
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	"github.com/cs3org/reva/v2/pkg/conversions"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/errtypes"
 	"github.com/cs3org/reva/v2/pkg/rgrpc"
@@ -39,6 +33,9 @@ import (
 	"github.com/cs3org/reva/v2/pkg/share"
 	"github.com/cs3org/reva/v2/pkg/share/manager/registry"
 	"github.com/cs3org/reva/v2/pkg/utils"
+	"github.com/mitchellh/mapstructure"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
 )
 
 func init() {
@@ -138,45 +135,31 @@ func (s *service) isPathAllowed(path string) bool {
 }
 
 func (s *service) CreateShare(ctx context.Context, req *collaboration.CreateShareRequest) (*collaboration.CreateShareResponse, error) {
-	user := ctxpkg.ContextMustGetUser(ctx)
-
-	if req.GetGrant().GetGrantee().GetType() == provider.GranteeType_GRANTEE_TYPE_USER && req.GetGrant().GetGrantee().GetUserId().GetIdp() == "" {
+	u := ctxpkg.ContextMustGetUser(ctx)
+	if req.Grant.Grantee.Type == provider.GranteeType_GRANTEE_TYPE_USER && req.Grant.Grantee.GetUserId().Idp == "" {
 		// use logged in user Idp as default.
-		req.GetGrant().GetGrantee().Id = &provider.Grantee_UserId{
-			UserId: &userpb.UserId{
-				OpaqueId: req.GetGrant().GetGrantee().GetUserId().GetOpaqueId(),
-				Idp:      user.GetId().GetIdp(),
-				Type:     userpb.UserType_USER_TYPE_PRIMARY},
-		}
+		g := &userpb.UserId{OpaqueId: req.Grant.Grantee.GetUserId().OpaqueId, Idp: u.Id.Idp, Type: userpb.UserType_USER_TYPE_PRIMARY}
+		req.Grant.Grantee.Id = &provider.Grantee_UserId{UserId: g}
 	}
 
-	// check if the requested share creation has sufficient permissions to do so.
-	if shareCreationAllowed := conversions.SufficientCS3Permissions(
-		req.GetResourceInfo().GetPermissionSet(),
-		req.GetGrant().GetPermissions().GetPermissions(),
-	); !shareCreationAllowed {
+	if !s.isPathAllowed(req.ResourceInfo.Path) {
 		return &collaboration.CreateShareResponse{
-			Status: status.NewPermissionDenied(ctx, nil, "insufficient permissions to create that kind of share"),
+			Status: status.NewInvalid(ctx, "share creation is not allowed for the specified path"),
 		}, nil
 	}
 
-	if !s.isPathAllowed(req.GetResourceInfo().GetPath()) {
-		return &collaboration.CreateShareResponse{
-			Status: status.NewFailedPrecondition(ctx, nil, "share creation is not allowed for the specified path"),
-		}, nil
-	}
-
-	createdShare, err := s.sm.Share(ctx, req.GetResourceInfo(), req.GetGrant())
+	share, err := s.sm.Share(ctx, req.ResourceInfo, req.Grant)
 	if err != nil {
 		return &collaboration.CreateShareResponse{
 			Status: status.NewStatusFromErrType(ctx, "error creating share", err),
 		}, nil
 	}
 
-	return &collaboration.CreateShareResponse{
+	res := &collaboration.CreateShareResponse{
 		Status: status.NewOK(ctx),
-		Share:  createdShare,
-	}, nil
+		Share:  share,
+	}
+	return res, nil
 }
 
 func (s *service) RemoveShare(ctx context.Context, req *collaboration.RemoveShareRequest) (*collaboration.RemoveShareResponse, error) {
@@ -210,15 +193,8 @@ func (s *service) RemoveShare(ctx context.Context, req *collaboration.RemoveShar
 func (s *service) GetShare(ctx context.Context, req *collaboration.GetShareRequest) (*collaboration.GetShareResponse, error) {
 	share, err := s.sm.GetShare(ctx, req.Ref)
 	if err != nil {
-		var st *rpc.Status
-		switch err.(type) {
-		case errtypes.IsNotFound:
-			st = status.NewNotFound(ctx, err.Error())
-		default:
-			st = status.NewInternal(ctx, err.Error())
-		}
 		return &collaboration.GetShareResponse{
-			Status: st,
+			Status: status.NewInternal(ctx, "error getting share"),
 		}, nil
 	}
 
@@ -270,10 +246,7 @@ func (s *service) ListReceivedShares(ctx context.Context, req *collaboration.Lis
 	if !foundExclude {
 		req.Filters = append(req.Filters, &collaboration.Filter{Type: collaboration.Filter_TYPE_EXCLUDE_DENIALS})
 	}
-
-	var uid userpb.UserId
-	_ = utils.ReadJSONFromOpaque(req.Opaque, "userid", &uid)
-	shares, err := s.sm.ListReceivedShares(ctx, req.Filters, &uid) // TODO(labkode): check what to update
+	shares, err := s.sm.ListReceivedShares(ctx, req.Filters) // TODO(labkode): check what to update
 	if err != nil {
 		return &collaboration.ListReceivedSharesResponse{
 			Status: status.NewInternal(ctx, "error listing received shares"),
@@ -328,9 +301,7 @@ func (s *service) UpdateReceivedShare(ctx context.Context, req *collaboration.Up
 		}, nil
 	}
 
-	var uid userpb.UserId
-	_ = utils.ReadJSONFromOpaque(req.Opaque, "userid", &uid)
-	share, err := s.sm.UpdateReceivedShare(ctx, req.Share, req.UpdateMask, &uid)
+	share, err := s.sm.UpdateReceivedShare(ctx, req.Share, req.UpdateMask)
 	if err != nil {
 		return &collaboration.UpdateReceivedShareResponse{
 			Status: status.NewInternal(ctx, "error updating received share"),

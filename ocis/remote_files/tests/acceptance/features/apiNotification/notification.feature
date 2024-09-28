@@ -128,6 +128,7 @@ Feature: Notification
 
   Scenario Outline: user gets a notification of unsharing resource
     Given user "Alice" has shared entry "<resource>" with user "Brian"
+    And user "Brian" has accepted share "/<resource>" offered by user "Alice"
     And user "Alice" has unshared entity "<resource>" shared to "Brian"
     When user "Brian" lists all notifications
     Then the HTTP status code should be "200"
@@ -199,7 +200,7 @@ Feature: Notification
                 },
                 "id": {
                   "type": "string",
-                  "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+                  "enim": ["%user_id%"]
                 },
                 "name": {
                   "type": "string",
@@ -241,7 +242,7 @@ Feature: Notification
 
 
   Scenario Outline: get a notification about a file share in various languages
-    Given user "Brian" has switched the system language to "<language>" using the <api> API
+    Given user "Brian" has switched the system language to "<language>"
     And user "Alice" has shared entry "textfile1.txt" with user "Brian" with permissions "17"
     When user "Brian" lists all notifications
     Then the HTTP status code should be "200"
@@ -263,39 +264,14 @@ Feature: Notification
       }
       """
     Examples:
-      | language | subject            | message                                          | api      |
-      | de       | Neue Freigabe      | Alice Hansen hat textfile1.txt mit Ihnen geteilt | Graph    |
-      | de       | Neue Freigabe      | Alice Hansen hat textfile1.txt mit Ihnen geteilt | settings |
-      | es       | Recurso compartido | Alice Hansen compartió textfile1.txt contigo     | Graph    |
-      | es       | Recurso compartido | Alice Hansen compartió textfile1.txt contigo     | settings |
-
-  @env-config
-  Scenario: get a notification about a file share in default languages
-    Given the config "OCIS_DEFAULT_LANGUAGE" has been set to "de"
-    And user "Alice" has shared entry "textfile1.txt" with user "Brian" with permissions "17"
-    When user "Brian" lists all notifications
-    Then the HTTP status code should be "200"
-    And the JSON response should contain a notification message with the subject "Neue Freigabe" and the message-details should match
-      """
-      {
-        "type": "object",
-        "required": [
-          "message"
-        ],
-        "properties": {
-          "message": {
-            "type": "string",
-            "enum": [
-              "Alice Hansen hat textfile1.txt mit Ihnen geteilt"
-            ]
-          }
-        }
-      }
-      """
+      | language | subject            | message                                          |
+      | de       | Neue Freigabe      | Alice Hansen hat textfile1.txt mit Ihnen geteilt |
+      | es       | Recurso compartido | Alice Hansen compartió textfile1.txt contigo     |
 
 
   Scenario Outline: notifications related to a resource get deleted when the resource is deleted
     Given user "Alice" has shared entry "<resource>" with user "Brian"
+    And user "Brian" has accepted share "/<resource>" offered by user "Alice"
     And user "Alice" has unshared entity "<resource>" shared to "Brian"
     And user "Alice" has deleted entity "/<resource>"
     When user "Brian" lists all notifications

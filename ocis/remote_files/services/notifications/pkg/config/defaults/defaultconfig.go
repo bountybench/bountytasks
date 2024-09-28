@@ -31,7 +31,11 @@ func DefaultConfig() *config.Config {
 		WebUIURL: "https://localhost:9200",
 		Notifications: config.Notifications{
 			SMTP: config.SMTP{
-				Encryption: "none",
+				Host:           "",
+				Port:           1025,
+				Sender:         "ownCloud <noreply@example.com>",
+				Authentication: "none",
+				Encryption:     "none",
 			},
 			Events: config.Events{
 				Endpoint:  "127.0.0.1:9233",
@@ -69,6 +73,9 @@ func EnsureDefaults(cfg *config.Config) {
 		cfg.Tracing = &config.Tracing{}
 	}
 
+	if cfg.Notifications.MachineAuthAPIKey == "" && cfg.Commons != nil && cfg.Commons.MachineAuthAPIKey != "" {
+		cfg.Notifications.MachineAuthAPIKey = cfg.Commons.MachineAuthAPIKey
+	}
 	if cfg.Notifications.GRPCClientTLS == nil && cfg.Commons != nil {
 		cfg.Notifications.GRPCClientTLS = structs.CopyOrZeroValue(cfg.Commons.GRPCClientTLS)
 	}

@@ -18,21 +18,16 @@ func ValDecodeHookFunc(parseEnv, parseTime bool) mapstructure.DecodeHookFunc {
 			return data, nil
 		}
 
-		var err error
 		str := data.(string)
 		if parseEnv {
-			// https://docs.docker.com/compose/environment-variables/env-file/
-			str, err = envutil.ParseOrErr(str)
-			if err != nil {
-				return nil, err
-			}
+			str = envutil.ParseEnvValue(str)
 		}
 		if len(str) < 2 {
 			return str, nil
 		}
 
 		// start char is number(1-9)
-		if str[0] > '0' && str[0] <= '9' {
+		if str[0] > '0' && str[0] < '9' {
 			// parse time string. eg: 10s
 			if parseTime && t.Kind() == reflect.Int64 {
 				dur, err := time.ParseDuration(str)

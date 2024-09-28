@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 
 	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	user "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
@@ -87,7 +87,7 @@ func (g Graph) ExportPersonalData(w http.ResponseWriter, r *http.Request) {
 	// go start gathering
 	go g.GatherPersonalData(u, ref, r.Header.Get(revactx.TokenHeader), marsh)
 
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusCreated)
 }
 
 // GatherPersonalData will all gather all personal data of the user and save it to a file in the users personal space
@@ -99,7 +99,7 @@ func (g Graph) GatherPersonalData(usr *user.User, ref *provider.Reference, token
 	}
 
 	// the context might already be cancelled. We need to impersonate the acting user again
-	ctx, err := utils.GetServiceUserContext(g.config.ServiceAccount.ServiceAccountID, gatewayClient, g.config.ServiceAccount.ServiceAccountSecret)
+	ctx, err := utils.ImpersonateUser(usr, gatewayClient, g.config.MachineAuthAPIKey)
 	if err != nil {
 		g.logger.Error().Err(err).Str("userID", usr.GetId().GetOpaqueId()).Msg("cannot impersonate user")
 	}
@@ -162,7 +162,7 @@ func (g Graph) upload(u *user.User, data []byte, ref *provider.Reference, th str
 		return err
 	}
 
-	ctx, err := utils.GetServiceUserContext(g.config.ServiceAccount.ServiceAccountID, gatewayClient, g.config.ServiceAccount.ServiceAccountSecret)
+	ctx, err := utils.ImpersonateUser(u, gatewayClient, g.config.MachineAuthAPIKey)
 	if err != nil {
 		return err
 	}

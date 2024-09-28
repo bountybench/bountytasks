@@ -14,6 +14,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: upload file with mtime to a received share
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
       | file.txt |
@@ -24,6 +25,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: upload file with mtime to a sent share
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Alice" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Personal" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
@@ -34,6 +36,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: overwriting a file with mtime in a received share
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     And user "Alice" has uploaded file with content "uploaded content" to "/toShare/file.txt"
     When user "Brian" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Brian" folder "toShare" of the space "Shares" should contain these entries:
@@ -45,6 +48,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: overwriting a file with mtime in a sent share
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     And user "Brian" has uploaded a file inside space "Shares" with content "uploaded content" to "toShare/file.txt"
     When user "Alice" uploads a file "filesForUpload/textfile.txt" to "toShare/file.txt" with mtime "Thu, 08 Aug 2012 04:18:13 GMT" via TUS inside of the space "Personal" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
@@ -57,6 +61,7 @@ Feature: upload resources on share using TUS protocol
     Given using OCS API version "1"
     And user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/nonExistentFolder/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | nonExistentFolder |
@@ -66,6 +71,7 @@ Feature: upload resources on share using TUS protocol
     Given using OCS API version "1"
     And user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian" with permissions "read"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/nonExistentFolder/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | nonExistentFolder |
@@ -74,6 +80,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: uploading a file to a received share folder
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
@@ -83,6 +90,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: uploading a file to a user read/write share folder
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian" with permissions "change"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
@@ -94,6 +102,7 @@ Feature: upload resources on share using TUS protocol
     And user "Brian" has been added to group "grp1"
     And user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "toShare" with group "grp1" with permissions "change"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
@@ -104,6 +113,7 @@ Feature: upload resources on share using TUS protocol
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has uploaded file with content "original content" to "/toShare/file.txt"
     And user "Alice" has shared folder "/toShare" with user "Brian"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "overwritten content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Alice" folder "toShare" of the space "Personal" should contain these entries:
       | file.txt |
@@ -113,6 +123,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: attempt to upload a file into a folder within correctly received read only share
     Given user "Alice" has created folder "/toShare"
     And user "Alice" has shared folder "/toShare" with user "Brian" with permissions "read"
+    And user "Brian" has accepted share "/toShare" offered by user "Alice"
     When user "Brian" uploads a file with content "uploaded content" to "/toShare/file.txt" via TUS inside of the space "Shares" using the WebDAV API
     Then for user "Brian" folder "toShare" of the space "Shares" should not contain these entries:
       | file.txt |
@@ -121,6 +132,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: upload a file to shared folder with checksum should return the checksum in the propfind for sharee
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     And user "Alice" has created a new TUS resource for the space "Personal" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 5                                     |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -135,6 +147,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: upload a file to shared folder with checksum should return the checksum in the download header for sharee
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     And user "Alice" has created a new TUS resource for the space "Personal" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 5                                     |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -153,6 +166,7 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                     |
     And user "Alice" has uploaded file with checksum "SHA1 8cb2237d0679ca88db6464eac60da96345513964" to the last created TUS Location with offset "0" and content "12345" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" has shared file "/textFile.txt" with user "Brian"
+    And user "Brian" has accepted share "/textFile.txt" offered by user "Alice"
     When user "Brian" requests the checksum of file "/textFile.txt" in space "Shares" via propfind using the WebDAV API
     Then the HTTP status code should be "207"
     And the webdav checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964 MD5:827ccb0eea8a706c4c34a16891f84e7b ADLER32:02f80100"
@@ -166,6 +180,7 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                     |
     And user "Alice" has uploaded file with checksum "SHA1 8cb2237d0679ca88db6464eac60da96345513964" to the last created TUS Location with offset "0" and content "12345" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" has shared file "/textFile.txt" with user "Brian"
+    And user "Brian" has accepted share "/textFile.txt" offered by user "Alice"
     When user "Brian" downloads the file "/textFile.txt" of the space "Shares" using the WebDAV API
     Then the header checksum should match "SHA1:8cb2237d0679ca88db6464eac60da96345513964"
 
@@ -173,6 +188,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: sharee uploads a file to a received share folder with correct checksum
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     When user "Brian" creates a new TUS resource for the space "Shares" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 16                                    |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -187,6 +203,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: sharee uploads a file to a received share folder with wrong checksum should not work
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     When user "Brian" creates a new TUS resource for the space "Shares" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 16                                    |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -201,6 +218,7 @@ Feature: upload resources on share using TUS protocol
   Scenario: sharer uploads a file to shared folder with wrong checksum should not work
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     And user "Alice" has created a new TUS resource for the space "Personal" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 16                                    |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -223,14 +241,14 @@ Feature: upload resources on share using TUS protocol
     When user "Alice" sends a chunk to the last created TUS Location with offset "0" and data "01234" with checksum "MD5 4100c4d44da9177247e44a5fc1546778" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" sends a chunk to the last created TUS Location with offset "5" and data "56789" with checksum "MD5 099ebea48ea9666a7da2177267983138" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" shares file "textFile.txt" with user "Brian" using the sharing API
-    Then the HTTP status code should be "200"
-    And the OCS status code should be "100"
-    And for user "Brian" the content of the file "/textFile.txt" of the space "Shares" should be "0123456789"
+    And user "Brian" accepts share "/textFile.txt" offered by user "Alice" using the sharing API
+    Then for user "Brian" the content of the file "/textFile.txt" of the space "Shares" should be "0123456789"
 
 
   Scenario: sharee uploads a chunked file with correct checksum to a received share folder should work
     Given user "Alice" has created folder "/FOLDER"
     And user "Alice" has shared folder "/FOLDER" with user "Brian"
+    And user "Brian" has accepted share "/FOLDER" offered by user "Alice"
     And user "Brian" has created a new TUS resource for the space "Shares" with content "" using the WebDAV API with these headers:
       | Upload-Length   | 10                                    |
       #    L0ZPTERFUi90ZXh0RmlsZS50eHQ= is the base64 encode of /FOLDER/textFile.txt
@@ -252,6 +270,7 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                     |
     And user "Alice" has uploaded file with checksum "SHA1 c1dab0c0864b6ac9bdd3743a1408d679f1acd823" to the last created TUS Location with offset "0" and content "original content" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" has shared file "/textFile.txt" with user "Brian"
+    And user "Brian" has accepted share "/textFile.txt" offered by user "Alice"
     When user "Brian" overwrites recently shared file with offset "0" and data "overwritten content" with checksum "SHA1 fe990d2686a0fc86004efc31f5bf2475a45d4905" via TUS inside of the space "Shares" using the WebDAV API with these headers:
       | Upload-Length   | 19                        |
       #    dGV4dEZpbGUudHh0 is the base64 encode of textFile.txt
@@ -269,6 +288,7 @@ Feature: upload resources on share using TUS protocol
       | Tus-Resumable   | 1.0.0                     |
     And user "Alice" has uploaded file with checksum "SHA1 c1dab0c0864b6ac9bdd3743a1408d679f1acd823" to the last created TUS Location with offset "0" and content "original content" via TUS inside of the space "Personal" using the WebDAV API
     And user "Alice" has shared file "/textFile.txt" with user "Brian"
+    And user "Brian" has accepted share "/textFile.txt" offered by user "Alice"
     When user "Brian" overwrites recently shared file with offset "0" and data "overwritten content" with checksum "SHA1 fe990d2686a0fc86004efc31f5bf2475a45d4906" via TUS inside of the space "Shares" using the WebDAV API with these headers:
       | Upload-Length   | 19                        |
       #    dGV4dEZpbGUudHh0 is the base64 encode of textFile.txt

@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the ItemReference type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ItemReference{}
-
 // ItemReference struct for ItemReference
 type ItemReference struct {
 	// Unique identifier of the drive instance that contains the item. Read-only.
@@ -29,6 +26,8 @@ type ItemReference struct {
 	Name *string `json:"name,omitempty"`
 	// Path that can be used to navigate to the item. Read-only.
 	Path *string `json:"path,omitempty"`
+	// A unique identifier for a shared resource that can be accessed via the [Shares][] API.
+	ShareId *string `json:"shareId,omitempty"`
 }
 
 // NewItemReference instantiates a new ItemReference object
@@ -50,7 +49,7 @@ func NewItemReferenceWithDefaults() *ItemReference {
 
 // GetDriveId returns the DriveId field value if set, zero value otherwise.
 func (o *ItemReference) GetDriveId() string {
-	if o == nil || IsNil(o.DriveId) {
+	if o == nil || o.DriveId == nil {
 		var ret string
 		return ret
 	}
@@ -60,7 +59,7 @@ func (o *ItemReference) GetDriveId() string {
 // GetDriveIdOk returns a tuple with the DriveId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ItemReference) GetDriveIdOk() (*string, bool) {
-	if o == nil || IsNil(o.DriveId) {
+	if o == nil || o.DriveId == nil {
 		return nil, false
 	}
 	return o.DriveId, true
@@ -68,7 +67,7 @@ func (o *ItemReference) GetDriveIdOk() (*string, bool) {
 
 // HasDriveId returns a boolean if a field has been set.
 func (o *ItemReference) HasDriveId() bool {
-	if o != nil && !IsNil(o.DriveId) {
+	if o != nil && o.DriveId != nil {
 		return true
 	}
 
@@ -82,7 +81,7 @@ func (o *ItemReference) SetDriveId(v string) {
 
 // GetDriveType returns the DriveType field value if set, zero value otherwise.
 func (o *ItemReference) GetDriveType() string {
-	if o == nil || IsNil(o.DriveType) {
+	if o == nil || o.DriveType == nil {
 		var ret string
 		return ret
 	}
@@ -92,7 +91,7 @@ func (o *ItemReference) GetDriveType() string {
 // GetDriveTypeOk returns a tuple with the DriveType field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ItemReference) GetDriveTypeOk() (*string, bool) {
-	if o == nil || IsNil(o.DriveType) {
+	if o == nil || o.DriveType == nil {
 		return nil, false
 	}
 	return o.DriveType, true
@@ -100,7 +99,7 @@ func (o *ItemReference) GetDriveTypeOk() (*string, bool) {
 
 // HasDriveType returns a boolean if a field has been set.
 func (o *ItemReference) HasDriveType() bool {
-	if o != nil && !IsNil(o.DriveType) {
+	if o != nil && o.DriveType != nil {
 		return true
 	}
 
@@ -114,7 +113,7 @@ func (o *ItemReference) SetDriveType(v string) {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *ItemReference) GetId() string {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		var ret string
 		return ret
 	}
@@ -124,7 +123,7 @@ func (o *ItemReference) GetId() string {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ItemReference) GetIdOk() (*string, bool) {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		return nil, false
 	}
 	return o.Id, true
@@ -132,7 +131,7 @@ func (o *ItemReference) GetIdOk() (*string, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *ItemReference) HasId() bool {
-	if o != nil && !IsNil(o.Id) {
+	if o != nil && o.Id != nil {
 		return true
 	}
 
@@ -146,7 +145,7 @@ func (o *ItemReference) SetId(v string) {
 
 // GetName returns the Name field value if set, zero value otherwise.
 func (o *ItemReference) GetName() string {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		var ret string
 		return ret
 	}
@@ -156,7 +155,7 @@ func (o *ItemReference) GetName() string {
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ItemReference) GetNameOk() (*string, bool) {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		return nil, false
 	}
 	return o.Name, true
@@ -164,7 +163,7 @@ func (o *ItemReference) GetNameOk() (*string, bool) {
 
 // HasName returns a boolean if a field has been set.
 func (o *ItemReference) HasName() bool {
-	if o != nil && !IsNil(o.Name) {
+	if o != nil && o.Name != nil {
 		return true
 	}
 
@@ -178,7 +177,7 @@ func (o *ItemReference) SetName(v string) {
 
 // GetPath returns the Path field value if set, zero value otherwise.
 func (o *ItemReference) GetPath() string {
-	if o == nil || IsNil(o.Path) {
+	if o == nil || o.Path == nil {
 		var ret string
 		return ret
 	}
@@ -188,7 +187,7 @@ func (o *ItemReference) GetPath() string {
 // GetPathOk returns a tuple with the Path field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ItemReference) GetPathOk() (*string, bool) {
-	if o == nil || IsNil(o.Path) {
+	if o == nil || o.Path == nil {
 		return nil, false
 	}
 	return o.Path, true
@@ -196,7 +195,7 @@ func (o *ItemReference) GetPathOk() (*string, bool) {
 
 // HasPath returns a boolean if a field has been set.
 func (o *ItemReference) HasPath() bool {
-	if o != nil && !IsNil(o.Path) {
+	if o != nil && o.Path != nil {
 		return true
 	}
 
@@ -208,32 +207,59 @@ func (o *ItemReference) SetPath(v string) {
 	o.Path = &v
 }
 
-func (o ItemReference) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
+// GetShareId returns the ShareId field value if set, zero value otherwise.
+func (o *ItemReference) GetShareId() string {
+	if o == nil || o.ShareId == nil {
+		var ret string
+		return ret
 	}
-	return json.Marshal(toSerialize)
+	return *o.ShareId
 }
 
-func (o ItemReference) ToMap() (map[string]interface{}, error) {
+// GetShareIdOk returns a tuple with the ShareId field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ItemReference) GetShareIdOk() (*string, bool) {
+	if o == nil || o.ShareId == nil {
+		return nil, false
+	}
+	return o.ShareId, true
+}
+
+// HasShareId returns a boolean if a field has been set.
+func (o *ItemReference) HasShareId() bool {
+	if o != nil && o.ShareId != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetShareId gets a reference to the given string and assigns it to the ShareId field.
+func (o *ItemReference) SetShareId(v string) {
+	o.ShareId = &v
+}
+
+func (o ItemReference) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.DriveId) {
+	if o.DriveId != nil {
 		toSerialize["driveId"] = o.DriveId
 	}
-	if !IsNil(o.DriveType) {
+	if o.DriveType != nil {
 		toSerialize["driveType"] = o.DriveType
 	}
-	if !IsNil(o.Id) {
+	if o.Id != nil {
 		toSerialize["id"] = o.Id
 	}
-	if !IsNil(o.Name) {
+	if o.Name != nil {
 		toSerialize["name"] = o.Name
 	}
-	if !IsNil(o.Path) {
+	if o.Path != nil {
 		toSerialize["path"] = o.Path
 	}
-	return toSerialize, nil
+	if o.ShareId != nil {
+		toSerialize["shareId"] = o.ShareId
+	}
+	return json.Marshal(toSerialize)
 }
 
 type NullableItemReference struct {

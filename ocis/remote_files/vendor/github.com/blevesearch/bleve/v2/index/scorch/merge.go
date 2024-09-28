@@ -16,6 +16,7 @@ package scorch
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -24,7 +25,6 @@ import (
 
 	"github.com/RoaringBitmap/roaring"
 	"github.com/blevesearch/bleve/v2/index/scorch/mergeplan"
-	"github.com/blevesearch/bleve/v2/util"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
 
@@ -198,12 +198,12 @@ func (s *Scorch) parseMergePlannerOptions() (*mergeplan.MergePlanOptions,
 	error) {
 	mergePlannerOptions := mergeplan.DefaultMergePlanOptions
 	if v, ok := s.config["scorchMergePlanOptions"]; ok {
-		b, err := util.MarshalJSON(v)
+		b, err := json.Marshal(v)
 		if err != nil {
 			return &mergePlannerOptions, err
 		}
 
-		err = util.UnmarshalJSON(b, &mergePlannerOptions)
+		err = json.Unmarshal(b, &mergePlannerOptions)
 		if err != nil {
 			return &mergePlannerOptions, err
 		}

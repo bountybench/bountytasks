@@ -16,6 +16,7 @@ import (
 	collaboration "github.com/cs3org/go-cs3apis/cs3/sharing/collaboration/v1beta1"
 	storageprovider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	"github.com/cs3org/reva/v2/pkg/events"
+	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/cs3org/reva/v2/pkg/storagespace"
 	"github.com/cs3org/reva/v2/pkg/utils"
 	"github.com/leonelquinteros/gotext"
@@ -51,31 +52,31 @@ type OC10Notification struct {
 
 // Converter is responsible for converting eventhistory events to OC10Notifications
 type Converter struct {
-	locale                string
-	gwc                   gateway.GatewayAPIClient
-	serviceName           string
-	translationPath       string
-	defaultLanguage       string
-	serviceAccountContext context.Context
+	locale            string
+	gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
+	machineAuthAPIKey string
+	serviceName       string
+	translationPath   string
 
 	// cached within one request not to query other service too much
 	spaces    map[string]*storageprovider.StorageSpace
 	users     map[string]*user.User
 	resources map[string]*storageprovider.ResourceInfo
+	contexts  map[string]context.Context
 }
 
 // NewConverter returns a new Converter
-func NewConverter(ctx context.Context, loc string, gwc gateway.GatewayAPIClient, name, translationPath, defaultLanguage string) *Converter {
+func NewConverter(loc string, gatewaySelector pool.Selectable[gateway.GatewayAPIClient], machineAuthAPIKey string, name string, translationPath string) *Converter {
 	return &Converter{
-		locale:                loc,
-		gwc:                   gwc,
-		serviceName:           name,
-		translationPath:       translationPath,
-		defaultLanguage:       defaultLanguage,
-		serviceAccountContext: ctx,
-		spaces:                make(map[string]*storageprovider.StorageSpace),
-		users:                 make(map[string]*user.User),
-		resources:             make(map[string]*storageprovider.ResourceInfo),
+		locale:            loc,
+		gatewaySelector:   gatewaySelector,
+		machineAuthAPIKey: machineAuthAPIKey,
+		serviceName:       name,
+		translationPath:   translationPath,
+		spaces:            make(map[string]*storageprovider.StorageSpace),
+		users:             make(map[string]*user.User),
+		resources:         make(map[string]*storageprovider.ResourceInfo),
+		contexts:          make(map[string]context.Context),
 	}
 }
 
@@ -139,7 +140,7 @@ func (c *Converter) spaceDeletedMessage(eventid string, executant *user.UserId, 
 		return OC10Notification{}, err
 	}
 
-	subj, subjraw, msg, msgraw, err := composeMessage(SpaceDeleted, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	subj, subjraw, msg, msgraw, err := composeMessage(SpaceDeleted, c.locale, c.translationPath, map[string]interface{}{
 		"username":  usr.GetDisplayName(),
 		"spacename": spacename,
 	})
@@ -170,12 +171,17 @@ func (c *Converter) spaceMessage(eventid string, nt NotificationTemplate, execut
 		return OC10Notification{}, err
 	}
 
-	space, err := c.getSpace(c.serviceAccountContext, spaceid)
+	ctx, err := c.authenticate(usr)
 	if err != nil {
 		return OC10Notification{}, err
 	}
 
-	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	space, err := c.getSpace(ctx, spaceid)
+	if err != nil {
+		return OC10Notification{}, err
+	}
+
+	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.translationPath, map[string]interface{}{
 		"username":  usr.GetDisplayName(),
 		"spacename": space.GetName(),
 	})
@@ -204,12 +210,17 @@ func (c *Converter) shareMessage(eventid string, nt NotificationTemplate, execut
 		return OC10Notification{}, err
 	}
 
-	info, err := c.getResource(c.serviceAccountContext, resourceid)
+	ctx, err := c.authenticate(usr)
 	if err != nil {
 		return OC10Notification{}, err
 	}
 
-	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	info, err := c.getResource(ctx, resourceid)
+	if err != nil {
+		return OC10Notification{}, err
+	}
+
+	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.translationPath, map[string]interface{}{
 		"username":     usr.GetDisplayName(),
 		"resourcename": info.GetName(),
 	})
@@ -233,7 +244,7 @@ func (c *Converter) shareMessage(eventid string, nt NotificationTemplate, execut
 }
 
 func (c *Converter) virusMessage(eventid string, nt NotificationTemplate, executant *user.User, rid *storageprovider.ResourceId, filename string, virus string, ts time.Time) (OC10Notification, error) {
-	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.translationPath, map[string]interface{}{
 		"resourcename":     filename,
 		"virusdescription": virus,
 	})
@@ -267,7 +278,7 @@ func (c *Converter) virusMessage(eventid string, nt NotificationTemplate, execut
 }
 
 func (c *Converter) policiesMessage(eventid string, nt NotificationTemplate, executant *user.User, filename string, ts time.Time) (OC10Notification, error) {
-	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.translationPath, map[string]interface{}{
 		"resourcename": filename,
 	})
 	if err != nil {
@@ -295,7 +306,7 @@ func (c *Converter) policiesMessage(eventid string, nt NotificationTemplate, exe
 }
 
 func (c *Converter) deprovisionMessage(nt NotificationTemplate, deproDate string) (OC10Notification, error) {
-	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.defaultLanguage, c.translationPath, map[string]interface{}{
+	subj, subjraw, msg, msgraw, err := composeMessage(nt, c.locale, c.translationPath, map[string]interface{}{
 		"date": deproDate,
 	})
 	if err != nil {
@@ -316,11 +327,22 @@ func (c *Converter) deprovisionMessage(nt NotificationTemplate, deproDate string
 	}, nil
 }
 
+func (c *Converter) authenticate(usr *user.User) (context.Context, error) {
+	if ctx, ok := c.contexts[usr.GetId().GetOpaqueId()]; ok {
+		return ctx, nil
+	}
+	ctx, err := authenticate(usr, c.gatewaySelector, c.machineAuthAPIKey)
+	if err == nil {
+		c.contexts[usr.GetId().GetOpaqueId()] = ctx
+	}
+	return ctx, err
+}
+
 func (c *Converter) getSpace(ctx context.Context, spaceID string) (*storageprovider.StorageSpace, error) {
 	if space, ok := c.spaces[spaceID]; ok {
 		return space, nil
 	}
-	space, err := utils.GetSpace(ctx, spaceID, c.gwc)
+	space, err := getSpace(ctx, spaceID, c.gatewaySelector)
 	if err == nil {
 		c.spaces[spaceID] = space
 	}
@@ -331,7 +353,7 @@ func (c *Converter) getResource(ctx context.Context, resourceID *storageprovider
 	if r, ok := c.resources[resourceID.GetOpaqueId()]; ok {
 		return r, nil
 	}
-	resource, err := utils.GetResourceByID(ctx, resourceID, c.gwc)
+	resource, err := getResource(ctx, resourceID, c.gatewaySelector)
 	if err == nil {
 		c.resources[resourceID.GetOpaqueId()] = resource
 	}
@@ -342,15 +364,15 @@ func (c *Converter) getUser(ctx context.Context, userID *user.UserId) (*user.Use
 	if u, ok := c.users[userID.GetOpaqueId()]; ok {
 		return u, nil
 	}
-	usr, err := utils.GetUser(userID, c.gwc)
+	usr, err := getUser(ctx, userID, c.gatewaySelector)
 	if err == nil {
 		c.users[userID.GetOpaqueId()] = usr
 	}
 	return usr, err
 }
 
-func composeMessage(nt NotificationTemplate, locale, defaultLocale, path string, vars map[string]interface{}) (string, string, string, string, error) {
-	subjectraw, messageraw := loadTemplates(nt, locale, defaultLocale, path)
+func composeMessage(nt NotificationTemplate, locale string, path string, vars map[string]interface{}) (string, string, string, string, error) {
+	subjectraw, messageraw := loadTemplates(nt, locale, path)
 
 	subject, err := executeTemplate(subjectraw, vars)
 	if err != nil {
@@ -361,7 +383,7 @@ func composeMessage(nt NotificationTemplate, locale, defaultLocale, path string,
 	return subject, subjectraw, message, messageraw, err
 }
 
-func newLocate(locale string, path string) *gotext.Locale {
+func loadTemplates(nt NotificationTemplate, locale string, path string) (string, string) {
 	// Create Locale with library path and language code and load default domain
 	var l *gotext.Locale
 	if path == "" {
@@ -371,14 +393,6 @@ func newLocate(locale string, path string) *gotext.Locale {
 		l = gotext.NewLocale(path, locale)
 	}
 	l.AddDomain(_domain) // make domain configurable only if needed
-	return l
-}
-
-func loadTemplates(nt NotificationTemplate, locale, defaultLocale, path string) (string, string) {
-	l := newLocate(locale, path)
-	if locale != "en" && len(l.GetTranslations()) == 0 {
-		l = newLocate(defaultLocale, path)
-	}
 	return l.Get(nt.Subject), l.Get(nt.Message)
 }
 

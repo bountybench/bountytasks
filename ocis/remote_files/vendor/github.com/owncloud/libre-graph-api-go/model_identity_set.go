@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the IdentitySet type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &IdentitySet{}
-
 // IdentitySet Optional. User account.
 type IdentitySet struct {
 	Application *Identity `json:"application,omitempty"`
@@ -44,7 +41,7 @@ func NewIdentitySetWithDefaults() *IdentitySet {
 
 // GetApplication returns the Application field value if set, zero value otherwise.
 func (o *IdentitySet) GetApplication() Identity {
-	if o == nil || IsNil(o.Application) {
+	if o == nil || o.Application == nil {
 		var ret Identity
 		return ret
 	}
@@ -54,7 +51,7 @@ func (o *IdentitySet) GetApplication() Identity {
 // GetApplicationOk returns a tuple with the Application field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *IdentitySet) GetApplicationOk() (*Identity, bool) {
-	if o == nil || IsNil(o.Application) {
+	if o == nil || o.Application == nil {
 		return nil, false
 	}
 	return o.Application, true
@@ -62,7 +59,7 @@ func (o *IdentitySet) GetApplicationOk() (*Identity, bool) {
 
 // HasApplication returns a boolean if a field has been set.
 func (o *IdentitySet) HasApplication() bool {
-	if o != nil && !IsNil(o.Application) {
+	if o != nil && o.Application != nil {
 		return true
 	}
 
@@ -76,7 +73,7 @@ func (o *IdentitySet) SetApplication(v Identity) {
 
 // GetDevice returns the Device field value if set, zero value otherwise.
 func (o *IdentitySet) GetDevice() Identity {
-	if o == nil || IsNil(o.Device) {
+	if o == nil || o.Device == nil {
 		var ret Identity
 		return ret
 	}
@@ -86,7 +83,7 @@ func (o *IdentitySet) GetDevice() Identity {
 // GetDeviceOk returns a tuple with the Device field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *IdentitySet) GetDeviceOk() (*Identity, bool) {
-	if o == nil || IsNil(o.Device) {
+	if o == nil || o.Device == nil {
 		return nil, false
 	}
 	return o.Device, true
@@ -94,7 +91,7 @@ func (o *IdentitySet) GetDeviceOk() (*Identity, bool) {
 
 // HasDevice returns a boolean if a field has been set.
 func (o *IdentitySet) HasDevice() bool {
-	if o != nil && !IsNil(o.Device) {
+	if o != nil && o.Device != nil {
 		return true
 	}
 
@@ -108,7 +105,7 @@ func (o *IdentitySet) SetDevice(v Identity) {
 
 // GetUser returns the User field value if set, zero value otherwise.
 func (o *IdentitySet) GetUser() Identity {
-	if o == nil || IsNil(o.User) {
+	if o == nil || o.User == nil {
 		var ret Identity
 		return ret
 	}
@@ -118,7 +115,7 @@ func (o *IdentitySet) GetUser() Identity {
 // GetUserOk returns a tuple with the User field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *IdentitySet) GetUserOk() (*Identity, bool) {
-	if o == nil || IsNil(o.User) {
+	if o == nil || o.User == nil {
 		return nil, false
 	}
 	return o.User, true
@@ -126,7 +123,7 @@ func (o *IdentitySet) GetUserOk() (*Identity, bool) {
 
 // HasUser returns a boolean if a field has been set.
 func (o *IdentitySet) HasUser() bool {
-	if o != nil && !IsNil(o.User) {
+	if o != nil && o.User != nil {
 		return true
 	}
 
@@ -140,7 +137,7 @@ func (o *IdentitySet) SetUser(v Identity) {
 
 // GetGroup returns the Group field value if set, zero value otherwise.
 func (o *IdentitySet) GetGroup() Identity {
-	if o == nil || IsNil(o.Group) {
+	if o == nil || o.Group == nil {
 		var ret Identity
 		return ret
 	}
@@ -150,7 +147,7 @@ func (o *IdentitySet) GetGroup() Identity {
 // GetGroupOk returns a tuple with the Group field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *IdentitySet) GetGroupOk() (*Identity, bool) {
-	if o == nil || IsNil(o.Group) {
+	if o == nil || o.Group == nil {
 		return nil, false
 	}
 	return o.Group, true
@@ -158,7 +155,7 @@ func (o *IdentitySet) GetGroupOk() (*Identity, bool) {
 
 // HasGroup returns a boolean if a field has been set.
 func (o *IdentitySet) HasGroup() bool {
-	if o != nil && !IsNil(o.Group) {
+	if o != nil && o.Group != nil {
 		return true
 	}
 
@@ -171,28 +168,20 @@ func (o *IdentitySet) SetGroup(v Identity) {
 }
 
 func (o IdentitySet) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o IdentitySet) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Application) {
+	if o.Application != nil {
 		toSerialize["application"] = o.Application
 	}
-	if !IsNil(o.Device) {
+	if o.Device != nil {
 		toSerialize["device"] = o.Device
 	}
-	if !IsNil(o.User) {
+	if o.User != nil {
 		toSerialize["user"] = o.User
 	}
-	if !IsNil(o.Group) {
+	if o.Group != nil {
 		toSerialize["group"] = o.Group
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableIdentitySet struct {

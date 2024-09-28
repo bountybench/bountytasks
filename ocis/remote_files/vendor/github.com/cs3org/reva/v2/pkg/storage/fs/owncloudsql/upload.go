@@ -31,8 +31,8 @@ import (
 
 	userpb "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
+	conversions "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	"github.com/cs3org/reva/v2/pkg/conversions"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/errtypes"
 	"github.com/cs3org/reva/v2/pkg/logger"
@@ -49,8 +49,8 @@ import (
 
 var defaultFilePerm = os.FileMode(0664)
 
-func (fs *owncloudsqlfs) Upload(ctx context.Context, req storage.UploadRequest, uff storage.UploadFinishedFunc) (provider.ResourceInfo, error) {
-	upload, err := fs.GetUpload(ctx, req.Ref.GetPath())
+func (fs *owncloudsqlfs) Upload(ctx context.Context, ref *provider.Reference, r io.ReadCloser, uff storage.UploadFinishedFunc) (provider.ResourceInfo, error) {
+	upload, err := fs.GetUpload(ctx, ref.GetPath())
 	if err != nil {
 		return provider.ResourceInfo{}, errors.Wrap(err, "owncloudsql: error retrieving upload")
 	}
@@ -60,7 +60,7 @@ func (fs *owncloudsqlfs) Upload(ctx context.Context, req storage.UploadRequest, 
 	p := uploadInfo.info.Storage["InternalDestination"]
 	if chunking.IsChunked(p) {
 		var assembledFile string
-		p, assembledFile, err = fs.chunkHandler.WriteChunk(p, req.Body)
+		p, assembledFile, err = fs.chunkHandler.WriteChunk(p, r)
 		if err != nil {
 			return provider.ResourceInfo{}, err
 		}
@@ -68,7 +68,7 @@ func (fs *owncloudsqlfs) Upload(ctx context.Context, req storage.UploadRequest, 
 			if err = uploadInfo.Terminate(ctx); err != nil {
 				return provider.ResourceInfo{}, errors.Wrap(err, "owncloudsql: error removing auxiliary files")
 			}
-			return provider.ResourceInfo{}, errtypes.PartialContent(req.Ref.String())
+			return provider.ResourceInfo{}, errtypes.PartialContent(ref.String())
 		}
 		uploadInfo.info.Storage["InternalDestination"] = p
 		fd, err := os.Open(assembledFile)
@@ -77,10 +77,10 @@ func (fs *owncloudsqlfs) Upload(ctx context.Context, req storage.UploadRequest, 
 		}
 		defer fd.Close()
 		defer os.RemoveAll(assembledFile)
-		req.Body = fd
+		r = fd
 	}
 
-	if _, err := uploadInfo.WriteChunk(ctx, 0, req.Body); err != nil {
+	if _, err := uploadInfo.WriteChunk(ctx, 0, r); err != nil {
 		return provider.ResourceInfo{}, errors.Wrap(err, "owncloudsql: error writing to binary file")
 	}
 

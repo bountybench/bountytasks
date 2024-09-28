@@ -3,7 +3,6 @@ package keyfunc
 import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"errors"
 	"fmt"
 	"math/big"
 )
@@ -20,11 +19,6 @@ const (
 
 	// p521 represents a 521-bit cryptographic elliptical curve type.
 	p521 = "P-521"
-)
-
-var (
-	// ErrECDSACurve indicates an error with the ECDSA curve.
-	ErrECDSACurve = errors.New("invalid ECDSA curve")
 )
 
 // ECDSA parses a jsonWebKey and turns it into an ECDSA public key.
@@ -54,8 +48,6 @@ func (j *jsonWebKey) ECDSA() (publicKey *ecdsa.PublicKey, err error) {
 		publicKey.Curve = elliptic.P384()
 	case p521:
 		publicKey.Curve = elliptic.P521()
-	default:
-		return nil, fmt.Errorf("%w: unknown curve: %s", ErrECDSACurve, j.Curve)
 	}
 
 	// Turn the X coordinate into *big.Int.

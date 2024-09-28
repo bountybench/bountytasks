@@ -72,13 +72,6 @@ func defaultMimeTypeConfig() []config.MimeTypeConfig {
 			AllowCreation: true,
 		},
 		{
-			MimeType:      "application/vnd.openxmlformats-officedocument.wordprocessingml.form",
-			Extension:     "docxf",
-			Name:          "Form Document",
-			Description:   "Form Document",
-			AllowCreation: true,
-		},
-		{
 			MimeType:      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 			Extension:     "xlsx",
 			Name:          "Microsoft Excel",
@@ -110,12 +103,6 @@ func defaultMimeTypeConfig() []config.MimeTypeConfig {
 			Extension:   "zmd",
 			Name:        "Compressed markdown file",
 			Description: "Compressed markdown file",
-		},
-		{
-			MimeType:    "application/vnd.geogebra.slides",
-			Extension:   "ggs",
-			Name:        "GeoGebra Slides",
-			Description: "GeoGebra Slides",
 		},
 	}
 }

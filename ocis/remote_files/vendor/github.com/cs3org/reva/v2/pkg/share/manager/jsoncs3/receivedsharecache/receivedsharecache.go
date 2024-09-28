@@ -68,7 +68,6 @@ type Space struct {
 type State struct {
 	State      collaboration.ShareState
 	MountPoint *provider.Reference
-	Hidden     bool
 }
 
 // New returns a new Cache instance
@@ -118,7 +117,6 @@ func (c *Cache) Add(ctx context.Context, userID, spaceID string, rs *collaborati
 		receivedSpace.States[rs.Share.Id.GetOpaqueId()] = &State{
 			State:      rs.State,
 			MountPoint: rs.MountPoint,
-			Hidden:     rs.Hidden,
 		}
 
 		return c.persist(ctx, userID)
@@ -177,35 +175,15 @@ func (c *Cache) Get(ctx context.Context, userID, spaceID, shareID string) (*Stat
 	return c.ReceivedSpaces[userID].Spaces[spaceID].States[shareID], nil
 }
 
-// List returns a list of received shares for a given user
-// The return list is guaranteed to be thread-safe
-func (c *Cache) List(ctx context.Context, userID string) (map[string]*Space, error) {
+// Sync updates the in-memory data with the data from the storage if it is outdated
+func (c *Cache) Sync(ctx context.Context, userID string) error {
 	ctx, span := appctx.GetTracerProvider(ctx).Tracer(tracerName).Start(ctx, "Grab lock")
 	unlock := c.lockUser(userID)
 	span.End()
 	span.SetAttributes(attribute.String("cs3.userid", userID))
 	defer unlock()
 
-	err := c.syncWithLock(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	spaces := map[string]*Space{}
-	for spaceID, space := range c.ReceivedSpaces[userID].Spaces {
-		spaceCopy := &Space{
-			States: map[string]*State{},
-		}
-		for shareID, state := range space.States {
-			spaceCopy.States[shareID] = &State{
-				State:      state.State,
-				MountPoint: state.MountPoint,
-				Hidden:     state.Hidden,
-			}
-		}
-		spaces[spaceID] = spaceCopy
-	}
-	return spaces, nil
+	return c.syncWithLock(ctx, userID)
 }
 
 func (c *Cache) syncWithLock(ctx context.Context, userID string) error {

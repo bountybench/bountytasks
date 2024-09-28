@@ -15,9 +15,6 @@ import (
 	"time"
 )
 
-// checks if the Trash type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &Trash{}
-
 // Trash Metadata for trashed drive Items
 type Trash struct {
 	TrashedBy *IdentitySet `json:"trashedBy,omitempty"`
@@ -44,7 +41,7 @@ func NewTrashWithDefaults() *Trash {
 
 // GetTrashedBy returns the TrashedBy field value if set, zero value otherwise.
 func (o *Trash) GetTrashedBy() IdentitySet {
-	if o == nil || IsNil(o.TrashedBy) {
+	if o == nil || o.TrashedBy == nil {
 		var ret IdentitySet
 		return ret
 	}
@@ -54,7 +51,7 @@ func (o *Trash) GetTrashedBy() IdentitySet {
 // GetTrashedByOk returns a tuple with the TrashedBy field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Trash) GetTrashedByOk() (*IdentitySet, bool) {
-	if o == nil || IsNil(o.TrashedBy) {
+	if o == nil || o.TrashedBy == nil {
 		return nil, false
 	}
 	return o.TrashedBy, true
@@ -62,7 +59,7 @@ func (o *Trash) GetTrashedByOk() (*IdentitySet, bool) {
 
 // HasTrashedBy returns a boolean if a field has been set.
 func (o *Trash) HasTrashedBy() bool {
-	if o != nil && !IsNil(o.TrashedBy) {
+	if o != nil && o.TrashedBy != nil {
 		return true
 	}
 
@@ -76,7 +73,7 @@ func (o *Trash) SetTrashedBy(v IdentitySet) {
 
 // GetTrashedDateTime returns the TrashedDateTime field value if set, zero value otherwise.
 func (o *Trash) GetTrashedDateTime() time.Time {
-	if o == nil || IsNil(o.TrashedDateTime) {
+	if o == nil || o.TrashedDateTime == nil {
 		var ret time.Time
 		return ret
 	}
@@ -86,7 +83,7 @@ func (o *Trash) GetTrashedDateTime() time.Time {
 // GetTrashedDateTimeOk returns a tuple with the TrashedDateTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Trash) GetTrashedDateTimeOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.TrashedDateTime) {
+	if o == nil || o.TrashedDateTime == nil {
 		return nil, false
 	}
 	return o.TrashedDateTime, true
@@ -94,7 +91,7 @@ func (o *Trash) GetTrashedDateTimeOk() (*time.Time, bool) {
 
 // HasTrashedDateTime returns a boolean if a field has been set.
 func (o *Trash) HasTrashedDateTime() bool {
-	if o != nil && !IsNil(o.TrashedDateTime) {
+	if o != nil && o.TrashedDateTime != nil {
 		return true
 	}
 
@@ -107,22 +104,14 @@ func (o *Trash) SetTrashedDateTime(v time.Time) {
 }
 
 func (o Trash) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o Trash) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.TrashedBy) {
+	if o.TrashedBy != nil {
 		toSerialize["trashedBy"] = o.TrashedBy
 	}
-	if !IsNil(o.TrashedDateTime) {
+	if o.TrashedDateTime != nil {
 		toSerialize["trashedDateTime"] = o.TrashedDateTime
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableTrash struct {

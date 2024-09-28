@@ -58,16 +58,14 @@ func DefaultConfig() *config.Config {
 			SystemUserIDP:  "internal",
 			Cache: &config.Cache{
 				Store:          "memory",
-				Nodes:          []string{"127.0.0.1:9233"},
-				Database:       "settings-cache",
+				Database:       "ocis",
 				FileTable:      "settings_files",
 				DirectoryTable: "settings_dirs",
 				TTL:            time.Minute * 10,
 			},
 		},
-		BundlesPath:           "",
-		Bundles:               nil,
-		ServiceAccountIDAdmin: "service-user-id",
+		BundlesPath: "",
+		Bundles:     nil,
 	}
 }
 

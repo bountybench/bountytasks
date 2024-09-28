@@ -81,6 +81,7 @@ Feature: List and create spaces
     Given user "Brian" has been created with default attributes and without skeleton files
     And user "Brian" has created folder "folder"
     And user "Brian" has shared folder "folder" with user "Alice" with permissions "31"
+    And user "Alice" has accepted share "/folder" offered by user "Brian"
     When user "Alice" lists all available spaces via the Graph API with query "$filter=driveType eq 'personal'"
     Then the HTTP status code should be "200"
     And the JSON response should contain space called "Alice Hansen" and match
@@ -423,86 +424,7 @@ Feature: List and create spaces
     Then the HTTP status code should be "404"
     And the json responded should not contain a space with name "Project Venus"
     Examples:
-      | role       |
-      | User       |
-      | User Light |
-
-  @issue-7160
-  Scenario Outline: get share jail space information of the user when user has a pending share
-    Given user "Brian" has been created with default attributes and without skeleton files
-    And user "Alice" has disabled auto-accepting
-    And user "Brian" has uploaded file with content "this is a test file." to "test.txt"
-    And the administrator has assigned the role "<userRole>" to user "Alice" using the Graph API
-    And user "Brian" has shared file "/test.txt" with user "Alice"
-    When user "Alice" lists all available spaces via the Graph API
-    Then the HTTP status code should be "200"
-    And the JSON response should contain space called "Shares" owned by "Alice" and match
-    """
-    {
-      "type": "object",
-      "required": [
-        "driveType",
-        "driveAlias",
-        "name",
-        "id",
-        "root",
-        "webUrl"
-      ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "enum": ["Shares"]
-        },
-        "driveType": {
-           "type": "string",
-          "enum": ["virtual"]
-        },
-        "driveAlias": {
-           "type": "string",
-          "enum": ["virtual/shares"]
-        },
-        "id": {
-           "type": "string",
-          "enum": ["%space_id%"]
-        },
-        "quota": {
-           "type": "object",
-           "required": [
-            "state"
-           ],
-           "properties": {
-              "state": {
-                "type": "string",
-                "enum": ["normal"]
-              }
-           }
-        },
-        "root": {
-          "type": "object",
-          "required": [
-            "eTag",
-            "webDavUrl"
-          ],
-          "properties": {
-              "eTag": {
-                "type": "string",
-                "enum": ["%space_etag%"]
-              },
-              "webDavUrl": {
-                "type": "string",
-                "enum": ["%base_url%/dav/spaces/%space_id%"]
-              }
-           }
-        },
-        "webUrl": {
-          "type": "string",
-          "enum": ["%base_url%/f/%space_id%"]
-        }
-      }
-    }
-    """
-    Examples:
-      | userRole    |
+      | role        |
       | Admin       |
       | Space Admin |
       | User        |

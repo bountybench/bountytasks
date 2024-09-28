@@ -15,7 +15,6 @@ const (
 	typeJpg  = "jpg"
 	typeJpeg = "jpeg"
 	typeGif  = "gif"
-	typeGgs  = "ggs"
 )
 
 var (
@@ -103,7 +102,7 @@ func (e GifEncoder) MimeType() string {
 // or nil if the type is not supported.
 func EncoderForType(fileType string) (Encoder, error) {
 	switch strings.ToLower(fileType) {
-	case typePng, typeGgs:
+	case typePng:
 		return PngEncoder{}, nil
 	case typeJpg, typeJpeg:
 		return JpegEncoder{}, nil
@@ -115,13 +114,11 @@ func EncoderForType(fileType string) (Encoder, error) {
 }
 
 // GetExtForMime return the supported extension by mime
-func GetExtForMime(fileType string) string {
-	ext := strings.TrimPrefix(strings.TrimSpace(strings.ToLower(fileType)), "image/")
+func GetExtForMime(mime string) string {
+	ext := strings.TrimPrefix(strings.TrimSpace(strings.ToLower(mime)), "image/")
 	switch ext {
 	case typeJpg, typeJpeg, typePng, typeGif:
 		return ext
-	case "application/vnd.geogebra.slides":
-		return typeGgs
 	default:
 		return ""
 	}

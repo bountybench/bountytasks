@@ -8,9 +8,8 @@ import (
 
 	"github.com/cs3org/reva/v2/pkg/appctx"
 	revactx "github.com/cs3org/reva/v2/pkg/ctx"
-	"github.com/cs3org/reva/v2/pkg/utils"
 	"github.com/owncloud/ocis/v2/ocis-pkg/roles"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 	settings "github.com/owncloud/ocis/v2/services/settings/pkg/service/v0"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -25,7 +24,7 @@ func (ul *UserlogService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // HandleGetEvents is the GET handler for events
 func (ul *UserlogService) HandleGetEvents(w http.ResponseWriter, r *http.Request) {
-	ctx, span := ul.tracer.Start(r.Context(), "HandleGetEvents")
+	ctx, span := tracer.Start(r.Context(), "HandleGetEvents")
 	defer span.End()
 	u, ok := revactx.ContextGetUser(ctx)
 	if !ok {
@@ -45,23 +44,8 @@ func (ul *UserlogService) HandleGetEvents(w http.ResponseWriter, r *http.Request
 		Value: attribute.IntValue(len(evs)),
 	})
 
-	gwc, err := ul.gatewaySelector.Next()
-	if err != nil {
-		ul.log.Error().Err(err).Msg("cant get gateway client")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	conv := ul.getConverter(r.Header.Get(HeaderAcceptLanguage))
 
-	ctx, err = utils.GetServiceUserContext(ul.cfg.ServiceAccount.ServiceAccountID, gwc, ul.cfg.ServiceAccount.ServiceAccountSecret)
-	if err != nil {
-		ul.log.Error().Err(err).Msg("cant get service account")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	conv := NewConverter(ctx, r.Header.Get(HeaderAcceptLanguage), gwc, ul.cfg.Service.Name, ul.cfg.TranslationPath, ul.cfg.DefaultLanguage)
-
-	var outdatedEvents []string
 	resp := GetEventResponseOC10{}
 	for _, e := range evs {
 		etype, ok := ul.registeredEvents[e.Type]
@@ -78,25 +62,11 @@ func (ul *UserlogService) HandleGetEvents(w http.ResponseWriter, r *http.Request
 
 		noti, err := conv.ConvertEvent(e.Id, einterface)
 		if err != nil {
-			if utils.IsErrNotFound(err) || utils.IsErrPermissionDenied(err) {
-				outdatedEvents = append(outdatedEvents, e.Id)
-				continue
-			}
 			ul.log.Error().Err(err).Str("eventid", e.Id).Str("eventtype", e.Type).Msg("failed to convert event")
 			continue
 		}
 
 		resp.OCS.Data = append(resp.OCS.Data, noti)
-	}
-
-	// delete outdated events asynchronously
-	if len(outdatedEvents) > 0 {
-		go func() {
-			err := ul.DeleteEvents(u.GetId().GetOpaqueId(), outdatedEvents)
-			if err != nil {
-				ul.log.Error().Err(err).Msg("failed to delete events")
-			}
-		}()
 	}
 
 	glevs, err := ul.GetGlobalEvents(ctx)
@@ -119,6 +89,33 @@ func (ul *UserlogService) HandleGetEvents(w http.ResponseWriter, r *http.Request
 	resp.OCS.Meta.StatusCode = http.StatusOK
 	b, _ := json.Marshal(resp)
 	w.Write(b)
+}
+
+// HandleSSE is the GET handler for events
+func (ul *UserlogService) HandleSSE(w http.ResponseWriter, r *http.Request) {
+	u, ok := revactx.ContextGetUser(r.Context())
+	if !ok {
+		ul.log.Error().Msg("sse: no user in context")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	uid := u.GetId().GetOpaqueId()
+	if uid == "" {
+		ul.log.Error().Msg("sse: user in context is broken")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	stream := ul.sse.CreateStream(uid)
+	stream.AutoReplay = false
+
+	// add stream to URL
+	q := r.URL.Query()
+	q.Set("stream", uid)
+	r.URL.RawQuery = q.Encode()
+
+	ul.sse.ServeHTTP(w, r)
 }
 
 // HandlePostGlobaelEvent is the POST handler for global events

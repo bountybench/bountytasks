@@ -136,12 +136,8 @@ func ValidateOperatorServiceURL(v string) error {
 		return nil
 	case "tls":
 		return nil
-	case "ws":
-		return nil
-	case "wss":
-		return nil
 	default:
-		return fmt.Errorf("operator service url %q - protocol not supported (only 'nats', 'tls', 'ws', 'wss' only)", v)
+		return fmt.Errorf("operator service url %q - protocol not supported (only 'nats' or 'tls' only)", v)
 	}
 }
 
@@ -246,8 +242,4 @@ func (oc *OperatorClaims) Claims() *ClaimsData {
 
 func (oc *OperatorClaims) updateVersion() {
 	oc.GenericFields.Version = libVersion
-}
-
-func (oc *OperatorClaims) GetTags() TagList {
-	return oc.Operator.Tags
 }

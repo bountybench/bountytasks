@@ -48,7 +48,7 @@ const (
 	// cacheMax is used to bound limit the frontend cache
 	slCacheMax = 1024
 	// If we run a sweeper we will drain to this count.
-	slCacheSweep = 256
+	slCacheSweep = 512
 	// plistMin is our lower bounds to create a fast plist for Match.
 	plistMin = 256
 )
@@ -540,7 +540,6 @@ func (s *Sublist) match(subject string, doLock bool) *SublistResult {
 	if doLock {
 		s.RLock()
 	}
-	cacheEnabled := s.cache != nil
 	r, ok := s.cache[subject]
 	if doLock {
 		s.RUnlock()
@@ -575,11 +574,7 @@ func (s *Sublist) match(subject string, doLock bool) *SublistResult {
 	var n int
 
 	if doLock {
-		if cacheEnabled {
-			s.Lock()
-		} else {
-			s.RLock()
-		}
+		s.Lock()
 	}
 
 	matchLevel(s.root, tokens, result)
@@ -587,20 +582,16 @@ func (s *Sublist) match(subject string, doLock bool) *SublistResult {
 	if len(result.psubs) == 0 && len(result.qsubs) == 0 {
 		result = emptyResult
 	}
-	if cacheEnabled {
+	if s.cache != nil {
 		s.cache[subject] = result
 		n = len(s.cache)
 	}
 	if doLock {
-		if cacheEnabled {
-			s.Unlock()
-		} else {
-			s.RUnlock()
-		}
+		s.Unlock()
 	}
 
 	// Reduce the cache count if we have exceeded our set maximum.
-	if cacheEnabled && n > slCacheMax && atomic.CompareAndSwapInt32(&s.ccSweep, 0, 1) {
+	if n > slCacheMax && atomic.CompareAndSwapInt32(&s.ccSweep, 0, 1) {
 		go s.reduceCacheCount()
 	}
 
@@ -1151,9 +1142,6 @@ func isValidLiteralSubject(tokens []string) bool {
 
 // ValidateMappingDestination returns nil error if the subject is a valid subject mapping destination subject
 func ValidateMappingDestination(subject string) error {
-	if subject == _EMPTY_ {
-		return nil
-	}
 	subjectTokens := strings.Split(subject, tsep)
 	sfwc := false
 	for _, t := range subjectTokens {

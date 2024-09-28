@@ -31,10 +31,9 @@ type InsecureService struct {
 	Insecure bool
 }
 
-type ProxyService struct {
+type InsecureProxyService struct {
 	OIDC             InsecureProxyOIDC `yaml:"oidc"`
 	InsecureBackends bool              `yaml:"insecure_backends"`
-	ServiceAccount   ServiceAccount    `yaml:"service_account"`
 }
 
 type InsecureProxyOIDC struct {
@@ -56,11 +55,10 @@ type GraphApplication struct {
 }
 
 type GraphService struct {
-	Application    GraphApplication
-	Events         Events
-	Spaces         InsecureService
-	Identity       LdapBasedService
-	ServiceAccount ServiceAccount `yaml:"service_account"`
+	Application GraphApplication
+	Events      Events
+	Spaces      InsecureService
+	Identity    LdapBasedService
 }
 
 type ServiceUserPasswordsSettings struct {
@@ -73,14 +71,8 @@ type IdmService struct {
 	ServiceUserPasswords ServiceUserPasswordsSettings `yaml:"service_user_passwords"`
 }
 
-type SettingsService struct {
-	ServiceAccountIDAdmin string `yaml:"service_account_id_admin"`
-}
-
 type FrontendService struct {
-	AppHandler     InsecureService `yaml:"app_handler"`
-	Archiver       InsecureService
-	ServiceAccount ServiceAccount `yaml:"service_account"`
+	Archiver InsecureService
 }
 
 type AuthbasicService struct {
@@ -109,8 +101,7 @@ type ThumbnailService struct {
 }
 
 type Search struct {
-	Events         Events
-	ServiceAccount ServiceAccount `yaml:"service_account"`
+	Events Events
 }
 
 type Audit struct {
@@ -122,9 +113,8 @@ type Sharing struct {
 }
 
 type StorageUsers struct {
-	Events         Events
-	MountID        string         `yaml:"mount_id"`
-	ServiceAccount ServiceAccount `yaml:"service_account"`
+	Events  Events
+	MountID string `yaml:"mount_id"`
 }
 
 type Gateway struct {
@@ -136,20 +126,7 @@ type StorageRegistry struct {
 }
 
 type Notifications struct {
-	Notifications  struct{ Events Events } // The notifications config has a field called notifications
-	ServiceAccount ServiceAccount          `yaml:"service_account"`
-}
-
-type Userlog struct {
-	ServiceAccount ServiceAccount `yaml:"service_account"`
-}
-
-type AuthService struct {
-	ServiceAccount ServiceAccount `yaml:"service_account"`
-}
-
-type Clientlog struct {
-	ServiceAccount ServiceAccount `yaml:"service_account"`
+	Notifications struct{ Events Events } // The notifications config has a field called notifications
 }
 
 type Nats struct {
@@ -157,12 +134,6 @@ type Nats struct {
 	Nats struct {
 		TLSSkipVerifyClientCert bool `yaml:"tls_skip_verify_client_cert"`
 	}
-}
-
-// ServiceAccount is the configuration for the used service account
-type ServiceAccount struct {
-	ServiceAccountID     string `yaml:"service_account_id"`
-	ServiceAccountSecret string `yaml:"service_account_secret"`
 }
 
 // TODO: use the oCIS config struct instead of this custom struct
@@ -187,7 +158,7 @@ type OcisConfig struct {
 	Graph             GraphService
 	Idp               LdapBasedService
 	Idm               IdmService
-	Proxy             ProxyService
+	Proxy             InsecureProxyService
 	Frontend          FrontendService
 	AuthBasic         AuthbasicService  `yaml:"auth_basic"`
 	AuthBearer        AuthbearerService `yaml:"auth_bearer"`
@@ -197,15 +168,11 @@ type OcisConfig struct {
 	Thumbnails        ThumbnailService
 	Search            Search
 	Audit             Audit
-	Settings          SettingsService `yaml:"settings"`
 	Sharing           Sharing
 	StorageUsers      StorageUsers `yaml:"storage_users"`
 	Notifications     Notifications
 	Nats              Nats
 	Gateway           Gateway
-	Userlog           Userlog
-	AuthService       AuthService `yaml:"auth_service"`
-	Clientlog         Clientlog
 }
 
 func checkConfigPath(configPath string) error {
@@ -258,7 +225,6 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 	adminUserID := uuid.Must(uuid.NewV4()).String()
 	graphApplicationID := uuid.Must(uuid.NewV4()).String()
 	storageUsersMountID := uuid.Must(uuid.NewV4()).String()
-	serviceAccountID := uuid.Must(uuid.NewV4()).String()
 
 	idmServicePassword, err := generators.GenerateRandomPassword(passwordLength)
 	if err != nil {
@@ -299,15 +265,6 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 	thumbnailsTransferSecret, err := generators.GenerateRandomPassword(passwordLength)
 	if err != nil {
 		return fmt.Errorf("could not generate random password for thumbnailsTransferSecret: %s", err)
-	}
-	serviceAccountSecret, err := generators.GenerateRandomPassword(passwordLength)
-	if err != nil {
-		return fmt.Errorf("could not generate random password for thumbnailsTransferSecret: %s", err)
-	}
-
-	serviceAccount := ServiceAccount{
-		ServiceAccountID:     serviceAccountID,
-		ServiceAccountSecret: serviceAccountSecret,
 	}
 
 	cfg := OcisConfig{
@@ -362,7 +319,6 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 					BindPassword: idmServicePassword,
 				},
 			},
-			ServiceAccount: serviceAccount,
 		},
 		Thumbnails: ThumbnailService{
 			Thumbnail: ThumbnailSettings{
@@ -375,32 +331,7 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 			},
 		},
 		StorageUsers: StorageUsers{
-			MountID:        storageUsersMountID,
-			ServiceAccount: serviceAccount,
-		},
-		Userlog: Userlog{
-			ServiceAccount: serviceAccount,
-		},
-		AuthService: AuthService{
-			ServiceAccount: serviceAccount,
-		},
-		Search: Search{
-			ServiceAccount: serviceAccount,
-		},
-		Notifications: Notifications{
-			ServiceAccount: serviceAccount,
-		},
-		Frontend: FrontendService{
-			ServiceAccount: serviceAccount,
-		},
-		Clientlog: Clientlog{
-			ServiceAccount: serviceAccount,
-		},
-		Proxy: ProxyService{
-			ServiceAccount: serviceAccount,
-		},
-		Settings: SettingsService{
-			ServiceAccountIDAdmin: serviceAccount.ServiceAccountID,
+			MountID: storageUsersMountID,
 		},
 	}
 
@@ -409,8 +340,7 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 		cfg.AuthBearer = AuthbearerService{
 			AuthProviders: AuthProviderSettings{Oidc: _insecureService},
 		}
-		cfg.Frontend.AppHandler = _insecureService
-		cfg.Frontend.Archiver = _insecureService
+		cfg.Frontend = FrontendService{Archiver: _insecureService}
 		cfg.Graph.Spaces = _insecureService
 		cfg.Graph.Events = _insecureEvents
 		cfg.Notifications.Notifications.Events = _insecureEvents
@@ -420,12 +350,11 @@ func CreateConfig(insecure, forceOverwrite bool, configPath, adminPassword strin
 		cfg.StorageUsers.Events = _insecureEvents
 		cfg.Nats.Nats.TLSSkipVerifyClientCert = true
 		cfg.Ocdav = _insecureService
-		cfg.Proxy = ProxyService{
+		cfg.Proxy = InsecureProxyService{
 			InsecureBackends: true,
 			OIDC: InsecureProxyOIDC{
 				Insecure: true,
 			},
-			ServiceAccount: serviceAccount,
 		}
 
 		cfg.Thumbnails.Thumbnail.WebdavAllowInsecure = true

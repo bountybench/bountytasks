@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the SpecialFolder type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &SpecialFolder{}
-
 // SpecialFolder If the current item is also available as a special folder, this facet is returned. Read-only
 type SpecialFolder struct {
 	// The unique identifier for this item in the /drive/special collection
@@ -42,7 +39,7 @@ func NewSpecialFolderWithDefaults() *SpecialFolder {
 
 // GetName returns the Name field value if set, zero value otherwise.
 func (o *SpecialFolder) GetName() string {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		var ret string
 		return ret
 	}
@@ -52,7 +49,7 @@ func (o *SpecialFolder) GetName() string {
 // GetNameOk returns a tuple with the Name field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *SpecialFolder) GetNameOk() (*string, bool) {
-	if o == nil || IsNil(o.Name) {
+	if o == nil || o.Name == nil {
 		return nil, false
 	}
 	return o.Name, true
@@ -60,7 +57,7 @@ func (o *SpecialFolder) GetNameOk() (*string, bool) {
 
 // HasName returns a boolean if a field has been set.
 func (o *SpecialFolder) HasName() bool {
-	if o != nil && !IsNil(o.Name) {
+	if o != nil && o.Name != nil {
 		return true
 	}
 
@@ -73,19 +70,11 @@ func (o *SpecialFolder) SetName(v string) {
 }
 
 func (o SpecialFolder) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o SpecialFolder) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Name) {
+	if o.Name != nil {
 		toSerialize["name"] = o.Name
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableSpecialFolder struct {

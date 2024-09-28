@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gookit/goutil/arrutil"
-	"github.com/gookit/goutil/internal/varexpr"
+	"github.com/gookit/goutil/internal/comfunc"
 	"github.com/gookit/goutil/maputil"
 	"github.com/gookit/goutil/strutil"
 )
@@ -33,17 +33,11 @@ type VarReplacer struct {
 	keepMissVars bool
 	// missing vars list
 	missVars []string
-	// NotFound hook func. on var-name not found
+	// NotFound handler
 	NotFound FallbackFn
-	// RenderFn custom render func
-	RenderFn func(s string, vs map[string]string) string
 }
 
-// NewVarReplacer instance.
-//
-// Usage:
-//
-//	rpl := NewVarReplacer("{{,}}")
+// NewVarReplacer instance
 func NewVarReplacer(format string, opFns ...func(vp *VarReplacer)) *VarReplacer {
 	vp := &VarReplacer{flatSubs: true}
 	for _, fn := range opFns {
@@ -52,11 +46,7 @@ func NewVarReplacer(format string, opFns ...func(vp *VarReplacer)) *VarReplacer 
 	return vp.WithFormat(format)
 }
 
-// NewFullReplacer instance. will enable parse env and parse default.
-//
-// Usage:
-//
-//	rpl := NewFullReplacer("{{,}}")
+// NewFullReplacer instance
 func NewFullReplacer(format string) *VarReplacer {
 	return NewVarReplacer(format, func(vp *VarReplacer) {
 		vp.WithParseEnv().WithParseDefault().KeepMissingVars()
@@ -100,8 +90,8 @@ func (r *VarReplacer) WithFormat(format string) *VarReplacer {
 	return r
 }
 
-// Init var replacer
-func (r *VarReplacer) Init() {
+// Init var matcher
+func (r *VarReplacer) Init() *VarReplacer {
 	if !r.init {
 		r.lLen, r.rLen = len(r.Left), len(r.Right)
 		if r.Right != "" {
@@ -110,9 +100,9 @@ func (r *VarReplacer) Init() {
 			// no right tag. eg: $name, $user.age
 			r.varReg = regexp.MustCompile(regexp.QuoteMeta(r.Left) + `(\w[\w-]*(?:\.[\w-]+)*)`)
 		}
-
-		r.init = true
 	}
+
+	return r
 }
 
 // ParseVars the text contents and collect vars
@@ -124,13 +114,13 @@ func (r *VarReplacer) ParseVars(s string) []string {
 	return arrutil.Unique(ss)
 }
 
-// Replace any-map vars in the text contents
-func (r *VarReplacer) Replace(s string, tplVars map[string]any) string {
-	return r.Render(s, tplVars)
-}
-
 // Render any-map vars in the text contents
 func (r *VarReplacer) Render(s string, tplVars map[string]any) string {
+	return r.Replace(s, tplVars)
+}
+
+// Replace any-map vars in the text contents
+func (r *VarReplacer) Replace(s string, tplVars map[string]any) string {
 	if !strings.Contains(s, r.Left) {
 		return s
 	}
@@ -138,15 +128,14 @@ func (r *VarReplacer) Render(s string, tplVars map[string]any) string {
 		return s
 	}
 
-	r.Init()
-
 	var varMap map[string]string
+
 	if r.flatSubs {
 		varMap = make(map[string]string, len(tplVars)*2)
 		maputil.FlatWithFunc(tplVars, func(path string, val reflect.Value) {
 			if val.Kind() == reflect.String {
 				if r.parseEnv {
-					varMap[path] = varexpr.SafeParse(val.String())
+					varMap[path] = comfunc.ParseEnvVar(val.String(), nil)
 				} else {
 					varMap[path] = val.String()
 				}
@@ -158,7 +147,7 @@ func (r *VarReplacer) Render(s string, tplVars map[string]any) string {
 		varMap = maputil.ToStringMap(tplVars)
 	}
 
-	return r.doReplace(s, varMap)
+	return r.Init().doReplace(s, varMap)
 }
 
 // ReplaceSMap string-map vars in the text contents
@@ -174,12 +163,11 @@ func (r *VarReplacer) RenderSimple(s string, varMap map[string]string) string {
 
 	if r.parseEnv {
 		for name, val := range varMap {
-			varMap[name] = varexpr.SafeParse(val)
+			varMap[name] = comfunc.ParseEnvVar(val, nil)
 		}
 	}
 
-	r.Init()
-	return r.doReplace(s, varMap)
+	return r.Init().doReplace(s, varMap)
 }
 
 // MissVars list
@@ -196,11 +184,6 @@ func (r *VarReplacer) ResetMissVars() {
 func (r *VarReplacer) doReplace(s string, varMap map[string]string) string {
 	if !r.keepMissVars {
 		r.missVars = make([]string, 0) // clear on each replace
-	}
-
-	// use custom render func
-	if r.RenderFn != nil {
-		return r.RenderFn(s, varMap)
 	}
 
 	return r.varReg.ReplaceAllStringFunc(s, func(sub string) string {

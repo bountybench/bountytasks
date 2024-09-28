@@ -17,6 +17,7 @@ package scorch
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -30,7 +31,6 @@ import (
 	"time"
 
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 	bolt "go.etcd.io/bbolt"
@@ -324,12 +324,12 @@ func (s *Scorch) parsePersisterOptions() (*persisterOptions, error) {
 		MemoryPressurePauseThreshold: DefaultMemoryPressurePauseThreshold,
 	}
 	if v, ok := s.config["scorchPersisterOptions"]; ok {
-		b, err := util.MarshalJSON(v)
+		b, err := json.Marshal(v)
 		if err != nil {
 			return &po, err
 		}
 
-		err = util.UnmarshalJSON(b, &po)
+		err = json.Unmarshal(b, &po)
 		if err != nil {
 			return &po, err
 		}

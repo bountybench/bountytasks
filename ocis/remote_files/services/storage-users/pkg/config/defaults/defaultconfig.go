@@ -44,6 +44,7 @@ func DefaultConfig() *config.Config {
 		Reva:                    shared.DefaultRevaConfig(),
 		DataServerURL:           "http://localhost:9158/data",
 		DataGatewayURL:          "https://localhost:9200/data",
+		RevaGatewayGRPCAddr:     "127.0.0.1:9142",
 		TransferExpires:         86400,
 		UploadExpiration:        24 * 60 * 60,
 		GracefulShutdownTimeout: 30,
@@ -85,7 +86,6 @@ func DefaultConfig() *config.Config {
 				PermissionsEndpoint:        "com.owncloud.api.settings",
 				MaxAcquireLockCycles:       20,
 				LockCycleDurationFactor:    30,
-				AsyncUploads:               true,
 			},
 		},
 		Events: config.Events{
@@ -94,21 +94,13 @@ func DefaultConfig() *config.Config {
 			EnableTLS: false,
 		},
 		StatCache: config.StatCache{
-			Store:    "memory",
-			Nodes:    []string{"127.0.0.1:9233"},
+			Store:    "noop",
 			Database: "ocis",
 			TTL:      300 * time.Second,
 		},
 		FilemetadataCache: config.FilemetadataCache{
 			Store:    "memory",
-			Nodes:    []string{"127.0.0.1:9233"},
-			Database: "cache-filemetadata",
-			TTL:      24 * 60 * time.Second,
-		},
-		IDCache: config.IDCache{
-			Store:    "memory",
-			Nodes:    []string{"127.0.0.1:9233"},
-			Database: "ids-storage-users",
+			Database: "ocis",
 			TTL:      24 * 60 * time.Second,
 		},
 		Tasks: config.Tasks{

@@ -25,9 +25,9 @@ import (
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config/defaults"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
 	identitymocks "github.com/owncloud/ocis/v2/services/graph/pkg/identity/mocks"
 	service "github.com/owncloud/ocis/v2/services/graph/pkg/service/v0"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 )
 
 type schoolList struct {
@@ -130,7 +130,7 @@ var _ = Describe("Schools", func() {
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/education/schools", nil)
 			svc.GetEducationSchools(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
+			Expect(rr.Code).To(Equal(http.StatusInternalServerError))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -268,7 +268,7 @@ var _ = Describe("Schools", func() {
 
 			svc.PostEducationSchool(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
+			Expect(rr.Code).To(Equal(http.StatusInternalServerError))
 		})
 
 		It("creates the school", func() {

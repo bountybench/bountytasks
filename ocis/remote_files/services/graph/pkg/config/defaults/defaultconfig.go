@@ -44,10 +44,9 @@ func DefaultConfig() *config.Config {
 			DisplayName: "ownCloud Infinite Scale",
 		},
 		API: config.API{
-			GroupMembersPatchLimit:  20,
-			UsernameMatch:           "default",
-			AssignDefaultUserRole:   true,
-			IdentitySearchMinLength: 3,
+			GroupMembersPatchLimit: 20,
+			UsernameMatch:          "default",
+			AssignDefaultUserRole:  true,
 		},
 		Reva: shared.DefaultRevaConfig(),
 		Spaces: config.Spaces{
@@ -97,17 +96,14 @@ func DefaultConfig() *config.Config {
 		},
 		Cache: &config.Cache{
 			Store:    "memory",
-			Nodes:    []string{"127.0.0.1:9233"},
-			Database: "cache-roles",
+			Database: "ocis",
+			Table:    "roles",
 			TTL:      time.Hour * 336,
 		},
 		Events: config.Events{
 			Endpoint:  "127.0.0.1:9233",
 			Cluster:   "ocis-cluster",
 			EnableTLS: false,
-		},
-		FilesSharing: config.FilesSharing{
-			EnableResharing: true,
 		},
 	}
 }
@@ -161,6 +157,10 @@ func EnsureDefaults(cfg *config.Config) {
 
 	if cfg.Commons != nil {
 		cfg.HTTP.TLS = cfg.Commons.HTTPServiceTLS
+	}
+
+	if cfg.MachineAuthAPIKey == "" && cfg.Commons != nil && cfg.Commons.MachineAuthAPIKey != "" {
+		cfg.MachineAuthAPIKey = cfg.Commons.MachineAuthAPIKey
 	}
 
 	if cfg.Identity.LDAP.GroupCreateBaseDN == "" {

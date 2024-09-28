@@ -196,33 +196,13 @@ class SpacesContext implements Context {
 			$spaceName = $this->featureContext->getUserDisplayName($user);
 		}
 		if (strtolower($user) === 'admin') {
-			$listSpacesFn = 'listAllAvailableSpaces';
+			$this->listAllAvailableSpaces($user);
 		} else {
-			$listSpacesFn = 'listAllAvailableSpacesOfUser';
+			$this->listAllAvailableSpacesOfUser($user);
 		}
-
-		// Sometimes listing available spaces might not return newly created/shared spaces
-		// so we try again until we find the space or we reach the max number of retries (i.e. 10)
-		$tryAgain = false;
-		$retried = 0;
-		do {
-			// empty the available spaces array
-			$this->setAvailableSpaces([]);
-
-			$this->$listSpacesFn($user);
-			$spaces = $this->getAvailableSpaces();
-
-			$tryAgain = !\array_key_exists($spaceName, $spaces) && $retried < HttpRequestHelper::numRetriesOnHttpTooEarly();
-			if ($tryAgain) {
-				$retried += 1;
-				echo "Space '$spaceName' not found for user '$user', retrying ($retried)...\n";
-				// wait 500ms and try again
-				\usleep(500 * 1000);
-			}
-		} while ($tryAgain);
-
-		Assert::assertArrayHasKey($spaceName, $spaces, "Space with name '$spaceName' for user '$user' not found");
-		Assert::assertNotEmpty($spaces[$spaceName]["root"]["webDavUrl"], "WebDavUrl for space with name '$spaceName' for user '$user' not found");
+		$spaces = $this->getAvailableSpaces();
+		Assert::assertArrayHasKey($spaceName, $spaces, "Space with name $spaceName for user $user not found");
+		Assert::assertNotEmpty($spaces[$spaceName]["root"]["webDavUrl"], "WebDavUrl for space with name $spaceName for user $user not found");
 		return $spaces[$spaceName];
 	}
 
@@ -252,7 +232,7 @@ class SpacesContext implements Context {
 	 */
 	public function setSpaceIDByName(string $user, string $spaceName): void {
 		$space = $this->getSpaceByName($user, $spaceName);
-		Assert::assertIsArray($space, "Space with name '$spaceName' not found");
+		Assert::assertIsArray($space, "Space with name $spaceName not found");
 		Assert::assertNotEmpty($space["root"]["webDavUrl"], "WebDavUrl for space with name $spaceName not found");
 		WebDavHelper::$SPACE_ID_FROM_OCIS = $space['id'];
 	}
@@ -386,24 +366,6 @@ class SpacesContext implements Context {
 	public function getETag(string $user, string $spaceName, string $fileName): string {
 		$fileData = $this->getFileData($user, $spaceName, $fileName)->getHeaders();
 		return \str_replace('"', '\"', $fileData["Etag"][0]);
-	}
-
-	/**
-	 * @param string $user
-	 * @param string $spaceName
-	 *
-	 * @return string
-	 *
-	 * @throws GuzzleException
-	 */
-	public function getEtagOfASpace(string $user, string $spaceName): string {
-		$this->theUserLooksUpTheSingleSpaceUsingTheGraphApiByUsingItsId($user, $spaceName);
-		$this->featureContext->theHTTPStatusCodeShouldBe(
-			200,
-			"Expected response status code should be 200"
-		);
-		$decodedResponse = $this->featureContext->getJsonDecodedResponse();
-		return $decodedResponse["root"]["eTag"];
 	}
 
 	/**
@@ -934,12 +896,6 @@ class SpacesContext implements Context {
 						[$this, "getETag"],
 					"parameter" => [$userName, $spaceName, $fileName]
 				],
-				[
-					"code" => "%space_etag%",
-					"function" =>
-						[$this, "getEtagOfASpace"],
-					"parameter" => [$userName, $spaceName]
-				]
 			],
 			null,
 			$userName,
@@ -1304,28 +1260,6 @@ class SpacesContext implements Context {
 		$this->setSpaceIDByName($user, $spaceName);
 		$response = $this->featureContext->uploadFile($user, $source, $destination);
 		$this->featureContext->setResponse($response);
-	}
-
-	/**
-	 * @Given user :user has uploaded a file :source to :destination in space :spaceName
-	 *
-	 * @param string $user
-	 * @param string $source
-	 * @param string $destination
-	 * @param string $spaceName
-	 *
-	 * @return void
-	 * @throws GuzzleException
-	 * @throws Exception
-	 */
-	public function userHasUploadedAFileToInSpaceUsingTheWebdavApi(string $user, string $source, string $destination, string $spaceName): void {
-		$this->setSpaceIDByName($user, $spaceName);
-		$response = $this->featureContext->uploadFile($user, $source, $destination);
-		$this->featureContext->theHTTPStatusCodeShouldBe(
-			201,
-			"Expected response status code should be 201",
-			$response
-		);
 	}
 
 	/**
@@ -2254,9 +2188,9 @@ class SpacesContext implements Context {
 		$rows = $table->getRowsHash();
 
 		$rows["path"] = \array_key_exists("path", $rows) ? $rows["path"] : null;
-		$rows["shareType"] = \array_key_exists("shareType", $rows) ? $rows["shareType"] : 3;
+		$rows["shareType"] = \array_key_exists("shareType", $rows) ? $rows["shareType"] : null;
 		$rows["permissions"] = \array_key_exists("permissions", $rows) ? $rows["permissions"] : null;
-		$rows['password'] = \array_key_exists('password', $rows) ? $this->featureContext->getActualPassword($rows['password']) : null;
+		$rows["password"] = \array_key_exists("password", $rows) ? $rows["password"] : null;
 		$rows["name"] = \array_key_exists("name", $rows) ? $rows["name"] : null;
 		$rows["expireDate"] = \array_key_exists("expireDate", $rows) ? $rows["expireDate"] : null;
 
@@ -3219,7 +3153,7 @@ class SpacesContext implements Context {
 
 		$rows["shareType"] = \array_key_exists("shareType", $rows) ? $rows["shareType"] : 3;
 		$rows["permissions"] = \array_key_exists("permissions", $rows) ? $rows["permissions"] : null;
-		$rows['password'] = \array_key_exists('password', $rows) ? $this->featureContext->getActualPassword($rows['password']) : null;
+		$rows["password"] = \array_key_exists("password", $rows) ? $rows["password"] : null;
 		$rows["name"] = \array_key_exists("name", $rows) ? $rows["name"] : null;
 		$rows["expireDate"] = \array_key_exists("expireDate", $rows) ? $rows["expireDate"] : null;
 
@@ -3499,41 +3433,25 @@ class SpacesContext implements Context {
 	 * @param string $spaceName
 	 * @param ?string $resource
 	 *
-	 * @return void
-	 *
-	 * @throws JsonException
-	 *
 	 * @throws GuzzleException
+	 *
+	 * @return void
 	 */
 	public function userSendsPropfindRequestToSpace(string $user, string $spaceName, ?string $resource = ""): void {
-		$this->featureContext->setResponse(
-			$this->sendPropfindRequestToSpace($user, $spaceName, $resource)
-		);
-	}
-
-	/**
-	 * @param string $user
-	 * @param string $spaceName
-	 * @param string|null $resource
-	 *
-	 * @return ResponseInterface
-	 * @throws GuzzleException
-	 *
-	 * @throws JsonException
-	 */
-	public function sendPropfindRequestToSpace(string $user, string $spaceName, ?string $resource = ""): ResponseInterface {
 		$this->setSpaceIDByName($user, $spaceName);
 		$properties = ['oc:permissions','oc:file-parent','oc:fileid','oc:share-types','oc:privatelink','d:resourcetype','oc:size','oc:name','d:getcontenttype','oc:tags','d:lockdiscovery','d:activelock'];
-		return  WebDavHelper::propfind(
-			$this->featureContext->getBaseUrl(),
-			$this->featureContext->getActualUsername($user),
-			$this->featureContext->getPasswordForUser($user),
-			$resource,
-			$properties,
-			$this->featureContext->getStepLineRef(),
-			"0",
-			"files",
-			WebDavHelper::DAV_VERSION_SPACES
+		$this->featureContext->setResponse(
+			WebDavHelper::propfind(
+				$this->featureContext->getBaseUrl(),
+				$this->featureContext->getActualUsername($user),
+				$this->featureContext->getPasswordForUser($user),
+				$resource,
+				$properties,
+				$this->featureContext->getStepLineRef(),
+				"0",
+				"files",
+				WebDavHelper::DAV_VERSION_SPACES
+			)
 		);
 	}
 

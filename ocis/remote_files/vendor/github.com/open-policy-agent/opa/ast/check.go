@@ -24,8 +24,6 @@ type exprChecker func(*TypeEnv, *Expr) *Error
 // accumulated on the typeChecker so that a single run can report multiple
 // issues.
 type typeChecker struct {
-	builtins     map[string]*Builtin
-	required     *Capabilities
 	errs         Errors
 	exprCheckers map[string]exprChecker
 	varRewriter  varRewriter
@@ -60,16 +58,6 @@ func (tc *typeChecker) copy() *typeChecker {
 		WithSchemaSet(tc.ss).
 		WithAllowNet(tc.allowNet).
 		WithInputType(tc.input)
-}
-
-func (tc *typeChecker) WithRequiredCapabilities(c *Capabilities) *typeChecker {
-	tc.required = c
-	return tc
-}
-
-func (tc *typeChecker) WithBuiltins(builtins map[string]*Builtin) *typeChecker {
-	tc.builtins = builtins
-	return tc
 }
 
 func (tc *typeChecker) WithSchemaSet(ss *SchemaSet) *typeChecker {
@@ -189,26 +177,27 @@ func (tc *typeChecker) checkRule(env *TypeEnv, as *AnnotationSet, rule *Rule) {
 
 	env = env.wrap()
 
-	schemaAnnots := getRuleAnnotation(as, rule)
-	for _, schemaAnnot := range schemaAnnots {
-		ref, refType, err := processAnnotation(tc.ss, schemaAnnot, rule, tc.allowNet)
-		if err != nil {
-			tc.err([]*Error{err})
-			continue
-		}
-		if ref == nil && refType == nil {
-			continue
-		}
-		prefixRef, t := getPrefix(env, ref)
-		if t == nil || len(prefixRef) == len(ref) {
-			env.tree.Put(ref, refType)
-		} else {
-			newType, err := override(ref[len(prefixRef):], t, refType, rule)
+	if schemaAnnots := getRuleAnnotation(as, rule); schemaAnnots != nil {
+		for _, schemaAnnot := range schemaAnnots {
+			ref, refType, err := processAnnotation(tc.ss, schemaAnnot, rule, tc.allowNet)
 			if err != nil {
 				tc.err([]*Error{err})
 				continue
 			}
-			env.tree.Put(prefixRef, newType)
+			if ref == nil && refType == nil {
+				continue
+			}
+			prefixRef, t := getPrefix(env, ref)
+			if t == nil || len(prefixRef) == len(ref) {
+				env.tree.Put(ref, refType)
+			} else {
+				newType, err := override(ref[len(prefixRef):], t, refType, rule)
+				if err != nil {
+					tc.err([]*Error{err})
+					continue
+				}
+				env.tree.Put(prefixRef, newType)
+			}
 		}
 	}
 
@@ -243,64 +232,45 @@ func (tc *typeChecker) checkRule(env *TypeEnv, as *AnnotationSet, rule *Rule) {
 
 		f := types.NewFunction(args, cpy.Get(rule.Head.Value))
 
-		tpe = f
+		// Union with existing.
+		exist := env.tree.Get(path)
+		tpe = types.Or(exist, f)
+
 	} else {
 		switch rule.Head.RuleKind() {
 		case SingleValue:
 			typeV := cpy.Get(rule.Head.Value)
-			if !path.IsGround() {
-				// e.g. store object[string: whatever] at data.p.q.r, not data.p.q.r[x] or data.p.q.r[x].y[z]
-				objPath := path.DynamicSuffix()
+			if last := path[len(path)-1]; !last.IsGround() {
+
+				// e.g. store object[string: whatever] at data.p.q.r, not data.p.q.r[x]
 				path = path.GroundPrefix()
 
-				var err error
-				tpe, err = nestedObject(cpy, objPath, typeV)
-				if err != nil {
-					tc.err([]*Error{NewError(TypeErr, rule.Head.Location, err.Error())})
-					tpe = nil
+				typeK := cpy.Get(last)
+				if typeK != nil && typeV != nil {
+					exist := env.tree.Get(path)
+					typeV = types.Or(types.Values(exist), typeV)
+					typeK = types.Or(types.Keys(exist), typeK)
+					tpe = types.NewObject(nil, types.NewDynamicProperty(typeK, typeV))
 				}
 			} else {
 				if typeV != nil {
-					tpe = typeV
+					exist := env.tree.Get(path)
+					tpe = types.Or(typeV, exist)
 				}
 			}
 		case MultiValue:
 			typeK := cpy.Get(rule.Head.Key)
 			if typeK != nil {
+				exist := env.tree.Get(path)
+				typeK = types.Or(types.Keys(exist), typeK)
 				tpe = types.NewSet(typeK)
 			}
 		}
 	}
 
 	if tpe != nil {
-		env.tree.Insert(path, tpe, env)
+		env.tree.Put(path, tpe)
 	}
-}
-
-// nestedObject creates a nested structure of object types, where each term on path corresponds to a level in the
-// nesting. Each term in the path only contributes to the dynamic portion of its corresponding object.
-func nestedObject(env *TypeEnv, path Ref, tpe types.Type) (types.Type, error) {
-	if len(path) == 0 {
-		return tpe, nil
-	}
-
-	k := path[0]
-	typeV, err := nestedObject(env, path[1:], tpe)
-	if err != nil {
-		return nil, err
-	}
-	if typeV == nil {
-		return nil, nil
-	}
-
-	var dynamicProperty *types.DynamicProperty
-	typeK := env.Get(k)
-	if typeK == nil {
-		return nil, nil
-	}
-	dynamicProperty = types.NewDynamicProperty(typeK, typeV)
-
-	return types.NewObject(nil, dynamicProperty), nil
 }
 
 func (tc *typeChecker) checkExpr(env *TypeEnv, expr *Expr) *Error {
@@ -311,18 +281,7 @@ func (tc *typeChecker) checkExpr(env *TypeEnv, expr *Expr) *Error {
 		return nil
 	}
 
-	operator := expr.Operator().String()
-
-	// If the type checker wasn't provided with a required capabilities
-	// structure then just skip. In some cases, type checking might be run
-	// without the need to record what builtins are required.
-	if tc.required != nil {
-		if bi, ok := tc.builtins[operator]; ok {
-			tc.required.addBuiltinSorted(bi)
-		}
-	}
-
-	checker := tc.exprCheckers[operator]
+	checker := tc.exprCheckers[expr.Operator().String()]
 	if checker != nil {
 		return checker(env, expr)
 	}
@@ -430,7 +389,7 @@ func (tc *typeChecker) checkExprWith(env *TypeEnv, expr *Expr, i int) *Error {
 		switch v := valueType.(type) {
 		case *types.Function: // ...by function
 			if !unifies(targetType, valueType) {
-				return newArgError(expr.With[i].Loc(), target.Value.(Ref), "arity mismatch", v.FuncArgs().Args, t.NamedFuncArgs())
+				return newArgError(expr.With[i].Loc(), target.Value.(Ref), "arity mismatch", v.Args(), t.NamedFuncArgs())
 			}
 		default: // ... by value, nothing to check
 		}
@@ -1241,7 +1200,7 @@ func getRuleAnnotation(as *AnnotationSet, rule *Rule) (result []*SchemaAnnotatio
 		result = append(result, x.Schemas...)
 	}
 
-	if x := as.GetDocumentScope(rule.Ref().GroundPrefix()); x != nil {
+	if x := as.GetDocumentScope(rule.Path()); x != nil {
 		result = append(result, x.Schemas...)
 	}
 

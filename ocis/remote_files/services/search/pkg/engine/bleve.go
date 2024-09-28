@@ -6,7 +6,7 @@ import (
 	"math"
 	"path"
 	"path/filepath"
-	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -25,17 +25,14 @@ import (
 	"github.com/cs3org/reva/v2/pkg/storagespace"
 	"github.com/cs3org/reva/v2/pkg/utils"
 
-	libregraph "github.com/owncloud/libre-graph-api-go"
 	searchMessage "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/search/v0"
 	searchService "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/search/v0"
 	"github.com/owncloud/ocis/v2/services/search/pkg/content"
-	searchQuery "github.com/owncloud/ocis/v2/services/search/pkg/query"
 )
 
 // Bleve represents a search engine which utilizes bleve to search and store resources.
 type Bleve struct {
-	index        bleve.Index
-	queryCreator searchQuery.Creator[query.Query]
+	index bleve.Index
 }
 
 // NewBleveIndex returns a new bleve index
@@ -60,10 +57,9 @@ func NewBleveIndex(root string) (bleve.Index, error) {
 }
 
 // NewBleveEngine creates a new Bleve instance
-func NewBleveEngine(index bleve.Index, queryCreator searchQuery.Creator[query.Query]) *Bleve {
+func NewBleveEngine(index bleve.Index) *Bleve {
 	return &Bleve{
-		index:        index,
-		queryCreator: queryCreator,
+		index: index,
 	}
 }
 
@@ -120,19 +116,16 @@ func BuildBleveMapping() (mapping.IndexMapping, error) {
 
 // Search executes a search request operation within the index.
 // Returns a SearchIndexResponse object or an error.
-func (b *Bleve) Search(ctx context.Context, sir *searchService.SearchIndexRequest) (*searchService.SearchIndexResponse, error) {
-	createdQuery, err := b.queryCreator.Create(sir.Query)
-	if err != nil {
-		return nil, err
-	}
-
+func (b *Bleve) Search(_ context.Context, sir *searchService.SearchIndexRequest) (*searchService.SearchIndexResponse, error) {
 	q := bleve.NewConjunctionQuery(
 		// Skip documents that have been marked as deleted
 		&query.BoolFieldQuery{
 			Bool:     false,
 			FieldVal: "Deleted",
 		},
-		createdQuery,
+		&query.QueryStringQuery{
+			Query: formatQuery(sir.Query),
+		},
 	)
 
 	if sir.Ref != nil {
@@ -210,8 +203,6 @@ func (b *Bleve) Search(ctx context.Context, sir *searchService.SearchIndexReques
 				Deleted:    getFieldValue[bool](hit.Fields, "Deleted"),
 				Tags:       getFieldSliceValue[string](hit.Fields, "Tags"),
 				Highlights: getFragmentValue(hit.Fragments, "Content", 0),
-				Audio:      getAudioValue[searchMessage.Audio](hit.Fields),
-				Location:   getLocationValue[searchMessage.GeoCoordinates](hit.Fields),
 			},
 		}
 
@@ -329,68 +320,8 @@ func (b *Bleve) getResource(id string) (*Resource, error) {
 			MimeType: getFieldValue[string](fields, "MimeType"),
 			Content:  getFieldValue[string](fields, "Content"),
 			Tags:     getFieldSliceValue[string](fields, "Tags"),
-			Audio:    getAudioValue[libregraph.Audio](fields),
-			Location: getLocationValue[libregraph.GeoCoordinates](fields),
 		},
 	}, nil
-}
-
-func newPointerOfType[T any]() *T {
-	t := reflect.TypeOf((*T)(nil)).Elem()
-	ptr := reflect.New(t).Interface()
-	return ptr.(*T)
-}
-
-func getFieldName(structField reflect.StructField) string {
-	tag := structField.Tag.Get("json")
-	if tag == "" {
-		return structField.Name
-	}
-
-	return strings.Split(tag, ",")[0]
-}
-
-func unmarshalInterfaceMap(out any, flatMap map[string]interface{}, prefix string) bool {
-	nonEmpty := false
-	obj := reflect.ValueOf(out).Elem()
-	for i := 0; i < obj.NumField(); i++ {
-		field := obj.Field(i)
-		structField := obj.Type().Field(i)
-		mapKey := prefix + getFieldName(structField)
-
-		if value, ok := flatMap[mapKey]; ok {
-			if field.Kind() == reflect.Ptr {
-				alloc := reflect.New(field.Type().Elem())
-				alloc.Elem().Set(reflect.ValueOf(value).Convert(field.Type().Elem()))
-				field.Set(alloc)
-				nonEmpty = true
-			}
-		}
-	}
-
-	return nonEmpty
-}
-
-func getAudioValue[T any](fields map[string]interface{}) *T {
-	if !strings.HasPrefix(getFieldValue[string](fields, "MimeType"), "audio/") {
-		return nil
-	}
-
-	var audio = newPointerOfType[T]()
-	if ok := unmarshalInterfaceMap(audio, fields, "audio."); ok {
-		return audio
-	}
-
-	return nil
-}
-
-func getLocationValue[T any](fields map[string]interface{}) *T {
-	var location = newPointerOfType[T]()
-	if ok := unmarshalInterfaceMap(location, fields, "location."); ok {
-		return location
-	}
-
-	return nil
 }
 
 func (b *Bleve) updateEntity(id string, mutateFunc func(r *Resource)) (*Resource, error) {
@@ -436,4 +367,38 @@ func (b *Bleve) setDeleted(id string, deleted bool) error {
 	}
 
 	return nil
+}
+
+func formatQuery(q string) string {
+	cq := q
+	fields := []string{"RootID", "Path", "ID", "Name", "Size", "Mtime", "MimeType", "Type"}
+	for _, field := range fields {
+		cq = strings.ReplaceAll(cq, strings.ToLower(field)+":", field+":")
+	}
+
+	fieldRe := regexp.MustCompile(`\w+:[^ ]+`)
+	if fieldRe.MatchString(cq) {
+		nameTagesRe := regexp.MustCompile(`\+?(Name|Tags)`) // detect "Name", "+Name, "Tags" and "+Tags"
+		parts := strings.Split(cq, " ")
+
+		cq = ""
+		for _, part := range parts {
+			fieldParts := strings.SplitN(part, ":", 2)
+			if len(fieldParts) > 1 {
+				key := fieldParts[0]
+				value := fieldParts[1]
+				if nameTagesRe.MatchString(key) {
+					value = strings.ToLower(value) // do a lowercase query on the lowercased fields
+				}
+				cq += key + ":" + value + " "
+			} else {
+				cq += part + " "
+			}
+		}
+		return cq // Sophisticated field based search
+	}
+
+	// this is a basic filename search
+	cq = strings.ReplaceAll(cq, ":", `\:`)
+	return "Name:*" + strings.ReplaceAll(strings.ToLower(cq), " ", `\ `) + "*"
 }

@@ -915,7 +915,7 @@ class GraphContext implements Context {
 		$this->featureContext->setResponse($response);
 		$this->featureContext->pushToLastHttpStatusCodesArray((string) $response->getStatusCode());
 
-		if ($response->getStatusCode() === 201) {
+		if ($response->getStatusCode() === 200) {
 			$groupId = $this->featureContext->getJsonDecodedResponse($response)["id"];
 			$this->featureContext->addGroupToCreatedGroupsList($group, true, true, $groupId);
 		}
@@ -935,7 +935,7 @@ class GraphContext implements Context {
 	public function userHasCreatedGroupUsingTheGraphApi(string $group, ?string $user = null): void {
 		$response = $this->createGroup($group, $user);
 
-		if ($response->getStatusCode() === 201) {
+		if ($response->getStatusCode() === 200) {
 			$groupId = $this->featureContext->getJsonDecodedResponse($response)["id"];
 			$this->featureContext->addGroupToCreatedGroupsList($group, true, true, $groupId);
 		} else {
@@ -954,7 +954,7 @@ class GraphContext implements Context {
 	 */
 	public function adminHasCreatedGroupUsingTheGraphApi(string $group): array {
 		$result = $this->createGroup($group);
-		if ($result->getStatusCode() === 201) {
+		if ($result->getStatusCode() === 200) {
 			return $this->featureContext->getJsonDecodedResponse($result);
 		} else {
 			$this->throwHttpException($result, "Could not create group '$group'.");
@@ -2441,53 +2441,6 @@ class GraphContext implements Context {
 				$this->appEntity["appRoles"][$role],
 				$this->appEntity["id"],
 				$userId
-			)
-		);
-	}
-
-	/**
-	 * @Given user :user has switched the system language to :language using the Graph API
-	 *
-	 * @param string $user
-	 * @param string $language
-	 *
-	 * @return void
-	 * @throws GuzzleException
-	 */
-	public function userHasSwitchedTheSystemLanguageUsingGraphApi(string $user, string $language): void {
-		$credentials = $this->getAdminOrUserCredentials($user);
-		$response =  GraphHelper::switchSystemLanguage(
-			$this->featureContext->getBaseUrl(),
-			$this->featureContext->getStepLineRef(),
-			$credentials['username'],
-			$credentials['password'],
-			$language
-		);
-		$this->featureContext->theHTTPStatusCodeShouldBe(
-			200,
-			"Expected response status code should be 200",
-			$response
-		);
-	}
-
-	/**
-	 * @When user :user switches the system language to :language using the Graph API
-	 *
-	 * @param string $user
-	 * @param string $language
-	 *
-	 * @return void
-	 * @throws GuzzleException
-	 */
-	public function userSwitchesTheSystemLanguageUsingGraphApi(string $user, string $language): void {
-		$credentials = $this->getAdminOrUserCredentials($user);
-		$this->featureContext->setResponse(
-			GraphHelper::switchSystemLanguage(
-				$this->featureContext->getBaseUrl(),
-				$this->featureContext->getStepLineRef(),
-				$credentials['username'],
-				$credentials['password'],
-				$language
 			)
 		);
 	}

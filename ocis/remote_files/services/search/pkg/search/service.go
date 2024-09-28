@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 	"time"
 
 	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	user "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
-	rpc "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	rpcv1beta1 "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	revactx "github.com/cs3org/reva/v2/pkg/ctx"
@@ -24,7 +22,6 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 
-	libregraph "github.com/owncloud/libre-graph-api-go"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	searchmsg "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/search/v0"
 	searchsvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/search/v0"
@@ -61,9 +58,7 @@ type Service struct {
 	gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
 	engine          engine.Engine
 	extractor       content.Extractor
-
-	serviceAccountID     string
-	serviceAccountSecret string
+	secret          string
 }
 
 var errSkipSpace error
@@ -73,11 +68,9 @@ func NewService(gatewaySelector pool.Selectable[gateway.GatewayAPIClient], eng e
 	var s = &Service{
 		gatewaySelector: gatewaySelector,
 		engine:          eng,
+		secret:          cfg.MachineAuthAPIKey,
 		logger:          logger,
 		extractor:       extractor,
-
-		serviceAccountID:     cfg.ServiceAccount.ServiceAccountID,
-		serviceAccountSecret: cfg.ServiceAccount.ServiceAccountSecret,
 	}
 
 	return s
@@ -100,16 +93,16 @@ func (s *Service) Search(ctx context.Context, req *searchsvc.SearchRequest) (*se
 	}
 	req.Query = query
 	if len(scope) > 0 {
-		scopedID, err := storagespace.ParseID(scope)
+		// if req.Ref != nil {
+		// 	return nil, errtypes.BadRequest("cannot scope a search that is limited to a resource")
+		// }
+		scopeRef, err := extractScope(scope)
 		if err != nil {
-			s.logger.Error().Err(err).Msg("failed to parse scope")
+			return nil, err
 		}
-
 		// Stat the scope to get the resource id
 		statRes, err := gatewayClient.Stat(ctx, &provider.StatRequest{
-			Ref: &provider.Reference{
-				ResourceId: &scopedID,
-			},
+			Ref:       scopeRef,
 			FieldMask: &fieldmaskpb.FieldMask{Paths: []string{"space"}},
 		})
 		if err != nil {
@@ -299,12 +292,21 @@ func (s *Service) searchIndex(ctx context.Context, req *searchsvc.SearchRequest,
 			return nil, err
 		}
 
-		serviceCtx, err := getAuthContext(s.serviceAccountID, s.gatewaySelector, s.serviceAccountSecret, s.logger)
-		if err != nil {
-			return nil, err
+		var ownerCtx context.Context
+		if space.Owner.Id.Type == user.UserType_USER_TYPE_SPACE_OWNER {
+			// We can't impersonate SPACE_OWNER users and have to fall back to using the user auth instead,
+			// which will not resolve the absolute path of the share in the space but only the part the user
+			// is allowed to see.
+			// In the future this problem can be solved using service accounts.
+			ownerCtx = ctx
+		} else {
+			ownerCtx, err = getAuthContext(&user.User{Id: space.Owner.Id}, s.gatewaySelector, s.secret, s.logger)
+			if err != nil {
+				return nil, err
+			}
 		}
 
-		gpRes, err := gatewayClient.GetPath(serviceCtx, &provider.GetPathRequest{
+		gpRes, err := gatewayClient.GetPath(ownerCtx, &provider.GetPathRequest{
 			ResourceId: space.Root,
 		})
 		if err != nil {
@@ -387,7 +389,7 @@ func (s *Service) searchIndex(ctx context.Context, req *searchsvc.SearchRequest,
 
 // IndexSpace (re)indexes all resources of a given space.
 func (s *Service) IndexSpace(spaceID *provider.StorageSpaceId, uID *user.UserId) error {
-	ownerCtx, err := getAuthContext(s.serviceAccountID, s.gatewaySelector, s.serviceAccountSecret, s.logger)
+	ownerCtx, err := getAuthContext(&user.User{Id: uID}, s.gatewaySelector, s.secret, s.logger)
 	if err != nil {
 		return err
 	}
@@ -421,7 +423,7 @@ func (s *Service) IndexSpace(spaceID *provider.StorageSpaceId, uID *user.UserId)
 		s.logger.Debug().Str("path", ref.Path).Msg("Walking tree")
 
 		searchRes, err := s.engine.Search(ownerCtx, &searchsvc.SearchIndexRequest{
-			Query: "id:" + storagespace.FormatResourceID(*info.Id) + ` mtime>=` + utils.TSToTime(info.Mtime).Format(time.RFC3339Nano),
+			Query: "+ID:" + storagespace.FormatResourceID(*info.Id) + ` +Mtime:>="` + utils.TSToTime(info.Mtime).Format(time.RFC3339Nano) + `"`,
 		})
 
 		if err == nil && len(searchRes.Matches) >= 1 {
@@ -490,82 +492,6 @@ func (s *Service) UpsertItem(ref *provider.Reference, uID *user.UserId) {
 	} else {
 		logDocCount(s.engine, s.logger)
 	}
-
-	// determine if metadata needs to be stored in storage as well
-	metadata := map[string]string{}
-	addAudioMetadata(metadata, doc.Audio)
-	addLocationMetadata(metadata, doc.Location)
-	if len(metadata) == 0 {
-		return
-	}
-
-	s.logger.Trace().Str("name", doc.Name).Interface("metadata", metadata).Msg("Storing metadata")
-
-	gatewayClient, err := s.gatewaySelector.Next()
-	if err != nil {
-		s.logger.Error().Err(err).Msg("could not retrieve client to store metadata")
-		return
-	}
-
-	resp, err := gatewayClient.SetArbitraryMetadata(ctx, &provider.SetArbitraryMetadataRequest{
-		Ref: ref,
-		ArbitraryMetadata: &provider.ArbitraryMetadata{
-			Metadata: metadata,
-		},
-	})
-	if err != nil || resp.GetStatus().GetCode() != rpc.Code_CODE_OK {
-		s.logger.Error().Err(err).Int32("status", int32(resp.GetStatus().GetCode())).Msg("error storing metadata")
-		return
-	}
-}
-
-func addAudioMetadata(metadata map[string]string, audio *libregraph.Audio) {
-	if audio == nil {
-		return
-	}
-	marshalToStringMap(audio, metadata, "libre.graph.audio.")
-}
-
-func addLocationMetadata(metadata map[string]string, location *libregraph.GeoCoordinates) {
-	if location == nil {
-		return
-	}
-	marshalToStringMap(location, metadata, "libre.graph.location.")
-}
-
-func marshalToStringMap[T libregraph.MappedNullable](source T, target map[string]string, prefix string) {
-	// ToMap never returns a non-nil error ...
-	m, _ := source.ToMap()
-
-	for k, v := range m {
-		if v == nil {
-			continue
-		}
-		target[prefix+k] = valueToString(v)
-	}
-}
-
-func valueToString(value interface{}) string {
-	if value == nil {
-		return ""
-	}
-
-	switch v := value.(type) {
-	case *string:
-		return *v
-	case *int32:
-		return strconv.FormatInt(int64(*v), 10)
-	case *int64:
-		return strconv.FormatInt(*v, 10)
-	case *float32:
-		return strconv.FormatFloat(float64(*v), 'f', -1, 32)
-	case *float64:
-		return strconv.FormatFloat(*v, 'f', -1, 64)
-	case *bool:
-		return strconv.FormatBool(*v)
-	default:
-		return fmt.Sprintf("%v", v)
-	}
 }
 
 // RestoreItem makes the item available again.
@@ -593,7 +519,7 @@ func (s *Service) MoveItem(ref *provider.Reference, uID *user.UserId) {
 }
 
 func (s *Service) resInfo(uID *user.UserId, ref *provider.Reference) (context.Context, *provider.StatResponse, string) {
-	ownerCtx, err := getAuthContext(s.serviceAccountID, s.gatewaySelector, s.serviceAccountSecret, s.logger)
+	ownerCtx, err := getAuthContext(&user.User{Id: uID}, s.gatewaySelector, s.secret, s.logger)
 	if err != nil {
 		return nil, nil, ""
 	}

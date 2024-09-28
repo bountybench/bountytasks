@@ -4,24 +4,24 @@ import (
 	"context"
 	"fmt"
 
-	bleveSearch "github.com/blevesearch/bleve/v2"
-	sprovider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	"github.com/cs3org/reva/v2/pkg/storagespace"
+
+	"github.com/blevesearch/bleve/v2"
+	sprovider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	libregraph "github.com/owncloud/libre-graph-api-go"
 	searchmsg "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/search/v0"
 	searchsvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/search/v0"
 	"github.com/owncloud/ocis/v2/services/search/pkg/content"
 	"github.com/owncloud/ocis/v2/services/search/pkg/engine"
-	"github.com/owncloud/ocis/v2/services/search/pkg/query/bleve"
 )
 
 var _ = Describe("Bleve", func() {
 	var (
 		eng *engine.Bleve
-		idx bleveSearch.Index
+		idx bleve.Index
+		ctx context.Context
 
 		doSearch = func(id string, query, path string) (*searchsvc.SearchIndexResponse, error) {
 			rID, err := storagespace.ParseID(id)
@@ -29,7 +29,7 @@ var _ = Describe("Bleve", func() {
 				return nil, err
 			}
 
-			return eng.Search(context.Background(), &searchsvc.SearchIndexRequest{
+			return eng.Search(ctx, &searchsvc.SearchIndexRequest{
 				Query: query,
 				Ref: &searchmsg.Reference{
 					ResourceId: &searchmsg.ResourceID{
@@ -59,10 +59,10 @@ var _ = Describe("Bleve", func() {
 		mapping, err := engine.BuildBleveMapping()
 		Expect(err).ToNot(HaveOccurred())
 
-		idx, err = bleveSearch.NewMemOnly(mapping)
+		idx, err = bleve.NewMemOnly(mapping)
 		Expect(err).ToNot(HaveOccurred())
 
-		eng = engine.NewBleveEngine(idx, bleve.DefaultCreator)
+		eng = engine.NewBleveEngine(idx)
 		Expect(err).ToNot(HaveOccurred())
 
 		rootResource = engine.Resource{
@@ -93,7 +93,7 @@ var _ = Describe("Bleve", func() {
 
 	Describe("New", func() {
 		It("returns a new index instance", func() {
-			b := engine.NewBleveEngine(idx, bleve.DefaultCreator)
+			b := engine.NewBleveEngine(idx)
 			Expect(b).ToNot(BeNil())
 		})
 	})
@@ -133,7 +133,7 @@ var _ = Describe("Bleve", func() {
 				err := eng.Upsert(parentResource.ID, parentResource)
 				Expect(err).ToNot(HaveOccurred())
 
-				assertDocCount(rootResource.ID, `name:"foo o*"`, 1)
+				assertDocCount(rootResource.ID, `Name:foo\ o*`, 1)
 			})
 
 			It("finds files by digits in the filename", func() {
@@ -353,7 +353,6 @@ var _ = Describe("Bleve", func() {
 				Expect(res.TotalMatches).To(Equal(int32(1)))
 			})
 		})
-
 	})
 
 	Describe("Upsert", func() {
@@ -365,8 +364,8 @@ var _ = Describe("Bleve", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(count).To(Equal(uint64(1)))
 
-			query := bleveSearch.NewMatchQuery("child.pdf")
-			res, err := idx.Search(bleveSearch.NewSearchRequest(query))
+			query := bleve.NewMatchQuery("child.pdf")
+			res, err := idx.Search(bleve.NewSearchRequest(query))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(res.Hits.Len()).To(Equal(1))
 		})
@@ -409,14 +408,14 @@ var _ = Describe("Bleve", func() {
 			err = eng.Upsert(childResource.ID, childResource)
 			Expect(err).ToNot(HaveOccurred())
 
-			assertDocCount(rootResource.ID, `"`+parentResource.Document.Name+`"`, 1)
-			assertDocCount(rootResource.ID, `"`+childResource.Document.Name+`"`, 1)
+			assertDocCount(rootResource.ID, parentResource.Document.Name, 1)
+			assertDocCount(rootResource.ID, childResource.Document.Name, 1)
 
 			err = eng.Delete(parentResource.ID)
 			Expect(err).ToNot(HaveOccurred())
 
-			assertDocCount(rootResource.ID, `"`+parentResource.Document.Name+`"`, 0)
-			assertDocCount(rootResource.ID, `"`+childResource.Document.Name+`"`, 0)
+			assertDocCount(rootResource.ID, parentResource.Document.Name, 0)
+			assertDocCount(rootResource.ID, childResource.Document.Name, 0)
 		})
 	})
 
@@ -431,14 +430,14 @@ var _ = Describe("Bleve", func() {
 			err = eng.Delete(parentResource.ID)
 			Expect(err).ToNot(HaveOccurred())
 
-			assertDocCount(rootResource.ID, `"`+parentResource.Name+`"`, 0)
-			assertDocCount(rootResource.ID, `"`+childResource.Name+`"`, 0)
+			assertDocCount(rootResource.ID, parentResource.Name, 0)
+			assertDocCount(rootResource.ID, childResource.Name, 0)
 
 			err = eng.Restore(parentResource.ID)
 			Expect(err).ToNot(HaveOccurred())
 
-			assertDocCount(rootResource.ID, `"`+parentResource.Name+`"`, 1)
-			assertDocCount(rootResource.ID, `"`+childResource.Name+`"`, 1)
+			assertDocCount(rootResource.ID, parentResource.Name, 1)
+			assertDocCount(rootResource.ID, childResource.Name, 1)
 		})
 	})
 
@@ -483,103 +482,6 @@ var _ = Describe("Bleve", func() {
 			Expect(matches[0].Entity.ParentId.OpaqueId).To(Equal("somewhereopaqueid"))
 			Expect(matches[0].Entity.Ref.Path).To(Equal("./somewhere/else/newname"))
 
-		})
-	})
-
-	Describe("File type specific metadata", func() {
-
-		Context("with audio metadata", func() {
-			BeforeEach(func() {
-				resource := engine.Resource{
-					ID:       "1$2!7",
-					ParentID: rootResource.ID,
-					RootID:   rootResource.ID,
-					Path:     "./some_song.mp3",
-					Type:     uint64(sprovider.ResourceType_RESOURCE_TYPE_FILE),
-					Document: content.Document{
-						Name:     "some_song.mp3",
-						MimeType: "audio/mpeg",
-						Audio: &libregraph.Audio{
-							Album:             libregraph.PtrString("Some Album"),
-							AlbumArtist:       libregraph.PtrString("Some AlbumArtist"),
-							Artist:            libregraph.PtrString("Some Artist"),
-							Bitrate:           libregraph.PtrInt64(192),
-							Composers:         libregraph.PtrString("Some Composers"),
-							Copyright:         libregraph.PtrString(""),
-							Disc:              libregraph.PtrInt32(2),
-							DiscCount:         libregraph.PtrInt32(5),
-							Duration:          libregraph.PtrInt64(225000),
-							Genre:             libregraph.PtrString("Some Genre"),
-							HasDrm:            libregraph.PtrBool(false),
-							IsVariableBitrate: libregraph.PtrBool(true),
-							Title:             libregraph.PtrString("Some Title"),
-							Track:             libregraph.PtrInt32(34),
-							TrackCount:        libregraph.PtrInt32(99),
-							Year:              libregraph.PtrInt32(2004),
-						},
-					},
-				}
-				err := eng.Upsert(resource.ID, resource)
-				Expect(err).ToNot(HaveOccurred())
-			})
-
-			It("returns audio metadata for search", func() {
-				matches := assertDocCount(rootResource.ID, `*song*`, 1)
-				audio := matches[0].Entity.Audio
-
-				Expect(audio).ToNot(BeNil())
-
-				Expect(audio.Album).To(Equal(libregraph.PtrString("Some Album")))
-				Expect(audio.AlbumArtist).To(Equal(libregraph.PtrString("Some AlbumArtist")))
-				Expect(audio.Artist).To(Equal(libregraph.PtrString("Some Artist")))
-				Expect(audio.Bitrate).To(Equal(libregraph.PtrInt64(192)))
-				Expect(audio.Composers).To(Equal(libregraph.PtrString("Some Composers")))
-				Expect(audio.Copyright).To(Equal(libregraph.PtrString("")))
-				Expect(audio.Disc).To(Equal(libregraph.PtrInt32(2)))
-				Expect(audio.DiscCount).To(Equal(libregraph.PtrInt32(5)))
-				Expect(audio.Duration).To(Equal(libregraph.PtrInt64(225000)))
-				Expect(audio.Genre).To(Equal(libregraph.PtrString("Some Genre")))
-				Expect(audio.HasDrm).To(Equal(libregraph.PtrBool(false)))
-				Expect(audio.IsVariableBitrate).To(Equal(libregraph.PtrBool(true)))
-				Expect(audio.Title).To(Equal(libregraph.PtrString("Some Title")))
-				Expect(audio.Track).To(Equal(libregraph.PtrInt32(34)))
-				Expect(audio.TrackCount).To(Equal(libregraph.PtrInt32(99)))
-				Expect(audio.Year).To(Equal(libregraph.PtrInt32(2004)))
-			})
-		})
-
-		Context("with location metadata", func() {
-			BeforeEach(func() {
-				resource := engine.Resource{
-					ID:       "1$2!7",
-					ParentID: rootResource.ID,
-					RootID:   rootResource.ID,
-					Path:     "./team.jpg",
-					Type:     uint64(sprovider.ResourceType_RESOURCE_TYPE_FILE),
-					Document: content.Document{
-						Name:     "team.jpg",
-						MimeType: "image/jpeg",
-						Location: &libregraph.GeoCoordinates{
-							Altitude:  libregraph.PtrFloat64(1047.7),
-							Latitude:  libregraph.PtrFloat64(49.48675890884328),
-							Longitude: libregraph.PtrFloat64(11.103870357204285),
-						},
-					},
-				}
-				err := eng.Upsert(resource.ID, resource)
-				Expect(err).ToNot(HaveOccurred())
-			})
-
-			It("returns audio metadata for search", func() {
-				matches := assertDocCount(rootResource.ID, `*team*`, 1)
-				location := matches[0].Entity.Location
-
-				Expect(location).ToNot(BeNil())
-
-				Expect(location.Altitude).To(Equal(libregraph.PtrFloat64(1047.7)))
-				Expect(location.Latitude).To(Equal(libregraph.PtrFloat64(49.48675890884328)))
-				Expect(location.Longitude).To(Equal(libregraph.PtrFloat64(11.103870357204285)))
-			})
 		})
 	})
 })

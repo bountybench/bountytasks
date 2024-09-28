@@ -6,7 +6,6 @@ import (
 
 	"go-micro.dev/v4/broker"
 	"go-micro.dev/v4/codec"
-	"go-micro.dev/v4/logger"
 	"go-micro.dev/v4/registry"
 	"go-micro.dev/v4/server"
 )
@@ -22,10 +21,6 @@ func newOptions(opt ...server.Option) server.Options {
 
 	for _, o := range opt {
 		o(&opts)
-	}
-
-	if opts.Logger == nil {
-		opts.Logger = logger.DefaultLogger
 	}
 
 	if opts.Broker == nil {

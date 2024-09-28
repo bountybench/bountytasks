@@ -77,14 +77,11 @@ func (e *errorR) GoString() string {
 	return e.String()
 }
 
-// ErrorM multi error map
-type ErrorM map[string]error
-
-// ErrMap alias of ErrorM
-type ErrMap = ErrorM
+// ErrMap multi error map
+type ErrMap map[string]error
 
 // Error string
-func (e ErrorM) Error() string {
+func (e ErrMap) Error() string {
 	var sb strings.Builder
 	for name, err := range e {
 		sb.WriteString(name)
@@ -96,7 +93,7 @@ func (e ErrorM) Error() string {
 }
 
 // ErrorOrNil error
-func (e ErrorM) ErrorOrNil() error {
+func (e ErrMap) ErrorOrNil() error {
 	if len(e) == 0 {
 		return nil
 	}
@@ -104,12 +101,12 @@ func (e ErrorM) ErrorOrNil() error {
 }
 
 // IsEmpty error
-func (e ErrorM) IsEmpty() bool {
+func (e ErrMap) IsEmpty() bool {
 	return len(e) == 0
 }
 
 // One error
-func (e ErrorM) One() error {
+func (e ErrMap) One() error {
 	for _, err := range e {
 		return err
 	}

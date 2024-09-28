@@ -12,13 +12,13 @@ OC_CI_BAZEL_BUILDIFIER = "owncloudci/bazel-buildifier:latest"
 OC_CI_CLAMAVD = "owncloudci/clamavd"
 OC_CI_DRONE_ANSIBLE = "owncloudci/drone-ansible:latest"
 OC_CI_DRONE_SKIP_PIPELINE = "owncloudci/drone-skip-pipeline"
-OC_CI_GOLANG = "owncloudci/golang:1.21"
+OC_CI_GOLANG = "owncloudci/golang:1.20"
 OC_CI_NODEJS = "owncloudci/nodejs:%s"
 OC_CI_PHP = "owncloudci/php:%s"
 OC_CI_WAIT_FOR = "owncloudci/wait-for:latest"
 OC_CS3_API_VALIDATOR = "owncloud/cs3api-validator:0.2.0"
 OC_LITMUS = "owncloudci/litmus:latest"
-OC_OC_TEST_MIDDLEWARE = "owncloud/owncloud-test-middleware:1.8.8"
+OC_OC_TEST_MIDDLEWARE = "owncloud/owncloud-test-middleware:1.8.5"
 OC_UBUNTU = "owncloud/ubuntu:20.04"
 PLUGINS_CODACY = "plugins/codacy:1"
 PLUGINS_DOCKER = "plugins/docker:latest"
@@ -48,7 +48,6 @@ dirs = {
     "ocis": "/srv/app/tmp/ocis",
     "ocisRevaDataRoot": "/srv/app/tmp/ocis/owncloud/data",
     "ocisWrapper": "/drone/src/tests/ociswrapper",
-    "bannedPasswordList": "tests/config/drone/banned-password-list.txt",
 }
 
 # configuration
@@ -57,9 +56,6 @@ config = {
         "skip": False,
     },
     "wopiValidatorTests": {
-        "skip": False,
-    },
-    "k6LoadTests": {
         "skip": False,
     },
     "localApiTests": {
@@ -76,8 +72,6 @@ config = {
                 "apiReshare",
                 "apiSpacesDavOperation",
                 "apiDepthInfinity",
-                "apiLocks",
-                "apiSharingNg",
             ],
             "skip": False,
         },
@@ -101,7 +95,6 @@ config = {
                 "NOTIFICATIONS_SMTP_HOST": "email",
                 "NOTIFICATIONS_SMTP_PORT": "2500",
                 "NOTIFICATIONS_SMTP_INSECURE": "true",
-                "NOTIFICATIONS_SMTP_SENDER": "ownCloud <noreply@example.com>",
             },
         },
         "apiAntivirus": {
@@ -182,15 +175,6 @@ MINIO_MC_ENV = {
     },
     "AWS_SECRET_ACCESS_KEY": {
         "from_secret": "cache_s3_secret_key",
-    },
-}
-
-DRONE_HTTP_PROXY_ENV = {
-    "HTTP_PROXY": {
-        "from_secret": "drone_http_proxy",
-    },
-    "HTTPS_PROXY": {
-        "from_secret": "drone_http_proxy",
     },
 }
 
@@ -282,8 +266,6 @@ def main(ctx):
         ),
     )
 
-    pipelines = pipelines + k6LoadTests(ctx)
-
     pipelines += checkStarlark()
     pipelineSanityChecks(ctx, pipelines)
     return pipelines
@@ -299,7 +281,7 @@ def cachePipeline(name, steps):
         "steps": steps,
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/**",
                 "refs/pull/**",
             ],
@@ -358,7 +340,6 @@ def getGoBinForTesting(ctx):
                  cacheGoBin(),
         "trigger": {
             "ref": [
-                "refs/heads/master",
                 "refs/heads/stable-*",
                 "refs/pull/**",
             ],
@@ -392,7 +373,14 @@ def cacheGoBin():
                 "make bingo-update",
             ],
             "volumes": [stepVolumeGo],
-            "environment": DRONE_HTTP_PROXY_ENV,
+            "environment": {
+                "HTTP_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+                "HTTPS_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+            },
         },
         {
             "name": "archive-go-bin",
@@ -451,13 +439,19 @@ def testOcis(ctx):
                 "make ci-golangci-lint",
                 "mv checkstyle.xml cache/checkstyle/checkstyle.xml",
             ],
-            "environment": DRONE_HTTP_PROXY_ENV,
+            "environment": {
+                "HTTP_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+                "HTTPS_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+            },
             "volumes": [stepVolumeGo],
         },
         {
             "name": "test",
             "image": OC_CI_GOLANG,
-            "environment": DRONE_HTTP_PROXY_ENV,
             "commands": [
                 "mkdir -p cache/coverage",
                 "make test",
@@ -497,7 +491,7 @@ def testOcis(ctx):
         "steps": steps,
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -521,7 +515,7 @@ def buildOcisBinaryForTesting(ctx):
                  rebuildBuildArtifactCache(ctx, "ocis-binary-amd64", "ocis/bin"),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -608,7 +602,7 @@ def uploadScanResults(ctx):
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
             "status": [
@@ -722,7 +716,7 @@ def codestyle(ctx):
                 "depends_on": [],
                 "trigger": {
                     "ref": [
-                        "refs/heads/master",
+                        "refs/heads/stable-*",
                         "refs/pull/**",
                         "refs/tags/**",
                     ],
@@ -776,7 +770,7 @@ def localApiTestPipeline(ctx):
                             "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
                             "trigger": {
                                 "ref": [
-                                    "refs/heads/master",
+                                    "refs/heads/stable-*",
                                     "refs/pull/**",
                                 ],
                             },
@@ -791,10 +785,11 @@ def localApiTests(suite, storage, extra_environment = {}):
         "TEST_SERVER_URL": "https://ocis-server:9200",
         "OCIS_REVA_DATA_ROOT": "%s" % (dirs["ocisRevaDataRoot"] if storage == "owncloud" else ""),
         "OCIS_SKELETON_STRATEGY": "%s" % ("copy" if storage == "owncloud" else "upload"),
+        "TEST_OCIS": "true",
         "SEND_SCENARIO_LINE_REFERENCES": "true",
         "STORAGE_DRIVER": storage,
         "BEHAT_SUITE": suite,
-        "BEHAT_FILTER_TAGS": "~@skip&&~@skipOnGraph&&~@skipOnOcis-%s-Storage" % ("OC" if storage == "owncloud" else "OCIS"),
+        "BEHAT_FILTER_TAGS": "~@skip&&~@skipOnGraph&&~@skipOnOcis-%s-Storage&&~@skipOnStable4.0" % ("OC" if storage == "owncloud" else "OCIS"),
         "EXPECTED_FAILURES_FILE": "%s/tests/acceptance/expected-failures-localAPI-on-%s-storage.md" % (dirs["base"], storage.upper()),
         "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
         "OCIS_WRAPPER_URL": "http://ocis-server:5200",
@@ -837,7 +832,7 @@ def cs3ApiTests(ctx, storage, accounts_hash_difficulty = 4):
         "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -896,9 +891,9 @@ def wopiValidatorTests(ctx, storage, accounts_hash_difficulty = 4):
                      },
                      {
                          "name": "wait-for-fakeoffice",
-                         "image": OC_CI_ALPINE,
+                         "image": OC_CI_WAIT_FOR,
                          "commands": [
-                             "curl -k --fail --retry-connrefused --retry 9 --retry-all-errors 'http://fakeoffice:8080'",
+                             "wait-for -it fakeoffice:8080 -t 300",
                          ],
                      },
                  ] +
@@ -906,7 +901,7 @@ def wopiValidatorTests(ctx, storage, accounts_hash_difficulty = 4):
                  [
                      {
                          "name": "wopiserver",
-                         "image": "cs3org/wopiserver:v10.2.2",
+                         "image": "cs3org/wopiserver:v10.1.0",
                          "detach": True,
                          "commands": [
                              "cp %s/tests/config/drone/wopiserver.conf /etc/wopi/wopiserver.conf" % (dirs["base"]),
@@ -916,9 +911,9 @@ def wopiValidatorTests(ctx, storage, accounts_hash_difficulty = 4):
                      },
                      {
                          "name": "wait-for-wopi-server",
-                         "image": OC_CI_ALPINE,
+                         "image": OC_CI_WAIT_FOR,
                          "commands": [
-                             "curl -k --fail --retry-connrefused --retry 9 --retry-all-errors 'http://wopiserver:8880/wopi'",
+                             "wait-for -it wopiserver:8880 -t 300",
                          ],
                      },
                      {
@@ -944,7 +939,7 @@ def wopiValidatorTests(ctx, storage, accounts_hash_difficulty = 4):
         "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -964,7 +959,7 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, storage = "ocis", ac
         },
         "steps": skipIfUnchanged(ctx, "acceptance-tests") +
                  restoreBuildArtifactCache(ctx, "ocis-binary-amd64", "ocis/bin") +
-                 ocisServer(storage, accounts_hash_difficulty, with_wrapper = True) +
+                 ocisServer(storage, accounts_hash_difficulty) +
                  [
                      {
                          "name": "oC10ApiTests-%s-storage-%s" % (storage, part_number),
@@ -975,6 +970,7 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, storage = "ocis", ac
                              "TEST_SERVER_URL": "https://ocis-server:9200",
                              "OCIS_REVA_DATA_ROOT": "%s" % (dirs["ocisRevaDataRoot"] if storage == "owncloud" else ""),
                              "OCIS_SKELETON_STRATEGY": "%s" % ("copy" if storage == "owncloud" else "upload"),
+                             "TEST_OCIS": "true",
                              "SEND_SCENARIO_LINE_REFERENCES": "true",
                              "STORAGE_DRIVER": storage,
                              "BEHAT_FILTER_TAGS": filterTags,
@@ -982,7 +978,6 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, storage = "ocis", ac
                              "RUN_PART": part_number,
                              "EXPECTED_FAILURES_FILE": expectedFailuresFile,
                              "UPLOAD_DELETE_WAIT_TIME": "1" if storage == "owncloud" else 0,
-                             "OCIS_WRAPPER_URL": "http://ocis-server:5200",
                          },
                          "commands": [
                              "make -C %s test-acceptance-from-core-api" % (dirs["base"]),
@@ -994,7 +989,7 @@ def coreApiTests(ctx, part_number = 1, number_of_parts = 1, storage = "ocis", ac
         "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -1063,15 +1058,6 @@ def uiTestPipeline(ctx, filterTags, runPart = 1, numberOfParts = 1, storage = "o
     else:
         pipelineName = "Web-Tests-ocis%s-%s-storage-%s" % (uniqueNameString, storage, runPart)
 
-    extra_server_environment = {
-        "OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD": False,
-        "OCIS_PASSWORD_POLICY_MIN_CHARACTERS": 1,
-        "OCIS_PASSWORD_POLICY_MIN_LOWERCASE_CHARACTERS": 0,
-        "OCIS_PASSWORD_POLICY_MIN_UPPERCASE_CHARACTERS": 0,
-        "OCIS_PASSWORD_POLICY_MIN_DIGITS": 0,
-        "OCIS_PASSWORD_POLICY_MIN_SPECIAL_CHARACTERS": 0,
-    }
-
     return {
         "kind": "pipeline",
         "type": "docker",
@@ -1084,7 +1070,7 @@ def uiTestPipeline(ctx, filterTags, runPart = 1, numberOfParts = 1, storage = "o
                  restoreBuildArtifactCache(ctx, "ocis-binary-amd64", "ocis/bin") +
                  restoreWebCache() +
                  restoreWebPnpmCache() +
-                 ocisServer(storage, accounts_hash_difficulty, extra_server_environment = extra_server_environment) +
+                 ocisServer(storage, accounts_hash_difficulty) +
                  waitForSeleniumService() +
                  waitForMiddlewareService() +
                  [
@@ -1094,8 +1080,9 @@ def uiTestPipeline(ctx, filterTags, runPart = 1, numberOfParts = 1, storage = "o
                          "environment": {
                              "SERVER_HOST": "https://ocis-server:9200",
                              "BACKEND_HOST": "https://ocis-server:9200",
+                             "RUN_ON_OCIS": "true",
                              "OCIS_REVA_DATA_ROOT": "%s" % dirs["ocisRevaDataRoot"],
-                             "WEB_UI_CONFIG_FILE": "%s/%s" % (dirs["base"], dirs["ocisConfig"]),
+                             "WEB_UI_CONFIG": "%s/%s" % (dirs["base"], dirs["ocisConfig"]),
                              "TEST_TAGS": finalFilterTags,
                              "LOCAL_UPLOAD_DIR": "/uploads",
                              "NODE_TLS_REJECT_UNAUTHORIZED": 0,
@@ -1118,7 +1105,7 @@ def uiTestPipeline(ctx, filterTags, runPart = 1, numberOfParts = 1, storage = "o
         "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)] + buildWebCache(ctx)),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -1136,13 +1123,9 @@ def e2eTests(ctx):
         },
     }
 
-    extra_server_environment = {
-        "OCIS_PASSWORD_POLICY_BANNED_PASSWORDS_LIST": "%s" % dirs["bannedPasswordList"],
-    }
-
     e2e_trigger = {
         "ref": [
-            "refs/heads/master",
+            "refs/heads/stable-*",
             "refs/tags/**",
             "refs/pull/**",
         ],
@@ -1171,16 +1154,18 @@ def e2eTests(ctx):
             restoreWebCache() + \
             restoreWebPnpmCache() + \
             (tikaService() if suite["tikaNeeded"] else []) + \
-            ocisServer("ocis", 4, [], extra_server_environment = extra_server_environment, tika_enabled = suite["tikaNeeded"]) + \
+            ocisServer("ocis", 4, [], tika_enabled = suite["tikaNeeded"]) + \
             [{
                 "name": "e2e-tests",
                 "image": OC_CI_NODEJS % DEFAULT_NODEJS_VERSION,
                 "environment": {
                     "BASE_URL_OCIS": "ocis-server:9200",
                     "HEADLESS": "true",
+                    "OCIS": "true",
                     "RETRY": "1",
-                    "WEB_UI_CONFIG_FILE": "%s/%s" % (dirs["base"], dirs["ocisConfig"]),
+                    "WEB_UI_CONFIG": "%s/%s" % (dirs["base"], dirs["ocisConfig"]),
                     "LOCAL_UPLOAD_DIR": "/uploads",
+                    "API_TOKEN": "true",
                 },
                 "commands": [
                     "cd %s" % dirs["web"],
@@ -1298,7 +1283,6 @@ def dockerRelease(ctx, arch):
             {
                 "name": "build",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C ocis release-linux-docker-%s" % (arch),
                 ],
@@ -1351,7 +1335,7 @@ def dockerRelease(ctx, arch):
         "depends_on": depends_on,
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/v*",
                 "refs/pull/**",
             ],
@@ -1413,7 +1397,6 @@ def binaryRelease(ctx, name):
             {
                 "name": "build",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C ocis release-%s" % (name),
                 ],
@@ -1421,14 +1404,13 @@ def binaryRelease(ctx, name):
             {
                 "name": "finish",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C ocis release-finish",
                     "cp assets/End-User-License-Agreement-for-ownCloud-Infinite-Scale.pdf ocis/dist/release/",
                 ],
                 "when": {
                     "ref": [
-                        "refs/heads/master",
+                        "refs/heads/stable-*",
                         "refs/tags/v*",
                     ],
                 },
@@ -1439,7 +1421,7 @@ def binaryRelease(ctx, name):
                 "settings": settings,
                 "when": {
                     "ref": [
-                        "refs/heads/master",
+                        "refs/heads/stable-*",
                         "refs/tags/v*",
                     ],
                 },
@@ -1447,9 +1429,8 @@ def binaryRelease(ctx, name):
             {
                 "name": "changelog",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
-                    "make changelog CHANGELOG_VERSION=%s" % ctx.build.ref.replace("refs/tags/v", ""),
+                    "make changelog CHANGELOG_VERSION=%s" % ctx.build.ref.replace("refs/tags/v", "").split("-")[0],
                 ],
                 "when": {
                     "ref": [
@@ -1482,7 +1463,7 @@ def binaryRelease(ctx, name):
         "depends_on": depends_on,
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/v*",
                 "refs/pull/**",
             ],
@@ -1546,7 +1527,6 @@ def licenseCheck(ctx):
             {
                 "name": "go-check-licenses",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make ci-go-check-licenses",
                 ],
@@ -1555,7 +1535,6 @@ def licenseCheck(ctx):
             {
                 "name": "go-save-licenses",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make ci-go-save-licenses",
                 ],
@@ -1574,7 +1553,7 @@ def licenseCheck(ctx):
                 "settings": settings,
                 "when": {
                     "ref": [
-                        "refs/heads/master",
+                        "refs/heads/stable-*",
                         "refs/tags/v*",
                     ],
                 },
@@ -1582,7 +1561,6 @@ def licenseCheck(ctx):
             {
                 "name": "changelog",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make changelog CHANGELOG_VERSION=%s" % ctx.build.ref.replace("refs/tags/v", "").split("-")[0],
                 ],
@@ -1616,7 +1594,7 @@ def licenseCheck(ctx):
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/v*",
                 "refs/pull/**",
             ],
@@ -1652,7 +1630,7 @@ def releaseDockerManifest():
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/v*",
             ],
         },
@@ -1671,7 +1649,6 @@ def changelog():
             {
                 "name": "generate",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C ocis changelog",
                 ],
@@ -1699,7 +1676,7 @@ def changelog():
                         "push",
                     ],
                     "message": "Automated changelog update [skip ci]",
-                    "branch": "master",
+                    "branch": "stable-4.0",
                     "author_email": "devops@owncloud.com",
                     "author_name": "ownClouders",
                     "netrc_machine": "github.com",
@@ -1721,7 +1698,7 @@ def changelog():
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -1755,7 +1732,7 @@ def releaseDockerReadme(ctx):
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/tags/v*",
             ],
         },
@@ -1774,13 +1751,11 @@ def docs():
             {
                 "name": "docs-generate",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
-                "commands": ["make docs-generate"],
+                "commands": ["make -C docs docs-generate"],
             },
             {
                 "name": "prepare",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C docs docs-copy",
                 ],
@@ -1788,7 +1763,6 @@ def docs():
             {
                 "name": "test",
                 "image": OC_CI_GOLANG,
-                "environment": DRONE_HTTP_PROXY_ENV,
                 "commands": [
                     "make -C docs test",
                 ],
@@ -1805,7 +1779,7 @@ def docs():
                     },
                     "pages_directory": "docs/hugo/content/",
                     "copy_contents": "true",
-                    "target_branch": "docs",
+                    "target_branch": "docs-stable-4.0",
                     "delete": "true",
                 },
                 "when": {
@@ -1827,7 +1801,7 @@ def docs():
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -1865,7 +1839,14 @@ def makeGoGenerate(module):
             "commands": [
                 "retry -t 3 '%s ci-go-generate'" % (make),
             ],
-            "environment": DRONE_HTTP_PROXY_ENV,
+            "environment": {
+                "HTTP_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+                "HTTPS_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+            },
             "volumes": [stepVolumeGo],
         },
     ]
@@ -1893,7 +1874,7 @@ def notify():
         "depends_on": [],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/heads/release*",
                 "refs/tags/**",
             ],
@@ -1917,8 +1898,6 @@ def ocisServer(storage, accounts_hash_difficulty = 4, volumes = [], depends_on =
         "FRONTEND_SEARCH_MIN_LENGTH": "2",
         "OCIS_ASYNC_UPLOADS": True,
         "OCIS_EVENTS_ENABLE_TLS": False,
-        "MICRO_REGISTRY": "natsjs",
-        "MICRO_REGISTRY_ADDRESS": "127.0.0.1:9233",
     }
 
     if deploy_type == "":
@@ -1929,7 +1908,6 @@ def ocisServer(storage, accounts_hash_difficulty = 4, volumes = [], depends_on =
 
     if deploy_type == "cs3api_validator":
         environment["GATEWAY_GRPC_ADDR"] = "0.0.0.0:9142"  #  make gateway available to cs3api-validator
-        environment["OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD"] = False
 
     if deploy_type == "wopi_validator":
         environment["GATEWAY_GRPC_ADDR"] = "0.0.0.0:9142"  # make gateway available to wopi server
@@ -1968,7 +1946,8 @@ def ocisServer(storage, accounts_hash_difficulty = 4, volumes = [], depends_on =
         "name": "wait-for-ocis-server",
         "image": OC_CI_ALPINE,
         "commands": [
-            "curl -k -u admin:admin --fail --retry-connrefused --retry 7 --retry-all-errors 'https://ocis-server:9200/graph/v1.0/users/admin'",
+            # wait for ocis-server to be ready (5 minutes)
+            "timeout 300 bash -c 'while [ $(curl -sk -uadmin:admin https://ocis-server:9200/graph/v1.0/users/admin -w %{http_code} -o /dev/null) != 200 ]; do sleep 1; done'",
         ],
         "depends_on": depends_on,
     }
@@ -1983,7 +1962,7 @@ def ocisServer(storage, accounts_hash_difficulty = 4, volumes = [], depends_on =
             "commands": [
                 "%s init --insecure true" % ocis_bin,
                 "cat $OCIS_CONFIG_DIR/ocis.yaml",
-            ] + (wrapper_commands),
+            ] + (wrapper_commands if with_wrapper else ["%s server" % ocis_bin]),
             "volumes": volumes,
             "depends_on": depends_on,
         },
@@ -2065,7 +2044,14 @@ def build():
             "commands": [
                 "retry -t 3 'make -C ocis build'",
             ],
-            "environment": DRONE_HTTP_PROXY_ENV,
+            "environment": {
+                "HTTP_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+                "HTTPS_PROXY": {
+                    "from_secret": "drone_http_proxy",
+                },
+            },
             "volumes": [stepVolumeGo],
         },
     ]
@@ -2123,7 +2109,9 @@ def example_deploys(ctx):
         "ocis_keycloak/latest.yml",
         "ocis_traefik/latest.yml",
         "ocis_wopi/latest.yml",
+        "ocis_hello/latest.yml",
         "ocis_s3/latest.yml",
+        "oc10_ocis_parallel/latest.yml",
     ]
     nightly_deploy = [
         "ocis_ldap/released.yml",
@@ -2197,7 +2185,6 @@ def deploy(ctx, config, rebuild):
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
                 "refs/tags/v*",
             ],
         },
@@ -2302,7 +2289,7 @@ def genericCachePurge(flush_path):
         ],
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
             "status": [
@@ -2525,20 +2512,20 @@ def litmus(ctx, storage):
                              litmusCommand,
                          ],
                      },
-                     #  {
-                     #      "name": "public-share",
-                     #      "image": OC_LITMUS,
-                     #      "environment": {
-                     #          "LITMUS_PASSWORD": "admin",
-                     #          "LITMUS_USERNAME": "admin",
-                     #          "TESTS": "basic copymove http",
-                     #      },
-                     #      "commands": [
-                     #          "source .env",
-                     #          "export LITMUS_URL='https://ocis-server:9200/remote.php/dav/public-files/'$PUBLIC_TOKEN",
-                     #          litmusCommand,
-                     #      ],
-                     #  },
+                     {
+                         "name": "public-share",
+                         "image": OC_LITMUS,
+                         "environment": {
+                             "LITMUS_PASSWORD": "admin",
+                             "LITMUS_USERNAME": "admin",
+                             "TESTS": "basic copymove http",
+                         },
+                         "commands": [
+                             "source .env",
+                             "export LITMUS_URL='https://ocis-server:9200/remote.php/dav/public-files/'$PUBLIC_TOKEN",
+                             litmusCommand,
+                         ],
+                     },
                      {
                          "name": "spaces-endpoint",
                          "image": OC_LITMUS,
@@ -2554,7 +2541,7 @@ def litmus(ctx, storage):
         "depends_on": getPipelineNames([buildOcisBinaryForTesting(ctx)]),
         "trigger": {
             "ref": [
-                "refs/heads/master",
+                "refs/heads/stable-*",
                 "refs/pull/**",
             ],
         },
@@ -2780,61 +2767,6 @@ def logRequests():
         "when": {
             "status": [
                 "failure",
-            ],
-        },
-    }]
-
-def k6LoadTests(ctx):
-    if "skip" in config["k6LoadTests"] and config["k6LoadTests"]["skip"]:
-        return []
-
-    ocis_git_base_url = "https://raw.githubusercontent.com/owncloud/ocis"
-    script_link = "%s/%s/tests/config/drone/run_k6_tests.sh" % (ocis_git_base_url, ctx.build.commit)
-    return [{
-        "kind": "pipeline",
-        "type": "docker",
-        "name": "k6-load-test",
-        "clone": {
-            "disable": True,
-        },
-        "steps": [
-            {
-                "name": "k6-load-test",
-                "image": OC_CI_ALPINE,
-                "environment": {
-                    "SSH_OCIS_REMOTE": {
-                        "from_secret": "ssh_ocis_remote",
-                    },
-                    "SSH_OCIS_USERNAME": {
-                        "from_secret": "ssh_ocis_user",
-                    },
-                    "SSH_OCIS_PASSWORD": {
-                        "from_secret": "ssh_ocis_pass",
-                    },
-                    "TEST_SERVER_URL": {
-                        "from_secret": "ssh_ocis_server_url",
-                    },
-                    "SSH_K6_REMOTE": {
-                        "from_secret": "ssh_k6_remote",
-                    },
-                    "SSH_K6_USERNAME": {
-                        "from_secret": "ssh_k6_user",
-                    },
-                    "SSH_K6_PASSWORD": {
-                        "from_secret": "ssh_k6_pass",
-                    },
-                },
-                "commands": [
-                    "curl -s -o run_k6_tests.sh %s" % script_link,
-                    "apk add --no-cache openssh-client sshpass",
-                    "sh %s/run_k6_tests.sh" % (dirs["base"]),
-                ],
-            },
-        ],
-        "depends_on": [],
-        "trigger": {
-            "event": [
-                "cron",
             ],
         },
     }]

@@ -5,7 +5,6 @@ import (
 
 	ociscfg "github.com/owncloud/ocis/v2/ocis-pkg/config"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
-	"github.com/owncloud/ocis/v2/ocis-pkg/structs"
 	"github.com/owncloud/ocis/v2/services/frontend/pkg/config"
 	"github.com/owncloud/ocis/v2/services/frontend/pkg/config/defaults"
 
@@ -45,15 +44,6 @@ func Validate(cfg *config.Config) error {
 
 	if cfg.MachineAuthAPIKey == "" {
 		return shared.MissingMachineAuthApiKeyError(cfg.Service.Name)
-	}
-
-	if cfg.GRPCClientTLS == nil && cfg.Commons != nil {
-		cfg.GRPCClientTLS = structs.CopyOrZeroValue(cfg.Commons.GRPCClientTLS)
-	}
-
-	// Set password enforcement on all public links when config is set
-	if cfg.OCS.PublicShareMustHavePassword {
-		cfg.OCS.WriteablePublicShareMustHavePassword = true
 	}
 
 	return nil

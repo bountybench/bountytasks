@@ -3,6 +3,7 @@ package defaults
 import (
 	"time"
 
+	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	"github.com/owncloud/ocis/v2/ocis-pkg/structs"
 	"github.com/owncloud/ocis/v2/services/policies/pkg/config"
 )
@@ -31,6 +32,7 @@ func DefaultConfig() *config.Config {
 			Addr:      "127.0.0.1:9125",
 			Namespace: "com.owncloud.api",
 		},
+		Reva: shared.DefaultRevaConfig(),
 		Events: config.Events{
 			Endpoint:  "127.0.0.1:9233",
 			Cluster:   "ocis-cluster",
@@ -43,6 +45,26 @@ func DefaultConfig() *config.Config {
 }
 
 func EnsureDefaults(cfg *config.Config) {
+	if cfg.TokenManager == nil && cfg.Commons != nil && cfg.Commons.TokenManager != nil {
+		cfg.TokenManager = &config.TokenManager{
+			JWTSecret: cfg.Commons.TokenManager.JWTSecret,
+		}
+	} else if cfg.TokenManager == nil {
+		cfg.TokenManager = &config.TokenManager{}
+	}
+	if cfg.MachineAuthAPIKey == "" && cfg.Commons != nil && cfg.Commons.MachineAuthAPIKey != "" {
+		cfg.MachineAuthAPIKey = cfg.Commons.MachineAuthAPIKey
+	}
+
+	if cfg.Reva == nil && cfg.Commons != nil && cfg.Commons.Reva != nil {
+		cfg.Reva = &shared.Reva{
+			Address: cfg.Commons.Reva.Address,
+			TLS:     cfg.Commons.Reva.TLS,
+		}
+	} else if cfg.Reva == nil {
+		cfg.Reva = &shared.Reva{}
+	}
+
 	if cfg.Log == nil && cfg.Commons != nil && cfg.Commons.Log != nil {
 		cfg.Log = &config.Log{
 			Level:  cfg.Commons.Log.Level,
@@ -59,18 +81,6 @@ func EnsureDefaults(cfg *config.Config) {
 	}
 	if cfg.GRPC.TLS == nil && cfg.Commons != nil {
 		cfg.GRPC.TLS = structs.CopyOrZeroValue(cfg.Commons.GRPCServiceTLS)
-	}
-
-	// provide with defaults for shared tracing, since we need a valid destination address for "envdecode".
-	if cfg.Tracing == nil && cfg.Commons != nil && cfg.Commons.Tracing != nil {
-		cfg.Tracing = &config.Tracing{
-			Enabled:   cfg.Commons.Tracing.Enabled,
-			Type:      cfg.Commons.Tracing.Type,
-			Endpoint:  cfg.Commons.Tracing.Endpoint,
-			Collector: cfg.Commons.Tracing.Collector,
-		}
-	} else if cfg.Tracing == nil {
-		cfg.Tracing = &config.Tracing{}
 	}
 }
 

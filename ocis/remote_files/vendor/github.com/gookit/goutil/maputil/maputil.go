@@ -22,19 +22,12 @@ func SimpleMerge(src, dst map[string]any) map[string]any {
 	if len(src) == 0 {
 		return dst
 	}
+
 	if len(dst) == 0 {
 		return src
 	}
 
 	for key, val := range src {
-		if mp, ok := val.(map[string]any); ok {
-			if dmp, ok := dst[key].(map[string]any); ok {
-				dst[key] = SimpleMerge(mp, dmp)
-				continue
-			}
-		}
-
-		// simple merge
 		dst[key] = val
 	}
 	return dst
@@ -61,6 +54,7 @@ func MergeStringMap(src, dst map[string]string, ignoreCase bool) map[string]stri
 		if ignoreCase {
 			k = strings.ToLower(k)
 		}
+
 		dst[k] = v
 	}
 	return dst

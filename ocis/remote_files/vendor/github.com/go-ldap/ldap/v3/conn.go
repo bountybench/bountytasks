@@ -288,9 +288,9 @@ func (l *Conn) Close() (err error) {
 		l.chanMessage <- &messagePacket{Op: MessageQuit}
 
 		timeoutCtx := context.Background()
-		if l.getTimeout() > 0 {
+		if l.requestTimeout > 0 {
 			var cancelFunc context.CancelFunc
-			timeoutCtx, cancelFunc = context.WithTimeout(timeoutCtx, time.Duration(l.getTimeout()))
+			timeoutCtx, cancelFunc = context.WithTimeout(timeoutCtx, time.Duration(l.requestTimeout))
 			defer cancelFunc()
 		}
 		select {
@@ -316,10 +316,6 @@ func (l *Conn) SetTimeout(timeout time.Duration) {
 	atomic.StoreInt64(&l.requestTimeout, int64(timeout))
 }
 
-func (l *Conn) getTimeout() int64 {
-	return atomic.LoadInt64(&l.requestTimeout)
-}
-
 // Returns the next available messageID
 func (l *Conn) nextMessageID() int64 {
 	if messageID, ok := <-l.chanMessageID; ok {
@@ -329,10 +325,8 @@ func (l *Conn) nextMessageID() int64 {
 }
 
 // GetLastError returns the last recorded error from goroutines like processMessages and reader.
-// Only the last recorded error will be returned.
+// // Only the last recorded error will be returned.
 func (l *Conn) GetLastError() error {
-	l.messageMutex.Lock()
-	defer l.messageMutex.Unlock()
 	return l.err
 }
 
@@ -490,7 +484,7 @@ func (l *Conn) processMessages() {
 			// If we are closing due to an error, inform anyone who
 			// is waiting about the error.
 			if l.IsClosing() && l.closeErr.Load() != nil {
-				msgCtx.sendResponse(&PacketResponse{Error: l.closeErr.Load().(error)}, time.Duration(l.getTimeout()))
+				msgCtx.sendResponse(&PacketResponse{Error: l.closeErr.Load().(error)}, time.Duration(l.requestTimeout))
 			}
 			l.Debug.Printf("Closing channel for MessageID %d", messageID)
 			close(msgCtx.responses)
@@ -518,7 +512,7 @@ func (l *Conn) processMessages() {
 				_, err := l.conn.Write(buf)
 				if err != nil {
 					l.Debug.Printf("Error Sending Message: %s", err.Error())
-					message.Context.sendResponse(&PacketResponse{Error: fmt.Errorf("unable to send request: %s", err)}, time.Duration(l.getTimeout()))
+					message.Context.sendResponse(&PacketResponse{Error: fmt.Errorf("unable to send request: %s", err)}, time.Duration(l.requestTimeout))
 					close(message.Context.responses)
 					break
 				}
@@ -528,10 +522,9 @@ func (l *Conn) processMessages() {
 				l.messageContexts[message.MessageID] = message.Context
 
 				// Add timeout if defined
-				requestTimeout := l.getTimeout()
-				if requestTimeout > 0 {
+				if l.requestTimeout > 0 {
 					go func() {
-						timer := time.NewTimer(time.Duration(requestTimeout))
+						timer := time.NewTimer(time.Duration(l.requestTimeout))
 						defer func() {
 							if err := recover(); err != nil {
 								l.err = fmt.Errorf("ldap: recovered panic in RequestTimeout: %v", err)
@@ -554,7 +547,7 @@ func (l *Conn) processMessages() {
 			case MessageResponse:
 				l.Debug.Printf("Receiving message %d", message.MessageID)
 				if msgCtx, ok := l.messageContexts[message.MessageID]; ok {
-					msgCtx.sendResponse(&PacketResponse{message.Packet, nil}, time.Duration(l.getTimeout()))
+					msgCtx.sendResponse(&PacketResponse{message.Packet, nil}, time.Duration(l.requestTimeout))
 				} else {
 					l.err = fmt.Errorf("ldap: received unexpected message %d, %v", message.MessageID, l.IsClosing())
 					l.Debug.PrintPacket(message.Packet)
@@ -564,7 +557,7 @@ func (l *Conn) processMessages() {
 				// All reads will return immediately
 				if msgCtx, ok := l.messageContexts[message.MessageID]; ok {
 					l.Debug.Printf("Receiving message timeout for %d", message.MessageID)
-					msgCtx.sendResponse(&PacketResponse{message.Packet, NewError(ErrorNetwork, errors.New("ldap: connection timed out"))}, time.Duration(l.getTimeout()))
+					msgCtx.sendResponse(&PacketResponse{message.Packet, NewError(ErrorNetwork, errors.New("ldap: connection timed out"))}, time.Duration(l.requestTimeout))
 					delete(l.messageContexts, message.MessageID)
 					close(msgCtx.responses)
 				}

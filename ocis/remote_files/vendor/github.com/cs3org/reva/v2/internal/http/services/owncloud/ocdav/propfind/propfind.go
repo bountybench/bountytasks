@@ -43,8 +43,8 @@ import (
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/net"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/prop"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocdav/spacelookup"
+	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	"github.com/cs3org/reva/v2/pkg/conversions"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/publicshare"
 	rstatus "github.com/cs3org/reva/v2/pkg/rgrpc/status"
@@ -62,33 +62,6 @@ import (
 
 const (
 	tracerName = "ocdav"
-)
-
-// these keys are used to lookup in ArbitraryMetadata, generated prop names are lowercased
-var (
-	audioKeys = []string{
-		"album",
-		"albumArtist",
-		"artist",
-		"bitrate",
-		"composers",
-		"copyright",
-		"disc",
-		"discCount",
-		"duration",
-		"genre",
-		"hasDrm",
-		"isVariableBitrate",
-		"title",
-		"track",
-		"trackCount",
-		"year",
-	}
-	locationKeys = []string{
-		"altitude",
-		"latitude",
-		"longitude",
-	}
 )
 
 type countingReader struct {
@@ -217,33 +190,6 @@ func (p *Handler) HandlePathPropfind(w http.ResponseWriter, r *http.Request, ns 
 	fn := path.Join(ns, r.URL.Path) // TODO do we still need to jail if we query the registry about the spaces?
 
 	sublog := appctx.GetLogger(ctx).With().Str("path", fn).Logger()
-	dh := r.Header.Get(net.HeaderDepth)
-
-	depth, err := net.ParseDepth(dh)
-	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, "Invalid Depth header value")
-		span.SetAttributes(semconv.HTTPStatusCodeKey.Int(http.StatusBadRequest))
-		sublog.Debug().Str("depth", dh).Msg(err.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		m := fmt.Sprintf("Invalid Depth header value: %v", dh)
-		b, err := errors.Marshal(http.StatusBadRequest, m, "")
-		errors.HandleWebdavError(&sublog, w, b, err)
-		return
-	}
-
-	if depth == net.DepthInfinity && !p.c.AllowPropfindDepthInfinitiy {
-		span.RecordError(errors.ErrInvalidDepth)
-		span.SetStatus(codes.Error, "DEPTH: infinity is not supported")
-		span.SetAttributes(semconv.HTTPStatusCodeKey.Int(http.StatusBadRequest))
-		sublog.Debug().Str("depth", dh).Msg(errors.ErrInvalidDepth.Error())
-		w.WriteHeader(http.StatusBadRequest)
-		m := fmt.Sprintf("Invalid Depth header value: %v", dh)
-		b, err := errors.Marshal(http.StatusBadRequest, m, "")
-		errors.HandleWebdavError(&sublog, w, b, err)
-		return
-	}
-
 	pf, status, err := ReadPropfind(r.Body)
 	if err != nil {
 		sublog.Debug().Err(err).Msg("error reading propfind request")
@@ -272,7 +218,7 @@ func (p *Handler) HandlePathPropfind(w http.ResponseWriter, r *http.Request, ns 
 		return
 	}
 
-	resourceInfos, sendTusHeaders, ok := p.getResourceInfos(ctx, w, r, pf, spaces, fn, depth, sublog)
+	resourceInfos, sendTusHeaders, ok := p.getResourceInfos(ctx, w, r, pf, spaces, fn, sublog)
 	if !ok {
 		// getResourceInfos handles responses in case of an error so we can just return here.
 		return
@@ -516,11 +462,21 @@ func (p *Handler) statSpace(ctx context.Context, client gateway.GatewayAPIClient
 	return res.GetInfo(), res.GetStatus(), nil
 }
 
-func (p *Handler) getResourceInfos(ctx context.Context, w http.ResponseWriter, r *http.Request, pf XML, spaces []*provider.StorageSpace, requestPath string, depth net.Depth, log zerolog.Logger) ([]*provider.ResourceInfo, bool, bool) {
+func (p *Handler) getResourceInfos(ctx context.Context, w http.ResponseWriter, r *http.Request, pf XML, spaces []*provider.StorageSpace, requestPath string, log zerolog.Logger) ([]*provider.ResourceInfo, bool, bool) {
 	ctx, span := appctx.GetTracerProvider(ctx).Tracer(tracerName).Start(ctx, "get_resource_infos")
 	span.SetAttributes(attribute.KeyValue{Key: "requestPath", Value: attribute.StringValue(requestPath)})
-	span.SetAttributes(attribute.KeyValue{Key: "depth", Value: attribute.StringValue(depth.String())})
 	defer span.End()
+
+	dh := r.Header.Get(net.HeaderDepth)
+	depth, err := net.ParseDepth(dh)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		m := fmt.Sprintf("Invalid Depth header value: %v", dh)
+		b, err := errors.Marshal(http.StatusBadRequest, m, "")
+		errors.HandleWebdavError(&log, w, b, err)
+		return nil, false, false
+	}
+	span.SetAttributes(attribute.KeyValue{Key: "depth", Value: attribute.StringValue(depth.String())})
 
 	client, err := p.selector.Next()
 	if err != nil {
@@ -813,14 +769,6 @@ func (p *Handler) getSpaceResourceInfos(ctx context.Context, w http.ResponseWrit
 	return resourceInfos, true
 }
 
-func metadataKeysWithPrefix(prefix string, keys []string) []string {
-	fullKeys := []string{}
-	for _, key := range keys {
-		fullKeys = append(fullKeys, fmt.Sprintf("%s.%s", prefix, key))
-	}
-	return fullKeys
-}
-
 // metadataKeys splits the propfind properties into arbitrary metadata and ResourceInfo field mask paths
 func metadataKeys(pf XML) ([]string, []string) {
 
@@ -844,10 +792,6 @@ func metadataKeys(pf XML) ([]string, []string) {
 				switch key {
 				case "share-types":
 					fieldMaskKeys = append(fieldMaskKeys, key)
-				case "http://owncloud.org/ns/audio":
-					metadataKeys = append(metadataKeys, metadataKeysWithPrefix("libre.graph.audio", audioKeys)...)
-				case "http://owncloud.org/ns/location":
-					metadataKeys = append(metadataKeys, metadataKeysWithPrefix("libre.graph.location", locationKeys)...)
 				default:
 					metadataKeys = append(metadataKeys, key)
 				}
@@ -905,7 +849,7 @@ func requiresExplicitFetching(n *xml.Name) bool {
 		}
 	case net.NsOwncloud:
 		switch n.Local {
-		case "favorite", "share-types", "checksums", "size", "tags", "audio", "location":
+		case "favorite", "share-types", "checksums", "size", "tags":
 			return true
 		default:
 			return false
@@ -1121,33 +1065,6 @@ func mdToPropResponse(ctx context.Context, pf *XML, md *provider.ResourceInfo, p
 		appendToNotFound = func(p ...prop.PropertyXML) {}
 	}
 
-	appendMetadataProp := func(metadata map[string]string, tagNamespace string, name string, metadataPrefix string, keys []string) {
-		content := strings.Builder{}
-		for _, key := range keys {
-			lowerCaseKey := strings.ToLower(key)
-			if v, ok := metadata[fmt.Sprintf("%s.%s", metadataPrefix, key)]; ok {
-				content.WriteString("<")
-				content.WriteString(tagNamespace)
-				content.WriteString(":")
-				content.WriteString(lowerCaseKey)
-				content.WriteString(">")
-				content.Write(prop.Escaped("", v).InnerXML)
-				content.WriteString("</")
-				content.WriteString(tagNamespace)
-				content.WriteString(":")
-				content.WriteString(lowerCaseKey)
-				content.WriteString(">")
-			}
-		}
-
-		propName := fmt.Sprintf("%s:%s", tagNamespace, name)
-		if content.Len() > 0 {
-			appendToOK(prop.Raw(propName, content.String()))
-		} else {
-			appendToNotFound(prop.NotFound(propName))
-		}
-	}
-
 	// when allprops has been requested
 	if pf.Allprop != nil {
 		// return all known properties
@@ -1246,8 +1163,6 @@ func mdToPropResponse(ctx context.Context, pf *XML, md *provider.ResourceInfo, p
 
 		if k := md.GetArbitraryMetadata().GetMetadata(); k != nil {
 			propstatOK.Prop = append(propstatOK.Prop, prop.Raw("oc:tags", k["tags"]))
-			appendMetadataProp(k, "oc", "audio", "libre.graph.audio", audioKeys)
-			appendMetadataProp(k, "oc", "location", "libre.graph.location", locationKeys)
 		}
 
 		// ls do not report any properties as missing by default
@@ -1521,14 +1436,6 @@ func mdToPropResponse(ctx context.Context, pf *XML, md *provider.ResourceInfo, p
 					if k := md.GetArbitraryMetadata().GetMetadata(); k != nil {
 						propstatOK.Prop = append(propstatOK.Prop, prop.Raw("oc:tags", k["tags"]))
 					}
-				case "audio":
-					if k := md.GetArbitraryMetadata().GetMetadata(); k != nil {
-						appendMetadataProp(k, "oc", "audio", "libre.graph.audio", audioKeys)
-					}
-				case "location":
-					if k := md.GetArbitraryMetadata().GetMetadata(); k != nil {
-						appendMetadataProp(k, "oc", "location", "libre.graph.location", locationKeys)
-					}
 				case "name":
 					appendToOK(prop.Escaped("oc:name", md.Name))
 				case "shareid":
@@ -1727,17 +1634,6 @@ func activeLocks(log *zerolog.Logger, lock *provider.Lock) string {
 			activelocks.WriteString(prop.Escape(lock.AppName))
 		}
 		activelocks.WriteString("</d:owner>")
-	}
-
-	if un := utils.ReadPlainFromOpaque(lock.Opaque, "lockownername"); un != "" {
-		activelocks.WriteString("<oc:ownername>")
-		activelocks.WriteString(un)
-		activelocks.WriteString("</oc:ownername>")
-	}
-	if lt := utils.ReadPlainFromOpaque(lock.Opaque, "locktime"); lt != "" {
-		activelocks.WriteString("<oc:locktime>")
-		activelocks.WriteString(lt)
-		activelocks.WriteString("</oc:locktime>")
 	}
 	activelocks.WriteString("<d:timeout>")
 	activelocks.WriteString(expiration)

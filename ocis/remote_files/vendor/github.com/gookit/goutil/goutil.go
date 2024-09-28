@@ -5,22 +5,15 @@ package goutil
 import (
 	"fmt"
 
-	"github.com/gookit/goutil/basefn"
-	"github.com/gookit/goutil/goinfo"
-	"github.com/gookit/goutil/structs"
+	"github.com/gookit/goutil/stdutil"
 )
 
-// Value alias of structs.Value
-type Value = structs.Value
+// Value alias of stdutil.Value
+type Value = stdutil.Value
 
 // Panicf format panic message use fmt.Sprintf
 func Panicf(format string, v ...any) {
 	panic(fmt.Sprintf(format, v...))
-}
-
-// PanicIf if cond = true, panics with error message
-func PanicIf(cond bool, fmtAndArgs ...any) {
-	basefn.PanicIf(cond, fmtAndArgs...)
 }
 
 // PanicIfErr if error is not empty, will panic
@@ -52,19 +45,14 @@ func Must[T any](v T, err error) T {
 	return v
 }
 
-// FuncName get func name
-func FuncName(f any) string {
-	return goinfo.FuncName(f)
-}
-
-// PkgName get current package name. alias of goinfo.PkgName()
+// PkgName get current package name. alias of stdutil.PkgName()
 //
 // Usage:
 //
 //	funcName := goutil.FuncName(fn)
 //	pgkName := goutil.PkgName(funcName)
 func PkgName(funcName string) string {
-	return goinfo.PkgName(funcName)
+	return stdutil.PkgName(funcName)
 }
 
 // ErrOnFail return input error on cond is false, otherwise return nil

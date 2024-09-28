@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the CollectionOfUser type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CollectionOfUser{}
-
 // CollectionOfUser struct for CollectionOfUser
 type CollectionOfUser struct {
 	Value         []User  `json:"value,omitempty"`
@@ -42,7 +39,7 @@ func NewCollectionOfUserWithDefaults() *CollectionOfUser {
 
 // GetValue returns the Value field value if set, zero value otherwise.
 func (o *CollectionOfUser) GetValue() []User {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		var ret []User
 		return ret
 	}
@@ -52,7 +49,7 @@ func (o *CollectionOfUser) GetValue() []User {
 // GetValueOk returns a tuple with the Value field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *CollectionOfUser) GetValueOk() ([]User, bool) {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		return nil, false
 	}
 	return o.Value, true
@@ -60,7 +57,7 @@ func (o *CollectionOfUser) GetValueOk() ([]User, bool) {
 
 // HasValue returns a boolean if a field has been set.
 func (o *CollectionOfUser) HasValue() bool {
-	if o != nil && !IsNil(o.Value) {
+	if o != nil && o.Value != nil {
 		return true
 	}
 
@@ -74,7 +71,7 @@ func (o *CollectionOfUser) SetValue(v []User) {
 
 // GetOdataNextLink returns the OdataNextLink field value if set, zero value otherwise.
 func (o *CollectionOfUser) GetOdataNextLink() string {
-	if o == nil || IsNil(o.OdataNextLink) {
+	if o == nil || o.OdataNextLink == nil {
 		var ret string
 		return ret
 	}
@@ -84,7 +81,7 @@ func (o *CollectionOfUser) GetOdataNextLink() string {
 // GetOdataNextLinkOk returns a tuple with the OdataNextLink field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *CollectionOfUser) GetOdataNextLinkOk() (*string, bool) {
-	if o == nil || IsNil(o.OdataNextLink) {
+	if o == nil || o.OdataNextLink == nil {
 		return nil, false
 	}
 	return o.OdataNextLink, true
@@ -92,7 +89,7 @@ func (o *CollectionOfUser) GetOdataNextLinkOk() (*string, bool) {
 
 // HasOdataNextLink returns a boolean if a field has been set.
 func (o *CollectionOfUser) HasOdataNextLink() bool {
-	if o != nil && !IsNil(o.OdataNextLink) {
+	if o != nil && o.OdataNextLink != nil {
 		return true
 	}
 
@@ -105,22 +102,14 @@ func (o *CollectionOfUser) SetOdataNextLink(v string) {
 }
 
 func (o CollectionOfUser) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o CollectionOfUser) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Value) {
+	if o.Value != nil {
 		toSerialize["value"] = o.Value
 	}
-	if !IsNil(o.OdataNextLink) {
+	if o.OdataNextLink != nil {
 		toSerialize["@odata.nextLink"] = o.OdataNextLink
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableCollectionOfUser struct {

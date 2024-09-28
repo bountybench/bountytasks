@@ -10,15 +10,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
+	"github.com/cs3org/reva/v2/pkg/store"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	ldapv3 "github.com/go-ldap/ldap/v3"
 	"github.com/jellydator/ttlcache/v3"
-	microstore "go-micro.dev/v4/store"
-
-	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
-	"github.com/cs3org/reva/v2/pkg/store"
-
+	libregraph "github.com/owncloud/libre-graph-api-go"
 	ocisldap "github.com/owncloud/ocis/v2/ocis-pkg/ldap"
 	"github.com/owncloud/ocis/v2/ocis-pkg/registry"
 	"github.com/owncloud/ocis/v2/ocis-pkg/roles"
@@ -27,6 +25,7 @@ import (
 	"github.com/owncloud/ocis/v2/services/graph/pkg/identity"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/identity/ldap"
 	graphm "github.com/owncloud/ocis/v2/services/graph/pkg/middleware"
+	microstore "go-micro.dev/v4/store"
 )
 
 const (
@@ -94,30 +93,13 @@ type Service interface {
 	PostEducationClassTeacher(w http.ResponseWriter, r *http.Request)
 	DeleteEducationClassTeacher(w http.ResponseWriter, r *http.Request)
 
-	GetDrivesV1(w http.ResponseWriter, r *http.Request)
-	GetDrivesV1Beta1(w http.ResponseWriter, r *http.Request)
+	GetDrives(w http.ResponseWriter, r *http.Request)
 	GetSingleDrive(w http.ResponseWriter, r *http.Request)
-	GetAllDrivesV1(w http.ResponseWriter, r *http.Request)
-	GetAllDrivesV1Beta1(w http.ResponseWriter, r *http.Request)
+	GetAllDrives(w http.ResponseWriter, r *http.Request)
+	GetRootDriveChildren(w http.ResponseWriter, r *http.Request)
 	CreateDrive(w http.ResponseWriter, r *http.Request)
 	UpdateDrive(w http.ResponseWriter, r *http.Request)
 	DeleteDrive(w http.ResponseWriter, r *http.Request)
-
-	GetSharedByMe(w http.ResponseWriter, r *http.Request)
-	ListSharedWithMe(w http.ResponseWriter, r *http.Request)
-
-	GetRootDriveChildren(w http.ResponseWriter, r *http.Request)
-	GetDriveItem(w http.ResponseWriter, r *http.Request)
-	GetDriveItemChildren(w http.ResponseWriter, r *http.Request)
-	CreateLink(w http.ResponseWriter, r *http.Request)
-	SetLinkPassword(writer http.ResponseWriter, request *http.Request)
-
-	Invite(w http.ResponseWriter, r *http.Request)
-	ListPermissions(w http.ResponseWriter, r *http.Request)
-	UpdatePermission(w http.ResponseWriter, r *http.Request)
-	DeletePermission(w http.ResponseWriter, r *http.Request)
-
-	CreateUploadSession(w http.ResponseWriter, r *http.Request)
 
 	GetTags(w http.ResponseWriter, r *http.Request)
 	AssignTags(w http.ResponseWriter, r *http.Request)
@@ -139,18 +121,29 @@ func NewService(opts ...Option) (Graph, error) {
 	)
 	go spacePropertiesCache.Start()
 
-	identityCache := identity.NewIdentityCache(
-		identity.IdentityCacheWithGatewaySelector(options.GatewaySelector),
-		identity.IdentityCacheWithUsersTTL(time.Duration(options.Config.Spaces.UsersCacheTTL)),
-		identity.IdentityCacheWithGroupsTTL(time.Duration(options.Config.Spaces.GroupsCacheTTL)),
+	usersCache := ttlcache.New(
+		ttlcache.WithTTL[string, libregraph.User](
+			time.Duration(options.Config.Spaces.UsersCacheTTL),
+		),
+		ttlcache.WithDisableTouchOnHit[string, libregraph.User](),
 	)
+	go usersCache.Start()
+
+	groupsCache := ttlcache.New(
+		ttlcache.WithTTL[string, libregraph.Group](
+			time.Duration(options.Config.Spaces.GroupsCacheTTL),
+		),
+		ttlcache.WithDisableTouchOnHit[string, libregraph.Group](),
+	)
+	go groupsCache.Start()
 
 	svc := Graph{
 		config:                   options.Config,
 		mux:                      m,
 		logger:                   &options.Logger,
 		specialDriveItemsCache:   spacePropertiesCache,
-		identityCache:            identityCache,
+		usersCache:               usersCache,
+		groupsCache:              groupsCache,
 		eventsPublisher:          options.EventsPublisher,
 		gatewaySelector:          options.GatewaySelector,
 		searchService:            options.SearchService,
@@ -158,7 +151,6 @@ func NewService(opts ...Option) (Graph, error) {
 		keycloakClient:           options.KeycloakClient,
 		historyClient:            options.EventHistoryClient,
 		traceProvider:            options.TraceProvider,
-		valueService:             options.ValueService,
 	}
 
 	if err := setIdentityBackends(options, &svc); err != nil {
@@ -204,42 +196,6 @@ func NewService(opts ...Option) (Graph, error) {
 
 	m.Route(options.Config.HTTP.Root, func(r chi.Router) {
 		r.Use(middleware.StripSlashes)
-		r.Route("/v1beta1", func(r chi.Router) {
-			r.Route("/me", func(r chi.Router) {
-				r.Get("/drives", svc.GetDrives(APIVersion_1_Beta_1))
-				r.Route("/drive", func(r chi.Router) {
-					r.Get("/sharedByMe", svc.GetSharedByMe)
-					r.Get("/sharedWithMe", svc.ListSharedWithMe)
-				})
-			})
-			r.Route("/drives/{driveID}/items/{itemID}", func(r chi.Router) {
-				r.Post("/invite", svc.Invite)
-				r.Route("/permissions", func(r chi.Router) {
-					r.Get("/", svc.ListPermissions)
-					r.Route("/{permissionID}", func(r chi.Router) {
-						r.Delete("/", svc.DeletePermission)
-						r.Patch("/", svc.UpdatePermission)
-						r.Post("/setPassword", svc.SetLinkPassword)
-					})
-				})
-				r.Post("/createLink", svc.CreateLink)
-			})
-
-			r.Route("/drives", func(r chi.Router) {
-				r.Get("/", svc.GetAllDrives(APIVersion_1_Beta_1))
-				r.Route("/{driveID}/items/{itemID}", func(r chi.Router) {
-					r.Post("/invite", svc.Invite)
-					r.Get("/permissions", svc.ListPermissions)
-					r.Delete("/permissions/{permissionID}", svc.DeletePermission)
-					r.Post("/createLink", svc.CreateLink)
-				})
-			})
-
-			r.Route("/roleManagement/permissions/roleDefinitions", func(r chi.Router) {
-				r.Get("/", svc.GetRoleDefinitions)
-				r.Get("/{roleID}", svc.GetRoleDefinition)
-			})
-		})
 		r.Route("/v1.0", func(r chi.Router) {
 			r.Route("/extensions/org.libregraph", func(r chi.Router) {
 				r.Get("/tags", svc.GetTags)
@@ -252,16 +208,13 @@ func NewService(opts ...Option) (Graph, error) {
 			})
 			r.Route("/me", func(r chi.Router) {
 				r.Get("/", svc.GetMe)
-				r.Patch("/", svc.PatchMe)
-				r.Route("/drive", func(r chi.Router) {
-					r.Get("/", svc.GetUserDrive)
-					r.Get("/root/children", svc.GetRootDriveChildren)
-				})
-				r.Get("/drives", svc.GetDrives(APIVersion_1))
+				r.Get("/drive", svc.GetUserDrive)
+				r.Get("/drives", svc.GetDrives)
+				r.Get("/drive/root/children", svc.GetRootDriveChildren)
 				r.Post("/changePassword", svc.ChangeOwnPassword)
 			})
 			r.Route("/users", func(r chi.Router) {
-				r.Get("/", svc.GetUsers)
+				r.With(requireAdmin).Get("/", svc.GetUsers)
 				r.With(requireAdmin).Post("/", svc.PostUser)
 				r.Route("/{userID}", func(r chi.Router) {
 					r.Get("/", svc.GetUser)
@@ -279,7 +232,7 @@ func NewService(opts ...Option) (Graph, error) {
 				})
 			})
 			r.Route("/groups", func(r chi.Router) {
-				r.Get("/", svc.GetGroups)
+				r.With(requireAdmin).Get("/", svc.GetGroups)
 				r.With(requireAdmin).Post("/", svc.PostGroup)
 				r.Route("/{groupID}", func(r chi.Router) {
 					r.Get("/", svc.GetGroup)
@@ -293,17 +246,12 @@ func NewService(opts ...Option) (Graph, error) {
 				})
 			})
 			r.Route("/drives", func(r chi.Router) {
-				r.Get("/", svc.GetAllDrives(APIVersion_1))
+				r.Get("/", svc.GetAllDrives)
 				r.Post("/", svc.CreateDrive)
 				r.Route("/{driveID}", func(r chi.Router) {
 					r.Patch("/", svc.UpdateDrive)
 					r.Get("/", svc.GetSingleDrive)
 					r.Delete("/", svc.DeleteDrive)
-					r.Route("/items/{driveItemID}", func(r chi.Router) {
-						r.Get("/", svc.GetDriveItem)
-						r.Get("/children", svc.GetDriveItemChildren)
-						r.Post("/createUploadSession", svc.CreateUploadSession)
-					})
 				})
 			})
 			r.With(requireAdmin).Route("/education", func(r chi.Router) {
@@ -372,11 +320,7 @@ func setIdentityBackends(options Options, svc *Graph) error {
 		case "cs3":
 			gatewaySelector, err := pool.GatewaySelector(
 				options.Config.Reva.Address,
-				append(
-					options.Config.Reva.GetRevaOptions(),
-					pool.WithRegistry(registry.GetRegistry()),
-					pool.WithTracerProvider(options.TraceProvider),
-				)...,
+				append(options.Config.Reva.GetRevaOptions(), pool.WithRegistry(registry.GetRegistry()))...,
 			)
 			if err != nil {
 				return err

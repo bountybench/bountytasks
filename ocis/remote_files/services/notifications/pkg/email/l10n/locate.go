@@ -22,19 +22,11 @@ type Translator interface {
 }
 
 type translator struct {
-	locale *gotext.Locale
+	l *gotext.Locale
 }
 
 // NewTranslator Create Translator with library path and language code and load default domain
-func NewTranslator(locale, defaultLocale string, path string) Translator {
-	l := newLocate(locale, path)
-	if locale != "en" && len(l.GetTranslations()) == 0 {
-		l = newLocate(defaultLocale, path)
-	}
-	return &translator{locale: l}
-}
-
-func newLocate(local string, path string) *gotext.Locale {
+func NewTranslator(local string, path string) Translator {
 	var l *gotext.Locale
 	if path == "" {
 		filesystem, _ := fs.Sub(_translationFS, "locale")
@@ -43,9 +35,9 @@ func newLocate(local string, path string) *gotext.Locale {
 		l = gotext.NewLocale(path, local)
 	}
 	l.AddDomain(_domain) // make domain configurable only if needed
-	return l
+	return &translator{l: l}
 }
 
 func (t *translator) Translate(str string) string {
-	return t.locale.Get(str)
+	return t.l.Get(str)
 }

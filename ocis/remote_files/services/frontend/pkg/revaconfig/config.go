@@ -1,39 +1,23 @@
 package revaconfig
 
 import (
-	"bufio"
-	"fmt"
 	"net/url"
-	"os"
 	"path"
-	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/owncloud/ocis/v2/ocis-pkg/config/defaults"
-	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/version"
 	"github.com/owncloud/ocis/v2/services/frontend/pkg/config"
 )
 
 // FrontendConfigFromStruct will adapt an oCIS config struct into a reva mapstructure to start a reva service.
-func FrontendConfigFromStruct(cfg *config.Config, logger log.Logger) (map[string]interface{}, error) {
+func FrontendConfigFromStruct(cfg *config.Config) (map[string]interface{}, error) {
 	webURL, err := url.Parse(cfg.PublicURL)
 	if err != nil {
 		return nil, err
 	}
 	webURL.Path = path.Join(webURL.Path, "external")
 	webOpenInAppURL := webURL.String()
-
-	var bannedPasswordsList map[string]struct{}
-	if cfg.PasswordPolicy.BannedPasswordsList != "" {
-		bannedPasswordsList, err = readMultilineFile(cfg.PasswordPolicy.BannedPasswordsList)
-		if err != nil {
-			err = fmt.Errorf("failed to load the banned passwords from a file %s: %w", cfg.PasswordPolicy.BannedPasswordsList, err)
-			logger.Err(err).Send()
-			return nil, err
-		}
-	}
 
 	archivers := []map[string]interface{}{
 		{
@@ -169,7 +153,6 @@ func FrontendConfigFromStruct(cfg *config.Config, logger log.Logger) (map[string
 					"additional_info_attribute": cfg.OCS.AdditionalInfoAttribute,
 					"machine_auth_apikey":       cfg.MachineAuthAPIKey,
 					"enable_denials":            cfg.OCS.EnableDenials,
-					"list_ocm_shares":           cfg.OCS.ListOCMShares,
 					"cache_warmup_driver":       cfg.OCS.CacheWarmupDriver,
 					"cache_warmup_drivers": map[string]interface{}{
 						"cbox": map[string]interface{}{
@@ -247,11 +230,10 @@ func FrontendConfigFromStruct(cfg *config.Config, logger log.Logger) (map[string
 									"upload":                     true,
 									"multiple":                   true,
 									"supports_upload_only":       true,
-									"default_permissions":        cfg.DefaultLinkPermissions,
 									"password": map[string]interface{}{
 										"enforced": false,
 										"enforced_for": map[string]interface{}{
-											"read_only":         cfg.OCS.PublicShareMustHavePassword,
+											"read_only":         false,
 											"read_write":        cfg.OCS.WriteablePublicShareMustHavePassword,
 											"read_write_delete": cfg.OCS.WriteablePublicShareMustHavePassword,
 											"upload_only":       cfg.OCS.WriteablePublicShareMustHavePassword,
@@ -291,48 +273,6 @@ func FrontendConfigFromStruct(cfg *config.Config, logger log.Logger) (map[string
 								"share_jail": cfg.EnableShareJail,
 								"max_quota":  cfg.MaxQuota,
 							},
-							"search": map[string]interface{}{
-								"property": map[string]interface{}{
-									"name": map[string]interface{}{
-										"enabled": true,
-									},
-									"mtime": map[string]interface{}{
-										"keywords": []string{"today", "yesterday", "this week", "last week", "last 7 days", "this month", "last month", "last 30 days", "this year", "last year"},
-										"enabled":  true,
-									},
-									"size": map[string]interface{}{
-										"enabled": false,
-									},
-									"mediatype": map[string]interface{}{
-										"keywords": []string{"document", "spreadsheet", "presentation", "pdf", "image", "video", "audio", "folder", "archive"},
-										"enabled":  true,
-									},
-									"type": map[string]interface{}{
-										"enabled": true,
-									},
-									"tag": map[string]interface{}{
-										"enabled": true,
-									},
-									"tags": map[string]interface{}{
-										"enabled": true,
-									},
-									"content": map[string]interface{}{
-										"enabled": true,
-									},
-									"scope": map[string]interface{}{
-										"enabled": true,
-									},
-								},
-							},
-							"password_policy": map[string]interface{}{
-								"max_characters":           72,
-								"min_characters":           cfg.PasswordPolicy.MinCharacters,
-								"min_lowercase_characters": cfg.PasswordPolicy.MinLowerCaseCharacters,
-								"min_uppercase_characters": cfg.PasswordPolicy.MinUpperCaseCharacters,
-								"min_digits":               cfg.PasswordPolicy.MinDigits,
-								"min_special_characters":   cfg.PasswordPolicy.MinSpecialCharacters,
-								"banned_passwords_list":    bannedPasswordsList,
-							},
 							"notifications": map[string]interface{}{
 								"endpoints": []string{"list", "get", "delete"},
 							},
@@ -351,32 +291,4 @@ func FrontendConfigFromStruct(cfg *config.Config, logger log.Logger) (map[string
 			},
 		},
 	}, nil
-}
-
-func readMultilineFile(path string) (map[string]struct{}, error) {
-	if !fileExists(path) {
-		path = filepath.Join(defaults.BaseConfigPath(), path)
-	}
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	scanner := bufio.NewScanner(file)
-	data := make(map[string]struct{})
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line != "" {
-			data[line] = struct{}{}
-		}
-	}
-	return data, err
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return !info.IsDir()
 }

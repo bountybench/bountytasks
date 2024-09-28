@@ -170,10 +170,12 @@ func PrintPacket(p *Packet) {
 	printPacket(os.Stdout, p, 0, false)
 }
 
-// Return a string describing packet content. This is not recursive,
-// If the packet is a sequence, use `printPacket()`, or browse
-// sequence yourself.
-func DescribePacket(p *Packet) string {
+func printPacket(out io.Writer, p *Packet, indent int, printBytes bool) {
+	indentStr := ""
+
+	for len(indentStr) != indent {
+		indentStr += " "
+	}
 
 	classStr := ClassMap[p.ClassType]
 
@@ -192,17 +194,7 @@ func DescribePacket(p *Packet) string {
 		description = p.Description + ": "
 	}
 
-	return fmt.Sprintf("%s(%s, %s, %s) Len=%d %q", description, classStr, tagTypeStr, tagStr, p.Data.Len(), value)
-}
-
-func printPacket(out io.Writer, p *Packet, indent int, printBytes bool) {
-	indentStr := ""
-
-	for len(indentStr) != indent {
-		indentStr += " "
-	}
-
-	_, _ = fmt.Fprintf(out, "%s%s\n", indentStr, DescribePacket(p))
+	_, _ = fmt.Fprintf(out, "%s%s(%s, %s, %s) Len=%d %q\n", indentStr, description, classStr, tagTypeStr, tagStr, p.Data.Len(), value)
 
 	if printBytes {
 		PrintBytes(out, p.Bytes(), indentStr)
@@ -325,7 +317,7 @@ func readPacket(reader io.Reader) (*Packet, int, error) {
 			// Read the next packet
 			child, r, err := readPacket(reader)
 			if err != nil {
-				return nil, read, unexpectedEOF(err)
+				return nil, read, err
 			}
 			contentRead += r
 			read += r
@@ -356,7 +348,10 @@ func readPacket(reader io.Reader) (*Packet, int, error) {
 	if length > 0 {
 		_, err := io.ReadFull(reader, content)
 		if err != nil {
-			return nil, read, unexpectedEOF(err)
+			if err == io.EOF {
+				return nil, read, io.ErrUnexpectedEOF
+			}
+			return nil, read, err
 		}
 		read += length
 	}

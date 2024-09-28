@@ -18,7 +18,6 @@ package cgroup1
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -132,25 +131,11 @@ func hugePageSizes() ([]string, error) {
 }
 
 func readUint(path string) (uint64, error) {
-	f, err := os.Open(path)
+	v, err := os.ReadFile(path)
 	if err != nil {
 		return 0, err
 	}
-	defer f.Close()
-
-	// We should only need 20 bytes for the max uint64, but for a nice power of 2
-	// lets use 32.
-	b := make([]byte, 32)
-	n, err := f.Read(b)
-	if err != nil {
-		return 0, err
-	}
-	s := string(bytes.TrimSpace(b[:n]))
-	if s == "max" {
-		// Return 0 for the max value to maintain backward compatibility.
-		return 0, nil
-	}
-	return parseUint(s, 10, 64)
+	return parseUint(strings.TrimSpace(string(v)), 10, 64)
 }
 
 func parseUint(s string, base, bitSize int) (uint64, error) {

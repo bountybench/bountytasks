@@ -75,7 +75,6 @@ default:
         - FeatureContext: *common_feature_context_params
         - TrashbinContext:
         - WebDavPropertiesContext:
-        - SettingsContext:
 
     coreApiShareCreateSpecialToShares2:
       paths:
@@ -85,7 +84,6 @@ default:
         - FeatureContext: *common_feature_context_params
         - TrashbinContext:
         - WebDavPropertiesContext:
-        - SettingsContext:
 
     coreApiSharees:
       paths:
@@ -105,7 +103,6 @@ default:
         - TrashbinContext:
         - WebDavPropertiesContext:
         - FilesVersionsContext:
-        - SettingsContext:
 
     coreApiShareManagementBasicToShares:
       paths:
@@ -127,7 +124,6 @@ default:
         - PublicWebDavContext:
         - TrashbinContext:
         - WebDavPropertiesContext:
-        - SettingsContext:
 
     coreApiShareOperationsToShares2:
       paths:
@@ -148,7 +144,6 @@ default:
         - PublicWebDavContext:
         - TrashbinContext:
         - WebDavPropertiesContext:
-        - OcisConfigContext:
 
     coreApiSharePublicLink2:
       paths:
@@ -159,7 +154,6 @@ default:
         - PublicWebDavContext:
         - TrashbinContext:
         - WebDavPropertiesContext:
-        - OcisConfigContext:
 
     coreApiSharePublicLink3:
       paths:
@@ -271,6 +265,16 @@ default:
         - WebDavLockingContext:
         - WebDavPropertiesContext:
 
+    coreApiWebdavLocksUnlock:
+      paths:
+        - "%paths.base%/../features/coreApiWebdavLocksUnlock"
+      context: *common_ldap_suite_context
+      contexts:
+        - FeatureContext: *common_feature_context_params
+        - PublicWebDavContext:
+        - WebDavLockingContext:
+        - WebDavPropertiesContext:
+
     coreApiWebdavMove1:
       paths:
         - "%paths.base%/../features/coreApiWebdavMove1"
@@ -297,7 +301,6 @@ default:
         - PublicWebDavContext:
         - WebDavPropertiesContext:
         - TrashbinContext:
-        - OcisConfigContext:
 
     coreApiWebdavPreviews:
       paths:
@@ -372,7 +375,6 @@ default:
         - PublicWebDavContext:
         - FilesVersionsContext:
         - WebDavPropertiesContext:
-        - OcisConfigContext:
 
   extensions:
     rdx\behatvars\BehatVariablesExtension: ~

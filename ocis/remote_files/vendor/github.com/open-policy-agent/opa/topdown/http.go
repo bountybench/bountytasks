@@ -67,7 +67,6 @@ var allowedKeyNames = [...]string{
 	"force_cache_duration_seconds",
 	"raise_error",
 	"caching_mode",
-	"max_retry_attempts",
 }
 
 // ref: https://www.rfc-editor.org/rfc/rfc7231#section-6.1
@@ -105,12 +104,6 @@ const (
 
 	// HTTPSendNetworkErr represents a network error.
 	HTTPSendNetworkErr string = "eval_http_send_network_error"
-
-	// minRetryDelay is amount of time to backoff after the first failure.
-	minRetryDelay = time.Millisecond * 100
-
-	// maxRetryDelay is the upper bound of backoff delay.
-	maxRetryDelay = time.Second * 60
 )
 
 func builtinHTTPSend(bctx BuiltinContext, operands []*ast.Term, iter func(*ast.Term) error) error {
@@ -468,7 +461,7 @@ func createHTTPRequest(bctx BuiltinContext, obj ast.Object) (*http.Request, *htt
 		case "cache", "caching_mode",
 			"force_cache", "force_cache_duration_seconds",
 			"force_json_decode", "force_yaml_decode",
-			"raise_error", "max_retry_attempts": // no-op
+			"raise_error": // no-op
 		default:
 			return nil, nil, fmt.Errorf("invalid parameter %q", key)
 		}
@@ -654,39 +647,8 @@ func createHTTPRequest(bctx BuiltinContext, obj ast.Object) (*http.Request, *htt
 	return req, client, nil
 }
 
-func executeHTTPRequest(req *http.Request, client *http.Client, inputReqObj ast.Object) (*http.Response, error) {
-	var err error
-	var retry int
-
-	retry, err = getNumberValFromReqObj(inputReqObj, ast.StringTerm("max_retry_attempts"))
-	if err != nil {
-		return nil, err
-	}
-
-	for i := 0; true; i++ {
-
-		var resp *http.Response
-		resp, err = client.Do(req)
-		if err == nil {
-			return resp, nil
-		}
-
-		// final attempt
-		if i == retry {
-			break
-		}
-
-		if err == context.Canceled {
-			return nil, err
-		}
-
-		select {
-		case <-time.After(util.DefaultBackoff(float64(minRetryDelay), float64(maxRetryDelay), i)):
-		case <-req.Context().Done():
-			return nil, context.Canceled
-		}
-	}
-	return nil, err
+func executeHTTPRequest(req *http.Request, client *http.Client) (*http.Response, error) {
+	return client.Do(req)
 }
 
 func isContentType(header http.Header, typ ...string) bool {
@@ -803,16 +765,10 @@ func insertErrorIntoHTTPSendCache(bctx BuiltinContext, key ast.Object, err error
 func (c *interQueryCache) checkHTTPSendInterQueryCache() (ast.Value, error) {
 	requestCache := c.bctx.InterQueryBuiltinCache
 
-	cachedValue, found := requestCache.Get(c.key)
+	value, found := requestCache.Get(c.key)
 	if !found {
 		return nil, nil
 	}
-
-	value, cerr := requestCache.Clone(cachedValue)
-	if cerr != nil {
-		return nil, handleHTTPSendErr(c.bctx, cerr)
-	}
-
 	c.bctx.Metrics.Counter(httpSendInterQueryCacheHits).Incr()
 	var cachedRespData *interQueryCacheData
 
@@ -839,12 +795,15 @@ func (c *interQueryCache) checkHTTPSendInterQueryCache() (ast.Value, error) {
 		return nil, handleHTTPSendErr(c.bctx, err)
 	}
 
-	headers := parseResponseHeaders(cachedRespData.Headers)
+	headers, err := parseResponseHeaders(cachedRespData.Headers)
+	if err != nil {
+		return nil, err
+	}
 
 	// check with the server if the stale response is still up-to-date.
 	// If server returns a new response (ie. status_code=200), update the cache with the new response
 	// If server returns an unmodified response (ie. status_code=304), update the headers for the existing response
-	result, modified, err := revalidateCachedResponse(c.httpReq, c.httpClient, c.key, headers)
+	result, modified, err := revalidateCachedResponse(c.httpReq, c.httpClient, headers)
 	requestCache.Delete(c.key)
 	if err != nil || result == nil {
 		return nil, err
@@ -861,16 +820,11 @@ func (c *interQueryCache) checkHTTPSendInterQueryCache() (ast.Value, error) {
 			}
 		}
 
-		if forceCaching(c.forceCacheParams) {
-			createdAt := getCurrentTime(c.bctx)
-			cachedRespData.ExpiresAt = createdAt.Add(time.Second * time.Duration(c.forceCacheParams.forceCacheDurationSeconds))
-		} else {
-			expiresAt, err := expiryFromHeaders(result.Header)
-			if err != nil {
-				return nil, err
-			}
-			cachedRespData.ExpiresAt = expiresAt
+		expiresAt, err := expiryFromHeaders(result.Header)
+		if err != nil {
+			return nil, err
 		}
+		cachedRespData.ExpiresAt = expiresAt
 
 		cachingMode, err := getCachingMode(c.key)
 		if err != nil {
@@ -990,23 +944,6 @@ func getBoolValFromReqObj(req ast.Object, key *ast.Term) (bool, error) {
 	return bool(b), nil
 }
 
-func getNumberValFromReqObj(req ast.Object, key *ast.Term) (int, error) {
-	term := req.Get(key)
-	if term == nil {
-		return 0, nil
-	}
-
-	if t, ok := term.Value.(ast.Number); ok {
-		num, ok := t.Int()
-		if !ok || num < 0 {
-			return 0, fmt.Errorf("invalid value %v for field %v", t.String(), key.String())
-		}
-		return num, nil
-	}
-
-	return 0, fmt.Errorf("invalid value %v for field %v", term.String(), key.String())
-}
-
 func getCachingMode(req ast.Object) (cachingMode, error) {
 	key := ast.StringTerm("caching_mode")
 	var s ast.String
@@ -1041,12 +978,6 @@ func newInterQueryCacheValue(bctx BuiltinContext, resp *http.Response, respBody 
 		return nil, err
 	}
 	return &interQueryCacheValue{Data: b}, nil
-}
-
-func (cb interQueryCacheValue) Clone() (cache.InterQueryCacheValue, error) {
-	dup := make([]byte, len(cb.Data))
-	copy(dup, cb.Data)
-	return &interQueryCacheValue{Data: dup}, nil
 }
 
 func (cb interQueryCacheValue) SizeInBytes() int64 {
@@ -1132,38 +1063,44 @@ func (c *interQueryCacheData) SizeInBytes() int64 {
 	return 0
 }
 
-func (c *interQueryCacheData) Clone() (cache.InterQueryCacheValue, error) {
-	dup := make([]byte, len(c.RespBody))
-	copy(dup, c.RespBody)
-
-	return &interQueryCacheData{
-		ExpiresAt:  c.ExpiresAt,
-		RespBody:   dup,
-		Status:     c.Status,
-		StatusCode: c.StatusCode,
-		Headers:    c.Headers.Clone()}, nil
-}
-
 type responseHeaders struct {
-	etag         string // identifier for a specific version of the response
-	lastModified string // date and time response was last modified as per origin server
+	date         time.Time         // origination date and time of response
+	cacheControl map[string]string // response cache-control header
+	maxAge       deltaSeconds      // max-age cache control directive
+	expires      time.Time         // date/time after which the response is considered stale
+	etag         string            // identifier for a specific version of the response
+	lastModified string            // date and time response was last modified as per origin server
 }
 
 // deltaSeconds specifies a non-negative integer, representing
 // time in seconds: http://tools.ietf.org/html/rfc7234#section-1.2.1
 type deltaSeconds int32
 
-func parseResponseHeaders(headers http.Header) *responseHeaders {
+func parseResponseHeaders(headers http.Header) (*responseHeaders, error) {
+	var err error
 	result := responseHeaders{}
+
+	result.date, err = getResponseHeaderDate(headers)
+	if err != nil {
+		return nil, err
+	}
+
+	result.cacheControl = parseCacheControlHeader(headers)
+	result.maxAge, err = parseMaxAgeCacheDirective(result.cacheControl)
+	if err != nil {
+		return nil, err
+	}
+
+	result.expires = getResponseHeaderExpires(headers)
 
 	result.etag = headers.Get("etag")
 
 	result.lastModified = headers.Get("last-modified")
 
-	return &result
+	return &result, nil
 }
 
-func revalidateCachedResponse(req *http.Request, client *http.Client, inputReqObj ast.Object, headers *responseHeaders) (*http.Response, bool, error) {
+func revalidateCachedResponse(req *http.Request, client *http.Client, headers *responseHeaders) (*http.Response, bool, error) {
 	etag := headers.etag
 	lastModified := headers.lastModified
 
@@ -1181,7 +1118,7 @@ func revalidateCachedResponse(req *http.Request, client *http.Client, inputReqOb
 		cloneReq.Header.Set("if-modified-since", lastModified)
 	}
 
-	response, err := executeHTTPRequest(cloneReq, client, inputReqObj)
+	response, err := client.Do(cloneReq)
 	if err != nil {
 		return nil, false, err
 	}
@@ -1454,7 +1391,7 @@ func (c *interQueryCache) ExecuteHTTPRequest() (*http.Response, error) {
 		return nil, handleHTTPSendErr(c.bctx, err)
 	}
 
-	return executeHTTPRequest(c.httpReq, c.httpClient, c.key)
+	return executeHTTPRequest(c.httpReq, c.httpClient)
 }
 
 type intraQueryCache struct {
@@ -1504,7 +1441,7 @@ func (c *intraQueryCache) ExecuteHTTPRequest() (*http.Response, error) {
 	if err != nil {
 		return nil, handleHTTPSendErr(c.bctx, err)
 	}
-	return executeHTTPRequest(httpReq, httpClient, c.key)
+	return executeHTTPRequest(httpReq, httpClient)
 }
 
 func useInterQueryCache(req ast.Object) (bool, *forceCacheParams, error) {

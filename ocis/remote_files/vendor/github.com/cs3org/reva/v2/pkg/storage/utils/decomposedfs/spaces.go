@@ -34,8 +34,8 @@ import (
 	v1beta11 "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	types "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
+	ocsconv "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	ocsconv "github.com/cs3org/reva/v2/pkg/conversions"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/errtypes"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/status"
@@ -424,15 +424,15 @@ func (fs *Decomposedfs) ListStorageSpaces(ctx context.Context, filter []*provide
 					continue
 				}
 				// always read link in case storage space id != node id
-				linkSpaceID, linkNodeID, err := ReadSpaceAndNodeFromIndexLink(match)
+				spaceID, nodeID, err = ReadSpaceAndNodeFromIndexLink(match)
 				if err != nil {
 					appctx.GetLogger(ctx).Error().Err(err).Str("match", match).Msg("could not read link, skipping")
 					continue
 				}
 
-				n, err := node.ReadNode(ctx, fs.lu, linkSpaceID, linkNodeID, true, nil, true)
+				n, err := node.ReadNode(ctx, fs.lu, spaceID, nodeID, true, nil, true)
 				if err != nil {
-					appctx.GetLogger(ctx).Error().Err(err).Str("id", linkNodeID).Msg("could not read node, skipping")
+					appctx.GetLogger(ctx).Error().Err(err).Str("id", nodeID).Msg("could not read node, skipping")
 					continue
 				}
 
@@ -448,7 +448,7 @@ func (fs *Decomposedfs) ListStorageSpaces(ctx context.Context, filter []*provide
 					case errtypes.NotFound:
 						// ok
 					default:
-						appctx.GetLogger(ctx).Error().Err(err).Str("id", linkNodeID).Msg("could not convert to storage space")
+						appctx.GetLogger(ctx).Error().Err(err).Str("id", nodeID).Msg("could not convert to storage space")
 					}
 					continue
 				}

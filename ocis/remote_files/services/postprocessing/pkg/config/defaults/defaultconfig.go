@@ -1,8 +1,6 @@
 package defaults
 
 import (
-	"time"
-
 	"github.com/owncloud/ocis/v2/services/postprocessing/pkg/config"
 )
 
@@ -31,8 +29,6 @@ func DefaultConfig() *config.Config {
 				Endpoint: "127.0.0.1:9233",
 				Cluster:  "ocis-cluster",
 			},
-			RetryBackoffDuration: 5 * time.Second,
-			MaxRetries:           14,
 		},
 		Store: config.Store{
 			Store:    "memory",

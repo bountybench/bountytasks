@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the TagUnassignment type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &TagUnassignment{}
-
 // TagUnassignment struct for TagUnassignment
 type TagUnassignment struct {
 	ResourceId string   `json:"resourceId"`
@@ -91,18 +88,14 @@ func (o *TagUnassignment) SetTags(v []string) {
 }
 
 func (o TagUnassignment) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
+	toSerialize := map[string]interface{}{}
+	if true {
+		toSerialize["resourceId"] = o.ResourceId
+	}
+	if true {
+		toSerialize["tags"] = o.Tags
 	}
 	return json.Marshal(toSerialize)
-}
-
-func (o TagUnassignment) ToMap() (map[string]interface{}, error) {
-	toSerialize := map[string]interface{}{}
-	toSerialize["resourceId"] = o.ResourceId
-	toSerialize["tags"] = o.Tags
-	return toSerialize, nil
 }
 
 type NullableTagUnassignment struct {

@@ -20,12 +20,12 @@ import (
 	"net"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
 	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
+	index "github.com/blevesearch/bleve_index_api"
+
+	"github.com/blevesearch/bleve/v2/analysis"
 	"github.com/blevesearch/bleve/v2/document"
 	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/util"
-	index "github.com/blevesearch/bleve_index_api"
 )
 
 // control the default behavior for dynamic fields (those not explicitly mapped)
@@ -233,9 +233,9 @@ func (fm *FieldMapping) processString(propertyValueString string, pathString str
 		}
 		dateTimeParser := context.im.DateTimeParserNamed(dateTimeFormat)
 		if dateTimeParser != nil {
-			parsedDateTime, layout, err := dateTimeParser.ParseDateTime(propertyValueString)
+			parsedDateTime, err := dateTimeParser.ParseDateTime(propertyValueString)
 			if err == nil {
-				fm.processTime(parsedDateTime, layout, pathString, path, indexes, context)
+				fm.processTime(parsedDateTime, pathString, path, indexes, context)
 			}
 		}
 	} else if fm.Type == "IP" {
@@ -259,11 +259,11 @@ func (fm *FieldMapping) processFloat64(propertyValFloat float64, pathString stri
 	}
 }
 
-func (fm *FieldMapping) processTime(propertyValueTime time.Time, layout string, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processTime(propertyValueTime time.Time, pathString string, path []string, indexes []uint64, context *walkContext) {
 	fieldName := getFieldName(pathString, path, fm)
 	if fm.Type == "datetime" {
 		options := fm.Options()
-		field, err := document.NewDateTimeFieldWithIndexingOptions(fieldName, indexes, propertyValueTime, layout, options)
+		field, err := document.NewDateTimeFieldWithIndexingOptions(fieldName, indexes, propertyValueTime, options)
 		if err == nil {
 			context.doc.AddField(field)
 		} else {
@@ -390,7 +390,7 @@ func getFieldName(pathString string, path []string, fieldMapping *FieldMapping) 
 func (fm *FieldMapping) UnmarshalJSON(data []byte) error {
 
 	var tmp map[string]json.RawMessage
-	err := util.UnmarshalJSON(data, &tmp)
+	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}
@@ -399,52 +399,52 @@ func (fm *FieldMapping) UnmarshalJSON(data []byte) error {
 	for k, v := range tmp {
 		switch k {
 		case "name":
-			err := util.UnmarshalJSON(v, &fm.Name)
+			err := json.Unmarshal(v, &fm.Name)
 			if err != nil {
 				return err
 			}
 		case "type":
-			err := util.UnmarshalJSON(v, &fm.Type)
+			err := json.Unmarshal(v, &fm.Type)
 			if err != nil {
 				return err
 			}
 		case "analyzer":
-			err := util.UnmarshalJSON(v, &fm.Analyzer)
+			err := json.Unmarshal(v, &fm.Analyzer)
 			if err != nil {
 				return err
 			}
 		case "store":
-			err := util.UnmarshalJSON(v, &fm.Store)
+			err := json.Unmarshal(v, &fm.Store)
 			if err != nil {
 				return err
 			}
 		case "index":
-			err := util.UnmarshalJSON(v, &fm.Index)
+			err := json.Unmarshal(v, &fm.Index)
 			if err != nil {
 				return err
 			}
 		case "include_term_vectors":
-			err := util.UnmarshalJSON(v, &fm.IncludeTermVectors)
+			err := json.Unmarshal(v, &fm.IncludeTermVectors)
 			if err != nil {
 				return err
 			}
 		case "include_in_all":
-			err := util.UnmarshalJSON(v, &fm.IncludeInAll)
+			err := json.Unmarshal(v, &fm.IncludeInAll)
 			if err != nil {
 				return err
 			}
 		case "date_format":
-			err := util.UnmarshalJSON(v, &fm.DateFormat)
+			err := json.Unmarshal(v, &fm.DateFormat)
 			if err != nil {
 				return err
 			}
 		case "docvalues":
-			err := util.UnmarshalJSON(v, &fm.DocValues)
+			err := json.Unmarshal(v, &fm.DocValues)
 			if err != nil {
 				return err
 			}
 		case "skip_freq_norm":
-			err := util.UnmarshalJSON(v, &fm.SkipFreqNorm)
+			err := json.Unmarshal(v, &fm.SkipFreqNorm)
 			if err != nil {
 				return err
 			}

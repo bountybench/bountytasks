@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the CollectionOfDrives1 type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CollectionOfDrives1{}
-
 // CollectionOfDrives1 struct for CollectionOfDrives1
 type CollectionOfDrives1 struct {
 	Value []Drive `json:"value,omitempty"`
@@ -41,7 +38,7 @@ func NewCollectionOfDrives1WithDefaults() *CollectionOfDrives1 {
 
 // GetValue returns the Value field value if set, zero value otherwise.
 func (o *CollectionOfDrives1) GetValue() []Drive {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		var ret []Drive
 		return ret
 	}
@@ -51,7 +48,7 @@ func (o *CollectionOfDrives1) GetValue() []Drive {
 // GetValueOk returns a tuple with the Value field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *CollectionOfDrives1) GetValueOk() ([]Drive, bool) {
-	if o == nil || IsNil(o.Value) {
+	if o == nil || o.Value == nil {
 		return nil, false
 	}
 	return o.Value, true
@@ -59,7 +56,7 @@ func (o *CollectionOfDrives1) GetValueOk() ([]Drive, bool) {
 
 // HasValue returns a boolean if a field has been set.
 func (o *CollectionOfDrives1) HasValue() bool {
-	if o != nil && !IsNil(o.Value) {
+	if o != nil && o.Value != nil {
 		return true
 	}
 
@@ -72,19 +69,11 @@ func (o *CollectionOfDrives1) SetValue(v []Drive) {
 }
 
 func (o CollectionOfDrives1) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o CollectionOfDrives1) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Value) {
+	if o.Value != nil {
 		toSerialize["value"] = o.Value
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableCollectionOfDrives1 struct {

@@ -33,7 +33,7 @@ type Service struct {
 }
 
 // NewService returns a service implementation for Service.
-func NewService(cfg *config.Config, logger log.Logger) settings.ServiceHandler {
+func NewService(cfg *config.Config, logger log.Logger) Service {
 	service := Service{
 		id:     "ocis-settings",
 		config: cfg,
@@ -274,6 +274,7 @@ func (g Service) RemoveSettingFromBundle(ctx context.Context, req *settingssvc.R
 // SaveValue implements the ValueServiceHandler interface
 func (g Service) SaveValue(ctx context.Context, req *settingssvc.SaveValueRequest, res *settingssvc.SaveValueResponse) error {
 	req.Value.AccountUuid = getValidatedAccountUUID(ctx, req.Value.AccountUuid)
+
 	if !g.isCurrentUser(ctx, req.Value.AccountUuid) {
 		return merrors.Forbidden(g.id, "can't save value for another user")
 	}

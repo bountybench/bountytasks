@@ -3,7 +3,6 @@ package command
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/cs3org/reva/v2/pkg/micro/ocdav"
 	"github.com/cs3org/reva/v2/pkg/sharedconf"
@@ -63,7 +62,6 @@ func Server(cfg *config.Config) *cli.Command {
 					ocdav.AllowedOrigins(cfg.HTTP.CORS.AllowedOrigins),
 					ocdav.FilesNamespace(cfg.FilesNamespace),
 					ocdav.WebdavNamespace(cfg.WebdavNamespace),
-					ocdav.OCMNamespace(cfg.OCMNamespace),
 					ocdav.AllowDepthInfinity(cfg.AllowPropfindDepthInfinity),
 					ocdav.SharesNamespace(cfg.SharesNamespace),
 					ocdav.Timeout(cfg.Timeout),
@@ -85,7 +83,6 @@ func Server(cfg *config.Config) *cli.Command {
 					// ocdav.TLSConfig() // tls config for the http server
 					ocdav.MetricsEnabled(true),
 					ocdav.MetricsNamespace("ocis"),
-					ocdav.Tracing("Adding these strings is a workaround for ->", "https://github.com/cs3org/reva/issues/4131"),
 					ocdav.WithTraceProvider(tracingProvider),
 				}
 
@@ -101,7 +98,6 @@ func Server(cfg *config.Config) *cli.Command {
 					Str("server", c.Command.Name).
 					Msg("Shutting down server")
 				cancel()
-				os.Exit(1)
 			})
 
 			debugServer, err := debug.Server(

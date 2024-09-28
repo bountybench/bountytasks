@@ -53,12 +53,13 @@ Feature: propagation of etags when creating folders
       | dav-path-version |
       | spaces           |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharee creating a folder inside a folder received as a share changes its etag for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/folder"
     And user "Alice" has shared folder "/folder" with user "Brian"
+    And user "Brian" has accepted share "/folder" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/folder"
     And user "Brian" has stored etag of element "/"
@@ -78,12 +79,13 @@ Feature: propagation of etags when creating folders
       | old              |
       | new              |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharer creating a folder inside a shared folder changes etag for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/folder"
     And user "Alice" has shared folder "/folder" with user "Brian"
+    And user "Brian" has accepted share "/folder" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/folder"
     And user "Brian" has stored etag of element "/"
@@ -103,10 +105,9 @@ Feature: propagation of etags when creating folders
       | old              |
       | new              |
 
-  @env-config @issue-4251
+  @issue-4251
   Scenario Outline: creating a folder in a publicly shared folder changes its etag for the sharer
-    Given the config "OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD" has been set to "false"
-    And using <dav-path-version> DAV path
+    Given using <dav-path-version> DAV path
     And user "Alice" has created folder "/folder"
     And user "Alice" has created a public link share with settings
       | path        | folder |

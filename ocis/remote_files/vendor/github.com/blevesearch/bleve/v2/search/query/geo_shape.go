@@ -22,7 +22,6 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -124,7 +123,7 @@ func (q *Geometry) UnmarshalJSON(data []byte) error {
 		Relation string          `json:"relation"`
 	}{}
 
-	err := util.UnmarshalJSON(data, &tmp)
+	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}

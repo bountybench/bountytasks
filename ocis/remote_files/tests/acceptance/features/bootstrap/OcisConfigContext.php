@@ -21,11 +21,9 @@
  */
 
 use Behat\Behat\Context\Context;
-use Behat\Gherkin\Node\TableNode;
 use GuzzleHttp\Exception\GuzzleException;
 use TestHelpers\OcisConfigHelper;
 use PHPUnit\Framework\Assert;
-use TestHelpers\UploadHelper;
 
 /**
  * steps needed to re-configure oCIS server
@@ -41,7 +39,7 @@ class OcisConfigContext implements Context {
 	 */
 	public function asyncUploadHasbeenEnabledWithDelayedPostProcessing(string $delayTime): void {
 		$envs = [
-			"OCIS_ASYNC_UPLOADS" => true,
+			"STORAGE_USERS_OCIS_ASYNC_UPLOADS" => true,
 			"OCIS_EVENTS_ENABLE_TLS" => false,
 			"POSTPROCESSING_DELAY" => $delayTime . "s",
 		];
@@ -73,42 +71,6 @@ class OcisConfigContext implements Context {
 			200,
 			$response->getStatusCode(),
 			"Failed to set config $configVariable=$configValue"
-		);
-	}
-
-	/**
-	 * @Given the config :configVariable has been set to path :path
-	 *
-	 * @param string $configVariable
-	 * @param string $path
-	 *
-	 * @return void
-	 * @throws GuzzleException
-	 */
-	public function theConfigHasBeenSetPathTo(string $configVariable, string $path): void {
-		$path = \dirname(__FILE__) . "/../../../" . $path;
-		$this->theConfigHasBeenSetTo($configVariable, $path);
-	}
-
-	/**
-	 * @Given the following configs have been set:
-	 *
-	 * @param TableNode $table
-	 *
-	 * @return void
-	 * @throws GuzzleException
-	 */
-	public function theConfigHasBeenSetToValue(TableNode $table): void {
-		$envs = [];
-		foreach ($table->getHash() as $row) {
-			$envs[$row['config']] = $row['value'];
-		}
-
-		$response =  OcisConfigHelper::reConfigureOcis($envs);
-		Assert::assertEquals(
-			200,
-			$response->getStatusCode(),
-			"Failed to set config"
 		);
 	}
 

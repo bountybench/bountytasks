@@ -24,7 +24,6 @@ func Server(opts ...Option) (http.Service, error) {
 		http.Namespace(options.Config.HTTP.Namespace),
 		http.Address(options.Config.HTTP.Addr),
 		http.Context(options.Context),
-		http.TraceProvider(options.TraceProvider),
 	)
 	if err != nil {
 		options.Logger.Error().
@@ -57,6 +56,7 @@ func Server(opts ...Option) (http.Service, error) {
 	{
 		handle = svc.NewInstrument(handle, options.Metrics)
 		handle = svc.NewLogging(handle, options.Logger)
+		handle = svc.NewTracing(handle)
 	}
 
 	if err := micro.RegisterHandler(service.Server(), handle); err != nil {

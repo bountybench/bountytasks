@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: sharing
   As a user
   I want to share resources to others
@@ -28,6 +27,9 @@ Feature: sharing
       | mimetype               | text/plain            |
       | storage_id             | ANY_VALUE             |
       | share_type             | user                  |
+    When user "Brian" accepts share "/textfile0.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
     And the content of file "/Shares/textfile0.txt" for user "Brian" should be "ownCloud test text file 0"
     Examples:
       | ocs_api_version | ocs_status_code |
@@ -54,6 +56,9 @@ Feature: sharing
       | mimetype               | text/plain           |
       | storage_id             | ANY_VALUE            |
       | share_type             | user                 |
+    When user "Brian" accepts share "/sample,1.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
     And the content of file "/Shares/sample,1.txt" for user "Brian" should be "file with comma in filename"
     Examples:
       | ocs_api_version | ocs_status_code |
@@ -203,8 +208,9 @@ Feature: sharing
       | 2               | 200             |
 
   @smokeTest
-  Scenario: share of folder to a group
-    Given these users have been created with default attributes and without skeleton files:
+  Scenario Outline: share of folder to a group
+    Given using OCS API version "<ocs_api_version>"
+    And these users have been created with default attributes and without skeleton files:
       | username |
       | Brian    |
       | Carol    |
@@ -214,27 +220,42 @@ Feature: sharing
     And user "Alice" has created folder "/PARENT"
     And user "Alice" has uploaded file with content "file in parent folder" to "/PARENT/parent.txt"
     When user "Alice" shares folder "/PARENT" with group "grp1" using the sharing API
+    And user "Brian" accepts share "/PARENT" offered by user "Alice" using the sharing API
+    And user "Carol" accepts share "/PARENT" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
     And user "Brian" should see the following elements
       | /Shares/PARENT/           |
       | /Shares/PARENT/parent.txt |
     And user "Carol" should see the following elements
       | /Shares/PARENT/           |
       | /Shares/PARENT/parent.txt |
+    Examples:
+      | ocs_api_version | ocs_status_code |
+      | 1               | 100             |
+      | 2               | 200             |
 
   @smokeTest @skipOnReva # reva doesn't have a pre-created admin user
-  Scenario: user included in multiple groups receives a share from the admin
+  Scenario Outline: user included in multiple groups receives a share from the admin
+    Given using OCS API version "<ocs_api_version>"
     And group "grp1" has been created
     And group "grp2" has been created
     And user "Alice" has been added to group "grp1"
     And user "Alice" has been added to group "grp2"
     And admin has created folder "/PARENT"
     When user "admin" shares folder "/PARENT" with group "grp1" using the sharing API
-    Then user "Alice" should see the following elements
-      | /Shares/PARENT/ |
+    And user "Alice" accepts share "/PARENT" offered by user "admin" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    Examples:
+      | ocs_api_version | ocs_status_code |
+      | 1               | 100             |
+      | 2               | 200             |
 
   @smokeTest
-  Scenario: user included in multiple groups, shares a folder with a group
-    Given these users have been created with default attributes and without skeleton files:
+  Scenario Outline: user included in multiple groups, shares a folder with a group
+    Given using OCS API version "<ocs_api_version>"
+    And these users have been created with default attributes and without skeleton files:
       | username |
       | Brian    |
     And group "grp1" has been created
@@ -245,12 +266,18 @@ Feature: sharing
     And user "Brian" has been added to group "grp2"
     And user "Alice" has created folder "/PARENT"
     When user "Alice" shares folder "/PARENT" with group "grp1" using the sharing API
-    Then user "Brian" should see the following elements
-      | /Shares/PARENT/ |
+    And user "Brian" accepts share "/PARENT" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    Examples:
+      | ocs_api_version | ocs_status_code |
+      | 1               | 100             |
+      | 2               | 200             |
 
 
-  Scenario: sharing again an own file while belonging to a group
-    Given user "Brian" has been created with default attributes and without skeleton files
+  Scenario Outline: sharing again an own file while belonging to a group
+    Given using OCS API version "<ocs_api_version>"
+    And user "Brian" has been created with default attributes and without skeleton files
     And group "grp1" has been created
     And user "Alice" has been added to group "grp1"
     And user "Brian" has been added to group "grp1"
@@ -258,7 +285,14 @@ Feature: sharing
     And user "Brian" has shared file "randomfile.txt" with group "grp1"
     And user "Brian" has deleted the last share
     When user "Brian" shares file "/randomfile.txt" with group "grp1" using the sharing API
+    And user "Alice" accepts share "/randomfile.txt" offered by user "Brian" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
     And as "Alice" file "/Shares/randomfile.txt" should exist
+    Examples:
+      | ocs_api_version | ocs_status_code |
+      | 1               | 100             |
+      | 2               | 200             |
 
   @issue-2201
   Scenario Outline: sharing subfolder of already shared folder, GET result is correct
@@ -299,7 +333,10 @@ Feature: sharing
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has moved file "textfile0.txt" to "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt"
     When user "Alice" shares file "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" with user "Brian" using the sharing API
-    Then as "Brian" file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" should exist
+    And user "Brian" accepts share "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    And as "Brian" file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" should exist
     Examples:
       | ocs_api_version | ocs_status_code |
       | 1               | 100             |
@@ -314,7 +351,10 @@ Feature: sharing
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has moved file "textfile0.txt" to "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt"
     When user "Alice" shares file "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" with group "grp1" using the sharing API
-    Then as "Brian" file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" should exist
+    And user "Brian" accepts share "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    And as "Brian" file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog.txt" should exist
     Examples:
       | ocs_api_version | ocs_status_code |
       | 1               | 100             |
@@ -328,7 +368,10 @@ Feature: sharing
     And user "Alice" has created folder "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog"
     And user "Alice" has moved file "textfile0.txt" to "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt"
     When user "Alice" shares folder "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog" with user "Brian" using the sharing API
-    Then the content of file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt" for user "Brian" should be "ownCloud test"
+    And user "Brian" accepts share "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    And the content of file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt" for user "Brian" should be "ownCloud test"
     Examples:
       | ocs_api_version | ocs_status_code |
       | 1               | 100             |
@@ -344,7 +387,10 @@ Feature: sharing
     And user "Alice" has created folder "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog"
     And user "Alice" has moved file "textfile0.txt" to "aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt"
     When user "Alice" shares folder "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog" with group "grp1" using the sharing API
-    Then the content of file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt" for user "Brian" should be "ownCloud test"
+    And user "Brian" accepts share "/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
+    And the content of file "/Shares/aquickbrownfoxjumpsoveraverylazydogaquickbrownfoxjumpsoveralazydog/textfile0.txt" for user "Brian" should be "ownCloud test"
     Examples:
       | ocs_api_version | ocs_status_code |
       | 1               | 100             |
@@ -365,7 +411,10 @@ Feature: sharing
       | path        | /randomfile.txt        |
       | permissions | share,read,update      |
       | uid_owner   | %username%             |
-    Then user "brian" should see the following elements
+    When user "brian" accepts share "/randomfile.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "100"
+    And the HTTP status code should be "200"
+    And user "brian" should see the following elements
       | /Shares/randomfile.txt |
     And the content of file "Shares/randomfile.txt" for user "brian" should be "Random data"
 
@@ -378,7 +427,10 @@ Feature: sharing
     And user "Brian" has been added to group "grp1"
     And user "Alice" has uploaded file with content "Random data" to "/randomfile.txt"
     And user "Alice" has shared file "randomfile.txt" with group "grp1"
-    Then user "Brian" should see the following elements
+    When user "Brian" accepts share "/randomfile.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "100"
+    And the HTTP status code should be "200"
+    And user "Brian" should see the following elements
       | /Shares/randomfile.txt |
     And the content of file "/Shares/randomfile.txt" for user "Brian" should be "Random data"
 
@@ -397,7 +449,13 @@ Feature: sharing
     When user "Alice" shares folder "/PARENT" with group "😀 😁" using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
     And the HTTP status code should be "200"
-    Then user "Brian" should see the following elements
+    And user "Brian" accepts share "/PARENT" offered by user "Alice" using the sharing API
+    And the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
+    And user "Carol" accepts share "/PARENT" offered by user "Alice" using the sharing API
+    And the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
+    And user "Brian" should see the following elements
       | /Shares/PARENT/           |
       | /Shares/PARENT/parent.txt |
     And user "Carol" should see the following elements
@@ -421,15 +479,13 @@ Feature: sharing
     And user "Brian" has been added to group "grp1"
     And user "Alice" has uploaded file with content "some content" to "lorem.txt"
     When user "Alice" shares file "lorem.txt" with group "grp1" using the sharing API
-    Then the OCS status code should be "<ocs_status_code>"
-    And the HTTP status code should be "200"
+    And user "Brian" accepts share "/lorem.txt" offered by user "Alice" using the sharing API
+    And the administrator adds user "Carol" to group "grp1" using the provisioning API
+    And user "Carol" accepts share "/lorem.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code of responses on all endpoints should be "<ocs_status_code>"
+    And the HTTP status code of responses on all endpoints should be "200"
     And the content of file "/Shares/lorem.txt" for user "Brian" should be "some content"
-    When the administrator adds user "Carol" to group "grp1" using the provisioning API
-    And user "Carol" should not see the following elements
-      | /Shares/lorem.txt |
-    And the sharing API should report to user "Carol" that these shares are in the pending state
-      | path       |
-      | /lorem.txt |
+    And the content of file "/Shares/lorem.txt" for user "Carol" should be "some content"
     Examples:
       | ocs_api_version | ocs_status_code |
       | 1               | 100             |
@@ -456,6 +512,8 @@ Feature: sharing
       | file_target | /textfile0.txt |
       | path        | /textfile0.txt |
       | uid_owner   | %username%     |
+    When user "Brian" accepts share "/textfile0.txt" offered by user "Alice" using the sharing API
+    And user "Carol" accepts share "/textfile0.txt" offered by user "Alice" using the sharing API
     Then as "Brian" file "/Shares/textfile0.txt" should exist
     And as "Carol" file "/Shares/textfile0.txt" should exist
     When the administrator deletes group "grp1" using the provisioning API
@@ -470,7 +528,7 @@ Feature: sharing
       | 1               | 100             |
       | 2               | 200             |
 
-  @issue-2146 @issue-764 @issue-7555
+  @issue-2146
   Scenario: share a file by multiple channels and download from sub-folder and direct file share
     Given these users have been created with default attributes and without skeleton files:
       | username |
@@ -482,8 +540,11 @@ Feature: sharing
     And user "Alice" has created folder "/common"
     And user "Alice" has created folder "/common/sub"
     And user "Alice" has shared folder "common" with group "grp1"
+    And user "Brian" has accepted share "/common" offered by user "Alice"
+    And user "Carol" has accepted share "/common" offered by user "Alice"
     And user "Brian" has uploaded file with content "ownCloud" to "/textfile0.txt"
     And user "Brian" has shared file "textfile0.txt" with user "Carol"
+    And user "Carol" has accepted share "/textfile0.txt" offered by user "Brian"
     And user "Brian" has moved file "/textfile0.txt" to "/Shares/common/textfile0.txt"
     And user "Brian" has moved file "/Shares/common/textfile0.txt" to "/Shares/common/sub/textfile0.txt"
     When user "Carol" uploads file "filesForUpload/file_to_overwrite.txt" to "/Shares/textfile0.txt" using the WebDAV API
@@ -504,8 +565,10 @@ Feature: sharing
       | Carol    |
     And user "Alice" has created folder "userZeroFolder"
     And user "Alice" has shared folder "userZeroFolder" with user "Brian"
+    And user "Brian" has accepted share "/userZeroFolder" offered by user "Alice"
     And user "Brian" has created folder "/Shares/userZeroFolder/userOneFolder"
     And user "Brian" has shared folder "/Shares/userZeroFolder/userOneFolder" with user "Carol" with permissions "read, share"
+    And user "Carol" has accepted share "/userOneFolder" offered by user "Brian"
     When user "Carol" shares folder "/Shares/userOneFolder" with user "Brian" using the sharing API
     Then the HTTP status code should be "200"
     #    Then the HTTP status code should be "405"
@@ -520,8 +583,10 @@ Feature: sharing
       | Carol    |
     And user "Alice" has created folder "userZeroFolder"
     And user "Alice" has shared folder "userZeroFolder" with user "Brian"
+    And user "Brian" has accepted share "/userZeroFolder" offered by user "Alice"
     And user "Brian" has created folder "/Shares/userZeroFolder/userOneFolder"
     And user "Brian" has shared folder "/Shares/userZeroFolder/userOneFolder" with user "Carol" with permissions "read, share"
+    And user "Carol" has accepted share "/userOneFolder" offered by user "Brian"
     When user "Carol" shares folder "/Shares/userOneFolder" with user "Alice" using the sharing API
     Then the HTTP status code should be "200"
     #    Then the HTTP status code should be "405"
@@ -538,8 +603,11 @@ Feature: sharing
     And user "Alice" has created folder "userZeroFolder"
     And user "Alice" has shared folder "userZeroFolder" with user "Brian"
     And user "Alice" has shared folder "userZeroFolder" with user "Carol"
+    And user "Brian" has accepted share "/userZeroFolder" offered by user "Alice"
+    And user "Carol" has accepted share "/userZeroFolder" offered by user "Alice"
     And user "Brian" has created folder "/Shares/userZeroFolder/userOneFolder"
     And user "Brian" has shared folder "/Shares/userZeroFolder/userOneFolder" with user "David" with permissions "read, share"
+    And user "David" has accepted share "/userOneFolder" offered by user "Brian"
     When user "David" shares folder "/Shares/userOneFolder" with user "Carol" using the sharing API
     Then the HTTP status code should be "200"
     #    Then the HTTP status code should be "405"
@@ -567,6 +635,9 @@ Feature: sharing
       | mimetype               | text/plain          |
       | storage_id             | ANY_VALUE           |
       | share_type             | user                |
+    When user "Brian" accepts share "/renamed.txt" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
     And the content of file "/Shares/renamed.txt" for user "Brian" should be "ownCloud test text file 0"
     Examples:
       | ocs_api_version | ocs_status_code |
@@ -583,6 +654,8 @@ Feature: sharing
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has shared file "textfile0.txt" with user "Brian"
     And user "Alice" has shared file "textfile0.txt" with user "Carol"
+    And user "Brian" has accepted share "/textfile0.txt" offered by user "Alice"
+    And user "Carol" has accepted share "/textfile0.txt" offered by user "Alice"
     And the administrator has deleted user "Brian" using the provisioning API
     When user "Alice" gets all the shares of the file "textfile0.txt" using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
@@ -601,6 +674,7 @@ Feature: sharing
     And user "Alice" has created folder "/Folder1"
     And user "Alice" has created folder "/Folder2"
     And user "Alice" has shared folder "/Folder1" with user "Brian"
+    And user "Brian" has accepted share "/Folder1" offered by user "Alice"
     And user "Alice" has moved file "/Folder2" to "/renamedFolder2"
     When user "Alice" shares folder "/renamedFolder2" with user "Brian" using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
@@ -617,6 +691,9 @@ Feature: sharing
       | mimetype               | httpd/unix-directory   |
       | storage_id             | ANY_VALUE              |
       | share_type             | user                   |
+    When user "Brian" accepts share "/renamedFolder2" offered by user "Alice" using the sharing API
+    Then the OCS status code should be "<ocs_status_code>"
+    And the HTTP status code should be "200"
     And as "Brian" folder "/Shares/renamedFolder2" should exist
     Examples:
       | ocs_api_version | ocs_status_code |
@@ -645,6 +722,7 @@ Feature: sharing
     And user "Carol" has been created with default attributes and without skeleton files
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has shared file "textfile0.txt" with user "Brian"
+    And user "Brian" has accepted share "/textfile0.txt" offered by user "Alice"
     When user "Brian" shares folder "Shares" with user "Carol" using the sharing API
     Then the HTTP status code should be "<http-status>"
     And the OCS status code should be "403"
@@ -663,6 +741,7 @@ Feature: sharing
     And user "Carol" has been added to group "share_group"
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has shared file "textfile0.txt" with user "Brian"
+    And user "Brian" has accepted share "/textfile0.txt" offered by user "Alice"
     When user "Brian" shares folder "Shares" with group "share_group" using the sharing API
     Then the HTTP status code should be "<http-status>"
     And the OCS status code should be "403"
@@ -678,6 +757,7 @@ Feature: sharing
     And user "Brian" has been created with default attributes and without skeleton files
     And user "Alice" has uploaded file with content "ownCloud test text file 0" to "/textfile0.txt"
     And user "Alice" has shared file "textfile0.txt" with user "Brian"
+    And user "Brian" has accepted share "/textfile0.txt" offered by user "Alice"
     When user "Brian" creates a public link share of folder "Shares" using the sharing API
     Then the HTTP status code should be "<http-status>"
     And the OCS status code should be "403"

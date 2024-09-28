@@ -43,18 +43,18 @@ func DefaultConfig() *config.Config {
 			Type:             "basic",
 			CS3AllowInsecure: false,
 			Tika: config.ExtractorTika{
-				TikaURL:        "http://127.0.0.1:9998",
-				CleanStopWords: true,
+				TikaURL: "http://127.0.0.1:9998",
 			},
 		},
 		Events: config.Events{
 			Endpoint:         "127.0.0.1:9233",
 			Cluster:          "ocis-cluster",
 			DebounceDuration: 1000,
-			AsyncUploads:     true,
+			AsyncUploads:     false,
 			EnableTLS:        false,
 		},
 		ContentExtractionSizeLimit: 20 * 1024 * 1024, // Limit content extraction to <20MB files by default
+		MachineAuthAPIKey:          "",
 	}
 }
 
@@ -89,6 +89,10 @@ func EnsureDefaults(cfg *config.Config) {
 		}
 	} else if cfg.TokenManager == nil {
 		cfg.TokenManager = &config.TokenManager{}
+	}
+
+	if cfg.MachineAuthAPIKey == "" && cfg.Commons != nil && cfg.Commons.MachineAuthAPIKey != "" {
+		cfg.MachineAuthAPIKey = cfg.Commons.MachineAuthAPIKey
 	}
 
 	if cfg.Reva == nil && cfg.Commons != nil {

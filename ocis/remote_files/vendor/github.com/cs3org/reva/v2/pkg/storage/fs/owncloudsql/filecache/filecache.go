@@ -31,7 +31,7 @@ import (
 	"time"
 
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
-	"github.com/cs3org/reva/v2/pkg/conversions"
+	conversions "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
@@ -362,7 +362,7 @@ func (c *Cache) Permissions(ctx context.Context, storage interface{}, p string) 
 		return nil, err
 	}
 
-	return conversions.RoleFromOCSPermissions(perms, nil).CS3ResourcePermissions(), nil
+	return conversions.RoleFromOCSPermissions(perms).CS3ResourcePermissions(), nil
 }
 
 // InsertOrUpdate creates or updates a cache entry

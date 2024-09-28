@@ -757,7 +757,7 @@ func (m *Manager) listCreatedShares(ctx context.Context, user *userv1beta1.User,
 }
 
 // ListReceivedShares returns the list of shares the user has access to.
-func (m *Manager) ListReceivedShares(ctx context.Context, filters []*collaboration.Filter, forUser *userv1beta1.UserId) ([]*collaboration.ReceivedShare, error) {
+func (m *Manager) ListReceivedShares(ctx context.Context, filters []*collaboration.Filter) ([]*collaboration.ReceivedShare, error) {
 	ctx, span := appctx.GetTracerProvider(ctx).Tracer(tracerName).Start(ctx, "ListReceivedShares")
 	defer span.End()
 
@@ -766,13 +766,6 @@ func (m *Manager) ListReceivedShares(ctx context.Context, filters []*collaborati
 	}
 
 	user := ctxpkg.ContextMustGetUser(ctx)
-	if user.GetId().GetType() == userv1beta1.UserType_USER_TYPE_SERVICE {
-		u, err := utils.GetUser(forUser, m.gateway)
-		if err != nil {
-			return nil, errtypes.BadRequest("user not found")
-		}
-		user = u
-	}
 
 	ssids := map[string]*receivedsharecache.Space{}
 
@@ -803,18 +796,19 @@ func (m *Manager) ListReceivedShares(ctx context.Context, filters []*collaborati
 	}
 
 	// add all spaces the user has receved shares for, this includes mount points and share state for groups
-	spaces, err := m.UserReceivedStates.List(ctx, user.Id.OpaqueId)
-	if err != nil {
-		return nil, err
-	}
-	for ssid, rspace := range spaces {
-		if rs, ok := ssids[ssid]; ok {
-			for shareid, state := range rspace.States {
-				// overwrite state
-				rs.States[shareid] = state
+	// TODO: rewrite this code to not use the internal strucs anymore (e.g. by adding a List method). Sync can then be made private.
+	_ = m.UserReceivedStates.Sync(ctx, user.Id.OpaqueId) // ignore error, cache will be updated on next read
+
+	if m.UserReceivedStates.ReceivedSpaces[user.Id.OpaqueId] != nil {
+		for ssid, rspace := range m.UserReceivedStates.ReceivedSpaces[user.Id.OpaqueId].Spaces {
+			if rs, ok := ssids[ssid]; ok {
+				for shareid, state := range rspace.States {
+					// overwrite state
+					rs.States[shareid] = state
+				}
+			} else {
+				ssids[ssid] = rspace
 			}
-		} else {
-			ssids[ssid] = rspace
 		}
 	}
 
@@ -888,7 +882,6 @@ func (m *Manager) ListReceivedShares(ctx context.Context, filters []*collaborati
 								Share:      s,
 								State:      state.State,
 								MountPoint: state.MountPoint,
-								Hidden:     state.Hidden,
 							}
 							select {
 							case results <- rs:
@@ -940,7 +933,6 @@ func (m *Manager) convert(ctx context.Context, userID string, s *collaboration.S
 	if err == nil && state != nil {
 		rs.State = state.State
 		rs.MountPoint = state.MountPoint
-		rs.Hidden = state.Hidden
 	}
 	return rs
 }
@@ -963,7 +955,7 @@ func (m *Manager) getReceived(ctx context.Context, ref *collaboration.ShareRefer
 		return nil, err
 	}
 	user := ctxpkg.ContextMustGetUser(ctx)
-	if user.GetId().GetType() != userv1beta1.UserType_USER_TYPE_SERVICE && !share.IsGrantedToUser(s, user) {
+	if !share.IsGrantedToUser(s, user) {
 		return nil, errtypes.NotFound(ref.String())
 	}
 	if share.IsExpired(s) {
@@ -986,7 +978,7 @@ func (m *Manager) getReceived(ctx context.Context, ref *collaboration.ShareRefer
 }
 
 // UpdateReceivedShare updates the received share with share state.
-func (m *Manager) UpdateReceivedShare(ctx context.Context, receivedShare *collaboration.ReceivedShare, fieldMask *field_mask.FieldMask, forUser *userv1beta1.UserId) (*collaboration.ReceivedShare, error) {
+func (m *Manager) UpdateReceivedShare(ctx context.Context, receivedShare *collaboration.ReceivedShare, fieldMask *field_mask.FieldMask) (*collaboration.ReceivedShare, error) {
 	ctx, span := appctx.GetTracerProvider(ctx).Tracer(tracerName).Start(ctx, "UpdateReceivedShare")
 	defer span.End()
 
@@ -1005,21 +997,16 @@ func (m *Manager) UpdateReceivedShare(ctx context.Context, receivedShare *collab
 			rs.State = receivedShare.State
 		case "mount_point":
 			rs.MountPoint = receivedShare.MountPoint
-		case "hidden":
-			rs.Hidden = receivedShare.Hidden
 		default:
 			return nil, errtypes.NotSupported("updating " + fieldMask.Paths[i] + " is not supported")
 		}
 	}
 
 	// write back
-	u := ctxpkg.ContextMustGetUser(ctx)
-	uid := u.GetId().GetOpaqueId()
-	if u.GetId().GetType() == userv1beta1.UserType_USER_TYPE_SERVICE {
-		uid = forUser.GetOpaqueId()
-	}
 
-	err = m.UserReceivedStates.Add(ctx, uid, rs.Share.ResourceId.StorageId+shareid.IDDelimiter+rs.Share.ResourceId.SpaceId, rs)
+	userID := ctxpkg.ContextMustGetUser(ctx)
+
+	err = m.UserReceivedStates.Add(ctx, userID.GetId().GetOpaqueId(), rs.Share.ResourceId.StorageId+shareid.IDDelimiter+rs.Share.ResourceId.SpaceId, rs)
 	if err != nil {
 		return nil, err
 	}

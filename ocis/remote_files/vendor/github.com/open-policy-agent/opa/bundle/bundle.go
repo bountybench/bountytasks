@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/open-policy-agent/opa/ast"
-	astJSON "github.com/open-policy-agent/opa/ast/json"
 	"github.com/open-policy-agent/opa/format"
 	"github.com/open-policy-agent/opa/internal/file/archive"
 	"github.com/open-policy-agent/opa/internal/merge"
@@ -392,14 +391,12 @@ type Reader struct {
 	verificationConfig    *VerificationConfig
 	skipVerify            bool
 	processAnnotations    bool
-	jsonOptions           *astJSON.Options
 	capabilities          *ast.Capabilities
 	files                 map[string]FileInfo // files in the bundle signature payload
 	sizeLimitBytes        int64
 	etag                  string
 	lazyLoadingMode       bool
 	name                  string
-	persist               bool
 }
 
 // NewReader is deprecated. Use NewCustomReader instead.
@@ -463,12 +460,6 @@ func (r *Reader) WithCapabilities(caps *ast.Capabilities) *Reader {
 	return r
 }
 
-// WithJSONOptions sets the JSONOptions to use when parsing policy files
-func (r *Reader) WithJSONOptions(opts *astJSON.Options) *Reader {
-	r.jsonOptions = opts
-	return r
-}
-
 // WithSizeLimitBytes sets the size limit to apply to files in the bundle. If files are larger
 // than this, an error will be returned by the reader.
 func (r *Reader) WithSizeLimitBytes(n int64) *Reader {
@@ -497,17 +488,10 @@ func (r *Reader) WithLazyLoadingMode(yes bool) *Reader {
 	return r
 }
 
-// WithBundlePersistence specifies if the downloaded bundle will eventually be persisted to disk.
-func (r *Reader) WithBundlePersistence(persist bool) *Reader {
-	r.persist = persist
-	return r
-}
-
 func (r *Reader) ParserOptions() ast.ParserOptions {
 	return ast.ParserOptions{
 		ProcessAnnotation: r.processAnnotations,
 		Capabilities:      r.capabilities,
-		JSONOptions:       r.jsonOptions,
 	}
 }
 
@@ -611,7 +595,7 @@ func (r *Reader) Read() (Bundle, error) {
 			var value interface{}
 
 			r.metrics.Timer(metrics.RegoDataParse).Start()
-			err := util.UnmarshalJSON(buf.Bytes(), &value)
+			err := util.NewJSONDecoder(&buf).Decode(&value)
 			r.metrics.Timer(metrics.RegoDataParse).Stop()
 
 			if err != nil {
@@ -660,10 +644,6 @@ func (r *Reader) Read() (Bundle, error) {
 
 		if len(bundle.WasmModules) != 0 {
 			return bundle, fmt.Errorf("delta bundle expected to contain only patch file but wasm files found")
-		}
-
-		if r.persist {
-			return bundle, fmt.Errorf("'persist' property is true in config. persisting delta bundle to disk is not supported")
 		}
 	}
 
@@ -1102,14 +1082,10 @@ func (b Bundle) Equal(other Bundle) bool {
 		return false
 	}
 	for i := range b.Modules {
-		// To support bundles built from rootless filesystems we ignore a "/" prefix
-		// for URLs and Paths, such that "/file" and "file" are equivalent
-		if strings.TrimPrefix(b.Modules[i].URL, string(filepath.Separator)) !=
-			strings.TrimPrefix(other.Modules[i].URL, string(filepath.Separator)) {
+		if b.Modules[i].URL != other.Modules[i].URL {
 			return false
 		}
-		if strings.TrimPrefix(b.Modules[i].Path, string(filepath.Separator)) !=
-			strings.TrimPrefix(other.Modules[i].Path, string(filepath.Separator)) {
+		if b.Modules[i].Path != other.Modules[i].Path {
 			return false
 		}
 		if !b.Modules[i].Parsed.Equal(other.Modules[i].Parsed) {

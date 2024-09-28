@@ -84,6 +84,7 @@ func DefaultConfig() *config.Config {
 		},
 		GatewayAddress: "com.owncloud.api.gateway",
 		Web: config.Web{
+			Path:        "",
 			ThemeServer: "https://localhost:9200",
 			ThemePath:   "/themes/owncloud/theme.json",
 			Config: config.WebConfig{
@@ -112,12 +113,11 @@ func DefaultConfig() *config.Config {
 				},
 				Options: config.Options{
 					ContextHelpersReadMore:   true,
-					PreviewFileMimeTypes:     []string{"image/gif", "image/png", "image/jpeg", "text/plain", "image/tiff", "image/bmp", "image/x-ms-bmp", "application/vnd.geogebra.slides"},
+					PreviewFileMimeTypes:     []string{"image/gif", "image/png", "image/jpeg", "text/plain", "image/tiff", "image/bmp", "image/x-ms-bmp"},
 					SharingRecipientsPerPage: 200,
 					AccountEditLink:          &config.AccountEditLink{},
 					Editor:                   &config.Editor{},
 					FeedbackLink:             &config.FeedbackLink{},
-					Embed:                    &config.Embed{},
 					Routing: config.Routing{
 						IDBased: true,
 					},
@@ -127,7 +127,6 @@ func DefaultConfig() *config.Config {
 					Upload:                  &config.Upload{},
 					OpenLinksWithDefaultApp: true,
 					TokenStorageLocal:       true,
-					UserListRequiresFilter:  false,
 				},
 			},
 		},
@@ -198,13 +197,5 @@ func Sanitize(cfg *config.Config) {
 	// remove Upload parent if no value is set
 	if cfg.Web.Config.Options.Upload.XHR.Timeout == 0 && cfg.Web.Config.Options.Upload.CompanionURL == "" {
 		cfg.Web.Config.Options.Upload = nil
-	}
-	// remove Embed parent if no value is set
-	if cfg.Web.Config.Options.Embed.Enabled == "" &&
-		cfg.Web.Config.Options.Embed.Target == "" &&
-		cfg.Web.Config.Options.Embed.MessagesOrigin == "" &&
-		cfg.Web.Config.Options.Embed.DelegateAuthentication == "" &&
-		cfg.Web.Config.Options.Embed.DelegateAuthenticationOrigin == "" {
-		cfg.Web.Config.Options.Embed = nil
 	}
 }

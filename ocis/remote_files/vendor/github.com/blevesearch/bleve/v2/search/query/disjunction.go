@@ -22,7 +22,6 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search"
 	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -108,7 +107,7 @@ func (q *DisjunctionQuery) UnmarshalJSON(data []byte) error {
 		Boost     *Boost            `json:"boost,omitempty"`
 		Min       float64           `json:"min"`
 	}{}
-	err := util.UnmarshalJSON(data, &tmp)
+	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}

@@ -27,7 +27,7 @@ import (
 	link "github.com/cs3org/go-cs3apis/cs3/sharing/link/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	typespb "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
-	"github.com/cs3org/reva/v2/pkg/conversions"
+	conversions "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/status"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/jellydator/ttlcache/v2"
@@ -162,7 +162,7 @@ func intTosharePerm(p int) (*provider.ResourcePermissions, error) {
 		return nil, err
 	}
 
-	return conversions.RoleFromOCSPermissions(perms, nil).CS3ResourcePermissions(), nil
+	return conversions.RoleFromOCSPermissions(perms).CS3ResourcePermissions(), nil
 }
 
 func formatUserID(u *userpb.UserId) string {

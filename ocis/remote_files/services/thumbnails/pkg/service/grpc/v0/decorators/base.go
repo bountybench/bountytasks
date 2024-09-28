@@ -22,22 +22,20 @@ type DecoratedService interface {
 //
 // Expected implementations will be like:
 // ```
+// type MyDecorator struct {
+//   Decorator
+//   myCustomOpts *opts
+//   additionalSrv *srv
+// }
 //
-//	type MyDecorator struct {
-//	  Decorator
-//	  myCustomOpts *opts
-//	  additionalSrv *srv
-//	}
-//
-//	func NewMyDecorator(next DecoratedService, customOpts *customOpts) DecoratedService {
-//	  .....
-//	  return MyDecorator{
-//	    Decorator: Decorator{next: next},
-//	    myCustomOpts: opts,
-//	    additionalSrv: srv,
-//	  }
-//	}
-//
+// func NewMyDecorator(next DecoratedService, customOpts *customOpts) DecoratedService {
+//   .....
+//   return MyDecorator{
+//     Decorator: Decorator{next: next},
+//     myCustomOpts: opts,
+//     additionalSrv: srv,
+//   }
+// }
 // ```
 type Decorator struct {
 	next DecoratedService
@@ -49,14 +47,12 @@ type Decorator struct {
 // Your custom decorator is expected to overwrite this function,
 // but it MUST call the underlying decoratedService at some point
 // ```
-//
-//	func (d MyDecorator) GetThumbnail(ctx context.Context, req *thumbnailssvc.GetThumbnailRequest, resp *thumbnailssvc.GetThumbnailResponse) error {
-//	  doSomething()
-//	  err := d.next.GetThumbnail(ctx, req, resp)
-//	  doAnotherThing()
-//	  return err
-//	}
-//
+// func (d MyDecorator) GetThumbnail(ctx context.Context, req *thumbnailssvc.GetThumbnailRequest, resp *thumbnailssvc.GetThumbnailResponse) error {
+//   doSomething()
+//   err := d.next.GetThumbnail(ctx, req, resp)
+//   doAnotherThing()
+//   return err
+// }
 // ```
 func (deco Decorator) GetThumbnail(ctx context.Context, req *thumbnailssvc.GetThumbnailRequest, resp *thumbnailssvc.GetThumbnailResponse) error {
 	return deco.next.GetThumbnail(ctx, req, resp)

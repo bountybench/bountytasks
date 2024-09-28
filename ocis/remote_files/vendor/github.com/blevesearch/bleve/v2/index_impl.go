@@ -16,11 +16,11 @@ package bleve
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -34,9 +34,7 @@ import (
 	"github.com/blevesearch/bleve/v2/search/collector"
 	"github.com/blevesearch/bleve/v2/search/facet"
 	"github.com/blevesearch/bleve/v2/search/highlight"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
-	"github.com/blevesearch/geo/s2"
 )
 
 type indexImpl struct {
@@ -120,7 +118,7 @@ func newIndexUsing(path string, mapping mapping.IndexMapping, indexType string, 
 	}(&rv)
 
 	// now persist the mapping
-	mappingBytes, err := util.MarshalJSON(mapping)
+	mappingBytes, err := json.Marshal(mapping)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +201,7 @@ func openIndexUsing(path string, runtimeConfig map[string]interface{}) (rv *inde
 	}
 
 	var im *mapping.IndexMappingImpl
-	err = util.UnmarshalJSON(mappingBytes, &im)
+	err = json.Unmarshal(mappingBytes, &im)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing mapping JSON: %v\nmapping contents:\n%s", err, string(mappingBytes))
 	}
@@ -484,18 +482,6 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	ctx = context.WithValue(ctx, search.SearchIOStatsCallbackKey,
 		search.SearchIOStatsCallbackFunc(sendBytesRead))
 
-	var bufPool *s2.GeoBufferPool
-	getBufferPool := func() *s2.GeoBufferPool {
-		if bufPool == nil {
-			bufPool = s2.NewGeoBufferPool(search.MaxGeoBufPoolSize, search.MinGeoBufPoolSize)
-		}
-
-		return bufPool
-	}
-
-	ctx = context.WithValue(ctx, search.GeoBufferPoolCallbackKey,
-		search.GeoBufferPoolCallbackFunc(getBufferPool))
-
 	searcher, err := req.Query.Searcher(ctx, indexReader, i.m, search.SearcherOptions{
 		Explain:            req.Explain,
 		IncludeTermVectors: req.IncludeLocations || req.Highlight != nil,
@@ -531,23 +517,10 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 			} else if facetRequest.DateTimeRanges != nil {
 				// build date range facet
 				facetBuilder := facet.NewDateTimeFacetBuilder(facetRequest.Field, facetRequest.Size)
+				dateTimeParser := i.m.DateTimeParserNamed("")
 				for _, dr := range facetRequest.DateTimeRanges {
-					dateTimeParserName := defaultDateTimeParser
-					if dr.DateTimeParser != "" {
-						dateTimeParserName = dr.DateTimeParser
-					}
-					dateTimeParser := i.m.DateTimeParserNamed(dateTimeParserName)
-					if dateTimeParser == nil {
-						return nil, fmt.Errorf("no date time parser named `%s` registered", dateTimeParserName)
-					}
-					start, end, startLayout, endLayout, err := dr.ParseDates(dateTimeParser)
-					if err != nil {
-						return nil, fmt.Errorf("ParseDates err: %v, using date time parser named %s", err, dateTimeParserName)
-					}
-					if start.IsZero() && end.IsZero() {
-						return nil, fmt.Errorf("date range query must specify either start, end or both for date range name '%s'", dr.Name)
-					}
-					facetBuilder.AddRange(dr.Name, start, end, startLayout, endLayout)
+					start, end := dr.ParseDates(dateTimeParser)
+					facetBuilder.AddRange(dr.Name, start, end)
 				}
 				facetsBuilder.Add(facetName, facetBuilder)
 			} else {
@@ -675,14 +648,9 @@ func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
 									value = num
 								}
 							case index.DateTimeField:
-								datetime, layout, err := docF.DateTime()
+								datetime, err := docF.DateTime()
 								if err == nil {
-									if layout == "" {
-										// layout not set probably means it was indexed as a timestamp
-										value = strconv.FormatInt(datetime.UnixNano(), 10)
-									} else {
-										value = datetime.Format(layout)
-									}
+									value = datetime.Format(time.RFC3339)
 								}
 							case index.BooleanField:
 								boolean, err := docF.Boolean()

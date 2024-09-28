@@ -51,7 +51,6 @@ type FontLoader struct {
 // Note that only the fonts described in the fontMapFile will be used.
 //
 // The fontMapFile has the following structure
-//
 //	{
 //		"fontMap": {
 //			"Han": "packaged/myFont-CJK.otf",

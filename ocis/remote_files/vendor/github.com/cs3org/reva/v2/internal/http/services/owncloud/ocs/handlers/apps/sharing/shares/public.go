@@ -19,24 +19,21 @@
 package shares
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
-	userv1beta1 "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
+	permissionsv1beta1 "github.com/cs3org/go-cs3apis/cs3/permissions/v1beta1"
 	rpc "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
 	link "github.com/cs3org/go-cs3apis/cs3/sharing/link/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	types "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
-	"github.com/cs3org/reva/v2/pkg/conversions"
-	"github.com/cs3org/reva/v2/pkg/permission"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
-	"github.com/cs3org/reva/v2/pkg/utils"
-	"github.com/huandu/xstrings"
 	"github.com/rs/zerolog/log"
 
+	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/response"
 	"github.com/cs3org/reva/v2/pkg/appctx"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
@@ -70,7 +67,15 @@ func (h *Handler) createPublicLinkShare(w http.ResponseWriter, r *http.Request, 
 
 	// NOTE: one is allowed to create an internal link without the `Publink.Write` permission
 	if permKey != nil && *permKey != 0 {
-		ok, err := utils.CheckPermission(ctx, permission.WritePublicLink, c)
+		user := ctxpkg.ContextMustGetUser(ctx)
+		resp, err := c.CheckPermission(ctx, &permissionsv1beta1.CheckPermissionRequest{
+			SubjectRef: &permissionsv1beta1.SubjectReference{
+				Spec: &permissionsv1beta1.SubjectReference_UserId{
+					UserId: user.Id,
+				},
+			},
+			Permission: "PublicLink.Write",
+		})
 		if err != nil {
 			return nil, &ocsError{
 				Code:    response.MetaServerError.StatusCode,
@@ -78,7 +83,8 @@ func (h *Handler) createPublicLinkShare(w http.ResponseWriter, r *http.Request, 
 				Error:   err,
 			}
 		}
-		if !ok {
+
+		if resp.Status.Code != rpc.Code_CODE_OK {
 			return nil, &ocsError{
 				Code:    response.MetaForbidden.StatusCode,
 				Message: "user is not allowed to create a public link",
@@ -136,21 +142,12 @@ func (h *Handler) createPublicLinkShare(w http.ResponseWriter, r *http.Request, 
 		}
 	}
 
-	password := r.FormValue("password")
+	password := strings.TrimSpace(r.FormValue("password"))
 	if h.enforcePassword(permKey) && len(password) == 0 {
 		return nil, &ocsError{
 			Code:    response.MetaBadRequest.StatusCode,
 			Message: "missing required password",
 			Error:   errors.New("missing required password"),
-		}
-	}
-	if len(password) > 0 {
-		if err := h.passwordValidator.Validate(password); err != nil {
-			return nil, &ocsError{
-				Code:    response.MetaBadRequest.StatusCode,
-				Message: xstrings.FirstRuneToUpper(err.Error()),
-				Error:   fmt.Errorf("password validation failed: %w", err),
-			}
 		}
 	}
 
@@ -160,7 +157,7 @@ func (h *Handler) createPublicLinkShare(w http.ResponseWriter, r *http.Request, 
 		p := role.OCSPermissions()
 		p &^= conversions.PermissionCreate
 		p &^= conversions.PermissionDelete
-		permissions = conversions.RoleFromOCSPermissions(p, statInfo).CS3ResourcePermissions()
+		permissions = conversions.RoleFromOCSPermissions(p).CS3ResourcePermissions()
 	}
 
 	if !sufficientPermissions(statInfo.PermissionSet, permissions, true) {
@@ -327,12 +324,20 @@ func (h *Handler) updatePublicShare(w http.ResponseWriter, r *http.Request, shar
 
 	// NOTE: you are allowed to update a link TO a public link without the `PublicLink.Write` permission if you created it yourself
 	if (permKey != nil && *permKey != 0) || !createdByUser {
-		ok, err := utils.CheckPermission(ctx, permission.WritePublicLink, gwC)
+		resp, err := gwC.CheckPermission(ctx, &permissionsv1beta1.CheckPermissionRequest{
+			SubjectRef: &permissionsv1beta1.SubjectReference{
+				Spec: &permissionsv1beta1.SubjectReference_UserId{
+					UserId: user.Id,
+				},
+			},
+			Permission: "PublicLink.Write",
+		})
 		if err != nil {
 			response.WriteOCSError(w, r, response.MetaServerError.StatusCode, "failed to check user permission", err)
 			return
 		}
-		if !ok {
+
+		if resp.Status.Code != rpc.Code_CODE_OK {
 			response.WriteOCSError(w, r, response.MetaForbidden.StatusCode, "user is not allowed to update the public link", nil)
 			return
 		}
@@ -346,7 +351,7 @@ func (h *Handler) updatePublicShare(w http.ResponseWriter, r *http.Request, shar
 			return
 		}
 
-		if sRes.Info == nil || !sRes.Info.GetPermissionSet().UpdateGrant {
+		if !sRes.Info.PermissionSet.UpdateGrant {
 			response.WriteOCSError(w, r, response.MetaUnauthorized.StatusCode, "missing permissions to update share", err)
 			return
 		}
@@ -419,15 +424,9 @@ func (h *Handler) updatePublicShare(w http.ResponseWriter, r *http.Request, shar
 	}
 
 	// empty permissions mean internal link here - NOT denial. Hence we need an extra check
-	if newPermissions != nil {
-		if !sufficientPermissions(statRes.GetInfo().GetPermissionSet(), newPermissions, true) {
-			response.WriteOCSError(w, r, http.StatusForbidden, "no share permission", nil)
-			return
-		}
-	} else {
-		statRes.GetInfo().GetPermissionSet()
-		p := decreasePermissionsIfNecessary(int(conversions.RoleFromResourcePermissions(statRes.GetInfo().GetPermissionSet(), false).OCSPermissions()))
-		permKey = &p
+	if !sufficientPermissions(statRes.GetInfo().GetPermissionSet(), newPermissions, true) {
+		response.WriteOCSError(w, r, http.StatusForbidden, "no share permission", nil)
+		return
 	}
 
 	// ExpireDate
@@ -461,27 +460,14 @@ func (h *Handler) updatePublicShare(w http.ResponseWriter, r *http.Request, shar
 	newPassword, ok := r.Form["password"]
 	// enforcePassword
 	if h.enforcePassword(permKey) {
-		p, err := conversions.NewPermissions(decreasePermissionsIfNecessary(*permKey))
-		if err != nil {
-			response.WriteOCSError(w, r, response.MetaServerError.StatusCode, "failed to check permissions from request", err)
+		if (!ok && !share.PasswordProtected) || (ok && len(strings.TrimSpace(newPassword[0])) == 0) {
+			response.WriteOCSError(w, r, response.MetaBadRequest.StatusCode, "missing required password", err)
 			return
-		}
-		if !ok && !share.PasswordProtected || ok && len(newPassword[0]) == 0 {
-			if h.checkPasswordEnforcement(ctx, user, p, w, r) != nil {
-				return
-			}
 		}
 	}
 
 	// update or clear password
 	if ok {
-		// skip validation if the clear password scenario
-		if len(newPassword[0]) > 0 {
-			if err := h.passwordValidator.Validate(newPassword[0]); err != nil {
-				response.WriteOCSError(w, r, response.MetaBadRequest.StatusCode, xstrings.FirstRuneToUpper(err.Error()), err)
-				return
-			}
-		}
 		updatesFound = true
 		logger.Info().Str("shares", "update").Msg("password updated")
 		updates = append(updates, &link.UpdatePublicShareRequest_Update{
@@ -642,7 +628,7 @@ func ocPublicPermToCs3(pk *int) (*provider.ResourcePermissions, error) {
 		return nil, err
 	}
 
-	return conversions.RoleFromOCSPermissions(perm, nil).CS3ResourcePermissions(), nil
+	return conversions.RoleFromOCSPermissions(perm).CS3ResourcePermissions(), nil
 }
 
 // pointer will be nil if no permission is set
@@ -683,33 +669,6 @@ func permKeyFromRequest(r *http.Request, h *Handler) (*int, error) {
 	}
 
 	return &permKey, nil
-}
-
-// checkPasswordEnforcement checks if the password needs to be set for a link
-// some users can opt out of the enforcement based on a user permission
-func (h *Handler) checkPasswordEnforcement(ctx context.Context, user *userv1beta1.User, perm conversions.Permissions, w http.ResponseWriter, r *http.Request) error {
-	// Non-read-only links
-	if perm != conversions.PermissionRead {
-		response.WriteOCSError(w, r, response.MetaBadRequest.StatusCode, "missing required password", nil)
-		return errors.New("missing required password")
-	}
-	// Check if the user is allowed to opt out of the password enforcement
-	// for read-only links
-	gwC, err := h.getClient()
-	if err != nil {
-		response.WriteOCSError(w, r, response.MetaServerError.StatusCode, "could not check permission", err)
-		return errors.New("could not check permission")
-	}
-	ok, err := utils.CheckPermission(ctx, permission.DeleteReadOnlyPassword, gwC)
-	if err != nil {
-		response.WriteOCSError(w, r, response.MetaServerError.StatusCode, "failed to check user permission", err)
-		return errors.New("failed to check user permission")
-	}
-	if !ok {
-		response.WriteOCSError(w, r, response.MetaForbidden.StatusCode, "user is not allowed to delete the password from the public link", nil)
-		return errors.New("user is not allowed to delete the password from the public link")
-	}
-	return nil
 }
 
 // TODO: add mapping for user share permissions to role

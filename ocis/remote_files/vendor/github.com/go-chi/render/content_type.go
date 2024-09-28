@@ -15,7 +15,7 @@ type ContentType int
 
 // ContentTypes handled by this package.
 const (
-	ContentTypeUnknown ContentType = iota
+	ContentTypeUnknown = iota
 	ContentTypePlainText
 	ContentTypeHTML
 	ContentTypeJSON

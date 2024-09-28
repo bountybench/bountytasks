@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: get the pending shares filtered by type (user, group etc)
   As a user
   I want to filter the pending shares that I have received of a particular type (user, group etc)
@@ -10,7 +9,6 @@ Feature: get the pending shares filtered by type (user, group etc)
       | Alice    |
       | Brian    |
     And group "grp1" has been created
-    And user "Brian" has disabled auto-accepting
     And user "Brian" has been added to group "grp1"
     And user "Alice" has created folder "/folderToShareWithUser"
     And user "Alice" has created folder "/folderToShareWithGroup"
@@ -23,7 +21,6 @@ Feature: get the pending shares filtered by type (user, group etc)
     And user "Alice" has created a public link share with settings
       | path        | /folderToShareWithPublic |
       | permissions | read                     |
-      | password    | %public%                 |
     And user "Alice" has shared file "/fileToShareWithUser.txt" with user "Brian"
     And user "Brian" has accepted share "/fileToShareWithUser.txt" offered by user "Alice"
     And user "Alice" has shared file "/fileToShareWithGroup.txt" with group "grp1"
@@ -31,7 +28,6 @@ Feature: get the pending shares filtered by type (user, group etc)
     And user "Alice" has created a public link share with settings
       | path        | /fileToShareWithPublic.txt |
       | permissions | read                       |
-      | password    | %public%                   |
 
 
   Scenario Outline: getting pending shares received from users

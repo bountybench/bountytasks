@@ -106,7 +106,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 	if !claims.VerifyIssuer(c.Issuer, true) {
 		return nil, fmt.Errorf("expected issuer %q, got %q", c.Issuer, claims.Issuer)
 	}
-	if !claims.SAMLSession {
+	if claims.SAMLSession != true {
 		return nil, errors.New("expected saml-session")
 	}
 	return claims, nil

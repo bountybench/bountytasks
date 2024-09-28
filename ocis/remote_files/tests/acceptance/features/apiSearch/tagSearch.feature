@@ -126,6 +126,7 @@ Feature: tag search
     And user "Alice" has created the following tags for file "uploadFolder/file1.txt" of the space "Personal":
       | tag1 |
     And user "Alice" has shared folder "/uploadFolder" with user "Brian"
+    And user "Brian" has accepted share "/uploadFolder" offered by user "Alice"
     And user "Brian" has created the following tags for file "uploadFolder/file2.txt" of the space "Shares":
       | tag1 |
     When user "Brian" searches for "Tags:tag1" using the WebDAV API
@@ -234,41 +235,23 @@ Feature: tag search
       | new              |
       | spaces           |
 
-
-  Scenario Outline: search resources using different search patterns (KQL feature)
-    Given using spaces DAV path
-    And user "Alice" has created the following folders
-      | path              |
-      | exercises         |
-      | answers           |
-      | verification work |
-      | withoutTagFolder  |
-    And user "Alice" has tagged the following folders of the space "Personal":
-      | path              | tagName |
-      | exercises         | klass10 |
-      | exercises         | mathe   |
-      | exercises         | physik  |
-      | answers           | klass10 |
-      | answers           | mathe   |
-      | answers           | chemi   |
-      | verification work | klass10 |
-    When user "Alice" searches for '<pattern>' using the WebDAV API
+  @skipOnStable3.0
+  Scenario Outline: search files inside the folder
+    Given using <dav-path-version> DAV path
+    And user "Alice" has uploaded file with content "hello world inside root" to "file1.txt"
+    And user "Alice" has created folder "/Folder"
+    And user "Alice" has uploaded file with content "hello world inside folder" to "/Folder/file2.txt"
+    And user "Alice" has created folder "/Folder/SubFolder"
+    And user "Alice" has uploaded file with content "hello world inside sub-folder" to "/Folder/SubFolder/file3.txt"
+    When user "Alice" searches for "file" inside folder "/Folder" using the WebDAV API
     Then the HTTP status code should be "207"
-    And the search result should contain "<result-count>" entries
-    And the search result of user "Alice" should contain these entries:
-      | <search-result-1> |
-      | <search-result-2> |
+    And the search result of user "Alice" should contain only these entries:
+      | /Folder/file2.txt           |
+      | /Folder/SubFolder/file3.txt |
+    But the search result of user "Alice" should not contain these entries:
+      | file1.txt |
     Examples:
-      | pattern                                   | result-count | search-result-1    | search-result-2    |
-      | Tags:mathe                                | 2            | /exercises         | /answers           |
-      | tag:mathe                                 | 2            | /exercises         | /answers           |
-      | tag:(mathe klass10)                       | 2            | /exercises         | /answers           |
-      | tag:klass10  AND tag:chemi                | 1            | /answers           |                    |
-      | tag:chemi OR tag:physik                   | 2            | /exercises         | /answers           |
-      | (tag:klass10) NOT tag:physik              | 2            | /answers           | verification work  |
-      | (tag:(mathe klass10)) NOT tag:chemi       | 1            | /exercises         |                    |
-      | (tag:mathe OR tag:klass10) NOT tag:physik | 2            | /answers           | /verification work |
-      | tag:mathe NOT name:exercises              | 1            | /answers           |                    |
-      | tag:mathe AND NOT name:exercises          | 1            | /answers           |                    |
-      # The third finding is the personal space itself
-      | NOT tag:mathe                             | 3            | /verification work | /withoutTagFolder  |
+      | dav-path-version |
+      | old              |
+      | new              |
+      | spaces           |

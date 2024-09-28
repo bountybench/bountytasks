@@ -21,7 +21,6 @@ var Clock *dsig.Clock
 // rand.Reader, but it can be replaced for testing.
 var RandReader = rand.Reader
 
-//nolint:unparam // This always receives 20, but we want the option to do more or less if needed.
 func randomBytes(n int) []byte {
 	rv := make([]byte, n)
 

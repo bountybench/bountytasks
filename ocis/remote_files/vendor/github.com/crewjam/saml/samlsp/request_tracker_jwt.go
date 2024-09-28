@@ -25,7 +25,7 @@ var _ TrackedRequestCodec = JWTTrackedRequestCodec{}
 
 // JWTTrackedRequestClaims represents the JWT claims for a tracked request.
 type JWTTrackedRequestClaims struct {
-	jwt.RegisteredClaims
+	jwt.StandardClaims
 	TrackedRequest
 	SAMLAuthnRequest bool `json:"saml-authn-request"`
 }
@@ -34,12 +34,12 @@ type JWTTrackedRequestClaims struct {
 func (s JWTTrackedRequestCodec) Encode(value TrackedRequest) (string, error) {
 	now := saml.TimeNow()
 	claims := JWTTrackedRequestClaims{
-		RegisteredClaims: jwt.RegisteredClaims{
-			Audience:  jwt.ClaimStrings{s.Audience},
-			ExpiresAt: jwt.NewNumericDate(now.Add(s.MaxAge)),
-			IssuedAt:  jwt.NewNumericDate(now),
+		StandardClaims: jwt.StandardClaims{
+			Audience:  s.Audience,
+			ExpiresAt: now.Add(s.MaxAge).Unix(),
+			IssuedAt:  now.Unix(),
 			Issuer:    s.Issuer,
-			NotBefore: jwt.NewNumericDate(now), // TODO(ross): correct for clock skew
+			NotBefore: now.Unix(), // TODO(ross): correct for clock skew
 			Subject:   value.Index,
 		},
 		TrackedRequest:   value,
@@ -67,7 +67,7 @@ func (s JWTTrackedRequestCodec) Decode(signed string) (*TrackedRequest, error) {
 	if !claims.VerifyIssuer(s.Issuer, true) {
 		return nil, fmt.Errorf("expected issuer %q, got %q", s.Issuer, claims.Issuer)
 	}
-	if !claims.SAMLAuthnRequest {
+	if claims.SAMLAuthnRequest != true {
 		return nil, fmt.Errorf("expected saml-authn-request")
 	}
 	claims.TrackedRequest.Index = claims.Subject

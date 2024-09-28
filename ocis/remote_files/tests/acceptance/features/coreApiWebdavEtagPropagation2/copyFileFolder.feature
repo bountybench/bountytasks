@@ -120,10 +120,9 @@ Feature: propagation of etags when copying files or folders
       | dav-path-version |
       | spaces           |
 
-  @env-config @issue-4251
+  @issue-4251
   Scenario Outline: copying a file inside a publicly shared folder by public changes etag for the sharer
-    Given the config "OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD" has been set to "false"
-    And using <dav-path-version> DAV path
+    Given using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload"
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has created a public link share with settings
@@ -154,13 +153,14 @@ Feature: propagation of etags when copying files or folders
       | dav-path-version |
       | spaces           |
 
-  @skipOnReva
+
   Scenario Outline: sharee copying a file inside a folder changes its etag for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload"
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/file.txt"
@@ -190,13 +190,14 @@ Feature: propagation of etags when copying files or folders
       | old              |
       | new              |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharer copying a file inside a folder changes its etag for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload"
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/file.txt"

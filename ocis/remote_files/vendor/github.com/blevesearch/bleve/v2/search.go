@@ -29,65 +29,63 @@ import (
 	"github.com/blevesearch/bleve/v2/search/collector"
 	"github.com/blevesearch/bleve/v2/search/query"
 	"github.com/blevesearch/bleve/v2/size"
-	"github.com/blevesearch/bleve/v2/util"
 )
 
-const defaultDateTimeParser = optional.Name
+var reflectStaticSizeSearchResult int
+var reflectStaticSizeSearchStatus int
+
+func init() {
+	var sr SearchResult
+	reflectStaticSizeSearchResult = int(reflect.TypeOf(sr).Size())
+	var ss SearchStatus
+	reflectStaticSizeSearchStatus = int(reflect.TypeOf(ss).Size())
+}
 
 var cache = registry.NewCache()
 
-var (
-	reflectStaticSizeSearchResult int
-	reflectStaticSizeSearchStatus int
-)
+const defaultDateTimeParser = optional.Name
 
-func init() {
-	reflectStaticSizeSearchResult = int(reflect.TypeOf(SearchResult{}).Size())
-	reflectStaticSizeSearchStatus = int(reflect.TypeOf(SearchStatus{}).Size())
+type numericRange struct {
+	Name string   `json:"name,omitempty"`
+	Min  *float64 `json:"min,omitempty"`
+	Max  *float64 `json:"max,omitempty"`
 }
 
 type dateTimeRange struct {
-	Name           string    `json:"name,omitempty"`
-	Start          time.Time `json:"start,omitempty"`
-	End            time.Time `json:"end,omitempty"`
-	DateTimeParser string    `json:"datetime_parser,omitempty"`
-	startString    *string
-	endString      *string
+	Name        string    `json:"name,omitempty"`
+	Start       time.Time `json:"start,omitempty"`
+	End         time.Time `json:"end,omitempty"`
+	startString *string
+	endString   *string
 }
 
-func (dr *dateTimeRange) ParseDates(dateTimeParser analysis.DateTimeParser) (start, end time.Time, startLayout, endLayout string, err error) {
+func (dr *dateTimeRange) ParseDates(dateTimeParser analysis.DateTimeParser) (start, end time.Time) {
 	start = dr.Start
-	startLayout = time.RFC3339Nano
 	if dr.Start.IsZero() && dr.startString != nil {
-		s, layout, parseError := dateTimeParser.ParseDateTime(*dr.startString)
-		if parseError != nil {
-			return start, end, startLayout, endLayout, fmt.Errorf("error parsing start date '%s' for date range name '%s': %v", *dr.startString, dr.Name, parseError)
+		s, err := dateTimeParser.ParseDateTime(*dr.startString)
+		if err == nil {
+			start = s
 		}
-		start = s
-		startLayout = layout
 	}
 	end = dr.End
-	endLayout = time.RFC3339Nano
 	if dr.End.IsZero() && dr.endString != nil {
-		e, layout, parseError := dateTimeParser.ParseDateTime(*dr.endString)
-		if parseError != nil {
-			return start, end, startLayout, endLayout, fmt.Errorf("error parsing end date '%s' for date range name '%s': %v", *dr.endString, dr.Name, parseError)
+		e, err := dateTimeParser.ParseDateTime(*dr.endString)
+		if err == nil {
+			end = e
 		}
-		end = e
-		endLayout = layout
 	}
-	return start, end, startLayout, endLayout, err
+	return start, end
 }
 
 func (dr *dateTimeRange) UnmarshalJSON(input []byte) error {
 	var temp struct {
-		Name           string  `json:"name,omitempty"`
-		Start          *string `json:"start,omitempty"`
-		End            *string `json:"end,omitempty"`
-		DateTimeParser string  `json:"datetime_parser,omitempty"`
+		Name  string  `json:"name,omitempty"`
+		Start *string `json:"start,omitempty"`
+		End   *string `json:"end,omitempty"`
 	}
 
-	if err := util.UnmarshalJSON(input, &temp); err != nil {
+	err := json.Unmarshal(input, &temp)
+	if err != nil {
 		return err
 	}
 
@@ -98,40 +96,23 @@ func (dr *dateTimeRange) UnmarshalJSON(input []byte) error {
 	if temp.End != nil {
 		dr.endString = temp.End
 	}
-	if temp.DateTimeParser != "" {
-		dr.DateTimeParser = temp.DateTimeParser
-	}
 
 	return nil
 }
 
 func (dr *dateTimeRange) MarshalJSON() ([]byte, error) {
 	rv := map[string]interface{}{
-		"name": dr.Name,
+		"name":  dr.Name,
+		"start": dr.Start,
+		"end":   dr.End,
 	}
-
-	if !dr.Start.IsZero() {
-		rv["start"] = dr.Start
-	} else if dr.startString != nil {
+	if dr.Start.IsZero() && dr.startString != nil {
 		rv["start"] = dr.startString
 	}
-
-	if !dr.End.IsZero() {
-		rv["end"] = dr.End
-	} else if dr.endString != nil {
+	if dr.End.IsZero() && dr.endString != nil {
 		rv["end"] = dr.endString
 	}
-
-	if dr.DateTimeParser != "" {
-		rv["datetime_parser"] = dr.DateTimeParser
-	}
-	return util.MarshalJSON(rv)
-}
-
-type numericRange struct {
-	Name string   `json:"name,omitempty"`
-	Min  *float64 `json:"min,omitempty"`
-	Max  *float64 `json:"max,omitempty"`
+	return json.Marshal(rv)
 }
 
 // A FacetRequest describes a facet or aggregation
@@ -144,21 +125,11 @@ type FacetRequest struct {
 	DateTimeRanges []*dateTimeRange `json:"date_ranges,omitempty"`
 }
 
-// NewFacetRequest creates a facet on the specified
-// field that limits the number of entries to the
-// specified size.
-func NewFacetRequest(field string, size int) *FacetRequest {
-	return &FacetRequest{
-		Field: field,
-		Size:  size,
-	}
-}
-
 func (fr *FacetRequest) Validate() error {
 	nrCount := len(fr.NumericRanges)
 	drCount := len(fr.DateTimeRanges)
 	if nrCount > 0 && drCount > 0 {
-		return fmt.Errorf("facet can only contain numeric ranges or date ranges, not both")
+		return fmt.Errorf("facet can only conain numeric ranges or date ranges, not both")
 	}
 
 	if nrCount > 0 {
@@ -184,21 +155,23 @@ func (fr *FacetRequest) Validate() error {
 				return fmt.Errorf("date ranges contains duplicate name '%s'", dr.Name)
 			}
 			drNames[dr.Name] = struct{}{}
-			if dr.DateTimeParser == "" {
-				// cannot parse the date range dates as the defaultDateTimeParser is overridden
-				// so perform this validation at query time
-				start, end, _, _, err := dr.ParseDates(dateTimeParser)
-				if err != nil {
-					return fmt.Errorf("ParseDates err: %v, using date time parser named %s", err, defaultDateTimeParser)
-				}
-				if start.IsZero() && end.IsZero() {
-					return fmt.Errorf("date range query must specify either start, end or both for range name '%s'", dr.Name)
-				}
+			start, end := dr.ParseDates(dateTimeParser)
+			if start.IsZero() && end.IsZero() {
+				return fmt.Errorf("date range query must specify either start, end or both for range name '%s'", dr.Name)
 			}
 		}
 	}
-
 	return nil
+}
+
+// NewFacetRequest creates a facet on the specified
+// field that limits the number of entries to the
+// specified size.
+func NewFacetRequest(field string, size int) *FacetRequest {
+	return &FacetRequest{
+		Field: field,
+		Size:  size,
+	}
 }
 
 // AddDateTimeRange adds a bucket to a field
@@ -213,24 +186,13 @@ func (fr *FacetRequest) AddDateTimeRange(name string, start, end time.Time) {
 }
 
 // AddDateTimeRangeString adds a bucket to a field
-// containing date values. Uses defaultDateTimeParser to parse the date strings.
+// containing date values.
 func (fr *FacetRequest) AddDateTimeRangeString(name string, start, end *string) {
 	if fr.DateTimeRanges == nil {
 		fr.DateTimeRanges = make([]*dateTimeRange, 0, 1)
 	}
 	fr.DateTimeRanges = append(fr.DateTimeRanges,
 		&dateTimeRange{Name: name, startString: start, endString: end})
-}
-
-// AddDateTimeRangeString adds a bucket to a field
-// containing date values. Uses the specified parser to parse the date strings.
-// provided the parser is registered in the index mapping.
-func (fr *FacetRequest) AddDateTimeRangeStringWithParser(name string, start, end *string, parser string) {
-	if fr.DateTimeRanges == nil {
-		fr.DateTimeRanges = make([]*dateTimeRange, 0, 1)
-	}
-	fr.DateTimeRanges = append(fr.DateTimeRanges,
-		&dateTimeRange{Name: name, startString: start, endString: end, DateTimeParser: parser})
 }
 
 // AddNumericRange adds a bucket to a field
@@ -250,7 +212,8 @@ type FacetsRequest map[string]*FacetRequest
 
 func (fr FacetsRequest) Validate() error {
 	for _, v := range fr {
-		if err := v.Validate(); err != nil {
+		err := v.Validate()
+		if err != nil {
 			return err
 		}
 	}
@@ -306,7 +269,6 @@ func (h *HighlightRequest) AddField(field string) {
 //
 // A special field named "*" can be used to return all fields.
 type SearchRequest struct {
-	ClientContextID  string            `json:"client_context_id,omitempty"`
 	Query            query.Query       `json:"query"`
 	Size             int               `json:"size"`
 	From             int               `json:"from"`
@@ -323,13 +285,10 @@ type SearchRequest struct {
 	sortFunc func(sort.Interface)
 }
 
-func (r *SearchRequest) SetClientContextID(id string) {
-	r.ClientContextID = id
-}
-
 func (r *SearchRequest) Validate() error {
 	if srq, ok := r.Query.(query.ValidatableQuery); ok {
-		if err := srq.Validate(); err != nil {
+		err := srq.Validate()
+		if err != nil {
 			return err
 		}
 	}
@@ -396,26 +355,23 @@ func (r *SearchRequest) SetSearchBefore(before []string) {
 // UnmarshalJSON deserializes a JSON representation of
 // a SearchRequest
 func (r *SearchRequest) UnmarshalJSON(input []byte) error {
-	var (
-		temp struct {
-			ClientContextID  string            `json:"client_context_id"`
-			Q                json.RawMessage   `json:"query"`
-			Size             *int              `json:"size"`
-			From             int               `json:"from"`
-			Highlight        *HighlightRequest `json:"highlight"`
-			Fields           []string          `json:"fields"`
-			Facets           FacetsRequest     `json:"facets"`
-			Explain          bool              `json:"explain"`
-			Sort             []json.RawMessage `json:"sort"`
-			IncludeLocations bool              `json:"includeLocations"`
-			Score            string            `json:"score"`
-			SearchAfter      []string          `json:"search_after"`
-			SearchBefore     []string          `json:"search_before"`
-		}
-		err error
-	)
+	var temp struct {
+		Q                json.RawMessage   `json:"query"`
+		Size             *int              `json:"size"`
+		From             int               `json:"from"`
+		Highlight        *HighlightRequest `json:"highlight"`
+		Fields           []string          `json:"fields"`
+		Facets           FacetsRequest     `json:"facets"`
+		Explain          bool              `json:"explain"`
+		Sort             []json.RawMessage `json:"sort"`
+		IncludeLocations bool              `json:"includeLocations"`
+		Score            string            `json:"score"`
+		SearchAfter      []string          `json:"search_after"`
+		SearchBefore     []string          `json:"search_before"`
+	}
 
-	if err = util.UnmarshalJSON(input, &temp); err != nil {
+	err := json.Unmarshal(input, &temp)
+	if err != nil {
 		return err
 	}
 
@@ -427,11 +383,11 @@ func (r *SearchRequest) UnmarshalJSON(input []byte) error {
 	if temp.Sort == nil {
 		r.Sort = search.SortOrder{&search.SortScore{Desc: true}}
 	} else {
-		if r.Sort, err = search.ParseSortOrderJSON(temp.Sort); err != nil {
+		r.Sort, err = search.ParseSortOrderJSON(temp.Sort)
+		if err != nil {
 			return err
 		}
 	}
-	r.ClientContextID = temp.ClientContextID
 	r.From = temp.From
 	r.Explain = temp.Explain
 	r.Highlight = temp.Highlight
@@ -441,7 +397,8 @@ func (r *SearchRequest) UnmarshalJSON(input []byte) error {
 	r.Score = temp.Score
 	r.SearchAfter = temp.SearchAfter
 	r.SearchBefore = temp.SearchBefore
-	if r.Query, err = query.ParseQuery(temp.Q); err != nil {
+	r.Query, err = query.ParseQuery(temp.Q)
+	if err != nil {
 		return err
 	}
 
@@ -486,12 +443,13 @@ func (iem IndexErrMap) MarshalJSON() ([]byte, error) {
 	for k, v := range iem {
 		tmp[k] = v.Error()
 	}
-	return util.MarshalJSON(tmp)
+	return json.Marshal(tmp)
 }
 
 func (iem IndexErrMap) UnmarshalJSON(data []byte) error {
 	var tmp map[string]string
-	if err := util.UnmarshalJSON(data, &tmp); err != nil {
+	err := json.Unmarshal(data, &tmp)
+	if err != nil {
 		return err
 	}
 	for k, v := range tmp {

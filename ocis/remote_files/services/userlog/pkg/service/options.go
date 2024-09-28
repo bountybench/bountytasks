@@ -10,7 +10,6 @@ import (
 	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
 	"github.com/owncloud/ocis/v2/services/userlog/pkg/config"
 	"go-micro.dev/v4/store"
-	"go.opentelemetry.io/otel/trace"
 )
 
 // Option for the userlog service
@@ -19,7 +18,7 @@ type Option func(*Options)
 // Options for the userlog service
 type Options struct {
 	Logger           log.Logger
-	Stream           events.Stream
+	Consumer         events.Consumer
 	Mux              *chi.Mux
 	Store            store.Store
 	Config           *config.Config
@@ -28,7 +27,6 @@ type Options struct {
 	ValueClient      settingssvc.ValueService
 	RoleClient       settingssvc.RoleService
 	RegisteredEvents []events.Unmarshaller
-	TraceProvider    trace.TracerProvider
 }
 
 // Logger configures a logger for the userlog service
@@ -38,10 +36,10 @@ func Logger(log log.Logger) Option {
 	}
 }
 
-// Stream configures an event stream for the userlog service
-func Stream(s events.Stream) Option {
+// Consumer configures an event consumer for the userlog service
+func Consumer(c events.Consumer) Option {
 	return func(o *Options) {
-		o.Stream = s
+		o.Consumer = c
 	}
 }
 
@@ -98,12 +96,5 @@ func ValueClient(vs settingssvc.ValueService) Option {
 func RoleClient(rs settingssvc.RoleService) Option {
 	return func(o *Options) {
 		o.RoleClient = rs
-	}
-}
-
-// TraceProvider adds a tracer provider for the userlog service
-func TraceProvider(tp trace.TracerProvider) Option {
-	return func(o *Options) {
-		o.TraceProvider = tp
 	}
 }

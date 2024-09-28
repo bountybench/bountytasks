@@ -14,7 +14,7 @@ func DiscardReader(src io.Reader) {
 	_, _ = io.Copy(io.Discard, src)
 }
 
-// ReadString read contents from io.Reader, return empty string on error
+// ReadString read contents from io.Reader
 func ReadString(r io.Reader) string {
 	bs, err := io.ReadAll(r)
 	if err != nil {
@@ -61,28 +61,28 @@ func NewScanner(in any) *bufio.Scanner {
 	}
 }
 
-// WriteByte to stdout, will ignore error
+// WriteByte to stdout
 func WriteByte(b byte) {
 	_, _ = os.Stdout.Write([]byte{b})
 }
 
-// WriteBytes to stdout, will ignore error
+// WriteBytes to stdout
 func WriteBytes(bs []byte) {
 	_, _ = os.Stdout.Write(bs)
 }
 
-// WritelnBytes to stdout, will ignore error
+// WritelnBytes to stdout
 func WritelnBytes(bs []byte) {
 	_, _ = os.Stdout.Write(bs)
 	_, _ = os.Stdout.Write([]byte("\n"))
 }
 
-// WriteString to stdout, will ignore error
+// WriteString to stdout
 func WriteString(s string) {
 	_, _ = os.Stdout.WriteString(s)
 }
 
-// Writeln string to stdout, will ignore error
+// Writeln to stdout
 func Writeln(s string) {
 	_, _ = os.Stdout.WriteString(s)
 	_, _ = os.Stdout.Write([]byte("\n"))

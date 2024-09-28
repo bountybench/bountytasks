@@ -22,7 +22,6 @@ import (
 	"github.com/blevesearch/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/geo/geojson"
-	"github.com/blevesearch/geo/s2"
 )
 
 func NewGeoShapeSearcher(ctx context.Context, indexReader index.IndexReader, shape index.GeoJSON,
@@ -71,12 +70,6 @@ func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueRea
 	var dvShapeValue []byte
 	var startReading, finishReading bool
 	var reader *bytes.Reader
-
-	var bufPool *s2.GeoBufferPool
-	if ctx != nil {
-		bufPool = ctx.Value(search.GeoBufferPoolCallbackKey).(search.GeoBufferPoolCallbackFunc)()
-	}
-
 	return func(d *search.DocumentMatch) bool {
 		var found bool
 
@@ -111,7 +104,7 @@ func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueRea
 					// apply the filter once the entire docvalue is finished reading.
 					if finishReading {
 						v, err := geojson.FilterGeoShapesOnRelation(shape,
-							dvShapeValue, relation, &reader, bufPool)
+							dvShapeValue, relation, &reader)
 						if err == nil && v {
 							found = true
 						}

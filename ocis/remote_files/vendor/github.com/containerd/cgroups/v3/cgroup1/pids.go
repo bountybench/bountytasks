@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	v1 "github.com/containerd/cgroups/v3/cgroup1/stats"
 	specs "github.com/opencontainers/runtime-spec/specs-go"
@@ -66,9 +67,15 @@ func (p *pidsController) Stat(path string, stats *v1.Metrics) error {
 	if err != nil {
 		return err
 	}
-	max, err := readUint(filepath.Join(p.Path(path), "pids.max"))
+	var max uint64
+	maxData, err := os.ReadFile(filepath.Join(p.Path(path), "pids.max"))
 	if err != nil {
 		return err
+	}
+	if maxS := strings.TrimSpace(string(maxData)); maxS != "max" {
+		if max, err = parseUint(maxS, 10, 64); err != nil {
+			return err
+		}
 	}
 	stats.Pids = &v1.PidsStat{
 		Current: current,

@@ -35,11 +35,11 @@ $(BUILDIFIER): $(BINGO_DIR)/buildifier.mod
 	@echo "(re)installing $(GOBIN)/buildifier-v0.0.0-20220323134444-a9f46b2bb3de"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=buildifier.mod -o=$(GOBIN)/buildifier-v0.0.0-20220323134444-a9f46b2bb3de "github.com/bazelbuild/buildtools/buildifier"
 
-CALENS := $(GOBIN)/calens-v0.4.0
+CALENS := $(GOBIN)/calens-v0.2.0
 $(CALENS): $(BINGO_DIR)/calens.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/calens-v0.4.0"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=calens.mod -o=$(GOBIN)/calens-v0.4.0 "github.com/restic/calens"
+	@echo "(re)installing $(GOBIN)/calens-v0.2.0"
+	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=calens.mod -o=$(GOBIN)/calens-v0.2.0 "github.com/restic/calens"
 
 GO_LICENSES := $(GOBIN)/go-licenses-v1.5.0
 $(GO_LICENSES): $(BINGO_DIR)/go-licenses.mod
@@ -70,12 +70,6 @@ $(MUTAGEN): $(BINGO_DIR)/mutagen.mod
 	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
 	@echo "(re)installing $(GOBIN)/mutagen-v0.13.1"
 	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=mutagen.mod -o=$(GOBIN)/mutagen-v0.13.1 "github.com/mutagen-io/mutagen/cmd/mutagen"
-
-PIGEON := $(GOBIN)/pigeon-v1.1.1-0.20230620190048-b0211796baa8
-$(PIGEON): $(BINGO_DIR)/pigeon.mod
-	@# Install binary/ries using Go 1.14+ build command. This is using bwplotka/bingo-controlled, separate go module with pinned dependencies.
-	@echo "(re)installing $(GOBIN)/pigeon-v1.1.1-0.20230620190048-b0211796baa8"
-	@cd $(BINGO_DIR) && GOWORK=off $(GO) build -mod=mod -modfile=pigeon.mod -o=$(GOBIN)/pigeon-v1.1.1-0.20230620190048-b0211796baa8 "github.com/mna/pigeon"
 
 PROTOC_GEN_DOC := $(GOBIN)/protoc-gen-doc-v1.5.1
 $(PROTOC_GEN_DOC): $(BINGO_DIR)/protoc-gen-doc.mod

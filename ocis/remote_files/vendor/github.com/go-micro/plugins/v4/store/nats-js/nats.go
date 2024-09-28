@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cornelk/hashmap"
 	"github.com/nats-io/nats.go"
 	"github.com/pkg/errors"
 	"go-micro.dev/v4/store"
@@ -35,14 +34,14 @@ type natsStore struct {
 
 	conn    *nats.Conn
 	js      nats.JetStreamContext
-	buckets *hashmap.Map[string, nats.ObjectStore]
+	buckets map[string]nats.ObjectStore
 }
 
 func init() {
 	cmd.DefaultStores["natsjs"] = NewStore
 }
 
-// NewStore will create a new NATS JetStream Object Store.
+// NewStore will create a new NATS JetStream Object Store
 func NewStore(opts ...store.Option) store.Store {
 	options := store.Options{
 		Nodes:    []string{},
@@ -56,7 +55,7 @@ func NewStore(opts ...store.Option) store.Store {
 		opts:            options,
 		jsopts:          []nats.JSOpt{},
 		objStoreConfigs: []*nats.ObjectStoreConfig{},
-		buckets:         hashmap.New[string, nats.ObjectStore](),
+		buckets:         map[string]nats.ObjectStore{},
 		storageType:     nats.FileStorage,
 	}
 
@@ -65,9 +64,7 @@ func NewStore(opts ...store.Option) store.Store {
 	return n
 }
 
-// Init initializes the store. It must perform any required setup on the
-// backing storage implementation and check that it is ready for use,
-// returning any errors.
+// Init initialises the store. It must perform any required setup on the backing storage implementation and check that it is ready for use, returning any errors.
 func (n *natsStore) Init(opts ...store.Option) error {
 	n.setOption(opts...)
 
@@ -104,7 +101,7 @@ func (n *natsStore) Init(opts ...store.Option) error {
 		if err != nil {
 			return errors.Wrapf(err, "Failed to create bucket (%s)", cfg.Bucket)
 		}
-		n.buckets.Set(cfg.Bucket, store)
+		n.buckets[cfg.Bucket] = store
 	}
 
 	return nil
@@ -162,8 +159,10 @@ func (n *natsStore) Options() store.Options {
 
 // Read takes a single key name and optional ReadOptions. It returns matching []*Record or an error.
 func (n *natsStore) Read(key string, opts ...store.ReadOption) ([]*store.Record, error) {
-	if err := n.initConn(); err != nil {
-		return nil, err
+	if n.conn == nil {
+		if err := n.Init(); err != nil {
+			return nil, err
+		}
 	}
 
 	opt := store.ReadOptions{}
@@ -179,67 +178,49 @@ func (n *natsStore) Read(key string, opts ...store.ReadOption) ([]*store.Record,
 		opt.Table = n.opts.Table
 	}
 
-	bucket, ok := n.buckets.Get(opt.Database)
+	bucket, ok := n.buckets[opt.Database]
 	if !ok {
 		return nil, ErrBucketNotFound
 	}
 
 	var keys []string
-
-	var keyPrefix, keySuffix string
-
-	switch {
-	case opt.Prefix:
-		keyPrefix = getKey(key, opt.Table)
-	case opt.Suffix:
-		keySuffix = key
-	default:
-		keys = []string{getKey(key, opt.Table)}
+	objects, err := bucket.List()
+	if err == nats.ErrNoObjectsFound {
+		return []*store.Record{}, nil
+	} else if err != nil {
+		return nil, errors.Wrap(err, "Failed to list objects")
 	}
 
-	if len(keys) == 0 {
-		objects, err := bucket.List()
-		if err == nats.ErrNoObjectsFound {
-			return []*store.Record{}, nil
-		} else if err != nil {
-			return nil, errors.Wrap(err, "Failed to list objects")
+	for _, obj := range objects {
+		name := obj.Name
+		if (!opt.Prefix && !opt.Suffix) && getKey(key, opt.Table) != name {
+			continue
+		}
+		if opt.Prefix && !strings.HasPrefix(name, getKey(key, opt.Table)) {
+			continue
 		}
 
-		for _, obj := range objects {
-			name := obj.Name
-			if !strings.HasPrefix(name, opt.Table) {
-				continue
-			}
-			if (!opt.Prefix && !opt.Suffix) && key != name {
-				continue
-			}
-			if opt.Prefix && !strings.HasPrefix(name, keyPrefix) {
-				continue
-			}
-			if opt.Suffix && !strings.HasSuffix(name, keySuffix) {
-				continue
-			}
-			keys = append(keys, name)
+		if opt.Suffix && !strings.HasSuffix(name, key) {
+			continue
 		}
+		keys = append(keys, name)
 	}
 
 	records := []*store.Record{}
 	for _, key := range keys {
 		obj, err := bucket.Get(key)
-		if err == nats.ErrObjectNotFound {
-			return []*store.Record{}, nil
-		} else if err != nil {
+		if err != nil {
 			return nil, errors.Wrap(err, "Failed to get object from bucket")
 		}
-		defer obj.Close()
+
+		b, err := io.ReadAll(obj)
+		if err != nil {
+			return nil, errors.Wrap(err, "Failed to read returned bytes")
+		}
 
 		info, err := obj.Info()
 		if err != nil {
 			return nil, errors.Wrap(err, "Failed to fetch record info")
-		}
-
-		if info.Deleted {
-			continue
 		}
 
 		metadata := map[string]interface{}{}
@@ -251,17 +232,14 @@ func (n *natsStore) Read(key string, opts ...store.ReadOption) ([]*store.Record,
 			metadata[key] = val
 		}
 
-		b, err := io.ReadAll(obj)
-		if err != nil {
-			return nil, errors.Wrap(err, "Failed to read returned bytes")
-		}
-
 		records = append(records, &store.Record{
 			Key:      key,
 			Value:    b,
 			Metadata: metadata,
 		})
 
+		// Why is there a close method?
+		obj.Close()
 	}
 
 	if opt.Limit > 0 {
@@ -275,8 +253,10 @@ func (n *natsStore) Read(key string, opts ...store.ReadOption) ([]*store.Record,
 
 // Write writes a record to the store, and returns an error if the record was not written.
 func (n *natsStore) Write(r *store.Record, opts ...store.WriteOption) error {
-	if err := n.initConn(); err != nil {
-		return err
+	if n.conn == nil {
+		if err := n.Init(); err != nil {
+			return err
+		}
 	}
 
 	opt := store.WriteOptions{}
@@ -292,7 +272,8 @@ func (n *natsStore) Write(r *store.Record, opts ...store.WriteOption) error {
 		opt.Table = n.opts.Table
 	}
 
-	store, ok := n.buckets.Get(opt.Database)
+	store, ok := n.buckets[opt.Database]
+
 	// Create new bucket if not exists
 	if !ok {
 		var err error
@@ -326,8 +307,10 @@ func (n *natsStore) Write(r *store.Record, opts ...store.WriteOption) error {
 
 // Delete removes the record with the corresponding key from the store.
 func (n *natsStore) Delete(key string, opts ...store.DeleteOption) error {
-	if err := n.initConn(); err != nil {
-		return err
+	if n.conn == nil {
+		if err := n.Init(); err != nil {
+			return err
+		}
 	}
 
 	opt := store.DeleteOptions{}
@@ -344,14 +327,14 @@ func (n *natsStore) Delete(key string, opts ...store.DeleteOption) error {
 	}
 
 	if opt.Table == "DELETE_BUCKET" {
-		n.buckets.Del(key)
+		delete(n.buckets, key)
 		if err := n.js.DeleteObjectStore(key); err != nil {
 			return errors.Wrap(err, "Failed to delete bucket")
 		}
 		return nil
 	}
 
-	store, ok := n.buckets.Get(opt.Database)
+	store, ok := n.buckets[opt.Database]
 	if !ok {
 		return ErrBucketNotFound
 	}
@@ -364,8 +347,10 @@ func (n *natsStore) Delete(key string, opts ...store.DeleteOption) error {
 
 // List returns any keys that match, or an empty list with no error if none matched.
 func (n *natsStore) List(opts ...store.ListOption) ([]string, error) {
-	if err := n.initConn(); err != nil {
-		return nil, err
+	if n.conn == nil {
+		if err := n.Init(); err != nil {
+			return nil, err
+		}
 	}
 
 	opt := store.ListOptions{}
@@ -381,7 +366,7 @@ func (n *natsStore) List(opts ...store.ListOption) ([]string, error) {
 		opt.Table = n.opts.Table
 	}
 
-	store, ok := n.buckets.Get(opt.Database)
+	store, ok := n.buckets[opt.Database]
 	if !ok {
 		return nil, ErrBucketNotFound
 	}
@@ -402,20 +387,19 @@ func (n *natsStore) List(opts ...store.ListOption) ([]string, error) {
 		if !strings.HasSuffix(key, opt.Suffix) {
 			continue
 		}
-
-		keys = append(keys, strings.TrimPrefix(key, getKey(opt.Prefix, opt.Table)))
+		keys = append(keys, key)
 	}
 
-	if opt.Limit > 0 && int(opt.Offset+opt.Limit) < len(keys) {
+	if opt.Limit > 0 {
 		return keys[opt.Offset : opt.Offset+opt.Limit], nil
 	}
-	if opt.Offset > 0 && int(opt.Offset) < len(keys) {
+	if opt.Offset > 0 {
 		return keys[opt.Offset:], nil
 	}
 	return keys, nil
 }
 
-// Close the store.
+// Close the store
 func (n *natsStore) Close() error {
 	n.conn.Close()
 	return nil
@@ -446,31 +430,6 @@ func (n *natsStore) createNewBucket(name string) (nats.ObjectStore, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create new bucket (%s)", name)
 	}
-	n.buckets.Set(name, store)
+	n.buckets[name] = store
 	return store, err
-}
-
-// thread safe way to initialize the connection.
-func (n *natsStore) initConn() error {
-	if n.hasConn() {
-		return nil
-	}
-
-	n.Lock()
-	defer n.Unlock()
-
-	// check if conn was initialized meanwhile
-	if n.conn != nil {
-		return nil
-	}
-
-	return n.Init()
-}
-
-// thread safe way to check if n is initialized.
-func (n *natsStore) hasConn() bool {
-	n.RLock()
-	defer n.RUnlock()
-
-	return n.conn != nil
 }

@@ -154,6 +154,10 @@ func (m *Mapping) Validate(vr *ValidationResults) {
 		total := uint8(0)
 		for _, wm := range wm {
 			wm.Subject.Validate(vr)
+			if wm.Subject.HasWildCards() {
+				vr.AddError("Subject %q in weighted mapping %q is not allowed to contains wildcard",
+					string(wm.Subject), ubFrom)
+			}
 			total += wm.GetWeight()
 		}
 		if total > 100 {
@@ -356,9 +360,6 @@ func (a *AccountClaims) ExpectedPrefixes() []nkeys.PrefixByte {
 // Claims returns the accounts claims data
 func (a *AccountClaims) Claims() *ClaimsData {
 	return &a.ClaimsData
-}
-func (a *AccountClaims) GetTags() TagList {
-	return a.Account.Tags
 }
 
 // DidSign checks the claims against the account's public key and its signing keys

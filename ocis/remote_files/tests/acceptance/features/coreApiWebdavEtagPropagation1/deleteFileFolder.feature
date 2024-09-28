@@ -83,13 +83,14 @@ Feature: propagation of etags when deleting a file or folder
       | dav-path-version |
       | spaces           |
 
-  @skipOnReva
+
   Scenario Outline: sharee deleting a file changes the etags of all parents for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload/sub"
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/sub/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/sub"
@@ -113,13 +114,14 @@ Feature: propagation of etags when deleting a file or folder
       | old              |
       | new              |
 
-  @skipOnReva
+
   Scenario Outline: sharer deleting a file changes the etags of all parents for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload/sub"
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/sub/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/sub"
@@ -143,13 +145,14 @@ Feature: propagation of etags when deleting a file or folder
       | old              |
       | new              |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharee deleting a folder changes the etags of all parents for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload/sub"
     And user "Alice" has created folder "/upload/sub/toDelete"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/sub"
@@ -173,13 +176,14 @@ Feature: propagation of etags when deleting a file or folder
       | old              |
       | new              |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharer deleting a folder changes the etags of all parents for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload/sub"
     And user "Alice" has created folder "/upload/sub/toDelete"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Alice" has stored etag of element "/upload/sub"
@@ -208,12 +212,11 @@ Feature: propagation of etags when deleting a file or folder
     Given using <dav-path-version> DAV path
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has created a public link share with settings
-      | path        | upload   |
-      | permissions | change   |
-      | password    | %public% |
+      | path        | upload |
+      | permissions | change |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
-    When the public deletes file "file.txt" from the last public link share using the password "%public%" and new public WebDAV API
+    When the public deletes file "file.txt" from the last public link share using the new public WebDAV API
     Then the HTTP status code should be "204"
     And these etags should have changed:
       | user  | path    |
@@ -234,12 +237,11 @@ Feature: propagation of etags when deleting a file or folder
     Given using <dav-path-version> DAV path
     And user "Alice" has created folder "/upload/sub"
     And user "Alice" has created a public link share with settings
-      | path        | upload   |
-      | permissions | change   |
-      | password    | %public% |
+      | path        | upload |
+      | permissions | change |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
-    When the public deletes folder "sub" from the last public link share using the password "%public%" and new public WebDAV API
+    When the public deletes folder "sub" from the last public link share using the new public WebDAV API
     Then the HTTP status code should be "204"
     And these etags should have changed:
       | user  | path    |

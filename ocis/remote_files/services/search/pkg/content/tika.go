@@ -3,15 +3,13 @@ package content
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
 
+	"github.com/bbalet/stopwords"
 	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/google/go-tika/tika"
-
-	libregraph "github.com/owncloud/libre-graph-api-go"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/services/search/pkg/config"
 )
@@ -22,8 +20,7 @@ type Tika struct {
 	*Basic
 	Retriever
 	tika                       *tika.Client
-	ContentExtractionSizeLimit uint64
-	CleanStopWords             bool
+	contentExtractionSizeLimit uint64
 }
 
 // NewTikaExtractor creates a new Tika instance.
@@ -44,8 +41,7 @@ func NewTikaExtractor(gatewaySelector pool.Selectable[gateway.GatewayAPIClient],
 		Basic:                      basic,
 		Retriever:                  newCS3Retriever(gatewaySelector, logger, cfg.Extractor.CS3AllowInsecure),
 		tika:                       tika.NewClient(nil, cfg.Extractor.Tika.TikaURL),
-		ContentExtractionSizeLimit: cfg.ContentExtractionSizeLimit,
-		CleanStopWords:             cfg.Extractor.Tika.CleanStopWords,
+		contentExtractionSizeLimit: cfg.ContentExtractionSizeLimit,
 	}, nil
 }
 
@@ -60,7 +56,7 @@ func (t Tika) Extract(ctx context.Context, ri *provider.ResourceInfo) (Document,
 		return doc, nil
 	}
 
-	if ri.Size > t.ContentExtractionSizeLimit {
+	if ri.Size > t.contentExtractionSizeLimit {
 		t.logger.Info().Interface("ResourceID", ri.Id).Str("Name", ri.Name).Msg("file exceeds content extraction size limit. skipping.")
 		return doc, nil
 	}
@@ -88,122 +84,11 @@ func (t Tika) Extract(ctx context.Context, ri *provider.ResourceInfo) (Document,
 		if content, err := getFirstValue(meta, "X-TIKA:content"); err == nil {
 			doc.Content = strings.TrimSpace(fmt.Sprintf("%s %s", doc.Content, content))
 		}
-
-		doc.Location = t.getLocation(meta)
-
-		if contentType, err := getFirstValue(meta, "Content-Type"); err == nil && strings.HasPrefix(contentType, "audio/") {
-			doc.Audio = t.getAudio(meta)
-		}
 	}
 
-	if langCode, _ := t.tika.LanguageString(ctx, doc.Content); langCode != "" && t.CleanStopWords {
-		doc.Content = CleanString(doc.Content, langCode)
+	if lang, _ := t.tika.LanguageString(ctx, doc.Content); lang != "" {
+		doc.Content = stopwords.CleanString(doc.Content, lang, true)
 	}
 
 	return doc, nil
-}
-
-func (t Tika) getLocation(meta map[string][]string) *libregraph.GeoCoordinates {
-	var location *libregraph.GeoCoordinates
-	initLocation := func() {
-		if location == nil {
-			location = libregraph.NewGeoCoordinates()
-		}
-	}
-
-	// TODO: location.Altitute: transform the following data to … feet above sea level.
-	// "GPS:GPS Altitude":                          []string{"227.4 metres"},
-	// "GPS:GPS Altitude Ref":                      []string{"Sea level"},
-
-	if v, err := getFirstValue(meta, "geo:lat"); err == nil {
-		if i, err := strconv.ParseFloat(v, 64); err == nil {
-			initLocation()
-			location.SetLatitude(i)
-		}
-	}
-
-	if v, err := getFirstValue(meta, "geo:long"); err == nil {
-		if i, err := strconv.ParseFloat(v, 64); err == nil {
-			initLocation()
-			location.SetLongitude(i)
-		}
-	}
-
-	return location
-}
-
-func (t Tika) getAudio(meta map[string][]string) *libregraph.Audio {
-	var audio *libregraph.Audio
-	initAudio := func() {
-		if audio == nil {
-			audio = libregraph.NewAudio()
-		}
-	}
-
-	if v, err := getFirstValue(meta, "xmpDM:album"); err == nil {
-		initAudio()
-		audio.SetAlbum(v)
-	}
-
-	if v, err := getFirstValue(meta, "xmpDM:albumArtist"); err == nil {
-		initAudio()
-		audio.SetAlbumArtist(v)
-	}
-
-	if v, err := getFirstValue(meta, "xmpDM:artist"); err == nil {
-		initAudio()
-		audio.SetArtist(v)
-	}
-
-	// TODO: audio.Bitrate: not provided by tika
-	// TODO: audio.Composers: not provided by tika
-	// TODO: audio.Copyright: not provided by tika for audio files?
-
-	if v, err := getFirstValue(meta, "xmpDM:discNumber"); err == nil {
-		if i, err := strconv.ParseInt(v, 10, 32); err == nil {
-			initAudio()
-			audio.SetDisc(int32(i))
-		}
-
-	}
-
-	//  TODO: audio.DiscCount: not provided by tika
-
-	if v, err := getFirstValue(meta, "xmpDM:duration"); err == nil {
-		if i, err := strconv.ParseInt(v, 10, 64); err == nil {
-			initAudio()
-			audio.SetDuration(i * 1000)
-		}
-	}
-
-	if v, err := getFirstValue(meta, "xmpDM:genre"); err == nil {
-		initAudio()
-		audio.SetGenre(v)
-	}
-
-	// TODO: audio.HasDrm: not provided by tika
-	// TODO: audio.IsVariableBitrate: not provided by tika
-
-	if v, err := getFirstValue(meta, "dc:title"); err == nil {
-		initAudio()
-		audio.SetTitle(v)
-	}
-
-	if v, err := getFirstValue(meta, "xmpDM:trackNumber"); err == nil {
-		if i, err := strconv.ParseInt(v, 10, 32); err == nil {
-			initAudio()
-			audio.SetTrack(int32(i))
-		}
-	}
-
-	// TODO: audio.TrackCount: not provided by tika
-
-	if v, err := getFirstValue(meta, "xmpDM:releaseDate"); err == nil {
-		if i, err := strconv.ParseInt(v, 10, 32); err == nil {
-			initAudio()
-			audio.SetYear(int32(i))
-		}
-	}
-
-	return audio
 }

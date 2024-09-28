@@ -31,7 +31,7 @@ func ValueOf(v any) Value {
 
 // Indirect value. alias of the reflect.Indirect()
 func (v Value) Indirect() Value {
-	if v.Kind() != reflect.Pointer {
+	if v.Kind() != reflect.Ptr {
 		return v
 	}
 
@@ -46,8 +46,9 @@ func (v Value) Indirect() Value {
 //
 // TIP: not like reflect.Value.Elem. otherwise, will return self.
 func (v Value) Elem() Value {
-	if v.Kind() == reflect.Pointer || v.Kind() == reflect.Interface {
+	if v.Kind() == reflect.Ptr || v.Kind() == reflect.Interface {
 		elem := v.Value.Elem()
+
 		return Value{
 			Value:    elem,
 			baseKind: ToBKind(elem.Kind()),

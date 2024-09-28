@@ -60,14 +60,14 @@ func (s *svc) handlePathMove(w http.ResponseWriter, r *http.Request, ns string) 
 		return
 	}
 
-	if err := ValidateName(path.Base(srcPath), s.nameValidators); err != nil {
+	if err := ValidateName(srcPath, s.nameValidators); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		b, err := errors.Marshal(http.StatusBadRequest, "source failed naming rules", "")
 		errors.HandleWebdavError(appctx.GetLogger(ctx), w, b, err)
 		return
 	}
 
-	if err := ValidateName(path.Base(dstPath), s.nameValidators); err != nil {
+	if err := ValidateName(dstPath, s.nameValidators); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		b, err := errors.Marshal(http.StatusBadRequest, "destination naming rules", "")
 		errors.HandleWebdavError(appctx.GetLogger(ctx), w, b, err)
@@ -141,11 +141,15 @@ func (s *svc) handleSpacesMove(w http.ResponseWriter, r *http.Request, srcSpaceI
 }
 
 func (s *svc) handleMove(ctx context.Context, w http.ResponseWriter, r *http.Request, src, dst *provider.Reference, log zerolog.Logger) {
+	// do not allow overwriting spaces
+	if err := s.validateDestination(dst); err != nil {
+		log.Error().Err(err)
+		w.WriteHeader(http.StatusPreconditionFailed) // 412, see https://tools.ietf.org/html/rfc4918#section-9.9.4
+		return
+	}
 	isChild, err := s.referenceIsChildOf(ctx, s.gatewaySelector, dst, src)
 	if err != nil {
 		switch err.(type) {
-		case errtypes.IsNotFound:
-			w.WriteHeader(http.StatusNotFound)
 		case errtypes.IsNotSupported:
 			log.Error().Err(err).Msg("can not detect recursive move operation. missing machine auth configuration?")
 			w.WriteHeader(http.StatusForbidden)
@@ -196,11 +200,6 @@ func (s *svc) handleMove(ctx context.Context, w http.ResponseWriter, r *http.Req
 		errors.HandleErrorStatus(&log, w, srcStatRes.Status)
 		return
 	}
-	if isSpaceRoot(srcStatRes.GetInfo()) {
-		log.Error().Msg("the source is disallowed")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
 	// check dst exists
 	dstStatReq := &provider.StatRequest{Ref: dst}
@@ -219,16 +218,12 @@ func (s *svc) handleMove(ctx context.Context, w http.ResponseWriter, r *http.Req
 	if dstStatRes.Status.Code == rpc.Code_CODE_OK {
 		successCode = http.StatusNoContent // 204 if target already existed, see https://tools.ietf.org/html/rfc4918#section-9.9.4
 
-		if isSpaceRoot(dstStatRes.GetInfo()) {
-			log.Error().Msg("overwriting is not allowed")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
 		if !overwrite {
 			log.Warn().Bool("overwrite", overwrite).Msg("dst already exists")
 			w.WriteHeader(http.StatusPreconditionFailed) // 412, see https://tools.ietf.org/html/rfc4918#section-9.9.4
 			return
 		}
+
 		// delete existing tree
 		delReq := &provider.DeleteRequest{Ref: dst}
 		delRes, err := client.Delete(ctx, delReq)
@@ -315,4 +310,12 @@ func (s *svc) handleMove(ctx context.Context, w http.ResponseWriter, r *http.Req
 	w.Header().Set(net.HeaderOCFileID, storagespace.FormatResourceID(*info.Id))
 	w.Header().Set(net.HeaderOCETag, info.Etag)
 	w.WriteHeader(successCode)
+}
+
+func (s *svc) validateDestination(dstStatRes *provider.Reference) error {
+	// do not allow overwriting spaces
+	if dstStatRes.GetPath() == "." && dstStatRes.GetResourceId().GetOpaqueId() == dstStatRes.GetResourceId().GetSpaceId() {
+		return fmt.Errorf("overwriting is not allowed")
+	}
+	return nil
 }

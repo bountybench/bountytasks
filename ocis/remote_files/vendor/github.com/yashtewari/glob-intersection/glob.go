@@ -119,7 +119,11 @@ func NewDot() Token {
 }
 
 func (d dot) Equal(other Token) bool {
-	return d.Type() == other.Type()
+	if d.Type() != other.Type() {
+		return false
+	}
+
+	return true
 }
 
 func (d dot) String() string {

@@ -82,82 +82,54 @@ func (s *Server) handleSignals() {
 
 // ProcessSignal sends the given signal command to the given process. If pidStr
 // is empty, this will send the signal to the single running instance of
-// nats-server. If multiple instances are running, pidStr can be a globular
-// expression ending with '*'. This returns an error if the given process is
-// not running or the command is invalid.
-func ProcessSignal(command Command, pidExpr string) error {
-	var (
-		err    error
-		errStr string
-		pids   = make([]int, 1)
-		pidStr = strings.TrimSuffix(pidExpr, "*")
-		isGlob = strings.HasSuffix(pidExpr, "*")
-	)
-
-	// Validate input if given
-	if pidStr != "" {
-		if pids[0], err = strconv.Atoi(pidStr); err != nil {
-			return fmt.Errorf("invalid pid: %s", pidStr)
-		}
-	}
-	// Gather all PIDs unless the input is specific
-	if pidStr == "" || isGlob {
-		if pids, err = resolvePids(); err != nil {
+// nats-server. If multiple instances are running, it returns an error. This returns
+// an error if the given process is not running or the command is invalid.
+func ProcessSignal(command Command, pidStr string) error {
+	var pid int
+	if pidStr == "" {
+		pids, err := resolvePids()
+		if err != nil {
 			return err
 		}
-	}
-	// Multiple instances are running and the input is not an expression
-	if len(pids) > 1 && !isGlob {
-		errStr = fmt.Sprintf("multiple %s processes running:", processName)
-		for _, p := range pids {
-			errStr += fmt.Sprintf("\n%d", p)
+		if len(pids) == 0 {
+			return fmt.Errorf("no %s processes running", processName)
 		}
-		return errors.New(errStr)
-	}
-	// No instances are running
-	if len(pids) == 0 {
-		return fmt.Errorf("no %s processes running", processName)
-	}
-
-	var signum syscall.Signal
-	if signum, err = CommandToSignal(command); err != nil {
-		return err
-	}
-
-	for _, pid := range pids {
-		if _pidStr := strconv.Itoa(pid); _pidStr != pidStr && pidStr != "" {
-			if !isGlob || !strings.HasPrefix(_pidStr, pidStr) {
-				continue
+		if len(pids) > 1 {
+			errStr := fmt.Sprintf("multiple %s processes running:\n", processName)
+			prefix := ""
+			for _, p := range pids {
+				errStr += fmt.Sprintf("%s%d", prefix, p)
+				prefix = "\n"
 			}
+			return errors.New(errStr)
 		}
-		if err = kill(pid, signum); err != nil {
-			errStr += fmt.Sprintf("\nsignal %q %d: %s", command, pid, err)
+		pid = pids[0]
+	} else {
+		p, err := strconv.Atoi(pidStr)
+		if err != nil {
+			return fmt.Errorf("invalid pid: %s", pidStr)
 		}
+		pid = p
 	}
-	if errStr != "" {
-		return errors.New(errStr)
-	}
-	return nil
-}
 
-// Translates a command to a signal number
-func CommandToSignal(command Command) (syscall.Signal, error) {
+	var err error
 	switch command {
 	case CommandStop:
-		return syscall.SIGKILL, nil
+		err = kill(pid, syscall.SIGKILL)
 	case CommandQuit:
-		return syscall.SIGINT, nil
+		err = kill(pid, syscall.SIGINT)
 	case CommandReopen:
-		return syscall.SIGUSR1, nil
+		err = kill(pid, syscall.SIGUSR1)
 	case CommandReload:
-		return syscall.SIGHUP, nil
+		err = kill(pid, syscall.SIGHUP)
 	case commandLDMode:
-		return syscall.SIGUSR2, nil
+		err = kill(pid, syscall.SIGUSR2)
 	case commandTerm:
-		return syscall.SIGTERM, nil
+		err = kill(pid, syscall.SIGTERM)
 	default:
-		return 0, fmt.Errorf("unknown signal %q", command)
+		err = fmt.Errorf("unknown signal %q", command)
 	}
+	return err
 }
 
 // resolvePids returns the pids for all running nats-server processes.

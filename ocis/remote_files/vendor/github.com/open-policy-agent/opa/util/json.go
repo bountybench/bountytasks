@@ -11,9 +11,7 @@ import (
 	"io"
 	"reflect"
 
-	"sigs.k8s.io/yaml"
-
-	"github.com/open-policy-agent/opa/loader/extension"
+	"github.com/ghodss/yaml"
 )
 
 // UnmarshalJSON parses the JSON encoded data and stores the result in the value
@@ -21,17 +19,10 @@ import (
 //
 // This function is intended to be used in place of the standard json.Marshal
 // function when json.Number is required.
-func UnmarshalJSON(bs []byte, x interface{}) error {
-	return unmarshalJSON(bs, x, true)
-}
-
-func unmarshalJSON(bs []byte, x interface{}, ext bool) error {
+func UnmarshalJSON(bs []byte, x interface{}) (err error) {
 	buf := bytes.NewBuffer(bs)
 	decoder := NewJSONDecoder(buf)
 	if err := decoder.Decode(x); err != nil {
-		if handler := extension.FindExtension(".json"); handler != nil && ext {
-			return handler(bs, x)
-		}
 		return err
 	}
 
@@ -112,18 +103,14 @@ func Reference(x interface{}) *interface{} {
 	return &x
 }
 
-// Unmarshal decodes a YAML, JSON or JSON extension value into the specified type.
+// Unmarshal decodes a YAML or JSON value into the specified type.
 func Unmarshal(bs []byte, v interface{}) error {
 	if json.Valid(bs) {
-		return unmarshalJSON(bs, v, false)
+		return UnmarshalJSON(bs, v)
 	}
-	nbs, err := yaml.YAMLToJSON(bs)
-	if err == nil {
-		return unmarshalJSON(nbs, v, false)
+	bs, err := yaml.YAMLToJSON(bs)
+	if err != nil {
+		return err
 	}
-	// not json or yaml: try extensions
-	if handler := extension.FindExtension(".json"); handler != nil {
-		return handler(bs, v)
-	}
-	return err
+	return UnmarshalJSON(bs, v)
 }

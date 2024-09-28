@@ -15,9 +15,6 @@ import (
 	"time"
 )
 
-// checks if the DirectoryObject type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &DirectoryObject{}
-
 // DirectoryObject Represents a Directory object. Read-only.
 type DirectoryObject struct {
 	// The unique identifier for the object. 12345678-9abc-def0-1234-56789abcde. The value of the ID property is often, but not exclusively, in the form of a GUID. The value should be treated as an opaque identifier and not based in being a GUID. Null values are not allowed. Read-only.
@@ -44,7 +41,7 @@ func NewDirectoryObjectWithDefaults() *DirectoryObject {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *DirectoryObject) GetId() string {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		var ret string
 		return ret
 	}
@@ -54,7 +51,7 @@ func (o *DirectoryObject) GetId() string {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *DirectoryObject) GetIdOk() (*string, bool) {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		return nil, false
 	}
 	return o.Id, true
@@ -62,7 +59,7 @@ func (o *DirectoryObject) GetIdOk() (*string, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *DirectoryObject) HasId() bool {
-	if o != nil && !IsNil(o.Id) {
+	if o != nil && o.Id != nil {
 		return true
 	}
 
@@ -76,7 +73,7 @@ func (o *DirectoryObject) SetId(v string) {
 
 // GetDeletedDateTime returns the DeletedDateTime field value if set, zero value otherwise.
 func (o *DirectoryObject) GetDeletedDateTime() time.Time {
-	if o == nil || IsNil(o.DeletedDateTime) {
+	if o == nil || o.DeletedDateTime == nil {
 		var ret time.Time
 		return ret
 	}
@@ -86,7 +83,7 @@ func (o *DirectoryObject) GetDeletedDateTime() time.Time {
 // GetDeletedDateTimeOk returns a tuple with the DeletedDateTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *DirectoryObject) GetDeletedDateTimeOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.DeletedDateTime) {
+	if o == nil || o.DeletedDateTime == nil {
 		return nil, false
 	}
 	return o.DeletedDateTime, true
@@ -94,7 +91,7 @@ func (o *DirectoryObject) GetDeletedDateTimeOk() (*time.Time, bool) {
 
 // HasDeletedDateTime returns a boolean if a field has been set.
 func (o *DirectoryObject) HasDeletedDateTime() bool {
-	if o != nil && !IsNil(o.DeletedDateTime) {
+	if o != nil && o.DeletedDateTime != nil {
 		return true
 	}
 
@@ -107,22 +104,14 @@ func (o *DirectoryObject) SetDeletedDateTime(v time.Time) {
 }
 
 func (o DirectoryObject) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o DirectoryObject) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Id) {
+	if o.Id != nil {
 		toSerialize["id"] = o.Id
 	}
-	if !IsNil(o.DeletedDateTime) {
+	if o.DeletedDateTime != nil {
 		toSerialize["deletedDateTime"] = o.DeletedDateTime
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableDirectoryObject struct {

@@ -68,7 +68,6 @@ default:
         - SpacesTUSContext:
         - ArchiverContext:
         - GraphContext:
-        - OcisConfigContext:
 
     apiContract:
       paths:
@@ -170,7 +169,6 @@ default:
         - GraphContext:
         - FilesVersionsContext:
         - SettingsContext:
-        - OcisConfigContext:
 
     apiAntivirus:
       paths:
@@ -223,9 +221,6 @@ default:
         - OCSContext:
         - TrashbinContext:
         - TagContext:
-        - SpacesTUSContext:
-        - TUSContext:
-        - OcisConfigContext:
 
     apiReshare:
       paths:
@@ -242,25 +237,7 @@ default:
       contexts:
         - FeatureContext: *common_feature_context_params
         - WebDavPropertiesContext:
-
-    apiLocks:
-      paths:
-        - '%paths.base%/../features/apiLocks'
-      context: *common_ldap_suite_context
-      contexts:
-        - FeatureContext: *common_feature_context_params
-        - SpacesContext:
-        - WebDavLockingContext:
-        - PublicWebDavContext:
-
-    apiSharingNg:
-      paths:
-        - '%paths.base%/../features/apiSharingNg'
-      context: *common_ldap_suite_context
-      contexts:
-        - FeatureContext: *common_feature_context_params
-        - SpacesContext:
-        - SharingNgContext:
+        - FilesVersionsContext:
 
   extensions:
     rdx\behatvars\BehatVariablesExtension: ~

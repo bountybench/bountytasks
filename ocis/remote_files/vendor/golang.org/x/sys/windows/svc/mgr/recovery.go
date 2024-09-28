@@ -3,6 +3,7 @@
 // license that can be found in the LICENSE file.
 
 //go:build windows
+// +build windows
 
 package mgr
 
@@ -12,6 +13,7 @@ import (
 	"time"
 	"unsafe"
 
+	"golang.org/x/sys/internal/unsafeheader"
 	"golang.org/x/sys/windows"
 )
 
@@ -68,7 +70,12 @@ func (s *Service) RecoveryActions() ([]RecoveryAction, error) {
 		return nil, err
 	}
 
-	actions := unsafe.Slice(p.Actions, int(p.ActionsCount))
+	var actions []windows.SC_ACTION
+	hdr := (*unsafeheader.Slice)(unsafe.Pointer(&actions))
+	hdr.Data = unsafe.Pointer(p.Actions)
+	hdr.Len = int(p.ActionsCount)
+	hdr.Cap = int(p.ActionsCount)
+
 	var recoveryActions []RecoveryAction
 	for _, action := range actions {
 		recoveryActions = append(recoveryActions, RecoveryAction{Type: int(action.Type), Delay: time.Duration(action.Delay) * time.Millisecond})

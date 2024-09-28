@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/render"
 	libregraph "github.com/owncloud/libre-graph-api-go"
 	searchsvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/search/v0"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 	"go-micro.dev/v4/metadata"
 )
 
@@ -120,11 +120,7 @@ func (g Graph) AssignTags(w http.ResponseWriter, r *http.Request) {
 		},
 	})
 	if err != nil || resp.GetStatus().GetCode() != rpc.Code_CODE_OK {
-		g.logger.Error().Err(err).Interface("status", resp.GetStatus()).Msg("error setting tags")
-		if resp.GetStatus().GetCode() == rpc.Code_CODE_LOCKED {
-			errorcode.InvalidRequest.Render(w, r, http.StatusLocked, "file is locked")
-			return
-		}
+		g.logger.Error().Err(err).Msg("error setting tags")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

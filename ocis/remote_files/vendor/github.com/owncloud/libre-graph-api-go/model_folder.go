@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the Folder type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &Folder{}
-
 // Folder Folder metadata, if the item is a folder. Read-only.
 type Folder struct {
 	// Number of children contained immediately within this container.
@@ -43,7 +40,7 @@ func NewFolderWithDefaults() *Folder {
 
 // GetChildCount returns the ChildCount field value if set, zero value otherwise.
 func (o *Folder) GetChildCount() int32 {
-	if o == nil || IsNil(o.ChildCount) {
+	if o == nil || o.ChildCount == nil {
 		var ret int32
 		return ret
 	}
@@ -53,7 +50,7 @@ func (o *Folder) GetChildCount() int32 {
 // GetChildCountOk returns a tuple with the ChildCount field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Folder) GetChildCountOk() (*int32, bool) {
-	if o == nil || IsNil(o.ChildCount) {
+	if o == nil || o.ChildCount == nil {
 		return nil, false
 	}
 	return o.ChildCount, true
@@ -61,7 +58,7 @@ func (o *Folder) GetChildCountOk() (*int32, bool) {
 
 // HasChildCount returns a boolean if a field has been set.
 func (o *Folder) HasChildCount() bool {
-	if o != nil && !IsNil(o.ChildCount) {
+	if o != nil && o.ChildCount != nil {
 		return true
 	}
 
@@ -75,7 +72,7 @@ func (o *Folder) SetChildCount(v int32) {
 
 // GetView returns the View field value if set, zero value otherwise.
 func (o *Folder) GetView() FolderView {
-	if o == nil || IsNil(o.View) {
+	if o == nil || o.View == nil {
 		var ret FolderView
 		return ret
 	}
@@ -85,7 +82,7 @@ func (o *Folder) GetView() FolderView {
 // GetViewOk returns a tuple with the View field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Folder) GetViewOk() (*FolderView, bool) {
-	if o == nil || IsNil(o.View) {
+	if o == nil || o.View == nil {
 		return nil, false
 	}
 	return o.View, true
@@ -93,7 +90,7 @@ func (o *Folder) GetViewOk() (*FolderView, bool) {
 
 // HasView returns a boolean if a field has been set.
 func (o *Folder) HasView() bool {
-	if o != nil && !IsNil(o.View) {
+	if o != nil && o.View != nil {
 		return true
 	}
 
@@ -106,22 +103,14 @@ func (o *Folder) SetView(v FolderView) {
 }
 
 func (o Folder) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o Folder) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.ChildCount) {
+	if o.ChildCount != nil {
 		toSerialize["childCount"] = o.ChildCount
 	}
-	if !IsNil(o.View) {
+	if o.View != nil {
 		toSerialize["view"] = o.View
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableFolder struct {

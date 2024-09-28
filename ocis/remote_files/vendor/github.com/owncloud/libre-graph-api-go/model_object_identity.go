@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the ObjectIdentity type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &ObjectIdentity{}
-
 // ObjectIdentity Represents an identity used to sign in to a user account
 type ObjectIdentity struct {
 	// domain of the Provider issuing the identity
@@ -44,7 +41,7 @@ func NewObjectIdentityWithDefaults() *ObjectIdentity {
 
 // GetIssuer returns the Issuer field value if set, zero value otherwise.
 func (o *ObjectIdentity) GetIssuer() string {
-	if o == nil || IsNil(o.Issuer) {
+	if o == nil || o.Issuer == nil {
 		var ret string
 		return ret
 	}
@@ -54,7 +51,7 @@ func (o *ObjectIdentity) GetIssuer() string {
 // GetIssuerOk returns a tuple with the Issuer field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ObjectIdentity) GetIssuerOk() (*string, bool) {
-	if o == nil || IsNil(o.Issuer) {
+	if o == nil || o.Issuer == nil {
 		return nil, false
 	}
 	return o.Issuer, true
@@ -62,7 +59,7 @@ func (o *ObjectIdentity) GetIssuerOk() (*string, bool) {
 
 // HasIssuer returns a boolean if a field has been set.
 func (o *ObjectIdentity) HasIssuer() bool {
-	if o != nil && !IsNil(o.Issuer) {
+	if o != nil && o.Issuer != nil {
 		return true
 	}
 
@@ -76,7 +73,7 @@ func (o *ObjectIdentity) SetIssuer(v string) {
 
 // GetIssuerAssignedId returns the IssuerAssignedId field value if set, zero value otherwise.
 func (o *ObjectIdentity) GetIssuerAssignedId() string {
-	if o == nil || IsNil(o.IssuerAssignedId) {
+	if o == nil || o.IssuerAssignedId == nil {
 		var ret string
 		return ret
 	}
@@ -86,7 +83,7 @@ func (o *ObjectIdentity) GetIssuerAssignedId() string {
 // GetIssuerAssignedIdOk returns a tuple with the IssuerAssignedId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *ObjectIdentity) GetIssuerAssignedIdOk() (*string, bool) {
-	if o == nil || IsNil(o.IssuerAssignedId) {
+	if o == nil || o.IssuerAssignedId == nil {
 		return nil, false
 	}
 	return o.IssuerAssignedId, true
@@ -94,7 +91,7 @@ func (o *ObjectIdentity) GetIssuerAssignedIdOk() (*string, bool) {
 
 // HasIssuerAssignedId returns a boolean if a field has been set.
 func (o *ObjectIdentity) HasIssuerAssignedId() bool {
-	if o != nil && !IsNil(o.IssuerAssignedId) {
+	if o != nil && o.IssuerAssignedId != nil {
 		return true
 	}
 
@@ -107,22 +104,14 @@ func (o *ObjectIdentity) SetIssuerAssignedId(v string) {
 }
 
 func (o ObjectIdentity) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o ObjectIdentity) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Issuer) {
+	if o.Issuer != nil {
 		toSerialize["issuer"] = o.Issuer
 	}
-	if !IsNil(o.IssuerAssignedId) {
+	if o.IssuerAssignedId != nil {
 		toSerialize["issuerAssignedId"] = o.IssuerAssignedId
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableObjectIdentity struct {

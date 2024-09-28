@@ -25,7 +25,6 @@ import (
 
 	"github.com/blevesearch/bleve/v2/geo"
 	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/util"
 )
 
 var HighTerm = strings.Repeat(string(utf8.MaxRune), 3)
@@ -165,10 +164,10 @@ func ParseSearchSortString(input string) SearchSort {
 func ParseSearchSortJSON(input json.RawMessage) (SearchSort, error) {
 	// first try to parse it as string
 	var sortString string
-	err := util.UnmarshalJSON(input, &sortString)
+	err := json.Unmarshal(input, &sortString)
 	if err != nil {
 		var sortObj map[string]interface{}
-		err = util.UnmarshalJSON(input, &sortObj)
+		err = json.Unmarshal(input, &sortObj)
 		if err != nil {
 			return nil, err
 		}

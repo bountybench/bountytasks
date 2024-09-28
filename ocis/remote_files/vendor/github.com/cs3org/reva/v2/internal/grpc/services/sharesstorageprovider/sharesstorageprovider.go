@@ -643,10 +643,9 @@ func (s *service) Move(ctx context.Context, req *provider.MoveRequest) (*provide
 			Status: rpcStatus,
 		}, nil
 	}
-
-	if dstReceivedShare.Share.Id.OpaqueId != srcReceivedShare.Share.Id.OpaqueId {
+	if srcReceivedShare.Share.ResourceId.SpaceId != dstReceivedShare.Share.ResourceId.SpaceId {
 		return &provider.MoveResponse{
-			Status: status.NewUnimplemented(ctx, nil, "sharesstorageprovider: can not move between shares"),
+			Status: status.NewInvalid(ctx, "sharesstorageprovider: can not move between shares on different storages"),
 		}, nil
 	}
 
@@ -1060,7 +1059,7 @@ func (s *service) resolveAcceptedShare(ctx context.Context, ref *provider.Refere
 			if receivedShare.State != collaboration.ShareState_SHARE_STATE_ACCEPTED {
 				continue
 			}
-			if isMountPointForPath(receivedShare.MountPoint.Path, ref.Path) {
+			if strings.HasPrefix(strings.TrimPrefix(ref.Path, "./"), receivedShare.MountPoint.Path) {
 				return receivedShare, lsRes.Status, nil
 			}
 		}
@@ -1068,17 +1067,6 @@ func (s *service) resolveAcceptedShare(ctx context.Context, ref *provider.Refere
 	}
 
 	return nil, status.NewNotFound(ctx, "sharesstorageprovider: not found "+ref.String()), nil
-}
-
-func isMountPointForPath(mountpoint, path string) bool {
-	requiredSegments := strings.Split(strings.TrimPrefix(mountpoint, "./"), "/")
-	pathSegments := strings.Split(strings.TrimPrefix(path, "./"), "/")
-	for i := range requiredSegments {
-		if pathSegments[i] != requiredSegments[i] {
-			return false
-		}
-	}
-	return true
 }
 
 func (s *service) rejectReceivedShare(ctx context.Context, receivedShare *collaboration.ReceivedShare) error {
@@ -1168,7 +1156,7 @@ func findEarliestShare(receivedShares []*collaboration.ReceivedShare, shareInfo 
 		}
 
 		switch {
-		case earliestShare == nil && hasCurrentMd:
+		case earliestShare == nil:
 			earliestShare = current
 		// ignore if one of the shares has no metadata
 		case !hasEarliestMd || !hasCurrentMd:

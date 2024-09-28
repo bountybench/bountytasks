@@ -483,7 +483,6 @@ trait WebDav {
 	 * @param string|null $height
 	 *
 	 * @return ResponseInterface
-	 * @throws GuzzleException
 	 */
 	public function downloadPreviews(string $user, ?string $path, ?string $doDavRequestAsUser, ?string $width, ?string $height):ResponseInterface {
 		$user = $this->getActualUsername($user);

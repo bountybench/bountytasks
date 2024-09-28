@@ -10,44 +10,76 @@ import (
 )
 
 // LiteData simple map[string]any struct. no lock
-type LiteData = Data
+type LiteData struct {
+	data map[string]any
+}
 
-// NewLiteData create, not locked
-func NewLiteData(data map[string]any) *Data {
-	if data == nil {
-		data = make(map[string]any)
+// Data get all
+func (d *LiteData) Data() map[string]any {
+	return d.data
+}
+
+// SetData set all data
+func (d *LiteData) SetData(data map[string]any) {
+	d.data = data
+}
+
+// Value get from data
+func (d *LiteData) Value(key string) any {
+	return d.data[key]
+}
+
+// GetVal get from data
+func (d *LiteData) GetVal(key string) any {
+	return d.data[key]
+}
+
+// StrValue get from data
+func (d *LiteData) StrValue(key string) string {
+	return strutil.QuietString(d.data[key])
+}
+
+// IntVal get from data
+func (d *LiteData) IntVal(key string) int {
+	return mathutil.QuietInt(d.data[key])
+}
+
+// SetValue to data
+func (d *LiteData) SetValue(key string, val any) {
+	if d.data == nil {
+		d.data = make(map[string]any)
 	}
-	return &LiteData{data: data}
+	d.data[key] = val
+}
+
+// ResetData all data
+func (d *LiteData) ResetData() {
+	d.data = nil
 }
 
 /*************************************************************
  * data struct and allow enable lock
  *************************************************************/
 
-// Data struct, allow enable lock
+// Data struct, allow enable lock TODO
 type Data struct {
 	sync.RWMutex
-	lock bool
+	enableLock bool
+	// data store
 	data map[string]any
 }
 
-// NewData create new data instance
+// NewData create
 func NewData() *Data {
 	return &Data{
-		lock: true,
 		data: make(map[string]any),
 	}
 }
 
-// WithLock for operate data
-func (d *Data) WithLock() *Data {
-	d.lock = true
-	return d
-}
-
 // EnableLock for operate data
 func (d *Data) EnableLock() *Data {
-	return d.WithLock()
+	d.enableLock = true
+	return d
 }
 
 // Data get all
@@ -57,7 +89,7 @@ func (d *Data) Data() map[string]any {
 
 // SetData set all data
 func (d *Data) SetData(data map[string]any) {
-	if !d.lock {
+	if !d.enableLock {
 		d.data = data
 		return
 	}
@@ -77,11 +109,6 @@ func (d *Data) ResetData() {
 	d.data = make(map[string]any)
 }
 
-// Merge load new data
-func (d *Data) Merge(mp map[string]any) {
-	d.data = maputil.SimpleMerge(mp, d.data)
-}
-
 // Set value to data
 func (d *Data) Set(key string, val any) {
 	d.SetValue(key, val)
@@ -89,7 +116,7 @@ func (d *Data) Set(key string, val any) {
 
 // SetValue to data
 func (d *Data) SetValue(key string, val any) {
-	if d.lock {
+	if d.enableLock {
 		d.Lock()
 		defer d.Unlock()
 	}
@@ -99,12 +126,12 @@ func (d *Data) SetValue(key string, val any) {
 
 // Value get from data
 func (d *Data) Value(key string) (val any, ok bool) {
-	if d.lock {
+	if d.enableLock {
 		d.RLock()
 		defer d.RUnlock()
 	}
 
-	val, ok = maputil.GetByPath(key, d.data)
+	val, ok = d.data[key]
 	return
 }
 
@@ -115,13 +142,12 @@ func (d *Data) Get(key string) any {
 
 // GetVal get from data
 func (d *Data) GetVal(key string) any {
-	if d.lock {
+	if d.enableLock {
 		d.RLock()
 		defer d.RUnlock()
 	}
 
-	val, _ := maputil.GetByPath(key, d.data)
-	return val
+	return d.data[key]
 }
 
 // StrVal get from data
@@ -148,27 +174,21 @@ func (d *Data) String() string {
 	return maputil.ToString(d.data)
 }
 
-// OrderedData data TODO
-type OrderedData struct {
+// OrderedMap data TODO
+type OrderedMap struct {
 	maputil.Data
-	cap  int
+	len  int
 	keys []string
 	// vals []any
 }
 
-// NewOrderedData instance.
-func NewOrderedData(cap int) *OrderedData {
-	return &OrderedData{cap: cap, Data: make(maputil.Data, cap)}
-}
-
-// Load data
-func (om *OrderedData) Load(data map[string]any) {
-	om.Data.Load(data)
-	om.keys = om.Data.Keys()
+// NewOrderedMap instance.
+func NewOrderedMap(len int) *OrderedMap {
+	return &OrderedMap{len: len}
 }
 
 // Set key and value to map
-func (om *OrderedData) Set(key string, val any) {
+func (om *OrderedMap) Set(key string, val any) {
 	om.keys = append(om.keys, key)
 	om.Data.Set(key, val)
 }

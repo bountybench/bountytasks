@@ -5,12 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/config"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -84,14 +82,7 @@ func (s FileSystem) Put(key string, img []byte) error {
 func (s FileSystem) BuildKey(r Request) string {
 	checksum := r.Checksum
 	filetype := r.Types[0]
+	filename := strconv.Itoa(r.Resolution.Dx()) + "x" + strconv.Itoa(r.Resolution.Dy()) + "." + filetype
 
-	parts := []string{strconv.Itoa(r.Resolution.Dx()), "x", strconv.Itoa(r.Resolution.Dy())}
-
-	if r.Characteristic != "" {
-		parts = append(parts, "-", r.Characteristic)
-	}
-
-	parts = append(parts, ".", filetype)
-
-	return filepath.Join(checksum[:2], checksum[2:4], checksum[4:], strings.Join(parts, ""))
+	return filepath.Join(checksum[:2], checksum[2:4], checksum[4:], filename)
 }

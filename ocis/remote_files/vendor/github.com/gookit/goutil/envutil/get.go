@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gookit/goutil/basefn"
 	"github.com/gookit/goutil/internal/comfunc"
 	"github.com/gookit/goutil/strutil"
 )
@@ -23,7 +22,11 @@ func GetInt(name string, def ...int) int {
 	if val := os.Getenv(name); val != "" {
 		return strutil.QuietInt(val)
 	}
-	return basefn.FirstOr(def, 0)
+
+	if len(def) > 0 {
+		return def[0]
+	}
+	return 0
 }
 
 // GetBool get bool ENV value by key name, can with default value
@@ -31,7 +34,11 @@ func GetBool(name string, def ...bool) bool {
 	if val := os.Getenv(name); val != "" {
 		return strutil.QuietBool(val)
 	}
-	return basefn.FirstOr(def, false)
+
+	if len(def) > 0 {
+		return def[0]
+	}
+	return false
 }
 
 // GetMulti ENV values by input names.

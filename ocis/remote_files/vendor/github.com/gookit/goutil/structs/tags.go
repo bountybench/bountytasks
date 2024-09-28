@@ -207,6 +207,7 @@ func ParseTagValueDefault(field, tagVal string) (mp maputil.SMap, err error) {
 // ParseTagValueQuick quick parse tag value string by sep(;)
 func ParseTagValueQuick(tagVal string, defines []string) maputil.SMap {
 	parseFn := ParseTagValueDefine(";", defines)
+
 	mp, _ := parseFn("", tagVal)
 	return mp
 }

@@ -8,17 +8,15 @@ package loader
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"sigs.k8s.io/yaml"
+	"github.com/ghodss/yaml"
 
 	"github.com/open-policy-agent/opa/ast"
-	astJSON "github.com/open-policy-agent/opa/ast/json"
 	"github.com/open-policy-agent/opa/bundle"
 	fileurl "github.com/open-policy-agent/opa/internal/file/url"
 	"github.com/open-policy-agent/opa/internal/merge"
@@ -93,7 +91,6 @@ type FileLoader interface {
 	All(paths []string) (*Result, error)
 	Filtered(paths []string, filter Filter) (*Result, error)
 	AsBundle(path string) (*bundle.Bundle, error)
-	WithReader(io.Reader) FileLoader
 	WithFS(fs.FS) FileLoader
 	WithMetrics(metrics.Metrics) FileLoader
 	WithFilter(Filter) FileLoader
@@ -101,9 +98,6 @@ type FileLoader interface {
 	WithSkipBundleVerification(bool) FileLoader
 	WithProcessAnnotation(bool) FileLoader
 	WithCapabilities(*ast.Capabilities) FileLoader
-	WithJSONOptions(*astJSON.Options) FileLoader
-
-	WithRegoV1Compatible(bool) FileLoader
 }
 
 // NewFileLoader returns a new FileLoader instance.
@@ -122,7 +116,6 @@ type fileLoader struct {
 	files      map[string]bundle.FileInfo
 	opts       ast.ParserOptions
 	fsys       fs.FS
-	reader     io.Reader
 }
 
 // WithFS provides an fs.FS to use for loading files. You can pass nil to
@@ -130,14 +123,6 @@ type fileLoader struct {
 // behaviour.
 func (fl *fileLoader) WithFS(fsys fs.FS) FileLoader {
 	fl.fsys = fsys
-	return fl
-}
-
-// WithReader provides an io.Reader to use for loading the bundle tarball.
-// An io.Reader passed via WithReader takes precedence over an fs.FS passed
-// via WithFS.
-func (fl *fileLoader) WithReader(rdr io.Reader) FileLoader {
-	fl.reader = rdr
 	return fl
 }
 
@@ -174,17 +159,6 @@ func (fl *fileLoader) WithProcessAnnotation(processAnnotation bool) FileLoader {
 // WithCapabilities sets the supported capabilities when loading the files
 func (fl *fileLoader) WithCapabilities(caps *ast.Capabilities) FileLoader {
 	fl.opts.Capabilities = caps
-	return fl
-}
-
-// WithJSONOptions sets the JSONOptions for use when parsing files
-func (fl *fileLoader) WithJSONOptions(opts *astJSON.Options) FileLoader {
-	fl.opts.JSONOptions = opts
-	return fl
-}
-
-func (fl *fileLoader) WithRegoV1Compatible(compatible bool) FileLoader {
-	fl.opts.RegoV1Compatible = compatible
 	return fl
 }
 
@@ -238,14 +212,7 @@ func (fl fileLoader) AsBundle(path string) (*bundle.Bundle, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	var bundleLoader bundle.DirectoryLoader
-	var isDir bool
-	if fl.reader != nil {
-		bundleLoader = bundle.NewTarballLoaderWithBaseURL(fl.reader, path).WithFilter(fl.filter)
-	} else {
-		bundleLoader, isDir, err = GetBundleDirectoryLoaderFS(fl.fsys, path, fl.filter)
-	}
+	bundleLoader, isDir, err := GetBundleDirectoryLoaderWithFilter(path, fl.filter)
 	if err != nil {
 		return nil, err
 	}
@@ -255,8 +222,7 @@ func (fl fileLoader) AsBundle(path string) (*bundle.Bundle, error) {
 		WithBundleVerificationConfig(fl.bvc).
 		WithSkipBundleVerification(fl.skipVerify).
 		WithProcessAnnotations(fl.opts.ProcessAnnotation).
-		WithCapabilities(fl.opts.Capabilities).
-		WithJSONOptions(fl.opts.JSONOptions)
+		WithCapabilities(fl.opts.Capabilities)
 
 	// For bundle directories add the full path in front of module file names
 	// to simplify debugging.
@@ -273,57 +239,55 @@ func (fl fileLoader) AsBundle(path string) (*bundle.Bundle, error) {
 }
 
 // GetBundleDirectoryLoader returns a bundle directory loader which can be used to load
-// files in the directory
-func GetBundleDirectoryLoader(path string) (bundle.DirectoryLoader, bool, error) {
-	return GetBundleDirectoryLoaderFS(nil, path, nil)
-}
-
-// GetBundleDirectoryLoaderWithFilter returns a bundle directory loader which can be used to load
-// files in the directory after applying the given filter.
-func GetBundleDirectoryLoaderWithFilter(path string, filter Filter) (bundle.DirectoryLoader, bool, error) {
-	return GetBundleDirectoryLoaderFS(nil, path, filter)
-}
-
-// GetBundleDirectoryLoaderFS returns a bundle directory loader which can be used to load
 // files in the directory.
-func GetBundleDirectoryLoaderFS(fsys fs.FS, path string, filter Filter) (bundle.DirectoryLoader, bool, error) {
+func GetBundleDirectoryLoader(path string) (bundle.DirectoryLoader, bool, error) {
 	path, err := fileurl.Clean(path)
 	if err != nil {
 		return nil, false, err
 	}
 
-	var fi fs.FileInfo
-	if fsys != nil {
-		fi, err = fs.Stat(fsys, path)
-	} else {
-		fi, err = os.Stat(path)
-	}
+	fi, err := os.Stat(path)
 	if err != nil {
 		return nil, false, fmt.Errorf("error reading %q: %s", path, err)
 	}
 
 	var bundleLoader bundle.DirectoryLoader
+
 	if fi.IsDir() {
-		if fsys != nil {
-			bundleLoader = bundle.NewFSLoaderWithRoot(fsys, path)
-		} else {
-			bundleLoader = bundle.NewDirectoryLoader(path)
-		}
+		bundleLoader = bundle.NewDirectoryLoader(path)
 	} else {
-		var fh fs.File
-		if fsys != nil {
-			fh, err = fsys.Open(path)
-		} else {
-			fh, err = os.Open(path)
-		}
+		fh, err := os.Open(path)
 		if err != nil {
 			return nil, false, err
 		}
 		bundleLoader = bundle.NewTarballLoaderWithBaseURL(fh, path)
 	}
+	return bundleLoader, fi.IsDir(), nil
+}
 
-	if filter != nil {
-		bundleLoader = bundleLoader.WithFilter(filter)
+// GetBundleDirectoryLoaderWithFilter returns a bundle directory loader which can be used to load
+// files in the directory after applying the given filter.
+func GetBundleDirectoryLoaderWithFilter(path string, filter Filter) (bundle.DirectoryLoader, bool, error) {
+	path, err := fileurl.Clean(path)
+	if err != nil {
+		return nil, false, err
+	}
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, false, fmt.Errorf("error reading %q: %s", path, err)
+	}
+
+	var bundleLoader bundle.DirectoryLoader
+
+	if fi.IsDir() {
+		bundleLoader = bundle.NewDirectoryLoader(path).WithFilter(filter)
+	} else {
+		fh, err := os.Open(path)
+		if err != nil {
+			return nil, false, err
+		}
+		bundleLoader = bundle.NewTarballLoaderWithBaseURL(fh, path).WithFilter(filter)
 	}
 	return bundleLoader, fi.IsDir(), nil
 }
@@ -757,10 +721,11 @@ func loadRego(path string, bs []byte, m metrics.Metrics, opts ast.ParserOptions)
 
 func loadJSON(path string, bs []byte, m metrics.Metrics) (interface{}, error) {
 	m.Timer(metrics.RegoDataParse).Start()
+	buf := bytes.NewBuffer(bs)
+	decoder := util.NewJSONDecoder(buf)
 	var x interface{}
-	err := util.UnmarshalJSON(bs, &x)
+	err := decoder.Decode(&x)
 	m.Timer(metrics.RegoDataParse).Stop()
-
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}

@@ -2,12 +2,11 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 
 	ociscfg "github.com/owncloud/ocis/v2/ocis-pkg/config"
+	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	"github.com/owncloud/ocis/v2/services/notifications/pkg/config"
 	"github.com/owncloud/ocis/v2/services/notifications/pkg/config/defaults"
-	"github.com/owncloud/ocis/v2/services/notifications/pkg/logging"
 
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/envdecode"
 )
@@ -35,22 +34,9 @@ func ParseConfig(cfg *config.Config) error {
 }
 
 func Validate(cfg *config.Config) error {
-	logger := logging.Configure(cfg.Service.Name, cfg.Log)
-
-	if cfg.Notifications.SMTP.Host != "" {
-		switch cfg.Notifications.SMTP.Encryption {
-		case "tls":
-			logger.Warn().Msg("The smtp_encryption value 'tls' is deprecated. Please use the value 'starttls' instead.")
-		case "ssl":
-			logger.Warn().Msg("The smtp_encryption value 'ssl' is deprecated. Please use the value 'ssltls' instead.")
-		case "starttls", "ssltls", "none":
-			break
-		default:
-			return fmt.Errorf(
-				"unknown value '%s' for 'smtp_encryption' in service %s. Allowed values are 'starttls', 'ssltls' or 'none'",
-				cfg.Notifications.SMTP.Encryption, cfg.Service.Name,
-			)
-		}
+	if cfg.Notifications.MachineAuthAPIKey == "" {
+		return shared.MissingMachineAuthApiKeyError(cfg.Service.Name)
 	}
+
 	return nil
 }

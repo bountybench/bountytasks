@@ -15,8 +15,6 @@ import (
 
 	"github.com/mohae/deepcopy"
 	"github.com/olekukonko/tablewriter"
-	"github.com/thejerf/suture/v4"
-
 	ociscfg "github.com/owncloud/ocis/v2/ocis-pkg/config"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
@@ -26,8 +24,6 @@ import (
 	audit "github.com/owncloud/ocis/v2/services/audit/pkg/command"
 	authbasic "github.com/owncloud/ocis/v2/services/auth-basic/pkg/command"
 	authmachine "github.com/owncloud/ocis/v2/services/auth-machine/pkg/command"
-	authservice "github.com/owncloud/ocis/v2/services/auth-service/pkg/command"
-	clientlog "github.com/owncloud/ocis/v2/services/clientlog/pkg/command"
 	eventhistory "github.com/owncloud/ocis/v2/services/eventhistory/pkg/command"
 	frontend "github.com/owncloud/ocis/v2/services/frontend/pkg/command"
 	gateway "github.com/owncloud/ocis/v2/services/gateway/pkg/command"
@@ -39,7 +35,6 @@ import (
 	nats "github.com/owncloud/ocis/v2/services/nats/pkg/command"
 	notifications "github.com/owncloud/ocis/v2/services/notifications/pkg/command"
 	ocdav "github.com/owncloud/ocis/v2/services/ocdav/pkg/command"
-	ocm "github.com/owncloud/ocis/v2/services/ocm/pkg/command"
 	ocs "github.com/owncloud/ocis/v2/services/ocs/pkg/command"
 	policies "github.com/owncloud/ocis/v2/services/policies/pkg/command"
 	postprocessing "github.com/owncloud/ocis/v2/services/postprocessing/pkg/command"
@@ -47,7 +42,6 @@ import (
 	search "github.com/owncloud/ocis/v2/services/search/pkg/command"
 	settings "github.com/owncloud/ocis/v2/services/settings/pkg/command"
 	sharing "github.com/owncloud/ocis/v2/services/sharing/pkg/command"
-	sse "github.com/owncloud/ocis/v2/services/sse/pkg/command"
 	storagepublic "github.com/owncloud/ocis/v2/services/storage-publiclink/pkg/command"
 	storageshares "github.com/owncloud/ocis/v2/services/storage-shares/pkg/command"
 	storageSystem "github.com/owncloud/ocis/v2/services/storage-system/pkg/command"
@@ -59,15 +53,12 @@ import (
 	web "github.com/owncloud/ocis/v2/services/web/pkg/command"
 	webdav "github.com/owncloud/ocis/v2/services/webdav/pkg/command"
 	webfinger "github.com/owncloud/ocis/v2/services/webfinger/pkg/command"
+	"github.com/thejerf/suture/v4"
 )
 
 var (
 	// runset keeps track of which services to start supervised.
 	runset map[string]struct{}
-	// time to wait after starting the preliminary services
-	_preliminaryDelay = 6 * time.Second
-	// time to wait between starting service groups (preliminary, main, delayed)
-	_startDelay = 2 * time.Second
 )
 
 type serviceFuncMap map[string]func(*ociscfg.Config) suture.Service
@@ -75,7 +66,6 @@ type serviceFuncMap map[string]func(*ociscfg.Config) suture.Service
 // Service represents a RPC service.
 type Service struct {
 	Supervisor       *suture.Supervisor
-	Preliminary      serviceFuncMap
 	ServicesRegistry serviceFuncMap
 	Delayed          serviceFuncMap
 	Additional       serviceFuncMap
@@ -108,7 +98,6 @@ func NewService(options ...Option) (*Service, error) {
 	globalCtx, cancelGlobal := context.WithCancel(context.Background())
 
 	s := &Service{
-		Preliminary:      make(serviceFuncMap),
 		ServicesRegistry: make(serviceFuncMap),
 		Delayed:          make(serviceFuncMap),
 		Additional:       make(serviceFuncMap),
@@ -119,13 +108,6 @@ func NewService(options ...Option) (*Service, error) {
 		cancel:       cancelGlobal,
 		cfg:          opts.Config,
 	}
-
-	// start nats first - it is used as service registry
-	s.Preliminary[opts.Config.Nats.Service.Name] = NewSutureServiceBuilder(func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.Nats.Context = ctx
-		cfg.Nats.Commons = cfg.Commons
-		return nats.Execute(cfg.Nats)
-	})
 
 	// populate services
 	reg := func(name string, exec func(context.Context, *ociscfg.Config) error) {
@@ -151,20 +133,15 @@ func NewService(options ...Option) (*Service, error) {
 		cfg.AuthMachine.Commons = cfg.Commons
 		return authmachine.Execute(cfg.AuthMachine)
 	})
-	reg(opts.Config.AuthService.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.AuthService.Context = ctx
-		cfg.AuthService.Commons = cfg.Commons
-		return authservice.Execute(cfg.AuthService)
-	})
-	reg(opts.Config.Clientlog.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.Clientlog.Context = ctx
-		cfg.Clientlog.Commons = cfg.Commons
-		return clientlog.Execute(cfg.Clientlog)
-	})
 	reg(opts.Config.EventHistory.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
 		cfg.EventHistory.Context = ctx
 		cfg.EventHistory.Commons = cfg.Commons
 		return eventhistory.Execute(cfg.EventHistory)
+	})
+	reg(opts.Config.Frontend.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
+		cfg.Frontend.Context = ctx
+		cfg.Frontend.Commons = cfg.Commons
+		return frontend.Execute(cfg.Frontend)
 	})
 	reg(opts.Config.Gateway.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
 		cfg.Gateway.Context = ctx
@@ -190,6 +167,11 @@ func NewService(options ...Option) (*Service, error) {
 		cfg.Invitations.Context = ctx
 		cfg.Invitations.Commons = cfg.Commons
 		return invitations.Execute(cfg.Invitations)
+	})
+	reg(opts.Config.Nats.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
+		cfg.Nats.Context = ctx
+		cfg.Nats.Commons = cfg.Commons
+		return nats.Execute(cfg.Nats)
 	})
 	reg(opts.Config.Notifications.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
 		cfg.Notifications.Context = ctx
@@ -301,11 +283,6 @@ func NewService(options ...Option) (*Service, error) {
 	dreg := func(name string, exec func(context.Context, *ociscfg.Config) error) {
 		s.Delayed[name] = NewSutureServiceBuilder(exec)
 	}
-	dreg(opts.Config.Frontend.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.Frontend.Context = ctx
-		cfg.Frontend.Commons = cfg.Commons
-		return frontend.Execute(cfg.Frontend)
-	})
 	dreg(opts.Config.IDP.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
 		cfg.IDP.Context = ctx
 		cfg.IDP.Commons = cfg.Commons
@@ -321,21 +298,11 @@ func NewService(options ...Option) (*Service, error) {
 		cfg.Sharing.Commons = cfg.Commons
 		return sharing.Execute(cfg.Sharing)
 	})
-	dreg(opts.Config.SSE.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.SSE.Context = ctx
-		cfg.SSE.Commons = cfg.Commons
-		return sse.Execute(cfg.SSE)
-	})
-	dreg(opts.Config.OCM.Service.Name, func(ctx context.Context, cfg *ociscfg.Config) error {
-		cfg.OCM.Context = ctx
-		cfg.OCM.Commons = cfg.Commons
-		return ocm.Execute(cfg.OCM)
-	})
 
 	return s, nil
 }
 
-// Start a rpc service. By default, the package scope Start will run all default services to provide with a working
+// Start an rpc service. By default the package scope Start will run all default services to provide with a working
 // oCIS instance.
 func Start(o ...Option) error {
 	// Start the runtime. Most likely this was called ONLY by the `ocis server` subcommand, but since we cannot protect
@@ -402,8 +369,11 @@ func Start(o ...Option) error {
 	// prepare the set of services to run
 	s.generateRunSet(s.cfg)
 
-	// schedule preliminary services first
-	scheduleServiceTokens(s, s.Preliminary)
+	// schedule services that we are sure don't have interdependencies.
+	scheduleServiceTokens(s, s.ServicesRegistry)
+
+	// schedule services that are optional
+	scheduleServiceTokens(s, s.Additional)
 
 	// there are reasons not to do this, but we have race conditions ourselves. Until we resolve them, mind the following disclaimer:
 	// Calling ServeBackground will CORRECTLY start the supervisor running in a new goroutine. It is risky to directly run
@@ -415,17 +385,8 @@ func Start(o ...Option) error {
 	// trap will block on halt channel for interruptions.
 	go trap(s, halt)
 
-	// grace period for preliminary services to get up
-	time.Sleep(_preliminaryDelay)
-
-	// schedule services that we are sure don't have interdependencies.
-	scheduleServiceTokens(s, s.ServicesRegistry)
-
-	// schedule services that are optional
-	scheduleServiceTokens(s, s.Additional)
-
 	// add services with delayed execution.
-	time.Sleep(_startDelay)
+	time.Sleep(1 * time.Second)
 	scheduleServiceTokens(s, s.Delayed)
 
 	return http.Serve(l, nil)
@@ -452,10 +413,6 @@ func (s *Service) generateRunSet(cfg *ociscfg.Config) {
 			runset[name] = struct{}{}
 		}
 		return
-	}
-
-	for name := range s.Preliminary {
-		runset[name] = struct{}{}
 	}
 
 	for name := range s.ServicesRegistry {

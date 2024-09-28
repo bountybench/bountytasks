@@ -3,11 +3,10 @@ package userroles
 import (
 	"context"
 
-	gateway "github.com/cs3org/go-cs3apis/cs3/gateway/v1beta1"
 	cs3 "github.com/cs3org/go-cs3apis/cs3/identity/user/v1beta1"
-	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
+	"github.com/owncloud/ocis/v2/services/proxy/pkg/autoprovision"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
 )
 
@@ -26,12 +25,11 @@ type UserRoleAssigner interface {
 
 // Options defines the available options for this package.
 type Options struct {
-	gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
-	roleService     settingssvc.RoleService
-	rolesClaim      string
-	roleMapping     []config.RoleMapping
-	serviceAccount  config.ServiceAccount
-	logger          log.Logger
+	roleService         settingssvc.RoleService
+	rolesClaim          string
+	roleMapping         []config.RoleMapping
+	autoProvsionCreator autoprovision.Creator
+	logger              log.Logger
 }
 
 // Option defines a single option function.
@@ -65,17 +63,10 @@ func WithRoleMapping(roleMap []config.RoleMapping) Option {
 	}
 }
 
-// WithRevaGatewaySelector set the gatewaySelector option
-func WithRevaGatewaySelector(selectable pool.Selectable[gateway.GatewayAPIClient]) Option {
+// WithAutoProvisonCreator configures the autoprovision creator to use
+func WithAutoProvisonCreator(c autoprovision.Creator) Option {
 	return func(o *Options) {
-		o.gatewaySelector = selectable
-	}
-}
-
-// WithServiceAccount configures the service account creator to use
-func WithServiceAccount(c config.ServiceAccount) Option {
-	return func(o *Options) {
-		o.serviceAccount = c
+		o.autoProvsionCreator = c
 	}
 }
 

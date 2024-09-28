@@ -14,11 +14,7 @@
 
 package search
 
-import (
-	"context"
-
-	"github.com/blevesearch/geo/s2"
-)
+import "context"
 
 func MergeLocations(locations []FieldTermLocationMap) FieldTermLocationMap {
 	rv := locations[0]
@@ -105,7 +101,6 @@ const (
 
 const SearchIncrementalCostKey = "_search_incremental_cost_key"
 const QueryTypeKey = "_query_type_key"
-const FuzzyMatchPhraseKey = "_fuzzy_match_phrase_key"
 
 func RecordSearchCost(ctx context.Context,
 	msg SearchIncrementalCostCallbackMsg, bytes uint64) {
@@ -123,13 +118,3 @@ func RecordSearchCost(ctx context.Context,
 		}
 	}
 }
-
-const GeoBufferPoolCallbackKey = "_geo_buffer_pool_callback_key"
-
-// Assigning the size of the largest buffer in the pool to 24KB and
-// the smallest buffer to 24 bytes. The pools are used to read a
-// sequence of vertices which are always 24 bytes each.
-const MaxGeoBufPoolSize = 24 * 1024
-const MinGeoBufPoolSize = 24
-
-type GeoBufferPoolCallbackFunc func() *s2.GeoBufferPool

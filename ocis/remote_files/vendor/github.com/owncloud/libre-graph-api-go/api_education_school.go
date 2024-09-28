@@ -13,7 +13,7 @@ package libregraph
 import (
 	"bytes"
 	"context"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -67,8 +67,8 @@ func (a *EducationSchoolApiService) AddClassToSchoolExecute(r ApiAddClassToSchoo
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/classes/$ref"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/classes/$ref"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -106,9 +106,9 @@ func (a *EducationSchoolApiService) AddClassToSchoolExecute(r ApiAddClassToSchoo
 		return localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -124,7 +124,6 @@ func (a *EducationSchoolApiService) AddClassToSchoolExecute(r ApiAddClassToSchoo
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -177,8 +176,8 @@ func (a *EducationSchoolApiService) AddUserToSchoolExecute(r ApiAddUserToSchoolR
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/users/$ref"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/users/$ref"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -216,9 +215,9 @@ func (a *EducationSchoolApiService) AddUserToSchoolExecute(r ApiAddUserToSchoolR
 		return localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -234,7 +233,6 @@ func (a *EducationSchoolApiService) AddUserToSchoolExecute(r ApiAddUserToSchoolR
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -286,7 +284,7 @@ func (a *EducationSchoolApiService) CreateSchoolExecute(r ApiCreateSchoolRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools"
+	localVarPath := localBasePath + "/education/schools"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -324,9 +322,9 @@ func (a *EducationSchoolApiService) CreateSchoolExecute(r ApiCreateSchoolRequest
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -342,7 +340,6 @@ func (a *EducationSchoolApiService) CreateSchoolExecute(r ApiCreateSchoolRequest
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -400,9 +397,9 @@ func (a *EducationSchoolApiService) DeleteClassFromSchoolExecute(r ApiDeleteClas
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/classes/{class-id}/$ref"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"class-id"+"}", url.PathEscape(parameterValueToString(r.classId, "classId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/classes/{class-id}/$ref"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"class-id"+"}", url.PathEscape(parameterToString(r.classId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -435,9 +432,9 @@ func (a *EducationSchoolApiService) DeleteClassFromSchoolExecute(r ApiDeleteClas
 		return localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -453,7 +450,6 @@ func (a *EducationSchoolApiService) DeleteClassFromSchoolExecute(r ApiDeleteClas
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -501,8 +497,8 @@ func (a *EducationSchoolApiService) DeleteSchoolExecute(r ApiDeleteSchoolRequest
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -535,9 +531,9 @@ func (a *EducationSchoolApiService) DeleteSchoolExecute(r ApiDeleteSchoolRequest
 		return localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -553,7 +549,6 @@ func (a *EducationSchoolApiService) DeleteSchoolExecute(r ApiDeleteSchoolRequest
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -602,9 +597,9 @@ func (a *EducationSchoolApiService) DeleteUserFromSchoolExecute(r ApiDeleteUserF
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/users/{user-id}/$ref"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"user-id"+"}", url.PathEscape(parameterValueToString(r.userId, "userId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/users/{user-id}/$ref"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"user-id"+"}", url.PathEscape(parameterToString(r.userId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -637,9 +632,9 @@ func (a *EducationSchoolApiService) DeleteUserFromSchoolExecute(r ApiDeleteUserF
 		return localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarHTTPResponse, err
 	}
@@ -655,7 +650,6 @@ func (a *EducationSchoolApiService) DeleteUserFromSchoolExecute(r ApiDeleteUserF
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -703,8 +697,8 @@ func (a *EducationSchoolApiService) GetSchoolExecute(r ApiGetSchoolRequest) (*Ed
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -737,9 +731,9 @@ func (a *EducationSchoolApiService) GetSchoolExecute(r ApiGetSchoolRequest) (*Ed
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -755,7 +749,6 @@ func (a *EducationSchoolApiService) GetSchoolExecute(r ApiGetSchoolRequest) (*Ed
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -812,8 +805,8 @@ func (a *EducationSchoolApiService) ListSchoolClassesExecute(r ApiListSchoolClas
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/classes"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/classes"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -846,9 +839,9 @@ func (a *EducationSchoolApiService) ListSchoolClassesExecute(r ApiListSchoolClas
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -864,7 +857,6 @@ func (a *EducationSchoolApiService) ListSchoolClassesExecute(r ApiListSchoolClas
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -887,7 +879,7 @@ type ApiListSchoolUsersRequest struct {
 	schoolId   string
 }
 
-func (r ApiListSchoolUsersRequest) Execute() (*CollectionOfEducationUser, *http.Response, error) {
+func (r ApiListSchoolUsersRequest) Execute() (*CollectionOfEducationUser1, *http.Response, error) {
 	return r.ApiService.ListSchoolUsersExecute(r)
 }
 
@@ -907,13 +899,13 @@ func (a *EducationSchoolApiService) ListSchoolUsers(ctx context.Context, schoolI
 }
 
 // Execute executes the request
-//  @return CollectionOfEducationUser
-func (a *EducationSchoolApiService) ListSchoolUsersExecute(r ApiListSchoolUsersRequest) (*CollectionOfEducationUser, *http.Response, error) {
+//  @return CollectionOfEducationUser1
+func (a *EducationSchoolApiService) ListSchoolUsersExecute(r ApiListSchoolUsersRequest) (*CollectionOfEducationUser1, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *CollectionOfEducationUser
+		localVarReturnValue *CollectionOfEducationUser1
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "EducationSchoolApiService.ListSchoolUsers")
@@ -921,8 +913,8 @@ func (a *EducationSchoolApiService) ListSchoolUsersExecute(r ApiListSchoolUsersR
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}/users"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}/users"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -955,9 +947,9 @@ func (a *EducationSchoolApiService) ListSchoolUsersExecute(r ApiListSchoolUsersR
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -973,7 +965,6 @@ func (a *EducationSchoolApiService) ListSchoolUsersExecute(r ApiListSchoolUsersR
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1027,7 +1018,7 @@ func (a *EducationSchoolApiService) ListSchoolsExecute(r ApiListSchoolsRequest) 
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools"
+	localVarPath := localBasePath + "/education/schools"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1060,9 +1051,9 @@ func (a *EducationSchoolApiService) ListSchoolsExecute(r ApiListSchoolsRequest) 
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -1078,7 +1069,6 @@ func (a *EducationSchoolApiService) ListSchoolsExecute(r ApiListSchoolsRequest) 
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1142,8 +1132,8 @@ func (a *EducationSchoolApiService) UpdateSchoolExecute(r ApiUpdateSchoolRequest
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1.0/education/schools/{school-id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterValueToString(r.schoolId, "schoolId")), -1)
+	localVarPath := localBasePath + "/education/schools/{school-id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"school-id"+"}", url.PathEscape(parameterToString(r.schoolId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1181,9 +1171,9 @@ func (a *EducationSchoolApiService) UpdateSchoolExecute(r ApiUpdateSchoolRequest
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
 
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
 	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
 	if err != nil {
 		return localVarReturnValue, localVarHTTPResponse, err
 	}
@@ -1199,7 +1189,6 @@ func (a *EducationSchoolApiService) UpdateSchoolExecute(r ApiUpdateSchoolRequest
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
-		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

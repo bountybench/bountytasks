@@ -26,9 +26,8 @@ type Config struct {
 
 	RoleQuotas            map[string]uint64  `yaml:"role_quotas"`
 	Policies              []Policy           `yaml:"policies"`
-	AdditionalPolicies    []Policy           `yaml:"additional_policies"`
 	OIDC                  OIDC               `yaml:"oidc"`
-	ServiceAccount        ServiceAccount     `yaml:"service_account"`
+	TokenManager          *TokenManager      `mask:"struct" yaml:"token_manager"`
 	RoleAssignment        RoleAssignment     `yaml:"role_assignment"`
 	PolicySelector        *PolicySelector    `yaml:"policy_selector"`
 	PreSignedURL          PreSignedURL       `yaml:"pre_signed_url"`
@@ -124,11 +123,11 @@ type JWKS struct {
 // Cache is a TTL cache configuration.
 type Cache struct {
 	Store    string        `yaml:"store" env:"OCIS_CACHE_STORE;PROXY_OIDC_USERINFO_CACHE_STORE" desc:"The type of the cache store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details."`
-	Nodes    []string      `yaml:"addresses" env:"OCIS_CACHE_STORE_NODES;PROXY_OIDC_USERINFO_CACHE_STORE_NODES" desc:"A list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store. See the Environment Variable Types description for more details."`
+	Nodes    []string      `yaml:"addresses" env:"OCIS_CACHE_STORE_NODES;PROXY_OIDC_USERINFO_CACHE_STORE_NODES" desc:"A comma separated list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store."`
 	Database string        `yaml:"database" env:"OCIS_CACHE_DATABASE" desc:"The database name the configured store should use."`
 	Table    string        `yaml:"table" env:"PROXY_OIDC_USERINFO_CACHE_TABLE" desc:"The database table the store should use."`
-	TTL      time.Duration `yaml:"ttl" env:"OCIS_CACHE_TTL;PROXY_OIDC_USERINFO_CACHE_TTL" desc:"Default time to live for user info in the user info cache. Only applied when access tokens has no expiration. See the Environment Variable Types description for more details."`
-	Size     int           `yaml:"size" env:"OCIS_CACHE_SIZE;PROXY_OIDC_USERINFO_CACHE_SIZE" desc:"The maximum quantity of items in the user info cache. Only applies when store type 'ocmem' is configured. Defaults to 512 which is derived from the ocmem package though not exclicitely set as default."`
+	TTL      time.Duration `yaml:"ttl" env:"OCIS_CACHE_TTL;PROXY_OIDC_USERINFO_CACHE_TTL" desc:"Default time to live for user info in the user info cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '10s' (10 seconds)."`
+	Size     int           `yaml:"size" env:"OCIS_CACHE_SIZE;PROXY_OIDC_USERINFO_CACHE_SIZE" desc:"The maximum quantity of items in the user info cache. Only applies when store type 'ocmem' is configured. Defaults to 512."`
 }
 
 // RoleAssignment contains the configuration for how to assign roles to users during login
@@ -161,6 +160,11 @@ type StaticSelectorConf struct {
 	Policy string `yaml:"policy"`
 }
 
+// TokenManager is the config for using the reva token manager
+type TokenManager struct {
+	JWTSecret string `mask:"password" yaml:"jwt_secret" env:"OCIS_JWT_SECRET;PROXY_JWT_SECRET" desc:"The secret to mint and validate JWT tokens."`
+}
+
 // PreSignedURL is the config for the presigned url middleware
 type PreSignedURL struct {
 	AllowedHTTPMethods []string `yaml:"allowed_http_methods"`
@@ -187,10 +191,4 @@ type RegexRuleConf struct {
 	Property string `yaml:"property"`
 	Match    string `yaml:"match"`
 	Policy   string `yaml:"policy"`
-}
-
-// ServiceAccount is the configuration for the used service account
-type ServiceAccount struct {
-	ServiceAccountID     string `yaml:"service_account_id" env:"OCIS_SERVICE_ACCOUNT_ID;PROXY_SERVICE_ACCOUNT_ID" desc:"The ID of the service account the service should use. See the 'auth-service' service description for more details."`
-	ServiceAccountSecret string `yaml:"service_account_secret" env:"OCIS_SERVICE_ACCOUNT_SECRET;PROXY_SERVICE_ACCOUNT_SECRET" desc:"The service account secret."`
 }

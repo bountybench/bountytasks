@@ -30,7 +30,7 @@ We also suggest to use the last port in your extensions' range as a debug/metric
 | 9120-9124  | [graph]({{< ref "../graph/_index.md" >}})                                              |
 | 9125-9129  | [policies]({{< ref "../policies/_index.md" >}})                                        |
 | 9130-9134  | [idp]({{< ref "../idp/_index.md" >}})                                                  |
-| 9135-9139  | [sse]({{< ref "../sse/_index.md" >}})                                                  |
+| 9135-9139  | FREE (formerly used by graph-explorer)                                                 |
 | 9140-9141  | [frontend]({{< ref "../frontend/_index.md" >}})                                        |
 | 9142-9143  | [gateway]({{< ref "../gateway/_index.md" >}})                                          |
 | 9144-9145  | [users]({{< ref "../users/_index.md" >}})                                              |
@@ -49,11 +49,10 @@ We also suggest to use the last port in your extensions' range as a debug/metric
 | 9180-9184  | FREE (formerly used by accounts)                                                       |
 | 9185-9189  | [thumbnails]({{< ref "../thumbnails/_index.md" >}})                                    |
 | 9190-9194  | [settings]({{< ref "../settings/_index.md" >}})                                        |
-| 9195-9197  | FREE                                                                                   |
-| 9198-9199  | [auth-service]({{< ref "../auth-service/_index.md" >}})                                |
+| 9195-9199  | FREE                                                                                   |
 | 9200-9204  | [proxy]({{< ref "../proxy/_index.md" >}})                                              |
 | 9205-9209  | [proxy]({{< ref "../proxy/_index.md" >}})                                              |
-| 9210-9214  | [userlog]({{< ref "../userlog/_index.md" >}})                                          |
+| 9210-9214  | [userlog]{{< ref "../userlog/_index.md" >}}                                            |
 | 9215-9219  | [storage-system]({{< ref "../storage-system/_index.md" >}})                            |
 | 9220-9224  | [search]({{< ref "../search/_index.md" >}})                                            |
 | 9225-9229  | [audit]({{< ref "../audit/_index.md" >}})                                              |
@@ -62,12 +61,12 @@ We also suggest to use the last port in your extensions' range as a debug/metric
 | 9240-9244  | [app-registry]({{< ref "../app-registry/_index.md" >}})                                |
 | 9245-9249  | FREE                                                                                   |
 | 9250-9254  | [ocis server (runtime)](https://github.com/owncloud/ocis/tree/master/ocis/pkg/runtime) |
-| 9255-9259  | [postprocessing]({{< ref "../postprocessing/_index.md" >}})                            |
-| 9260-9264  | [clientlog]({{< ref "../clientlog/_index.md" >}})                                       |
+| 9255-9259  | [postprocessing]({{ ref "../postprocessing/_index.md" >}})                             |
+| 9260-9264  | FREE                                                                                   |
 | 9265-9269  | FREE                                                                                   |
 | 9270-9274  | [eventhistory]({{< ref "../eventhistory/_index.md" >}})                                |
 | 9275-9279  | FREE                                                                                   |
-| 9280-9284  | [ocm]({{< ref "../ocm/_index.md" >}})                                         |
+| 9280-9284  | FREE                                                                                   |
 | 9285-9289  | FREE                                                                                   |
 | 9290-9294  | FREE                                                                                   |
 | 9295-9299  | FREE                                                                                   |

@@ -18,13 +18,14 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	libregraph "github.com/owncloud/libre-graph-api-go"
+	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
 	"github.com/owncloud/ocis/v2/services/graph/mocks"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config/defaults"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
 	identitymocks "github.com/owncloud/ocis/v2/services/graph/pkg/identity/mocks"
 	service "github.com/owncloud/ocis/v2/services/graph/pkg/service/v0"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
 )
@@ -84,6 +85,7 @@ var _ = Describe("EducationClass", func() {
 			service.EventsPublisher(&eventsPublisher),
 			service.WithIdentityBackend(identityBackend),
 			service.WithIdentityEducationBackend(identityEducationBackend),
+			service.Logger(log.NewLogger(log.Level("debug"))),
 		)
 	})
 
@@ -132,7 +134,7 @@ var _ = Describe("EducationClass", func() {
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/education/classes", nil)
 			svc.GetEducationClasses(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
+			Expect(rr.Code).To(Equal(http.StatusInternalServerError))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 

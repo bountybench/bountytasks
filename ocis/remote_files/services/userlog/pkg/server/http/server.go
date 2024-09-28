@@ -19,7 +19,8 @@ import (
 )
 
 // Service is the service interface
-type Service interface{}
+type Service interface {
+}
 
 // Server initializes the http service and server.
 func Server(opts ...Option) (http.Service, error) {
@@ -34,7 +35,6 @@ func Server(opts ...Option) (http.Service, error) {
 		http.Address(options.Config.HTTP.Addr),
 		http.Context(options.Context),
 		http.Flags(options.Flags...),
-		http.TraceProvider(options.TracerProvider),
 	)
 	if err != nil {
 		options.Logger.Error().
@@ -80,7 +80,7 @@ func Server(opts ...Option) (http.Service, error) {
 
 	handle, err := svc.NewUserlogService(
 		svc.Logger(options.Logger),
-		svc.Stream(options.Stream),
+		svc.Consumer(options.Consumer),
 		svc.Mux(mux),
 		svc.Store(options.Store),
 		svc.Config(options.Config),
@@ -89,7 +89,6 @@ func Server(opts ...Option) (http.Service, error) {
 		svc.ValueClient(options.ValueClient),
 		svc.RoleClient(options.RoleClient),
 		svc.RegisteredEvents(options.RegisteredEvents),
-		svc.TraceProvider(options.TracerProvider),
 	)
 	if err != nil {
 		return http.Service{}, err

@@ -52,7 +52,6 @@ var (
 
 	// ---------- basic(16) <=> RGB color convert ----------
 	// refer from Hyper app
-	// Tip: only keep foreground color, background color need convert to foreground color for convert to RGB
 	basic2hexMap = map[uint8]string{
 		30: "000000", // black
 		31: "c51e14", // red
@@ -62,7 +61,7 @@ var (
 		35: "c839c5", // magenta
 		36: "20c5c6", // cyan
 		37: "c7c7c7", // white
-		// - don't add bg color, convert to fg color for convert to RGB
+		// - don't add bg color
 		// 40:  "000000", // black
 		// 41:  "c51e14", // red
 		// 42:  "1dc121", // green
@@ -429,11 +428,10 @@ func HexToRGB(hex string) []int { return HexToRgb(hex) }
 // HexToRgb convert hex color string to RGB numbers
 //
 // Usage:
-//
-//	rgb := HexToRgb("ccc") // rgb: [204 204 204]
-//	rgb := HexToRgb("aabbcc") // rgb: [170 187 204]
-//	rgb := HexToRgb("#aabbcc") // rgb: [170 187 204]
-//	rgb := HexToRgb("0xad99c0") // rgb: [170 187 204]
+// 	rgb := HexToRgb("ccc") // rgb: [204 204 204]
+// 	rgb := HexToRgb("aabbcc") // rgb: [170 187 204]
+// 	rgb := HexToRgb("#aabbcc") // rgb: [170 187 204]
+// 	rgb := HexToRgb("0xad99c0") // rgb: [170 187 204]
 func HexToRgb(hex string) (rgb []int) {
 	hex = strings.TrimSpace(hex)
 	if hex == "" {
@@ -476,7 +474,6 @@ func Rgb2hex(rgb []int) string { return RgbToHex(rgb) }
 // RgbToHex convert RGB-code to hex-code
 //
 // Usage:
-//
 //	hex := RgbToHex([]int{170, 187, 204}) // hex: "aabbcc"
 func RgbToHex(rgb []int) string {
 	hexNodes := make([]string, len(rgb))
@@ -491,15 +488,10 @@ func RgbToHex(rgb []int) string {
  * 4bit(16) color <=> RGB/True color
  *************************************************************/
 
-// BasicToHex convert basic color to hex string.
-func BasicToHex(val uint8) string {
-	val = Bg2Fg(val)
-	return basic2hexMap[val]
-}
-
 // Basic2hex convert basic color to hex string.
 func Basic2hex(val uint8) string {
-	return BasicToHex(val)
+	val = Fg2Bg(val)
+	return basic2hexMap[val]
 }
 
 // Hex2basic convert hex string to basic color code.
@@ -671,7 +663,6 @@ func C256ToRgbV1(val uint8) (rgb []uint8) {
 // returns r, g, and b in the set [0, 255].
 //
 // Usage:
-//
 //	HslIntToRgb(0, 100, 50) // red
 //	HslIntToRgb(120, 100, 50) // lime
 //	HslIntToRgb(120, 100, 25) // dark green
@@ -686,7 +677,6 @@ func HslIntToRgb(h, s, l int) (rgb []uint8) {
 // returns r, g, and b in the set [0, 255].
 //
 // Usage:
-//
 //	rgbVals := HslToRgb(0, 1, 0.5) // red
 func HslToRgb(h, s, l float64) (rgb []uint8) {
 	var r, g, b float64

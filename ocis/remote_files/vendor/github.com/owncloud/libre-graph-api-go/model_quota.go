@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the Quota type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &Quota{}
-
 // Quota Optional. Information about the drive's storage space quota. Read-only.
 type Quota struct {
 	// Total space consumed by files in the recycle bin, in bytes. Read-only.
@@ -50,7 +47,7 @@ func NewQuotaWithDefaults() *Quota {
 
 // GetDeleted returns the Deleted field value if set, zero value otherwise.
 func (o *Quota) GetDeleted() int64 {
-	if o == nil || IsNil(o.Deleted) {
+	if o == nil || o.Deleted == nil {
 		var ret int64
 		return ret
 	}
@@ -60,7 +57,7 @@ func (o *Quota) GetDeleted() int64 {
 // GetDeletedOk returns a tuple with the Deleted field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Quota) GetDeletedOk() (*int64, bool) {
-	if o == nil || IsNil(o.Deleted) {
+	if o == nil || o.Deleted == nil {
 		return nil, false
 	}
 	return o.Deleted, true
@@ -68,7 +65,7 @@ func (o *Quota) GetDeletedOk() (*int64, bool) {
 
 // HasDeleted returns a boolean if a field has been set.
 func (o *Quota) HasDeleted() bool {
-	if o != nil && !IsNil(o.Deleted) {
+	if o != nil && o.Deleted != nil {
 		return true
 	}
 
@@ -82,7 +79,7 @@ func (o *Quota) SetDeleted(v int64) {
 
 // GetRemaining returns the Remaining field value if set, zero value otherwise.
 func (o *Quota) GetRemaining() int64 {
-	if o == nil || IsNil(o.Remaining) {
+	if o == nil || o.Remaining == nil {
 		var ret int64
 		return ret
 	}
@@ -92,7 +89,7 @@ func (o *Quota) GetRemaining() int64 {
 // GetRemainingOk returns a tuple with the Remaining field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Quota) GetRemainingOk() (*int64, bool) {
-	if o == nil || IsNil(o.Remaining) {
+	if o == nil || o.Remaining == nil {
 		return nil, false
 	}
 	return o.Remaining, true
@@ -100,7 +97,7 @@ func (o *Quota) GetRemainingOk() (*int64, bool) {
 
 // HasRemaining returns a boolean if a field has been set.
 func (o *Quota) HasRemaining() bool {
-	if o != nil && !IsNil(o.Remaining) {
+	if o != nil && o.Remaining != nil {
 		return true
 	}
 
@@ -114,7 +111,7 @@ func (o *Quota) SetRemaining(v int64) {
 
 // GetState returns the State field value if set, zero value otherwise.
 func (o *Quota) GetState() string {
-	if o == nil || IsNil(o.State) {
+	if o == nil || o.State == nil {
 		var ret string
 		return ret
 	}
@@ -124,7 +121,7 @@ func (o *Quota) GetState() string {
 // GetStateOk returns a tuple with the State field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Quota) GetStateOk() (*string, bool) {
-	if o == nil || IsNil(o.State) {
+	if o == nil || o.State == nil {
 		return nil, false
 	}
 	return o.State, true
@@ -132,7 +129,7 @@ func (o *Quota) GetStateOk() (*string, bool) {
 
 // HasState returns a boolean if a field has been set.
 func (o *Quota) HasState() bool {
-	if o != nil && !IsNil(o.State) {
+	if o != nil && o.State != nil {
 		return true
 	}
 
@@ -146,7 +143,7 @@ func (o *Quota) SetState(v string) {
 
 // GetTotal returns the Total field value if set, zero value otherwise.
 func (o *Quota) GetTotal() int64 {
-	if o == nil || IsNil(o.Total) {
+	if o == nil || o.Total == nil {
 		var ret int64
 		return ret
 	}
@@ -156,7 +153,7 @@ func (o *Quota) GetTotal() int64 {
 // GetTotalOk returns a tuple with the Total field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Quota) GetTotalOk() (*int64, bool) {
-	if o == nil || IsNil(o.Total) {
+	if o == nil || o.Total == nil {
 		return nil, false
 	}
 	return o.Total, true
@@ -164,7 +161,7 @@ func (o *Quota) GetTotalOk() (*int64, bool) {
 
 // HasTotal returns a boolean if a field has been set.
 func (o *Quota) HasTotal() bool {
-	if o != nil && !IsNil(o.Total) {
+	if o != nil && o.Total != nil {
 		return true
 	}
 
@@ -178,7 +175,7 @@ func (o *Quota) SetTotal(v int64) {
 
 // GetUsed returns the Used field value if set, zero value otherwise.
 func (o *Quota) GetUsed() int64 {
-	if o == nil || IsNil(o.Used) {
+	if o == nil || o.Used == nil {
 		var ret int64
 		return ret
 	}
@@ -188,7 +185,7 @@ func (o *Quota) GetUsed() int64 {
 // GetUsedOk returns a tuple with the Used field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Quota) GetUsedOk() (*int64, bool) {
-	if o == nil || IsNil(o.Used) {
+	if o == nil || o.Used == nil {
 		return nil, false
 	}
 	return o.Used, true
@@ -196,7 +193,7 @@ func (o *Quota) GetUsedOk() (*int64, bool) {
 
 // HasUsed returns a boolean if a field has been set.
 func (o *Quota) HasUsed() bool {
-	if o != nil && !IsNil(o.Used) {
+	if o != nil && o.Used != nil {
 		return true
 	}
 
@@ -209,31 +206,23 @@ func (o *Quota) SetUsed(v int64) {
 }
 
 func (o Quota) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o Quota) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Deleted) {
+	if o.Deleted != nil {
 		toSerialize["deleted"] = o.Deleted
 	}
-	if !IsNil(o.Remaining) {
+	if o.Remaining != nil {
 		toSerialize["remaining"] = o.Remaining
 	}
-	if !IsNil(o.State) {
+	if o.State != nil {
 		toSerialize["state"] = o.State
 	}
-	if !IsNil(o.Total) {
+	if o.Total != nil {
 		toSerialize["total"] = o.Total
 	}
-	if !IsNil(o.Used) {
+	if o.Used != nil {
 		toSerialize["used"] = o.Used
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableQuota struct {

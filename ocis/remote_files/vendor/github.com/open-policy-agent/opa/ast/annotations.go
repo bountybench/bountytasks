@@ -11,7 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	astJSON "github.com/open-policy-agent/opa/ast/json"
 	"github.com/open-policy-agent/opa/internal/deepcopy"
 	"github.com/open-policy-agent/opa/util"
 )
@@ -40,7 +39,7 @@ type (
 
 		comments    []*Comment
 		node        Node
-		jsonOptions astJSON.Options
+		jsonOptions JSONOptions
 	}
 
 	// SchemaAnnotation contains a schema declaration for the document identified by the path.
@@ -77,7 +76,7 @@ type (
 		Annotations *Annotations `json:"annotations,omitempty"`
 		Location    *Location    `json:"location,omitempty"` // The location of the node the annotations are applied to
 
-		jsonOptions astJSON.Options
+		jsonOptions JSONOptions
 
 		node Node // The node the annotations are applied to
 	}
@@ -175,17 +174,14 @@ func (a *Annotations) GetTargetPath() Ref {
 	case *Package:
 		return n.Path
 	case *Rule:
-		return n.Ref().GroundPrefix()
+		return n.Path()
 	default:
 		return nil
 	}
 }
 
-func (a *Annotations) setJSONOptions(opts astJSON.Options) {
+func (a *Annotations) setJSONOptions(opts JSONOptions) {
 	a.jsonOptions = opts
-	if a.Location != nil {
-		a.Location.JSONOptions = opts
-	}
 }
 
 func (a *Annotations) MarshalJSON() ([]byte, error) {
@@ -352,12 +348,12 @@ func compareRelatedResources(a, b []*RelatedResourceAnnotation) int {
 }
 
 func compareSchemas(a, b []*SchemaAnnotation) int {
-	maxLen := len(a)
-	if len(b) < maxLen {
-		maxLen = len(b)
+	max := len(a)
+	if len(b) < max {
+		max = len(b)
 	}
 
-	for i := 0; i < maxLen; i++ {
+	for i := 0; i < max; i++ {
 		if cmp := a[i].Compare(b[i]); cmp != 0 {
 			return cmp
 		}
@@ -719,7 +715,7 @@ func (as *AnnotationSet) add(a *Annotations) *Error {
 		}
 	case annotationScopeDocument:
 		if rule, ok := a.node.(*Rule); ok {
-			path := rule.Ref().GroundPrefix()
+			path := rule.Path()
 			x := as.byPath.get(path)
 			if x != nil {
 				return errAnnotationRedeclared(a, x.Value.Location)
@@ -815,7 +811,7 @@ func (as *AnnotationSet) Chain(rule *Rule) AnnotationsRefSet {
 		// Make sure there is always a leading entry representing the passed rule, even if it has no annotations
 		refs = append(refs, &AnnotationsRef{
 			Location: rule.Location,
-			Path:     rule.Ref().GroundPrefix(),
+			Path:     rule.Path(),
 			node:     rule,
 		})
 	}
@@ -827,7 +823,7 @@ func (as *AnnotationSet) Chain(rule *Rule) AnnotationsRefSet {
 		})
 	}
 
-	docAnnots := as.GetDocumentScope(rule.Ref().GroundPrefix())
+	docAnnots := as.GetDocumentScope(rule.Path())
 	if docAnnots != nil {
 		refs = append(refs, NewAnnotationsRef(docAnnots))
 	}

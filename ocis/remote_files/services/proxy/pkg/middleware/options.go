@@ -27,6 +27,8 @@ type Option func(o *Options)
 type Options struct {
 	// Logger to use for logging, must be set
 	Logger log.Logger
+	// TokenManagerConfig for communicating with the reva token manager
+	TokenManagerConfig config.TokenManager
 	// PolicySelectorConfig for using the policy selector
 	PolicySelector config.PolicySelector
 	// HTTPClient to use for communication with the oidcAuth provider
@@ -92,6 +94,13 @@ func newOptions(opts ...Option) Options {
 func Logger(l log.Logger) Option {
 	return func(o *Options) {
 		o.Logger = l
+	}
+}
+
+// TokenManagerConfig provides a function to set the token manger config option.
+func TokenManagerConfig(cfg config.TokenManager) Option {
+	return func(o *Options) {
+		o.TokenManagerConfig = cfg
 	}
 }
 

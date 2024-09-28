@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the OdataErrorDetail type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &OdataErrorDetail{}
-
 // OdataErrorDetail struct for OdataErrorDetail
 type OdataErrorDetail struct {
 	Code    string  `json:"code"`
@@ -93,7 +90,7 @@ func (o *OdataErrorDetail) SetMessage(v string) {
 
 // GetTarget returns the Target field value if set, zero value otherwise.
 func (o *OdataErrorDetail) GetTarget() string {
-	if o == nil || IsNil(o.Target) {
+	if o == nil || o.Target == nil {
 		var ret string
 		return ret
 	}
@@ -103,7 +100,7 @@ func (o *OdataErrorDetail) GetTarget() string {
 // GetTargetOk returns a tuple with the Target field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *OdataErrorDetail) GetTargetOk() (*string, bool) {
-	if o == nil || IsNil(o.Target) {
+	if o == nil || o.Target == nil {
 		return nil, false
 	}
 	return o.Target, true
@@ -111,7 +108,7 @@ func (o *OdataErrorDetail) GetTargetOk() (*string, bool) {
 
 // HasTarget returns a boolean if a field has been set.
 func (o *OdataErrorDetail) HasTarget() bool {
-	if o != nil && !IsNil(o.Target) {
+	if o != nil && o.Target != nil {
 		return true
 	}
 
@@ -124,21 +121,17 @@ func (o *OdataErrorDetail) SetTarget(v string) {
 }
 
 func (o OdataErrorDetail) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o OdataErrorDetail) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["code"] = o.Code
-	toSerialize["message"] = o.Message
-	if !IsNil(o.Target) {
+	if true {
+		toSerialize["code"] = o.Code
+	}
+	if true {
+		toSerialize["message"] = o.Message
+	}
+	if o.Target != nil {
 		toSerialize["target"] = o.Target
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableOdataErrorDetail struct {

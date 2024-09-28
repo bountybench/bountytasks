@@ -1,9 +1,7 @@
 package preprocessor
 
 import (
-	"archive/zip"
 	"bufio"
-	"bytes"
 	"image"
 	"image/draw"
 	"image/gif"
@@ -17,19 +15,14 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/math/fixed"
-
-	"github.com/dhowden/tag"
 )
 
-// FileConverter is the interface for the file converter
 type FileConverter interface {
 	Convert(r io.Reader) (interface{}, error)
 }
 
-// ImageDecoder is a converter for the image file
 type ImageDecoder struct{}
 
-// Convert reads the image file and returns the thumbnail image
 func (i ImageDecoder) Convert(r io.Reader) (interface{}, error) {
 	img, err := imaging.Decode(r, imaging.AutoOrientation(true))
 	if err != nil {
@@ -38,10 +31,8 @@ func (i ImageDecoder) Convert(r io.Reader) (interface{}, error) {
 	return img, nil
 }
 
-// GifDecoder is a converter for the gif file
 type GifDecoder struct{}
 
-// Convert reads the gif file and returns the thumbnail image
 func (i GifDecoder) Convert(r io.Reader) (interface{}, error) {
 	img, err := gif.DecodeAll(r)
 	if err != nil {
@@ -50,71 +41,10 @@ func (i GifDecoder) Convert(r io.Reader) (interface{}, error) {
 	return img, nil
 }
 
-// GgsDecoder is a converter for the geogebra slides file
-type GgsDecoder struct{}
-
-// Convert reads the ggs file and returns the thumbnail image
-func (g GgsDecoder) Convert(r io.Reader) (interface{}, error) {
-	geogebraThumbnail := "_slide0/geogebra_thumbnail.png"
-	var buf bytes.Buffer
-	_, err := io.Copy(&buf, r)
-	if err != nil {
-		return nil, err
-	}
-	zipReader, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
-	if err != nil {
-		return nil, err
-	}
-	for _, file := range zipReader.File {
-		if file.Name == geogebraThumbnail {
-			thumbnail, err := file.Open()
-			if err != nil {
-				return nil, err
-			}
-
-			img, err := imaging.Decode(thumbnail, imaging.AutoOrientation(true))
-			if err != nil {
-				return nil, errors.Wrap(err, `could not decode the image`)
-			}
-			return img, nil
-		}
-	}
-	return nil, errors.Errorf("%s not found", geogebraThumbnail)
-}
-
-// AudioDecoder is a converter for the audio file
-type AudioDecoder struct{}
-
-// Convert reads the audio file and extracts the thumbnail image from the id3 tag
-func (i AudioDecoder) Convert(r io.Reader) (interface{}, error) {
-	b, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	m, err := tag.ReadFrom(bytes.NewReader(b))
-	if err != nil {
-		return nil, err
-	}
-
-	picture := m.Picture()
-	if picture == nil {
-		return nil, errors.New(`could not extract image from audio file`)
-	}
-
-	converter := ForType(picture.MIMEType, nil)
-	if converter == nil {
-		return nil, errors.New(`could not find converter for image extraced from audio file`)
-	}
-
-	return converter.Convert(bytes.NewReader(picture.Data))
-}
-
-// TxtToImageConverter is a converter for the text file
 type TxtToImageConverter struct {
 	fontLoader *FontLoader
 }
 
-// Convert reads the text file and renders it into a thumbnail image
 func (t TxtToImageConverter) Convert(r io.Reader) (interface{}, error) {
 	img := image.NewRGBA(image.Rect(0, 0, 640, 480))
 
@@ -231,7 +161,6 @@ func drawWord(canvas *font.Drawer, word string, minX, maxX, incY, maxY fixed.Int
 	}
 }
 
-// ForType returns the converter for the specified mimeType
 func ForType(mimeType string, opts map[string]interface{}) FileConverter {
 	// We can ignore the error here because we parse it in IsMimeTypeSupported before and if it fails
 	// return the service call. So we should only get here when the mimeType parses fine.
@@ -266,16 +195,8 @@ func ForType(mimeType string, opts map[string]interface{}) FileConverter {
 		return TxtToImageConverter{
 			fontLoader: fontLoader,
 		}
-	case "application/vnd.geogebra.slides":
-		return GgsDecoder{}
 	case "image/gif":
 		return GifDecoder{}
-	case "audio/flac":
-		fallthrough
-	case "audio/mpeg":
-		fallthrough
-	case "audio/ogg":
-		return AudioDecoder{}
 	default:
 		return ImageDecoder{}
 	}

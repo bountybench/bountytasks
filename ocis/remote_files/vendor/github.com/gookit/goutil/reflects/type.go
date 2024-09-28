@@ -2,28 +2,21 @@ package reflects
 
 import "reflect"
 
-// BKind base data kind type, alias of reflect.Kind
-//
-// Diff with reflect.Kind:
-//   - Int contains all intX types
-//   - Uint contains all uintX types
-//   - Float contains all floatX types
-//   - Array for array and slice types
-//   - Complex contains all complexX types
-type BKind = reflect.Kind
+// BKind base data kind type
+type BKind uint
 
 // base kinds
 const (
 	// Int for all intX types
-	Int = reflect.Int
+	Int = BKind(reflect.Int)
 	// Uint for all uintX types
-	Uint = reflect.Uint
+	Uint = BKind(reflect.Uint)
 	// Float for all floatX types
-	Float = reflect.Float32
+	Float = BKind(reflect.Float32)
 	// Array for array,slice types
-	Array = reflect.Array
+	Array = BKind(reflect.Array)
 	// Complex for all complexX types
-	Complex = reflect.Complex64
+	Complex = BKind(reflect.Complex64)
 )
 
 // ToBaseKind convert reflect.Kind to base kind
@@ -46,7 +39,7 @@ func ToBKind(kind reflect.Kind) BKind {
 		return Array
 	default:
 		// like: string, map, struct, ptr, func, interface ...
-		return kind
+		return BKind(kind)
 	}
 }
 
@@ -55,10 +48,6 @@ type Type interface {
 	reflect.Type
 	// BaseKind value
 	BaseKind() BKind
-	// RealType returns a ptr type's real type. otherwise, will return self.
-	RealType() reflect.Type
-	// SafeElem returns a type's element type. otherwise, will return self.
-	SafeElem() reflect.Type
 }
 
 type xType struct {
@@ -79,14 +68,4 @@ func TypeOf(v any) Type {
 // BaseKind value
 func (t *xType) BaseKind() BKind {
 	return t.baseKind
-}
-
-// RealType returns a ptr type's real type. otherwise, will return self.
-func (t *xType) RealType() reflect.Type {
-	return TypeReal(t.Type)
-}
-
-// SafeElem returns the array, slice, chan, map type's element type. otherwise, will return self.
-func (t *xType) SafeElem() reflect.Type {
-	return TypeElem(t.Type)
 }

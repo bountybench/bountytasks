@@ -19,14 +19,12 @@ import (
 	. "github.com/onsi/gomega"
 	libregraph "github.com/owncloud/libre-graph-api-go"
 	"github.com/owncloud/ocis/v2/ocis-pkg/shared"
-	settingsmsg "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/settings/v0"
-	settings "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
 	"github.com/owncloud/ocis/v2/services/graph/mocks"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/config/defaults"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
 	identitymocks "github.com/owncloud/ocis/v2/services/graph/pkg/identity/mocks"
 	service "github.com/owncloud/ocis/v2/services/graph/pkg/service/v0"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"
 )
@@ -37,14 +35,13 @@ type groupList struct {
 
 var _ = Describe("Groups", func() {
 	var (
-		svc               service.Service
-		ctx               context.Context
-		cfg               *config.Config
-		gatewayClient     *cs3mocks.GatewayAPIClient
-		gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
-		eventsPublisher   mocks.Publisher
-		identityBackend   *identitymocks.Backend
-		permissionService *mocks.Permissions
+		svc             service.Service
+		ctx             context.Context
+		cfg             *config.Config
+		gatewayClient   *cs3mocks.GatewayAPIClient
+		gatewaySelector pool.Selectable[gateway.GatewayAPIClient]
+		eventsPublisher mocks.Publisher
+		identityBackend *identitymocks.Backend
 
 		rr *httptest.ResponseRecorder
 
@@ -68,7 +65,6 @@ var _ = Describe("Groups", func() {
 				return gatewayClient
 			},
 		)
-		permissionService = &mocks.Permissions{}
 
 		identityBackend = &identitymocks.Backend{}
 		newGroup = libregraph.NewGroup()
@@ -89,7 +85,6 @@ var _ = Describe("Groups", func() {
 			service.WithGatewaySelector(gatewaySelector),
 			service.EventsPublisher(&eventsPublisher),
 			service.WithIdentityBackend(identityBackend),
-			service.PermissionService(permissionService),
 		)
 	})
 
@@ -102,12 +97,6 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("handles invalid sorting queries", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			identityBackend.On("GetGroups", ctx, mock.Anything).Return([]*libregraph.Group{newGroup}, nil)
 
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups?$orderby=invalid", nil)
@@ -124,12 +113,6 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("handles unknown backend errors", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			identityBackend.On("GetGroups", ctx, mock.Anything).Return(nil, errors.New("failed"))
 
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups", nil)
@@ -145,18 +128,12 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("handles backend errors", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			identityBackend.On("GetGroups", ctx, mock.Anything).Return(nil, errorcode.New(errorcode.AccessDenied, "access denied"))
 
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups", nil)
 			svc.GetGroups(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
+			Expect(rr.Code).To(Equal(http.StatusInternalServerError))
 			data, err := io.ReadAll(rr.Body)
 			Expect(err).ToNot(HaveOccurred())
 
@@ -167,12 +144,6 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("renders an empty list of groups", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			identityBackend.On("GetGroups", ctx, mock.Anything).Return([]*libregraph.Group{}, nil)
 
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups", nil)
@@ -189,12 +160,6 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("renders a list of groups", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{
-				Permission: &settingsmsg.Permission{
-					Operation:  settingsmsg.Permission_OPERATION_UNKNOWN,
-					Constraint: settingsmsg.Permission_CONSTRAINT_ALL,
-				},
-			}, nil)
 			identityBackend.On("GetGroups", ctx, mock.Anything).Return([]*libregraph.Group{newGroup}, nil)
 
 			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups", nil)
@@ -210,51 +175,6 @@ var _ = Describe("Groups", func() {
 
 			Expect(len(res.Value)).To(Equal(1))
 			Expect(res.Value[0].GetId()).To(Equal("group1"))
-		})
-		It("denies listing for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users", nil)
-			svc.GetGroups(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
-		})
-		It("denies using to short search terms for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/users?$search=a", nil)
-			svc.GetGroups(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusForbidden))
-		})
-		It("only returns a restricted set of attributes for unprivileged users", func() {
-			permissionService.On("GetPermissionByID", mock.Anything, mock.Anything).Return(&settings.GetPermissionByIDResponse{}, nil)
-			group := &libregraph.Group{}
-			group.SetId("group1")
-			group.SetDisplayName("Group Name")
-			group.SetMembers(
-				[]libregraph.User{
-					libregraph.User{
-						Id: libregraph.PtrString("userid"),
-					},
-				},
-			)
-			groups := []*libregraph.Group{group}
-
-			identityBackend.On("GetGroups", mock.Anything, mock.Anything, mock.Anything).Return(groups, nil)
-			r := httptest.NewRequest(http.MethodGet, "/graph/v1.0/groups?$search=abc", nil)
-			svc.GetGroups(rr, r)
-
-			Expect(rr.Code).To(Equal(http.StatusOK))
-			data, err := io.ReadAll(rr.Body)
-			Expect(err).ToNot(HaveOccurred())
-
-			res := groupList{}
-			err = json.Unmarshal(data, &res)
-			Expect(err).ToNot(HaveOccurred())
-			groupMap, err := res.Value[0].ToMap()
-			Expect(err).ToNot(HaveOccurred())
-			for k, _ := range groupMap {
-				Expect(k).Should(BeElementOf([]string{"displayName", "id", "groupTypes"}))
-			}
 		})
 	})
 
@@ -339,7 +259,7 @@ var _ = Describe("Groups", func() {
 
 			svc.PostGroup(rr, r)
 
-			Expect(rr.Code).To(Equal(http.StatusCreated))
+			Expect(rr.Code).To(Equal(http.StatusOK))
 		})
 	})
 	Describe("PatchGroup", func() {

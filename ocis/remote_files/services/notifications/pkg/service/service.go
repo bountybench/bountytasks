@@ -42,36 +42,32 @@ func NewEventsNotifier(
 	logger log.Logger,
 	gatewaySelector pool.Selectable[gateway.GatewayAPIClient],
 	valueService settingssvc.ValueService,
-	serviceAccountID, serviceAccountSecret, emailTemplatePath, defaultLanguage, ocisURL string) Service {
+	machineAuthAPIKey, emailTemplatePath, ocisURL string) Service {
 
 	return eventsNotifier{
-		logger:               logger,
-		channel:              channel,
-		events:               events,
-		signals:              make(chan os.Signal, 1),
-		gatewaySelector:      gatewaySelector,
-		valueService:         valueService,
-		serviceAccountID:     serviceAccountID,
-		serviceAccountSecret: serviceAccountSecret,
-		emailTemplatePath:    emailTemplatePath,
-		defaultLanguage:      defaultLanguage,
-		ocisURL:              ocisURL,
+		logger:            logger,
+		channel:           channel,
+		events:            events,
+		signals:           make(chan os.Signal, 1),
+		gatewaySelector:   gatewaySelector,
+		valueService:      valueService,
+		machineAuthAPIKey: machineAuthAPIKey,
+		emailTemplatePath: emailTemplatePath,
+		ocisURL:           ocisURL,
 	}
 }
 
 type eventsNotifier struct {
-	logger               log.Logger
-	channel              channels.Channel
-	events               <-chan events.Event
-	signals              chan os.Signal
-	gatewaySelector      pool.Selectable[gateway.GatewayAPIClient]
-	valueService         settingssvc.ValueService
-	emailTemplatePath    string
-	translationPath      string
-	defaultLanguage      string
-	ocisURL              string
-	serviceAccountID     string
-	serviceAccountSecret string
+	logger            log.Logger
+	channel           channels.Channel
+	events            <-chan events.Event
+	signals           chan os.Signal
+	gatewaySelector   pool.Selectable[gateway.GatewayAPIClient]
+	valueService      settingssvc.ValueService
+	machineAuthAPIKey string
+	emailTemplatePath string
+	translationPath   string
+	ocisURL           string
 }
 
 func (s eventsNotifier) Run() error {
@@ -111,7 +107,7 @@ func (s eventsNotifier) render(ctx context.Context, template email.MessageTempla
 		locale := s.getUserLang(ctx, usr.GetId())
 		fields[granteeFieldName] = usr.GetDisplayName()
 
-		rendered, err := email.RenderEmailTemplate(template, locale, s.defaultLanguage, s.emailTemplatePath, s.translationPath, fields)
+		rendered, err := email.RenderEmailTemplate(template, locale, s.emailTemplatePath, s.translationPath, fields)
 		if err != nil {
 			return nil, err
 		}

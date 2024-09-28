@@ -4,7 +4,7 @@ package envutil
 import (
 	"os"
 
-	"github.com/gookit/goutil/internal/varexpr"
+	"github.com/gookit/goutil/internal/comfunc"
 )
 
 // ValueGetter Env value provider func.
@@ -17,13 +17,14 @@ var ValueGetter = os.Getenv
 // is alias of the os.ExpandEnv()
 func VarReplace(s string) string { return os.ExpandEnv(s) }
 
-// ParseOrErr parse ENV var value from input string, support default value.
-//
-// Diff with the ParseValue, this support return error.
-//
-// With error format: ${VAR_NAME | ?error}
-func ParseOrErr(val string) (string, error) {
-	return varexpr.Parse(val)
+// VarParse alias of the ParseValue
+func VarParse(val string) string {
+	return comfunc.ParseEnvVar(val, ValueGetter)
+}
+
+// ParseEnvValue alias of the ParseValue
+func ParseEnvValue(val string) string {
+	return comfunc.ParseEnvVar(val, ValueGetter)
 }
 
 // ParseValue parse ENV var value from input string, support default value.
@@ -37,18 +38,8 @@ func ParseOrErr(val string) (string, error) {
 //
 //	envutil.ParseValue("${ APP_NAME }")
 //	envutil.ParseValue("${ APP_ENV | dev }")
-func ParseValue(val string) string {
-	return varexpr.SafeParse(val)
-}
-
-// VarParse alias of the ParseValue
-func VarParse(val string) string {
-	return varexpr.SafeParse(val)
-}
-
-// ParseEnvValue alias of the ParseValue
-func ParseEnvValue(val string) string {
-	return varexpr.SafeParse(val)
+func ParseValue(val string) (newVal string) {
+	return comfunc.ParseEnvVar(val, ValueGetter)
 }
 
 // SetEnvMap set multi ENV(string-map) to os

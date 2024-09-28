@@ -40,8 +40,8 @@ import (
 	provider "github.com/cs3org/go-cs3apis/cs3/storage/provider/v1beta1"
 	types "github.com/cs3org/go-cs3apis/cs3/types/v1beta1"
 	"github.com/cs3org/reva/v2/internal/grpc/services/storageprovider"
+	conversions "github.com/cs3org/reva/v2/internal/http/services/owncloud/ocs/conversions"
 	"github.com/cs3org/reva/v2/pkg/appctx"
-	"github.com/cs3org/reva/v2/pkg/conversions"
 	ctxpkg "github.com/cs3org/reva/v2/pkg/ctx"
 	"github.com/cs3org/reva/v2/pkg/errtypes"
 	"github.com/cs3org/reva/v2/pkg/events"
@@ -650,7 +650,7 @@ func (fs *owncloudsqlfs) readPermissions(ctx context.Context, ip string) (p *pro
 	if err != nil {
 		return nil, err
 	}
-	return conversions.RoleFromOCSPermissions(perms, nil).CS3ResourcePermissions(), nil
+	return conversions.RoleFromOCSPermissions(perms).CS3ResourcePermissions(), nil
 }
 
 // The os not exists error is buried inside the xattr error,

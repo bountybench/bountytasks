@@ -29,29 +29,6 @@ func StringsJoin(sep string, ss ...string) string {
 	return strings.Join(ss, sep)
 }
 
-// JoinTyped join typed []T slice to string.
-//
-// Usage:
-//
-//	JoinTyped(",", 1,2,3) // "1,2,3"
-//	JoinTyped(",", "a","b","c") // "a,b,c"
-//	JoinTyped[any](",", "a",1,"c") // "a,1,c"
-func JoinTyped[T any](sep string, arr ...T) string {
-	if arr == nil {
-		return ""
-	}
-
-	var sb strings.Builder
-	for i, v := range arr {
-		if i > 0 {
-			sb.WriteString(sep)
-		}
-		sb.WriteString(strutil.QuietString(v))
-	}
-
-	return sb.String()
-}
-
 // JoinSlice join []any slice to string.
 func JoinSlice(sep string, arr ...any) string {
 	if arr == nil {
@@ -70,26 +47,8 @@ func JoinSlice(sep string, arr ...any) string {
 }
 
 /*************************************************************
- * convert func for ints
+ * helper func for slices
  *************************************************************/
-
-// IntsToString convert []T to string
-func IntsToString[T comdef.Integer](ints []T) string {
-	if len(ints) == 0 {
-		return "[]"
-	}
-
-	var sb strings.Builder
-	sb.WriteByte('[')
-	for i, v := range ints {
-		if i > 0 {
-			sb.WriteByte(',')
-		}
-		sb.WriteString(strconv.FormatInt(int64(v), 10))
-	}
-	sb.WriteByte(']')
-	return sb.String()
-}
 
 // ToInt64s convert any(allow: array,slice) to []int64
 func ToInt64s(arr any) (ret []int64, err error) {
@@ -125,9 +84,29 @@ func SliceToInt64s(arr []any) []int64 {
 	return i64s
 }
 
-/*************************************************************
- * convert func for anys
- *************************************************************/
+// StringsAsInts convert and ignore error
+func StringsAsInts(ss []string) []int {
+	ints, _ := StringsTryInts(ss)
+	return ints
+}
+
+// StringsToInts string slice to int slice
+func StringsToInts(ss []string) (ints []int, err error) {
+	return StringsTryInts(ss)
+}
+
+// StringsTryInts string slice to int slice
+func StringsTryInts(ss []string) (ints []int, err error) {
+	for _, str := range ss {
+		iVal, err := strconv.Atoi(str)
+		if err != nil {
+			return nil, err
+		}
+
+		ints = append(ints, iVal)
+	}
+	return
+}
 
 // AnyToSlice convert any(allow: array,slice) to []any
 func AnyToSlice(sl any) (ls []any, err error) {
@@ -157,6 +136,15 @@ func MustToStrings(arr any) []string {
 	return ret
 }
 
+// StringsToSlice convert []string to []any
+func StringsToSlice(ss []string) []any {
+	args := make([]any, len(ss))
+	for i, s := range ss {
+		args[i] = s
+	}
+	return args
+}
+
 // ToStrings convert any(allow: array,slice) to []string
 func ToStrings(arr any) (ret []string, err error) {
 	rv := reflect.ValueOf(arr)
@@ -180,16 +168,16 @@ func ToStrings(arr any) (ret []string, err error) {
 	return
 }
 
-// SliceToStrings safe convert []any to []string
+// SliceToStrings convert []any to []string
 func SliceToStrings(arr []any) []string {
 	return QuietStrings(arr)
 }
 
-// QuietStrings safe convert []any to []string
+// QuietStrings convert []any to []string
 func QuietStrings(arr []any) []string {
 	ss := make([]string, len(arr))
 	for i, v := range arr {
-		ss[i] = strutil.SafeString(v)
+		ss[i] = strutil.QuietString(v)
 	}
 	return ss
 }
@@ -231,8 +219,8 @@ func AnyToString(arr any) string {
 // SliceToString convert []any to string
 func SliceToString(arr ...any) string { return ToString(arr) }
 
-// ToString simple and quickly convert []T to string
-func ToString[T any](arr []T) string {
+// ToString simple and quickly convert []any to string
+func ToString(arr []any) string {
 	// like fmt.Println([]any(nil))
 	if arr == nil {
 		return "[]"
@@ -245,14 +233,14 @@ func ToString[T any](arr []T) string {
 		if i > 0 {
 			sb.WriteByte(',')
 		}
-		sb.WriteString(strutil.SafeString(v))
+		sb.WriteString(strutil.QuietString(v))
 	}
 
 	sb.WriteByte(']')
 	return sb.String()
 }
 
-// CombineToMap combine []K and []V slice to map[K]V.
+// CombineToMap combine two slice to map[K]V.
 //
 // If keys length is greater than values, the extra keys will be ignored.
 func CombineToMap[K comdef.SortedType, V any](keys []K, values []V) map[K]V {

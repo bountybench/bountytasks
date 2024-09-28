@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the OpenGraphFile type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &OpenGraphFile{}
-
 // OpenGraphFile File metadata, if the item is a file. Read-only.
 type OpenGraphFile struct {
 	Hashes *Hashes `json:"hashes,omitempty"`
@@ -44,7 +41,7 @@ func NewOpenGraphFileWithDefaults() *OpenGraphFile {
 
 // GetHashes returns the Hashes field value if set, zero value otherwise.
 func (o *OpenGraphFile) GetHashes() Hashes {
-	if o == nil || IsNil(o.Hashes) {
+	if o == nil || o.Hashes == nil {
 		var ret Hashes
 		return ret
 	}
@@ -54,7 +51,7 @@ func (o *OpenGraphFile) GetHashes() Hashes {
 // GetHashesOk returns a tuple with the Hashes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *OpenGraphFile) GetHashesOk() (*Hashes, bool) {
-	if o == nil || IsNil(o.Hashes) {
+	if o == nil || o.Hashes == nil {
 		return nil, false
 	}
 	return o.Hashes, true
@@ -62,7 +59,7 @@ func (o *OpenGraphFile) GetHashesOk() (*Hashes, bool) {
 
 // HasHashes returns a boolean if a field has been set.
 func (o *OpenGraphFile) HasHashes() bool {
-	if o != nil && !IsNil(o.Hashes) {
+	if o != nil && o.Hashes != nil {
 		return true
 	}
 
@@ -76,7 +73,7 @@ func (o *OpenGraphFile) SetHashes(v Hashes) {
 
 // GetMimeType returns the MimeType field value if set, zero value otherwise.
 func (o *OpenGraphFile) GetMimeType() string {
-	if o == nil || IsNil(o.MimeType) {
+	if o == nil || o.MimeType == nil {
 		var ret string
 		return ret
 	}
@@ -86,7 +83,7 @@ func (o *OpenGraphFile) GetMimeType() string {
 // GetMimeTypeOk returns a tuple with the MimeType field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *OpenGraphFile) GetMimeTypeOk() (*string, bool) {
-	if o == nil || IsNil(o.MimeType) {
+	if o == nil || o.MimeType == nil {
 		return nil, false
 	}
 	return o.MimeType, true
@@ -94,7 +91,7 @@ func (o *OpenGraphFile) GetMimeTypeOk() (*string, bool) {
 
 // HasMimeType returns a boolean if a field has been set.
 func (o *OpenGraphFile) HasMimeType() bool {
-	if o != nil && !IsNil(o.MimeType) {
+	if o != nil && o.MimeType != nil {
 		return true
 	}
 
@@ -108,7 +105,7 @@ func (o *OpenGraphFile) SetMimeType(v string) {
 
 // GetProcessingMetadata returns the ProcessingMetadata field value if set, zero value otherwise.
 func (o *OpenGraphFile) GetProcessingMetadata() bool {
-	if o == nil || IsNil(o.ProcessingMetadata) {
+	if o == nil || o.ProcessingMetadata == nil {
 		var ret bool
 		return ret
 	}
@@ -118,7 +115,7 @@ func (o *OpenGraphFile) GetProcessingMetadata() bool {
 // GetProcessingMetadataOk returns a tuple with the ProcessingMetadata field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *OpenGraphFile) GetProcessingMetadataOk() (*bool, bool) {
-	if o == nil || IsNil(o.ProcessingMetadata) {
+	if o == nil || o.ProcessingMetadata == nil {
 		return nil, false
 	}
 	return o.ProcessingMetadata, true
@@ -126,7 +123,7 @@ func (o *OpenGraphFile) GetProcessingMetadataOk() (*bool, bool) {
 
 // HasProcessingMetadata returns a boolean if a field has been set.
 func (o *OpenGraphFile) HasProcessingMetadata() bool {
-	if o != nil && !IsNil(o.ProcessingMetadata) {
+	if o != nil && o.ProcessingMetadata != nil {
 		return true
 	}
 
@@ -139,25 +136,17 @@ func (o *OpenGraphFile) SetProcessingMetadata(v bool) {
 }
 
 func (o OpenGraphFile) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o OpenGraphFile) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Hashes) {
+	if o.Hashes != nil {
 		toSerialize["hashes"] = o.Hashes
 	}
-	if !IsNil(o.MimeType) {
+	if o.MimeType != nil {
 		toSerialize["mimeType"] = o.MimeType
 	}
-	if !IsNil(o.ProcessingMetadata) {
+	if o.ProcessingMetadata != nil {
 		toSerialize["processingMetadata"] = o.ProcessingMetadata
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableOpenGraphFile struct {

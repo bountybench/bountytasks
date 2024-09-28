@@ -14,9 +14,6 @@ import (
 	"encoding/json"
 )
 
-// checks if the EducationClass type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &EducationClass{}
-
 // EducationClass And extension of group representing a class or course
 type EducationClass struct {
 	// Read-only.
@@ -56,7 +53,7 @@ func NewEducationClassWithDefaults() *EducationClass {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *EducationClass) GetId() string {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		var ret string
 		return ret
 	}
@@ -66,7 +63,7 @@ func (o *EducationClass) GetId() string {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EducationClass) GetIdOk() (*string, bool) {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		return nil, false
 	}
 	return o.Id, true
@@ -74,7 +71,7 @@ func (o *EducationClass) GetIdOk() (*string, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *EducationClass) HasId() bool {
-	if o != nil && !IsNil(o.Id) {
+	if o != nil && o.Id != nil {
 		return true
 	}
 
@@ -88,7 +85,7 @@ func (o *EducationClass) SetId(v string) {
 
 // GetDescription returns the Description field value if set, zero value otherwise.
 func (o *EducationClass) GetDescription() string {
-	if o == nil || IsNil(o.Description) {
+	if o == nil || o.Description == nil {
 		var ret string
 		return ret
 	}
@@ -98,7 +95,7 @@ func (o *EducationClass) GetDescription() string {
 // GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EducationClass) GetDescriptionOk() (*string, bool) {
-	if o == nil || IsNil(o.Description) {
+	if o == nil || o.Description == nil {
 		return nil, false
 	}
 	return o.Description, true
@@ -106,7 +103,7 @@ func (o *EducationClass) GetDescriptionOk() (*string, bool) {
 
 // HasDescription returns a boolean if a field has been set.
 func (o *EducationClass) HasDescription() bool {
-	if o != nil && !IsNil(o.Description) {
+	if o != nil && o.Description != nil {
 		return true
 	}
 
@@ -144,7 +141,7 @@ func (o *EducationClass) SetDisplayName(v string) {
 
 // GetMembers returns the Members field value if set, zero value otherwise.
 func (o *EducationClass) GetMembers() []User {
-	if o == nil || IsNil(o.Members) {
+	if o == nil || o.Members == nil {
 		var ret []User
 		return ret
 	}
@@ -154,7 +151,7 @@ func (o *EducationClass) GetMembers() []User {
 // GetMembersOk returns a tuple with the Members field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EducationClass) GetMembersOk() ([]User, bool) {
-	if o == nil || IsNil(o.Members) {
+	if o == nil || o.Members == nil {
 		return nil, false
 	}
 	return o.Members, true
@@ -162,7 +159,7 @@ func (o *EducationClass) GetMembersOk() ([]User, bool) {
 
 // HasMembers returns a boolean if a field has been set.
 func (o *EducationClass) HasMembers() bool {
-	if o != nil && !IsNil(o.Members) {
+	if o != nil && o.Members != nil {
 		return true
 	}
 
@@ -176,7 +173,7 @@ func (o *EducationClass) SetMembers(v []User) {
 
 // GetMembersodataBind returns the MembersodataBind field value if set, zero value otherwise.
 func (o *EducationClass) GetMembersodataBind() []string {
-	if o == nil || IsNil(o.MembersodataBind) {
+	if o == nil || o.MembersodataBind == nil {
 		var ret []string
 		return ret
 	}
@@ -186,7 +183,7 @@ func (o *EducationClass) GetMembersodataBind() []string {
 // GetMembersodataBindOk returns a tuple with the MembersodataBind field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EducationClass) GetMembersodataBindOk() ([]string, bool) {
-	if o == nil || IsNil(o.MembersodataBind) {
+	if o == nil || o.MembersodataBind == nil {
 		return nil, false
 	}
 	return o.MembersodataBind, true
@@ -194,7 +191,7 @@ func (o *EducationClass) GetMembersodataBindOk() ([]string, bool) {
 
 // HasMembersodataBind returns a boolean if a field has been set.
 func (o *EducationClass) HasMembersodataBind() bool {
-	if o != nil && !IsNil(o.MembersodataBind) {
+	if o != nil && o.MembersodataBind != nil {
 		return true
 	}
 
@@ -232,7 +229,7 @@ func (o *EducationClass) SetClassification(v string) {
 
 // GetExternalId returns the ExternalId field value if set, zero value otherwise.
 func (o *EducationClass) GetExternalId() string {
-	if o == nil || IsNil(o.ExternalId) {
+	if o == nil || o.ExternalId == nil {
 		var ret string
 		return ret
 	}
@@ -242,7 +239,7 @@ func (o *EducationClass) GetExternalId() string {
 // GetExternalIdOk returns a tuple with the ExternalId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EducationClass) GetExternalIdOk() (*string, bool) {
-	if o == nil || IsNil(o.ExternalId) {
+	if o == nil || o.ExternalId == nil {
 		return nil, false
 	}
 	return o.ExternalId, true
@@ -250,7 +247,7 @@ func (o *EducationClass) GetExternalIdOk() (*string, bool) {
 
 // HasExternalId returns a boolean if a field has been set.
 func (o *EducationClass) HasExternalId() bool {
-	if o != nil && !IsNil(o.ExternalId) {
+	if o != nil && o.ExternalId != nil {
 		return true
 	}
 
@@ -263,33 +260,29 @@ func (o *EducationClass) SetExternalId(v string) {
 }
 
 func (o EducationClass) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o EducationClass) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Id) {
+	if o.Id != nil {
 		toSerialize["id"] = o.Id
 	}
-	if !IsNil(o.Description) {
+	if o.Description != nil {
 		toSerialize["description"] = o.Description
 	}
-	toSerialize["displayName"] = o.DisplayName
-	if !IsNil(o.Members) {
+	if true {
+		toSerialize["displayName"] = o.DisplayName
+	}
+	if o.Members != nil {
 		toSerialize["members"] = o.Members
 	}
-	if !IsNil(o.MembersodataBind) {
+	if o.MembersodataBind != nil {
 		toSerialize["members@odata.bind"] = o.MembersodataBind
 	}
-	toSerialize["classification"] = o.Classification
-	if !IsNil(o.ExternalId) {
+	if true {
+		toSerialize["classification"] = o.Classification
+	}
+	if o.ExternalId != nil {
 		toSerialize["externalId"] = o.ExternalId
 	}
-	return toSerialize, nil
+	return json.Marshal(toSerialize)
 }
 
 type NullableEducationClass struct {

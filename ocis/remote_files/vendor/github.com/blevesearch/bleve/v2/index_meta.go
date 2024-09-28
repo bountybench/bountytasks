@@ -15,12 +15,12 @@
 package bleve
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -50,7 +50,7 @@ func openIndexMeta(path string) (*indexMeta, error) {
 		return nil, ErrorIndexMetaMissing
 	}
 	var im indexMeta
-	err = util.UnmarshalJSON(metaBytes, &im)
+	err = json.Unmarshal(metaBytes, &im)
 	if err != nil {
 		return nil, ErrorIndexMetaCorrupt
 	}
@@ -70,7 +70,7 @@ func (i *indexMeta) Save(path string) (err error) {
 		}
 		return err
 	}
-	metaBytes, err := util.MarshalJSON(i)
+	metaBytes, err := json.Marshal(i)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (i *indexMeta) Save(path string) (err error) {
 }
 
 func (i *indexMeta) CopyTo(d index.Directory) (err error) {
-	metaBytes, err := util.MarshalJSON(i)
+	metaBytes, err := json.Marshal(i)
 	if err != nil {
 		return err
 	}

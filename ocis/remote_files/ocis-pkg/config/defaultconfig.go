@@ -8,8 +8,6 @@ import (
 	authbasic "github.com/owncloud/ocis/v2/services/auth-basic/pkg/config/defaults"
 	authbearer "github.com/owncloud/ocis/v2/services/auth-bearer/pkg/config/defaults"
 	authmachine "github.com/owncloud/ocis/v2/services/auth-machine/pkg/config/defaults"
-	authservice "github.com/owncloud/ocis/v2/services/auth-service/pkg/config/defaults"
-	clientlog "github.com/owncloud/ocis/v2/services/clientlog/pkg/config/defaults"
 	eventhistory "github.com/owncloud/ocis/v2/services/eventhistory/pkg/config/defaults"
 	frontend "github.com/owncloud/ocis/v2/services/frontend/pkg/config/defaults"
 	gateway "github.com/owncloud/ocis/v2/services/gateway/pkg/config/defaults"
@@ -21,7 +19,6 @@ import (
 	nats "github.com/owncloud/ocis/v2/services/nats/pkg/config/defaults"
 	notifications "github.com/owncloud/ocis/v2/services/notifications/pkg/config/defaults"
 	ocdav "github.com/owncloud/ocis/v2/services/ocdav/pkg/config/defaults"
-	ocm "github.com/owncloud/ocis/v2/services/ocm/pkg/config/defaults"
 	ocs "github.com/owncloud/ocis/v2/services/ocs/pkg/config/defaults"
 	policies "github.com/owncloud/ocis/v2/services/policies/pkg/config/defaults"
 	postprocessing "github.com/owncloud/ocis/v2/services/postprocessing/pkg/config/defaults"
@@ -29,7 +26,6 @@ import (
 	search "github.com/owncloud/ocis/v2/services/search/pkg/config/defaults"
 	settings "github.com/owncloud/ocis/v2/services/settings/pkg/config/defaults"
 	sharing "github.com/owncloud/ocis/v2/services/sharing/pkg/config/defaults"
-	sse "github.com/owncloud/ocis/v2/services/sse/pkg/config/defaults"
 	storagepublic "github.com/owncloud/ocis/v2/services/storage-publiclink/pkg/config/defaults"
 	storageshares "github.com/owncloud/ocis/v2/services/storage-shares/pkg/config/defaults"
 	storageSystem "github.com/owncloud/ocis/v2/services/storage-system/pkg/config/defaults"
@@ -58,8 +54,6 @@ func DefaultConfig() *Config {
 		AuthBasic:         authbasic.DefaultConfig(),
 		AuthBearer:        authbearer.DefaultConfig(),
 		AuthMachine:       authmachine.DefaultConfig(),
-		AuthService:       authservice.DefaultConfig(),
-		Clientlog:         clientlog.DefaultConfig(),
 		EventHistory:      eventhistory.DefaultConfig(),
 		Frontend:          frontend.DefaultConfig(),
 		Gateway:           gateway.DefaultConfig(),
@@ -71,15 +65,13 @@ func DefaultConfig() *Config {
 		Nats:              nats.DefaultConfig(),
 		Notifications:     notifications.DefaultConfig(),
 		OCDav:             ocdav.DefaultConfig(),
-		OCM:               ocm.DefaultConfig(),
 		OCS:               ocs.DefaultConfig(),
 		Postprocessing:    postprocessing.DefaultConfig(),
 		Policies:          policies.DefaultConfig(),
 		Proxy:             proxy.DefaultConfig(),
-		Search:            search.DefaultConfig(),
+		Search:            search.FullDefaultConfig(),
 		Settings:          settings.DefaultConfig(),
 		Sharing:           sharing.DefaultConfig(),
-		SSE:               sse.DefaultConfig(),
 		StoragePublicLink: storagepublic.DefaultConfig(),
 		StorageShares:     storageshares.DefaultConfig(),
 		StorageSystem:     storageSystem.DefaultConfig(),

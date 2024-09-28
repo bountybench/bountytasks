@@ -339,11 +339,6 @@ func (s *Scanner) scanDoubleQuote(ctx *Context) (tk *token.Token, pos int) {
 					value = append(value, '\n')
 					idx++
 					continue
-				case 'r':
-					ctx.addOriginBuf(nextChar)
-					value = append(value, '\r')
-					idx++
-					continue
 				case 'v':
 					ctx.addOriginBuf(nextChar)
 					value = append(value, '\v')

@@ -107,25 +107,13 @@ func (h *middleware) createMeasures() {
 	h.counters = make(map[string]metric.Int64Counter)
 	h.valueRecorders = make(map[string]metric.Float64Histogram)
 
-	requestBytesCounter, err := h.meter.Int64Counter(
-		RequestContentLength,
-		metric.WithUnit("By"),
-		metric.WithDescription("Measures the size of HTTP request content length (uncompressed)"),
-	)
+	requestBytesCounter, err := h.meter.Int64Counter(RequestContentLength)
 	handleErr(err)
 
-	responseBytesCounter, err := h.meter.Int64Counter(
-		ResponseContentLength,
-		metric.WithUnit("By"),
-		metric.WithDescription("Measures the size of HTTP response content length (uncompressed)"),
-	)
+	responseBytesCounter, err := h.meter.Int64Counter(ResponseContentLength)
 	handleErr(err)
 
-	serverLatencyMeasure, err := h.meter.Float64Histogram(
-		ServerLatency,
-		metric.WithUnit("ms"),
-		metric.WithDescription("Measures the duration of HTTP request handling"),
-	)
+	serverLatencyMeasure, err := h.meter.Float64Histogram(ServerLatency)
 	handleErr(err)
 
 	h.counters[RequestContentLength] = requestBytesCounter
@@ -231,7 +219,7 @@ func (h *middleware) serveHTTP(w http.ResponseWriter, r *http.Request, next http
 	setAfterServeAttributes(span, bw.read, rww.written, rww.statusCode, bw.err, rww.err)
 
 	// Add metrics
-	attributes := append(labeler.Get(), semconvutil.HTTPServerRequestMetrics(h.server, r)...)
+	attributes := append(labeler.Get(), semconvutil.HTTPServerRequest(h.server, r)...)
 	if rww.statusCode > 0 {
 		attributes = append(attributes, semconv.HTTPStatusCode(rww.statusCode))
 	}
@@ -270,18 +258,12 @@ func setAfterServeAttributes(span trace.Span, read, wrote int64, statusCode int,
 	span.SetAttributes(attributes...)
 }
 
-// WithRouteTag annotates spans and metrics with the provided route name
-// with HTTP route attribute.
+// WithRouteTag annotates a span with the provided route name using the
+// RouteKey Tag.
 func WithRouteTag(route string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		attr := semconv.HTTPRouteKey.String(route)
-
 		span := trace.SpanFromContext(r.Context())
-		span.SetAttributes(attr)
-
-		labeler, _ := LabelerFromContext(r.Context())
-		labeler.Add(attr)
-
+		span.SetAttributes(semconv.HTTPRoute(route))
 		h.ServeHTTP(w, r)
 	})
 }

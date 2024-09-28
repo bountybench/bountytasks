@@ -2,12 +2,7 @@ package mathutil
 
 import "github.com/gookit/goutil/comdef"
 
-// IsNumeric returns true if the given character is a numeric, otherwise false.
-func IsNumeric(c byte) bool {
-	return c >= '0' && c <= '9'
-}
-
-// Compare any intX,floatX value by given op. returns `first op(=,!=,<,<=,>,>=) second`
+// Compare any intX,floatX value by given op. returns `srcVal op(=,!=,<,<=,>,>=) dstVal`
 //
 // Usage:
 //
@@ -15,61 +10,70 @@ func IsNumeric(c byte) bool {
 //	mathutil.Compare(2, 1.3, ">") // true
 //	mathutil.Compare(2.2, 1.3, ">") // true
 //	mathutil.Compare(2.1, 2, ">") // true
-func Compare(first, second any, op string) bool {
-	if first == nil || second == nil {
+func Compare(srcVal, dstVal any, op string) (ok bool) {
+	if srcVal == nil || dstVal == nil {
 		return false
 	}
 
-	switch fVal := first.(type) {
-	case float64:
-		if sVal, err := ToFloat(second); err == nil {
-			return CompFloat(fVal, sVal, op)
+	// float
+	if srcFlt, ok := srcVal.(float64); ok {
+		if dstFlt, err := ToFloat(dstVal); err == nil {
+			return CompFloat(srcFlt, dstFlt, op)
 		}
-	case float32:
-		if sVal, err := ToFloat(second); err == nil {
-			return CompFloat(float64(fVal), sVal, op)
-		}
-	default: // as int64
-		if int1, err := ToInt64(first); err == nil {
-			if int2, err := ToInt64(second); err == nil {
-				return CompInt64(int1, int2, op)
-			}
-		}
+		return false
 	}
 
-	return false
+	if srcFlt, ok := srcVal.(float32); ok {
+		if dstFlt, err := ToFloat(dstVal); err == nil {
+			return CompFloat(float64(srcFlt), dstFlt, op)
+		}
+		return false
+	}
+
+	// as int64
+	srcInt, err := ToInt64(srcVal)
+	if err != nil {
+		return false
+	}
+
+	dstInt, err := ToInt64(dstVal)
+	if err != nil {
+		return false
+	}
+
+	return CompInt64(srcInt, dstInt, op)
 }
 
-// CompInt compare all intX,uintX type value. returns `first op(=,!=,<,<=,>,>=) second`
-func CompInt[T comdef.Xint](first, second T, op string) (ok bool) {
-	return CompValue(first, second, op)
+// CompInt compare int,uint value. returns `srcVal op(=,!=,<,<=,>,>=) dstVal`
+func CompInt[T comdef.Xint](srcVal, dstVal T, op string) (ok bool) {
+	return CompValue(srcVal, dstVal, op)
 }
 
-// CompInt64 compare int64 value. returns `first op(=,!=,<,<=,>,>=) second`
-func CompInt64(first, second int64, op string) bool {
-	return CompValue(first, second, op)
+// CompInt64 compare int64 value. returns `srcVal op(=,!=,<,<=,>,>=) dstVal`
+func CompInt64(srcVal, dstVal int64, op string) bool {
+	return CompValue(srcVal, dstVal, op)
 }
 
-// CompFloat compare float64,float32 value. returns `first op(=,!=,<,<=,>,>=) second`
-func CompFloat[T comdef.Float](first, second T, op string) (ok bool) {
-	return CompValue(first, second, op)
+// CompFloat compare float64,float32 value. returns `srcVal op(=,!=,<,<=,>,>=) dstVal`
+func CompFloat[T comdef.Float](srcVal, dstVal T, op string) (ok bool) {
+	return CompValue(srcVal, dstVal, op)
 }
 
-// CompValue compare intX,uintX,floatX value. returns `first op(=,!=,<,<=,>,>=) second`
-func CompValue[T comdef.XintOrFloat](first, second T, op string) (ok bool) {
+// CompValue compare intX,uintX,floatX value. returns `srcVal op(=,!=,<,<=,>,>=) dstVal`
+func CompValue[T comdef.XintOrFloat](srcVal, dstVal T, op string) (ok bool) {
 	switch op {
 	case "<", "lt":
-		ok = first < second
+		ok = srcVal < dstVal
 	case "<=", "lte":
-		ok = first <= second
+		ok = srcVal <= dstVal
 	case ">", "gt":
-		ok = first > second
+		ok = srcVal > dstVal
 	case ">=", "gte":
-		ok = first >= second
+		ok = srcVal >= dstVal
 	case "=", "eq":
-		ok = first == second
+		ok = srcVal == dstVal
 	case "!=", "ne", "neq":
-		ok = first != second
+		ok = srcVal != dstVal
 	}
 	return
 }

@@ -500,29 +500,11 @@ func newSelectorNode(selector string) *selectorNode {
 }
 
 func (n *selectorNode) filter(node ast.Node) (ast.Node, error) {
-	selector := n.selector
-	if len(selector) > 1 && selector[0] == '\'' && selector[len(selector)-1] == '\'' {
-		selector = selector[1 : len(selector)-1]
-	}
 	switch node.Type() {
 	case ast.MappingType:
 		for _, value := range node.(*ast.MappingNode).Values {
 			key := value.Key.GetToken().Value
-			if len(key) > 0 {
-				switch key[0] {
-				case '"':
-					var err error
-					key, err = strconv.Unquote(key)
-					if err != nil {
-						return nil, errors.Wrapf(err, "failed to unquote")
-					}
-				case '\'':
-					if len(key) > 1 && key[len(key)-1] == '\'' {
-						key = key[1 : len(key)-1]
-					}
-				}
-			}
-			if key == selector {
+			if key == n.selector {
 				if n.child == nil {
 					return value.Value, nil
 				}
@@ -536,7 +518,7 @@ func (n *selectorNode) filter(node ast.Node) (ast.Node, error) {
 	case ast.MappingValueType:
 		value := node.(*ast.MappingValueNode)
 		key := value.Key.GetToken().Value
-		if key == selector {
+		if key == n.selector {
 			if n.child == nil {
 				return value.Value, nil
 			}
@@ -589,9 +571,7 @@ func (n *selectorNode) replace(node ast.Node, target ast.Node) error {
 }
 
 func (n *selectorNode) String() string {
-	var builder PathBuilder
-	selector := builder.normalizeSelectorName(n.selector)
-	s := fmt.Sprintf(".%s", selector)
+	s := fmt.Sprintf(".%s", n.selector)
 	if n.child != nil {
 		s += n.child.String()
 	}

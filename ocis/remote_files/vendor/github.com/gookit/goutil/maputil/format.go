@@ -92,16 +92,16 @@ func (f *MapFormatter) doFormat() {
 	}
 
 	for i, key := range rv.MapKeys() {
-		strK := strutil.SafeString(key.Interface())
+		kStr := strutil.QuietString(key.Interface())
 		if indentLn > 0 {
 			buf.WriteString(f.Indent)
 		}
 
-		buf.WriteString(strK)
+		buf.WriteString(kStr)
 		buf.WriteByte(':')
 
-		strV := strutil.SafeString(rv.MapIndex(key).Interface())
-		buf.WriteString(strV)
+		vStr := strutil.QuietString(rv.MapIndex(key).Interface())
+		buf.WriteString(vStr)
 		if i < ln-1 {
 			buf.WriteByte(',')
 

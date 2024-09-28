@@ -4,7 +4,7 @@ import (
 	"errors"
 	"reflect"
 
-	"github.com/gookit/goutil/internal/varexpr"
+	"github.com/gookit/goutil/internal/comfunc"
 	"github.com/gookit/goutil/reflects"
 	"github.com/gookit/goutil/strutil"
 )
@@ -89,7 +89,7 @@ func initDefaults(rv reflect.Value, opt *InitOptions) error {
 			continue
 		}
 
-		// Skip init on field has value. but will check slice and pointer field
+		// skip on field has value
 		if !fv.IsZero() {
 			// special: handle for pointer struct field
 			if fv.Kind() == reflect.Pointer {
@@ -97,21 +97,6 @@ func initDefaults(rv reflect.Value, opt *InitOptions) error {
 				if fv.Kind() == reflect.Struct {
 					if err := initDefaults(fv, opt); err != nil {
 						return err
-					}
-				}
-			} else if fv.Kind() == reflect.Slice {
-				el := sf.Type.Elem()
-				if el.Kind() == reflect.Pointer {
-					el = el.Elem()
-				}
-
-				// init sub struct in slice. like `[]SubStruct` or `[]*SubStruct`
-				if el.Kind() == reflect.Struct && fv.Len() > 0 {
-					for i := 0; i < fv.Len(); i++ {
-						subFv := reflect.Indirect(fv.Index(i))
-						if err := initDefaults(subFv, opt); err != nil {
-							return err
-						}
 					}
 				}
 			}
@@ -140,11 +125,6 @@ func initDefaults(rv reflect.Value, opt *InitOptions) error {
 
 			// init sub struct in slice. like `[]SubStruct` or `[]*SubStruct`
 			if el.Kind() == reflect.Struct {
-				// up: if slice elem is struct and slice len=0, will be skip init default value
-				if fv.Len() == 0 {
-					continue
-				}
-
 				// make sub-struct and init. like: `SubStruct`
 				subFv := reflect.New(el)
 				subFvE := subFv.Elem()
@@ -179,7 +159,7 @@ func initDefaultValue(fv reflect.Value, val string, parseEnv bool) error {
 
 	// parse env var
 	if parseEnv {
-		val = varexpr.SafeParse(val)
+		val = comfunc.ParseEnvVar(val, nil)
 	}
 
 	var anyVal any = val

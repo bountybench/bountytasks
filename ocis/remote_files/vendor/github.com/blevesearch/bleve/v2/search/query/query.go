@@ -18,19 +18,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 
 	"github.com/blevesearch/bleve/v2/mapping"
 	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-var logger = log.New(io.Discard, "bleve mapping ", log.LstdFlags)
+var logger = log.New(ioutil.Discard, "bleve mapping ", log.LstdFlags)
 
 // SetLog sets the logger used for logging
-// by default log messages are sent to io.Discard
+// by default log messages are sent to ioutil.Discard
 func SetLog(l *log.Logger) {
 	logger = l
 }
@@ -69,17 +68,24 @@ type ValidatableQuery interface {
 // a Query object.
 func ParseQuery(input []byte) (Query, error) {
 	var tmp map[string]interface{}
-	err := util.UnmarshalJSON(input, &tmp)
+	err := json.Unmarshal(input, &tmp)
 	if err != nil {
 		return nil, err
 	}
-	_, hasFuzziness := tmp["fuzziness"]
 	_, isMatchQuery := tmp["match"]
-	_, isMatchPhraseQuery := tmp["match_phrase"]
-	_, hasTerms := tmp["terms"]
-	if hasFuzziness && !isMatchQuery && !isMatchPhraseQuery && !hasTerms {
+	_, hasFuzziness := tmp["fuzziness"]
+	if hasFuzziness && !isMatchQuery {
 		var rv FuzzyQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
+		if err != nil {
+			return nil, err
+		}
+		return &rv, nil
+	}
+	_, isTermQuery := tmp["term"]
+	if isTermQuery {
+		var rv TermQuery
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -87,38 +93,16 @@ func ParseQuery(input []byte) (Query, error) {
 	}
 	if isMatchQuery {
 		var rv MatchQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
 		return &rv, nil
 	}
+	_, isMatchPhraseQuery := tmp["match_phrase"]
 	if isMatchPhraseQuery {
 		var rv MatchPhraseQuery
-		err := util.UnmarshalJSON(input, &rv)
-		if err != nil {
-			return nil, err
-		}
-		return &rv, nil
-	}
-	if hasTerms {
-		var rv PhraseQuery
-		err := util.UnmarshalJSON(input, &rv)
-		if err != nil {
-			// now try multi-phrase
-			var rv2 MultiPhraseQuery
-			err = util.UnmarshalJSON(input, &rv2)
-			if err != nil {
-				return nil, err
-			}
-			return &rv2, nil
-		}
-		return &rv, nil
-	}
-	_, isTermQuery := tmp["term"]
-	if isTermQuery {
-		var rv TermQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -129,16 +113,31 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasMustNot := tmp["must_not"]
 	if hasMust || hasShould || hasMustNot {
 		var rv BooleanQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
+		}
+		return &rv, nil
+	}
+	_, hasTerms := tmp["terms"]
+	if hasTerms {
+		var rv PhraseQuery
+		err := json.Unmarshal(input, &rv)
+		if err != nil {
+			// now try multi-phrase
+			var rv2 MultiPhraseQuery
+			err = json.Unmarshal(input, &rv2)
+			if err != nil {
+				return nil, err
+			}
+			return &rv2, nil
 		}
 		return &rv, nil
 	}
 	_, hasConjuncts := tmp["conjuncts"]
 	if hasConjuncts {
 		var rv ConjunctionQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +146,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasDisjuncts := tmp["disjuncts"]
 	if hasDisjuncts {
 		var rv DisjunctionQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -157,7 +156,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasSyntaxQuery := tmp["query"]
 	if hasSyntaxQuery {
 		var rv QueryStringQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -167,7 +166,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasMax := tmp["max"].(float64)
 	if hasMin || hasMax {
 		var rv NumericRangeQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -177,7 +176,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasMaxStr := tmp["max"].(string)
 	if hasMinStr || hasMaxStr {
 		var rv TermRangeQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -186,8 +185,8 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasStart := tmp["start"]
 	_, hasEnd := tmp["end"]
 	if hasStart || hasEnd {
-		var rv DateRangeStringQuery
-		err := util.UnmarshalJSON(input, &rv)
+		var rv DateRangeQuery
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -196,7 +195,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasPrefix := tmp["prefix"]
 	if hasPrefix {
 		var rv PrefixQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +204,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasRegexp := tmp["regexp"]
 	if hasRegexp {
 		var rv RegexpQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -214,7 +213,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasWildcard := tmp["wildcard"]
 	if hasWildcard {
 		var rv WildcardQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -223,7 +222,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasMatchAll := tmp["match_all"]
 	if hasMatchAll {
 		var rv MatchAllQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -232,7 +231,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasMatchNone := tmp["match_none"]
 	if hasMatchNone {
 		var rv MatchNoneQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -241,7 +240,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasDocIds := tmp["ids"]
 	if hasDocIds {
 		var rv DocIDQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -250,7 +249,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasBool := tmp["bool"]
 	if hasBool {
 		var rv BoolFieldQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +259,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasBottomRight := tmp["bottom_right"]
 	if hasTopLeft && hasBottomRight {
 		var rv GeoBoundingBoxQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -269,7 +268,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasDistance := tmp["distance"]
 	if hasDistance {
 		var rv GeoDistanceQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -278,7 +277,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasPoints := tmp["polygon_points"]
 	if hasPoints {
 		var rv GeoBoundingPolygonQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -288,7 +287,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasGeo := tmp["geometry"]
 	if hasGeo {
 		var rv GeoShapeQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}
@@ -298,7 +297,7 @@ func ParseQuery(input []byte) (Query, error) {
 	_, hasCIDR := tmp["cidr"]
 	if hasCIDR {
 		var rv IPRangeQuery
-		err := util.UnmarshalJSON(input, &rv)
+		err := json.Unmarshal(input, &rv)
 		if err != nil {
 			return nil, err
 		}

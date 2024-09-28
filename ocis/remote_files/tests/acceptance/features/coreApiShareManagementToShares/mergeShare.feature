@@ -1,4 +1,4 @@
-@skipOnReva @issue-1328 @issues-1289
+@issue-1328 @issues-1289
 Feature: sharing
 
   Background:
@@ -9,7 +9,6 @@ Feature: sharing
       | Brian    |
     And group "grp1" has been created
     And user "Brian" has been added to group "grp1"
-    And user "Brian" has disabled auto-accepting
 
   @smokeTest
   Scenario: merging shares for recipient when shared from outside with group and member

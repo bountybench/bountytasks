@@ -38,12 +38,10 @@ type Config struct {
 	AuthBasicEndpoint         string `yaml:"-"`
 	AuthBearerEndpoint        string `yaml:"-"`
 	AuthMachineEndpoint       string `yaml:"-"`
-	AuthServiceEndpoint       string `yaml:"-"`
 	StoragePublicLinkEndpoint string `yaml:"-"`
 	StorageUsersEndpoint      string `yaml:"-"`
 	StorageSharesEndpoint     string `yaml:"-"`
 	AppRegistryEndpoint       string `yaml:"-"`
-	OCMEndpoint               string `yaml:"-"`
 
 	StorageRegistry StorageRegistry `yaml:"storage_registry"` // TODO: should we even support switching this?
 
@@ -70,34 +68,34 @@ type Debug struct {
 }
 
 type GRPCConfig struct {
-	Addr      string                 `yaml:"addr" env:"GATEWAY_GRPC_ADDR" desc:"The bind address of the GRPC service."`
+	Addr      string                 `yaml:"addr" env:"OCIS_GATEWAY_GRPC_ADDR;GATEWAY_GRPC_ADDR" desc:"The bind address of the GRPC service."`
 	TLS       *shared.GRPCServiceTLS `yaml:"tls"`
 	Namespace string                 `yaml:"-"`
 	Protocol  string                 `yaml:"protocol" env:"GATEWAY_GRPC_PROTOCOL" desc:"The transport protocol of the GRPC service."`
 }
 
 type StorageRegistry struct {
-	Driver              string   `yaml:"driver" env:"GATEWAY_STORAGE_REGISTRY_DRIVER" desc:"The driver name of the storage registry to use."`
-	Rules               []string `yaml:"rules" env:"GATEWAY_STORAGE_REGISTRY_RULES" desc:"The rules for the storage registry. See the Environment Variable Types description for more details."`
-	JSON                string   `yaml:"json" env:"GATEWAY_STORAGE_REGISTRY_CONFIG_JSON" desc:"Additional configuration for the storage registry in json format."`
+	Driver              string   `yaml:"driver"` // TODO: configure via env?
+	Rules               []string `yaml:"rules"`  // TODO: configure via env?
+	JSON                string   `yaml:"json"`   // TODO: configure via env?
 	StorageUsersMountID string   `yaml:"storage_users_mount_id" env:"GATEWAY_STORAGE_USERS_MOUNT_ID" desc:"Mount ID of this storage. Admins can set the ID for the storage in this config option manually which is then used to reference the storage. Any reasonable long string is possible, preferably this would be an UUIDv4 format."`
 }
 
 // Cache holds cache config
 type Cache struct {
-	StatCacheStore          string        // NOTE: The stat cache is not working atm. Hence we block configuring it
-	StatCacheNodes          []string      `yaml:"stat_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_STAT_CACHE_STORE_NODES" desc:"A list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store. See the Environment Variable Types description for more details."`
+	StatCacheStore          string        `yaml:"stat_cache_store" env:"OCIS_CACHE_STORE;GATEWAY_STAT_CACHE_STORE" desc:"The type of the cache store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details."`
+	StatCacheNodes          []string      `yaml:"stat_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_STAT_CACHE_STORE_NODES" desc:"A comma separated list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store."`
 	StatCacheDatabase       string        `yaml:"stat_cache_database" env:"OCIS_CACHE_DATABASE" desc:"The database name the configured store should use."`
-	StatCacheTTL            time.Duration `yaml:"stat_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_STAT_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. See the Environment Variable Types description for more details."`
-	StatCacheSize           int           `yaml:"stat_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_STAT_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512 which is derived from the ocmem package though not exclicitely set as default."`
+	StatCacheTTL            time.Duration `yaml:"stat_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_STAT_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '300s' (300 seconds)."`
+	StatCacheSize           int           `yaml:"stat_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_STAT_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512."`
 	ProviderCacheStore      string        `yaml:"provider_cache_store" env:"OCIS_CACHE_STORE;GATEWAY_PROVIDER_CACHE_STORE" desc:"The type of the cache store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details."`
-	ProviderCacheNodes      []string      `yaml:"provider_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_PROVIDER_CACHE_STORE_NODES" desc:"A list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store. See the Environment Variable Types description for more details."`
+	ProviderCacheNodes      []string      `yaml:"provider_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_PROVIDER_CACHE_STORE_NODES" desc:"A comma separated list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store."`
 	ProviderCacheDatabase   string        `yaml:"provider_cache_database" env:"OCIS_CACHE_DATABASE" desc:"The database name the configured store should use."`
-	ProviderCacheTTL        time.Duration `yaml:"provider_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_PROVIDER_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. See the Environment Variable Types description for more details."`
-	ProviderCacheSize       int           `yaml:"provider_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_PROVIDER_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512 which is derived from the ocmem package though not exclicitely set as default."`
+	ProviderCacheTTL        time.Duration `yaml:"provider_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_PROVIDER_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '300s' (300 seconds)."`
+	ProviderCacheSize       int           `yaml:"provider_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_PROVIDER_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512."`
 	CreateHomeCacheStore    string        `yaml:"create_home_cache_store" env:"OCIS_CACHE_STORE;GATEWAY_CREATE_HOME_CACHE_STORE" desc:"The type of the cache store. Supported values are: 'memory', 'ocmem', 'etcd', 'redis', 'redis-sentinel', 'nats-js', 'noop'. See the text description for details."`
-	CreateHomeCacheNodes    []string      `yaml:"create_home_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_CREATE_HOME_CACHE_STORE_NODES" desc:"A list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store. See the Environment Variable Types description for more details."`
+	CreateHomeCacheNodes    []string      `yaml:"create_home_cache_nodes" env:"OCIS_CACHE_STORE_NODES;GATEWAY_CREATE_HOME_CACHE_STORE_NODES" desc:"A comma separated list of nodes to access the configured store. This has no effect when 'memory' or 'ocmem' stores are configured. Note that the behaviour how nodes are used is dependent on the library of the configured store."`
 	CreateHomeCacheDatabase string        `yaml:"create_home_cache_database" env:"OCIS_CACHE_DATABASE" desc:"The database name the configured store should use."`
-	CreateHomeCacheTTL      time.Duration `yaml:"create_home_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_CREATE_HOME_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. See the Environment Variable Types description for more details."`
-	CreateHomeCacheSize     int           `yaml:"create_home_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_CREATE_HOME_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512 which is derived from the ocmem package though not exclicitely set as default."`
+	CreateHomeCacheTTL      time.Duration `yaml:"create_home_cache_ttl" env:"OCIS_CACHE_TTL;GATEWAY_CREATE_HOME_CACHE_TTL" desc:"Default time to live for user info in the cache. Only applied when access tokens has no expiration. The duration can be set as number followed by a unit identifier like s, m or h. Defaults to '300s' (300 seconds)."`
+	CreateHomeCacheSize     int           `yaml:"create_home_cache_size" env:"OCIS_CACHE_SIZE;GATEWAY_CREATE_HOME_CACHE_SIZE" desc:"The maximum quantity of items in the cache. Only applies when store type 'ocmem' is configured. Defaults to 512."`
 }

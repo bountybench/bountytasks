@@ -1065,8 +1065,6 @@ func builtinJWTDecodeVerify(bctx BuiltinContext, operands []*ast.Term, iter func
 			if constraints.iss != issVal {
 				return iter(unverified)
 			}
-		} else {
-			return iter(unverified)
 		}
 	}
 	// RFC7159 4.1.3 aud

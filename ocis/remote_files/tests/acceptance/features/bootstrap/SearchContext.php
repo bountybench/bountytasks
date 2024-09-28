@@ -52,40 +52,34 @@ class SearchContext implements Context {
 	 * @return void
 	 */
 	public function userSearchesUsingWebDavAPI(
-		string    $user,
-		string    $pattern,
-		?string   $limit = null,
-		?string   $scope = null,
-		?string   $spaceName = null,
+		string $user,
+		string $pattern,
+		?string	$limit = null,
+		?string $scope = null,
+		?string $spaceName = null,
 		TableNode $properties = null
-	): void {
-		// NOTE: because indexing of newly uploaded files or directories with ocis is decoupled and occurs asynchronously
-		// short wait is necessary before searching
-		sleep(5);
+	):void {
+		// Because indexing of newly uploaded files or directories with ocis is decoupled and occurs asynchronously, a short wait is necessary before searching files or folders.
+		sleep(4);
 		$user = $this->featureContext->getActualUsername($user);
 		$baseUrl = $this->featureContext->getBaseUrl();
 		$password = $this->featureContext->getPasswordForUser($user);
-		if (str_contains($pattern, '$')) {
-			$date = explode("$", $pattern);
-			switch ($date[1]) {
-				case "today":
-					$pattern = $date[0] . date('Y-m-d', strtotime('today'));
-					break;
-				case "yesterday":
-					$pattern = $date[0] . date('Y-m-d', strtotime('yesterday'));
-					break;
-				default:
-					throw new Exception("cannot convert the date");
-			}
-		}
 		$body
 			= "<?xml version='1.0' encoding='utf-8' ?>\n" .
 			"	<oc:search-files xmlns:a='DAV:' xmlns:oc='http://owncloud.org/ns' >\n" .
 			"		<oc:search>\n";
-		if ($scope !== null) {
+		if ($scope !== null && $spaceName !== null) {
 			$scope = \trim($scope, "/");
-			$resourceID = $this->featureContext->spacesContext->getResourceId($user, $spaceName ?? "Personal", $scope);
-			$pattern .= " scope:$resourceID";
+			$spaceId = $this->featureContext->spacesContext->getSpaceIdByName($user, $spaceName);
+			$pattern .= " scope:$spaceId/$scope";
+		} elseif ($scope !== null) {
+			$scope = \trim($scope, "/");
+			if ($this->featureContext->getDavPathVersion() === 3) {
+				$rootPath = $this->featureContext->getPersonalSpaceIdForUser($user);
+			} else {
+				$rootPath = $this->featureContext->getUserIdByUserName($user);
+			}
+			$pattern .= " scope:$rootPath/$scope";
 		}
 		$body .= "<oc:pattern>$pattern</oc:pattern>\n";
 		if ($limit !== null) {
@@ -127,10 +121,10 @@ class SearchContext implements Context {
 	 * @throws Exception
 	 */
 	public function fileOrFolderInTheSearchResultShouldContainProperties(
-		string    $path,
-		string    $user,
+		string $path,
+		string $user,
 		TableNode $properties
-	): void {
+	):void {
 		$user = $this->featureContext->getActualUsername($user);
 		$this->featureContext->verifyTableNodeColumns($properties, ['name', 'value']);
 		$properties = $properties->getHash();
@@ -168,7 +162,7 @@ class SearchContext implements Context {
 	 *
 	 * @return void
 	 */
-	public function before(BeforeScenarioScope $scope): void {
+	public function before(BeforeScenarioScope $scope):void {
 		// Get the environment
 		$environment = $scope->getEnvironment();
 		// Get all the contexts you need in this context
@@ -176,39 +170,26 @@ class SearchContext implements Context {
 	}
 
 	/**
-	 * @Then /^the search result should contain these (?:files|entries) with highlight on keyword "([^"]*)"/
+	 * @Then the search result by tags for user :user should contain these entries:
 	 *
-	 * @param TableNode $expectedFiles
-	 * @param string $expectedContent
+	 * @param string|null $user
+	 * @param TableNode $expectedEntries
 	 *
 	 * @return void
-	 *
 	 * @throws Exception
 	 */
-	public function theSearchResultShouldContainEntriesWithHighlight(
-		TableNode $expectedFiles,
-		string    $expectedContent
-	): void {
-		$this->featureContext->verifyTableNodeColumnsCount($expectedFiles, 1);
-		$elementRows = $expectedFiles->getRows();
-		$foundEntries = $this->featureContext->findEntryFromSearchResponse(
-			null,
-			true
-		);
-		foreach ($elementRows as $index => $expectedFile) {
-			$filename = $expectedFile[0];
-			$content = $foundEntries[$filename];
-			// Extract the content between the <mark> tags
-			preg_match('/<mark>(.*?)<\/mark>/s', $content, $matches);
-			$actualContent = isset($matches[1]) ? $matches[1] : '';
-
-			// Remove any leading/trailing whitespace for comparison
-			$actualContent = trim($actualContent);
-			Assert::assertEquals(
-				$expectedContent,
-				$actualContent,
-				"Expected text highlight to be '$expectedContent' but found '$actualContent'"
-			);
+	public function theSearchResultByTagsForUserShouldContainTheseEntries(
+		?string $user,
+		TableNode $expectedEntries
+	):void {
+		$user = $this->featureContext->getActualUsername($user);
+		$this->featureContext->verifyTableNodeColumnsCount($expectedEntries, 1);
+		$expectedEntries = $expectedEntries->getRows();
+		$expectedEntriesArray = [];
+		$responseResourcesArray = $this->featureContext->findEntryFromReportResponse($user);
+		foreach ($expectedEntries as $item) {
+			$expectedEntriesArray[] = $item[0];
 		}
+		Assert::assertEqualsCanonicalizing($expectedEntriesArray, $responseResourcesArray);
 	}
 }

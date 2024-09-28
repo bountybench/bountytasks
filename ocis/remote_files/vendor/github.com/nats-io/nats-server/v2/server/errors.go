@@ -208,20 +208,17 @@ var (
 	// ErrUnknownMappingDestinationFunction is returned when a subject mapping destination contains an unknown mustache-escaped mapping function.
 	ErrUnknownMappingDestinationFunction = fmt.Errorf("%w: unknown function", ErrInvalidMappingDestination)
 
-	// ErrMappingDestinationIndexOutOfRange is returned when the mapping destination function is passed an out of range wildcard index value for one of it's arguments
-	ErrMappingDestinationIndexOutOfRange = fmt.Errorf("%w: wildcard index out of range", ErrInvalidMappingDestination)
+	// ErrorMappingDestinationFunctionWildcardIndexOutOfRange is returned when the mapping destination function is passed an out of range wildcard index value for one of it's arguments
+	ErrorMappingDestinationFunctionWildcardIndexOutOfRange = fmt.Errorf("%w: wildcard index out of range", ErrInvalidMappingDestination)
 
-	// ErrMappingDestinationNotEnoughArgs is returned when the mapping destination function is not passed enough arguments
-	ErrMappingDestinationNotEnoughArgs = fmt.Errorf("%w: not enough arguments passed to the function", ErrInvalidMappingDestination)
+	// ErrorMappingDestinationFunctionNotEnoughArguments is returned when the mapping destination function is not passed enough arguments
+	ErrorMappingDestinationFunctionNotEnoughArguments = fmt.Errorf("%w: not enough arguments passed to the function", ErrInvalidMappingDestination)
 
-	// ErrMappingDestinationInvalidArg is returned when the mapping destination function is passed and invalid argument
-	ErrMappingDestinationInvalidArg = fmt.Errorf("%w: function argument is invalid or in the wrong format", ErrInvalidMappingDestination)
+	// ErrorMappingDestinationFunctionInvalidArgument is returned when the mapping destination function is passed and invalid argument
+	ErrorMappingDestinationFunctionInvalidArgument = fmt.Errorf("%w: function argument is invalid or in the wrong format", ErrInvalidMappingDestination)
 
-	// ErrMappingDestinationTooManyArgs is returned when the mapping destination function is passed too many arguments
-	ErrMappingDestinationTooManyArgs = fmt.Errorf("%w: too many arguments passed to the function", ErrInvalidMappingDestination)
-
-	// ErrMappingDestinationNotSupportedForImport is returned when you try to use a mapping function other than wildcard in a transform that needs to be reversible (i.e. an import)
-	ErrMappingDestinationNotSupportedForImport = fmt.Errorf("%w: the only mapping function allowed for import transforms is {{Wildcard()}}", ErrInvalidMappingDestination)
+	// ErrorMappingDestinationFunctionTooManyArguments is returned when the mapping destination function is passed too many arguments
+	ErrorMappingDestinationFunctionTooManyArguments = fmt.Errorf("%w: too many arguments passed to the function", ErrInvalidMappingDestination)
 )
 
 // mappingDestinationErr is a type of subject mapping destination error

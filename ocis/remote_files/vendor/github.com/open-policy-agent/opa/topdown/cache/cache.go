@@ -7,9 +7,10 @@ package cache
 
 import (
 	"container/list"
-	"sync"
 
 	"github.com/open-policy-agent/opa/ast"
+
+	"sync"
 
 	"github.com/open-policy-agent/opa/util"
 )
@@ -61,7 +62,6 @@ func (c *Config) validateAndInjectDefaults() error {
 // InterQueryCacheValue defines the interface for the data that the inter-query cache holds.
 type InterQueryCacheValue interface {
 	SizeInBytes() int64
-	Clone() (InterQueryCacheValue, error)
 }
 
 // InterQueryCache defines the interface for the inter-query cache.
@@ -70,7 +70,6 @@ type InterQueryCache interface {
 	Insert(key ast.Value, value InterQueryCacheValue) int
 	Delete(key ast.Value)
 	UpdateConfig(config *Config)
-	Clone(value InterQueryCacheValue) (InterQueryCacheValue, error)
 }
 
 // NewInterQueryCache returns a new inter-query cache.
@@ -131,12 +130,6 @@ func (c *cache) UpdateConfig(config *Config) {
 	c.config = config
 }
 
-func (c *cache) Clone(value InterQueryCacheValue) (InterQueryCacheValue, error) {
-	c.mtx.Lock()
-	defer c.mtx.Unlock()
-	return c.unsafeClone(value)
-}
-
 func (c *cache) unsafeInsert(k ast.Value, v InterQueryCacheValue) (dropped int) {
 	size := v.SizeInBytes()
 	limit := c.maxSizeBytes()
@@ -179,10 +172,6 @@ func (c *cache) unsafeDelete(k ast.Value) {
 	c.usage -= cacheItem.value.SizeInBytes()
 	delete(c.items, k.String())
 	c.l.Remove(cacheItem.keyElement)
-}
-
-func (c *cache) unsafeClone(value InterQueryCacheValue) (InterQueryCacheValue, error) {
-	return value.Clone()
 }
 
 func (c *cache) maxSizeBytes() int64 {

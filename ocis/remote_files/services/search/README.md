@@ -25,22 +25,6 @@ Note that as of now, the search service can not be scaled. Consider using a dedi
 
 By default, the search service is shipped with [bleve](https://github.com/blevesearch/bleve) as its primary search engine. The available engines can be extended by implementing the [Engine](pkg/engine/engine.go) interface and making that engine available.
 
-## Query language
-
-By default, [KQL](https://learn.microsoft.com/en-us/sharepoint/dev/general-development/keyword-query-language-kql-syntax-reference) is used as query language,
-for an overview of how the syntax works, please read the [microsoft documentation](https://learn.microsoft.com/en-us/sharepoint/dev/general-development/keyword-query-language-kql-syntax-reference).
-
-Not all parts are supported, the following list gives an overview of parts that are not implemented yet:
-
-*   Synonym operators
-*   Inclusion and exclusion operators
-*   Dynamic ranking operator
-*   ONEAR operator
-*   NEAR operator
-*   Date intervals
-
-In the following [ADR](https://github.com/owncloud/ocis/blob/docs/ocis/adr/0020-file-search-query-language.md) you can read why we chose KQL.
-
 ## Extraction Engines
 
 The search service provides the following extraction engines and their results are used as index for searching:
@@ -69,8 +53,6 @@ As soon as Tika is installed and accessible, the search service must be configur
 When the search service can reach Tika, it begins to read out the content on demand. Note that files must be downloaded during the process, which can lead to delays with larger documents.
 
 Content extraction and handling the extracted content can be very resource intensive. Content extraction is therefore limited to files with a certain file size. The default limit is 20MB and can be configured using the `SEARCH_CONTENT_EXTRACTION_SIZE_LIMIT` variable.
-
-When extracting content, you can specify whether [stop words](https://en.wikipedia.org/wiki/Stop_word) like `I`, `you`, `the` are ignored or not. Noramlly, these stop words are removed automatically. To keep them, the environment variable `SEARCH_EXTRACTOR_TIKA_CLEAN_STOP_WORDS` must be set to `false`.
 
 When using the Tika container and docker-compose, consider the following:
 

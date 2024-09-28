@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -21,6 +20,7 @@ import (
 
 	"github.com/cs3org/reva/v2/pkg/rgrpc/todo/pool"
 	"github.com/cs3org/reva/v2/pkg/store"
+	"github.com/cs3org/reva/v2/pkg/token/manager/jwt"
 	"github.com/owncloud/ocis/v2/ocis-pkg/config/configlog"
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	pkgmiddleware "github.com/owncloud/ocis/v2/ocis-pkg/middleware"
@@ -32,6 +32,7 @@ import (
 	policiessvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/policies/v0"
 	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
 	storesvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/store/v0"
+	"github.com/owncloud/ocis/v2/services/proxy/pkg/autoprovision"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/config/parser"
 	"github.com/owncloud/ocis/v2/services/proxy/pkg/logging"
@@ -155,7 +156,6 @@ func Server(cfg *config.Config) *cli.Command {
 						Msg("Shutting down server")
 
 					cancel()
-					os.Exit(1)
 				})
 			}
 
@@ -272,20 +272,18 @@ func (h *StaticRouteHandler) backchannelLogout(w http.ResponseWriter, r *http.Re
 func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config, userInfoCache microstore.Store, traceProvider trace.TracerProvider) alice.Chain {
 	rolesClient := settingssvc.NewRoleService("com.owncloud.api.settings", cfg.GrpcClient)
 	policiesProviderClient := policiessvc.NewPoliciesProviderService("com.owncloud.api.policies", cfg.GrpcClient)
-	gatewaySelector, err := pool.GatewaySelector(
-		cfg.Reva.Address,
-		append(
-			cfg.Reva.GetRevaOptions(),
-			pool.WithRegistry(registry.GetRegistry()),
-			pool.WithTracerProvider(traceProvider),
-		)...)
+	gatewaySelector, err := pool.GatewaySelector(cfg.Reva.Address, append(cfg.Reva.GetRevaOptions(), pool.WithRegistry(registry.GetRegistry()))...)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to get gateway selector")
 	}
+	tokenManager, err := jwt.New(map[string]interface{}{
+		"secret": cfg.TokenManager.JWTSecret,
+	})
 	if err != nil {
 		logger.Fatal().Err(err).
 			Msg("Failed to create token manager")
 	}
+	autoProvsionCreator := autoprovision.NewCreator(autoprovision.WithTokenManager(tokenManager))
 	var userProvider backend.UserBackend
 	switch cfg.AccountBackend {
 	case "cs3":
@@ -294,7 +292,7 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 			backend.WithRevaGatewaySelector(gatewaySelector),
 			backend.WithMachineAuthAPIKey(cfg.MachineAuthAPIKey),
 			backend.WithOIDCissuer(cfg.OIDC.Issuer),
-			backend.WithServiceAccount(cfg.ServiceAccount),
+			backend.WithAutoProvisonCreator(autoProvsionCreator),
 		)
 	default:
 		logger.Fatal().Msgf("Invalid accounts backend type '%s'", cfg.AccountBackend)
@@ -313,8 +311,7 @@ func loadMiddlewares(ctx context.Context, logger log.Logger, cfg *config.Config,
 			userroles.WithLogger(logger),
 			userroles.WithRolesClaim(cfg.RoleAssignment.OIDCRoleMapper.RoleClaim),
 			userroles.WithRoleMapping(cfg.RoleAssignment.OIDCRoleMapper.RolesMap),
-			userroles.WithRevaGatewaySelector(gatewaySelector),
-			userroles.WithServiceAccount(cfg.ServiceAccount),
+			userroles.WithAutoProvisonCreator(autoProvsionCreator),
 		)
 	default:
 		logger.Fatal().Msgf("Invalid role assignment driver '%s'", cfg.RoleAssignment.Driver)

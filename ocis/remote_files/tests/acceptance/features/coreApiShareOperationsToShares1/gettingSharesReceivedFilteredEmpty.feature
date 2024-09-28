@@ -1,4 +1,3 @@
-@skipOnReva
 Feature: get the received shares filtered by type (user, group etc)
   As a user
   I want to filter the shares that I have received of a particular type (user, group etc)
@@ -22,15 +21,15 @@ Feature: get the received shares filtered by type (user, group etc)
   Scenario Outline: getting shares received from users when there are none
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/folderToShareWithGroup" with group "grp1"
+    And user "Brian" has accepted share "/folderToShareWithGroup" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /folderToShareWithPublic |
       | permissions | read                     |
-      | password    | %public%                 |
     And user "Alice" has shared file "/fileToShareWithGroup.txt" with group "grp1"
+    And user "Brian" has accepted share "/fileToShareWithGroup.txt" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /fileToShareWithPublic.txt |
       | permissions | read                       |
-      | password    | %public%                   |
     When user "Brian" gets the user shares shared with him using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
     And the HTTP status code should be "200"
@@ -44,15 +43,15 @@ Feature: get the received shares filtered by type (user, group etc)
   Scenario Outline: getting shares received from groups when there are none
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/folderToShareWithUser" with user "Brian"
+    And user "Brian" has accepted share "/folderToShareWithUser" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /folderToShareWithPublic |
       | permissions | read                     |
-      | password    | %public%                 |
     And user "Alice" has shared file "/fileToShareWithUser.txt" with user "Brian"
+    And user "Brian" has accepted share "/fileToShareWithUser.txt" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /fileToShareWithPublic.txt |
       | permissions | read                       |
-      | password    | %public%                   |
     When user "Brian" gets the group shares shared with him using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
     And the HTTP status code should be "200"
@@ -69,17 +68,19 @@ Feature: get the received shares filtered by type (user, group etc)
     #       that are "shared with me" should always return an empty list.
     Given using OCS API version "<ocs_api_version>"
     And user "Alice" has shared folder "/folderToShareWithUser" with user "Brian"
+    And user "Brian" has accepted share "/folderToShareWithUser" offered by user "Alice"
     And user "Alice" has shared folder "/folderToShareWithGroup" with group "grp1"
+    And user "Brian" has accepted share "/folderToShareWithGroup" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /folderToShareWithPublic |
       | permissions | read                     |
-      | password    | %public%                 |
     And user "Alice" has shared file "/fileToShareWithUser.txt" with user "Brian"
+    And user "Brian" has accepted share "/fileToShareWithUser.txt" offered by user "Alice"
     And user "Alice" has shared file "/fileToShareWithGroup.txt" with group "grp1"
+    And user "Brian" has accepted share "/fileToShareWithGroup.txt" offered by user "Alice"
     And user "Alice" has created a public link share with settings
       | path        | /fileToShareWithPublic.txt |
       | permissions | read                       |
-      | password    | %public%                   |
     When user "Brian" gets the public link shares shared with him using the sharing API
     Then the OCS status code should be "<ocs_status_code>"
     And the HTTP status code should be "200"

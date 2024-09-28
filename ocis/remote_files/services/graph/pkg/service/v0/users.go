@@ -8,14 +8,9 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/google/uuid"
-
-	"github.com/owncloud/ocis/v2/services/settings/pkg/store/defaults"
 
 	"github.com/CiscoM31/godata"
 	cs3rpc "github.com/cs3org/go-cs3apis/cs3/rpc/v1beta1"
@@ -27,13 +22,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	libregraph "github.com/owncloud/libre-graph-api-go"
-
-	settingsmsg "github.com/owncloud/ocis/v2/protogen/gen/ocis/messages/settings/v0"
 	settings "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
-	settingssvc "github.com/owncloud/ocis/v2/protogen/gen/ocis/services/settings/v0"
-	"github.com/owncloud/ocis/v2/services/graph/pkg/errorcode"
 	"github.com/owncloud/ocis/v2/services/graph/pkg/identity"
-	ocissettingssvc "github.com/owncloud/ocis/v2/services/settings/pkg/service/v0"
+	"github.com/owncloud/ocis/v2/services/graph/pkg/service/v0/errorcode"
+	settingssvc "github.com/owncloud/ocis/v2/services/settings/pkg/service/v0"
+	"golang.org/x/exp/slices"
 )
 
 // GetMe implements the Service interface.
@@ -91,15 +84,6 @@ func (g Graph) GetMe(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	preferedLanguage, _, err := getUserLanguage(r.Context(), g.valueService, me.GetId())
-	if err != nil {
-		logger.Error().Err(err).Msg("could not get user language")
-		errorcode.GeneralException.Render(w, r, http.StatusInternalServerError, "could not get user language")
-		return
-	}
-
-	me.PreferredLanguage = &preferedLanguage
 
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, me)
@@ -195,21 +179,6 @@ func (g Graph) GetUserDrive(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (g Graph) contextUserHasFullAccountPerms(reqctx context.Context) bool {
-	// mostly copied from the canCreateSpace method
-	pr, err := g.permissionsService.GetPermissionByID(reqctx, &settingssvc.GetPermissionByIDRequest{
-		PermissionId: defaults.AccountManagementPermission(0).Id,
-	})
-	if err != nil || pr.Permission == nil {
-		return false
-	}
-
-	if pr.Permission.Constraint != defaults.All {
-		return false
-	}
-	return true
-}
-
 // GetUsers implements the Service interface.
 func (g Graph) GetUsers(w http.ResponseWriter, r *http.Request) {
 	logger := g.logger.SubloggerWithRequestID(r.Context())
@@ -219,21 +188,6 @@ func (g Graph) GetUsers(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Debug().Err(err).Interface("query", r.URL.Query()).Msg("could not get users: query error")
 		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	ctxHasFullPerms := g.contextUserHasFullAccountPerms(r.Context())
-	if !ctxHasFullPerms && (odataReq.Query == nil || odataReq.Query.Search == nil || len(odataReq.Query.Search.RawValue) < g.config.API.IdentitySearchMinLength) {
-		// for regular user the search term must have a minimum length
-		logger.Debug().Interface("query", r.URL.Query()).Msgf("search with less than %d chars for a regular user", g.config.API.IdentitySearchMinLength)
-		errorcode.AccessDenied.Render(w, r, http.StatusForbidden, "search term too short")
-		return
-	}
-
-	if !ctxHasFullPerms && (odataReq.Query.Filter != nil || odataReq.Query.Apply != nil || odataReq.Query.Expand != nil || odataReq.Query.Compute != nil) {
-		// regular users can't use filter, apply, expand and compute
-		logger.Debug().Interface("query", r.URL.Query()).Msg("forbidden query elements for a regular user")
-		errorcode.AccessDenied.Render(w, r, http.StatusForbidden, "query has forbidden elements for regular users")
 		return
 	}
 
@@ -260,20 +214,6 @@ func (g Graph) GetUsers(w http.ResponseWriter, r *http.Request) {
 			errorcode.GeneralException.Render(w, r, http.StatusInternalServerError, err.Error())
 		}
 		return
-	}
-
-	// If the user isn't admin, we'll show just the minimum user attibutes
-	if !ctxHasFullPerms {
-		finalUsers := make([]*libregraph.User, len(users))
-		for i, u := range users {
-			finalUsers[i] = &libregraph.User{
-				Id:          u.Id,
-				DisplayName: u.DisplayName,
-				Mail:        u.Mail,
-				UserType:    u.UserType,
-			}
-		}
-		users = finalUsers
 	}
 
 	exp, err := identity.GetExpandValues(odataReq.Query)
@@ -379,10 +319,10 @@ func (g Graph) PostUser(w http.ResponseWriter, r *http.Request) {
 		// to all new users for now, as create Account request does not have any role field
 		if _, err = g.roleService.AssignRoleToUser(r.Context(), &settings.AssignRoleToUserRequest{
 			AccountUuid: *u.Id,
-			RoleId:      ocissettingssvc.BundleUUIDRoleUser,
+			RoleId:      settingssvc.BundleUUIDRoleUser,
 		}); err != nil {
 			// log as error, admin eventually needs to do something
-			logger.Error().Err(err).Str("id", *u.Id).Str("role", ocissettingssvc.BundleUUIDRoleUser).Msg("could not create user: role assignment failed")
+			logger.Error().Err(err).Str("id", *u.Id).Str("role", settingssvc.BundleUUIDRoleUser).Msg("could not create user: role assignment failed")
 			errorcode.GeneralException.Render(w, r, http.StatusInternalServerError, "role assignment failed")
 			return
 		}
@@ -394,7 +334,7 @@ func (g Graph) PostUser(w http.ResponseWriter, r *http.Request) {
 	}
 	g.publishEvent(r.Context(), e)
 
-	render.Status(r, http.StatusCreated)
+	render.Status(r, http.StatusOK) // FIXME 201 should return 201 created
 	render.JSON(w, r, u)
 }
 
@@ -539,23 +479,6 @@ func (g Graph) GetUser(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, user)
 }
 
-// getUserLanguage returns the language of the user in the context.
-func getUserLanguage(ctx context.Context, valueService settingssvc.ValueService, userID string) (string, string, error) {
-	gvr, err := valueService.GetValueByUniqueIdentifiers(ctx, &settingssvc.GetValueByUniqueIdentifiersRequest{
-		AccountUuid: userID,
-		SettingId:   defaults.SettingUUIDProfileLanguage,
-	})
-	if err != nil {
-		return "", "", err
-	}
-
-	langVal := gvr.GetValue().GetValue().GetListValue().GetValues()
-	if len(langVal) > 0 && langVal[0] != nil {
-		return langVal[0].GetStringValue(), gvr.GetValue().GetValue().GetId(), nil
-	}
-	return "", "", errors.New("no language value found")
-}
-
 // DeleteUser implements the Service interface.
 func (g Graph) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	logger := g.logger.SubloggerWithRequestID(r.Context())
@@ -676,41 +599,11 @@ func (g Graph) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	render.NoContent(w, r)
 }
 
-// PatchMe implements the Service Interface. Updates the specified attributes of the current user
-func (g Graph) PatchMe(w http.ResponseWriter, r *http.Request) {
-	logger := g.logger.SubloggerWithRequestID(r.Context())
-	logger.Debug().Msg("calling patch me")
-	userID := revactx.ContextMustGetUser(r.Context()).GetId().GetOpaqueId()
-	if userID == "" {
-		logger.Debug().Msg("could not update user: missing user id")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "missing user id")
-		return
-	}
-	changes := libregraph.NewUser()
-	err := StrictJSONUnmarshal(r.Body, changes)
-	if err != nil {
-		logger.Debug().Err(err).Interface("body", r.Body).Msg("could not update user: invalid request body")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest,
-			fmt.Sprintf("invalid request body: %s", err.Error()))
-		return
-	}
-	if _, ok := changes.GetDisplayNameOk(); ok {
-		logger.Info().Interface("user", changes).Msg("could not update user: user is not allowed to change own displayname")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "user is not allowed to change own displayname")
-		return
-	}
-	if _, ok := changes.GetMailOk(); ok {
-		logger.Info().Interface("user", changes).Msg("could not update user: user is not allowed to change own mail")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "user is not allowed to change own mail")
-		return
-	}
-	g.patchUser(w, r, userID, changes)
-}
-
 // PatchUser implements the Service Interface. Updates the specified attributes of an
 // ExistingUser
 func (g Graph) PatchUser(w http.ResponseWriter, r *http.Request) {
 	logger := g.logger.SubloggerWithRequestID(r.Context())
+	logger.Debug().Msg("calling patch user")
 	nameOrID := chi.URLParam(r, "userID")
 	nameOrID, err := url.PathUnescape(nameOrID)
 	if err != nil {
@@ -718,26 +611,6 @@ func (g Graph) PatchUser(w http.ResponseWriter, r *http.Request) {
 		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "unescaping user id failed")
 		return
 	}
-	changes := libregraph.NewUser()
-	err = StrictJSONUnmarshal(r.Body, changes)
-	if err != nil {
-		logger.Debug().Err(err).Interface("body", r.Body).Msg("could not update user: invalid request body")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest,
-			fmt.Sprintf("invalid request body: %s", err.Error()))
-		return
-	}
-	if _, ok := changes.GetPreferredLanguageOk(); ok {
-		logger.Info().Interface("user", changes).Msg("could not update user: user is not allowed to change other users language")
-		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "user is not allowed to change other users language")
-		return
-	}
-
-	g.patchUser(w, r, nameOrID, changes)
-}
-
-func (g Graph) patchUser(w http.ResponseWriter, r *http.Request, nameOrID string, changes *libregraph.User) {
-	logger := g.logger.SubloggerWithRequestID(r.Context())
-	logger.Debug().Msg("calling patch user")
 
 	sanitizedPath := strings.TrimPrefix(r.URL.Path, "/graph/v1.0/")
 
@@ -760,6 +633,14 @@ func (g Graph) patchUser(w http.ResponseWriter, r *http.Request, nameOrID string
 		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "missing user id")
 		return
 	}
+	changes := libregraph.NewUser()
+	err = StrictJSONUnmarshal(r.Body, changes)
+	if err != nil {
+		logger.Debug().Err(err).Interface("body", r.Body).Msg("could not update user: invalid request body")
+		errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest,
+			fmt.Sprintf("invalid request body: %s", err.Error()))
+		return
+	}
 
 	if reflect.ValueOf(*changes).IsZero() {
 		logger.Debug().Interface("body", r.Body).Msg("ignoring empty request body")
@@ -774,47 +655,6 @@ func (g Graph) patchUser(w http.ResponseWriter, r *http.Request, nameOrID string
 			errorcode.InvalidRequest.Render(w, r, http.StatusBadRequest, "Invalid username")
 			return
 		}
-	}
-
-	preferredLanguage, ok := changes.GetPreferredLanguageOk()
-	if ok {
-		_, vID, err := getUserLanguage(r.Context(), g.valueService, oldUserValues.GetId())
-		if err != nil {
-			logger.Error().Err(err).Msg("could not get user language")
-			tvID, err := uuid.NewUUID()
-			if err != nil {
-				logger.Error().Err(err).Msg("could not create user: error generating uuid")
-				errorcode.GeneralException.Render(w, r, http.StatusInternalServerError, "error generating uuid")
-				return
-			}
-			vID = tvID.String()
-		}
-		_, err = g.valueService.SaveValue(r.Context(), &settings.SaveValueRequest{
-			Value: &settingsmsg.Value{
-				Id:          vID,
-				BundleId:    defaults.BundleUUIDProfile,
-				SettingId:   defaults.SettingUUIDProfileLanguage,
-				AccountUuid: oldUserValues.GetId(),
-				Resource: &settingsmsg.Resource{
-					Type: settingsmsg.Resource_TYPE_USER,
-				},
-				Value: &settingsmsg.Value_ListValue{
-					ListValue: &settingsmsg.ListValue{Values: []*settingsmsg.ListOptionValue{
-						{
-							Option: &settingsmsg.ListOptionValue_StringValue{
-								StringValue: *preferredLanguage,
-							},
-						},
-					}},
-				},
-			},
-		})
-		if err != nil {
-			logger.Error().Err(err).Msg("could not update user: error saving language setting")
-			errorcode.GeneralException.Render(w, r, http.StatusInternalServerError, "error saving language setting")
-			return
-		}
-
 	}
 
 	var features []events.UserFeature
@@ -875,7 +715,6 @@ func (g Graph) patchUser(w http.ResponseWriter, r *http.Request, nameOrID string
 		errorcode.RenderError(w, r, err)
 		return
 	}
-	u.PreferredLanguage = preferredLanguage
 
 	e := events.UserFeatureChanged{
 		UserID:    nameOrID,

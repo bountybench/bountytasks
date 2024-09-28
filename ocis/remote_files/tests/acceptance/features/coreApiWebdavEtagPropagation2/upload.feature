@@ -52,11 +52,12 @@ Feature: propagation of etags when uploading data
       | dav-path-version |
       | spaces           |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharee uploading a file inside a received shared folder should update etags for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Brian" has stored etag of element "/"
@@ -76,11 +77,12 @@ Feature: propagation of etags when uploading data
       | old              |
       | new              |
 
-  @issue-4251 @skipOnReva
+  @issue-4251
   Scenario Outline: sharer uploading a file inside a shared folder should update etags for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Brian" has stored etag of element "/"
@@ -100,12 +102,13 @@ Feature: propagation of etags when uploading data
       | old              |
       | new              |
 
-  @skipOnReva
+
   Scenario Outline: sharee overwriting a file inside a received shared folder should update etags for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Brian" has stored etag of element "/"
@@ -125,12 +128,13 @@ Feature: propagation of etags when uploading data
       | old              |
       | new              |
 
-  @skipOnReva
+
   Scenario Outline: sharer overwriting a file inside a shared folder should update etags for all collaborators
     Given user "Brian" has been created with default attributes and without skeleton files
     And using <dav-path-version> DAV path
     And user "Alice" has uploaded file with content "uploaded content" to "/upload/file.txt"
     And user "Alice" has shared folder "/upload" with user "Brian"
+    And user "Brian" has accepted share "/upload" offered by user "Alice"
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
     And user "Brian" has stored etag of element "/"
@@ -154,12 +158,11 @@ Feature: propagation of etags when uploading data
   Scenario Outline: uploading a file into a publicly shared folder changes its etag for the sharer
     Given using <dav-path-version> DAV path
     And user "Alice" has created a public link share with settings
-      | path        | upload   |
-      | permissions | create   |
-      | password    | %public% |
+      | path        | upload |
+      | permissions | create |
     And user "Alice" has stored etag of element "/"
     And user "Alice" has stored etag of element "/upload"
-    When the public uploads file "file.txt" with password "%public%" and content "new content" using the new public WebDAV API
+    When the public uploads file "file.txt" with content "new content" using the new public WebDAV API
     Then the HTTP status code should be "201"
     And these etags should have changed:
       | user  | path    |

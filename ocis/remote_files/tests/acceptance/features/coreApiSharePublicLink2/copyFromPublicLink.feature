@@ -1,4 +1,3 @@
-@env-config
 Feature: copying from public link share
   As a user
   I want to make a copy of a resource within a public link
@@ -7,7 +6,6 @@ Feature: copying from public link share
   Background:
     Given user "Alice" has been created with default attributes and without skeleton files
     And user "Alice" has created folder "/PARENT"
-    And the config "OCIS_SHARING_PUBLIC_SHARE_MUST_HAVE_PASSWORD" has been set to "false"
 
 
   Scenario: copy file within a public link folder new public WebDAV API

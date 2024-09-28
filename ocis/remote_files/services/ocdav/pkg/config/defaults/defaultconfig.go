@@ -81,7 +81,6 @@ func DefaultConfig() *config.Config {
 		WebdavNamespace:   "/users/{{.Id.OpaqueId}}",
 		FilesNamespace:    "/users/{{.Id.OpaqueId}}",
 		SharesNamespace:   "/Shares",
-		OCMNamespace:      "/public",
 		PublicURL:         "https://localhost:9200",
 		Insecure:          false,
 		Timeout:           84300,

@@ -6,6 +6,7 @@ import (
 	"github.com/owncloud/ocis/v2/ocis-pkg/log"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/config"
 	"github.com/owncloud/ocis/v2/services/thumbnails/pkg/metrics"
+	"github.com/urfave/cli/v2"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -21,6 +22,7 @@ type Options struct {
 	Config        *config.Config
 	Metrics       *metrics.Metrics
 	Namespace     string
+	Flags         []cli.Flag
 	TraceProvider trace.TracerProvider
 }
 
@@ -81,6 +83,13 @@ func Metrics(val *metrics.Metrics) Option {
 func Namespace(val string) Option {
 	return func(o *Options) {
 		o.Namespace = val
+	}
+}
+
+// Flags provides a function to set the flags option.
+func Flags(flags []cli.Flag) Option {
+	return func(o *Options) {
+		o.Flags = append(o.Flags, flags...)
 	}
 }
 

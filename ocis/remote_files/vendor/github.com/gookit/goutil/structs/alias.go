@@ -27,6 +27,7 @@ func (as *Aliases) AddAlias(real, alias string) {
 	if rn, ok := as.mapping[alias]; ok {
 		panic(fmt.Sprintf("The alias '%s' is already used by '%s'", alias, rn))
 	}
+
 	as.mapping[alias] = real
 }
 
@@ -52,7 +53,7 @@ func (as *Aliases) HasAlias(alias string) bool {
 	return false
 }
 
-// ResolveAlias by given name. if not exists, return the alias self
+// ResolveAlias by given name.
 func (as *Aliases) ResolveAlias(alias string) string {
 	if name, ok := as.mapping[alias]; ok {
 		return name

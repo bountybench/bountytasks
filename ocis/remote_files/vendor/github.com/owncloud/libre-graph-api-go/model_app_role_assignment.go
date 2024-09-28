@@ -15,9 +15,6 @@ import (
 	"time"
 )
 
-// checks if the AppRoleAssignment type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &AppRoleAssignment{}
-
 // AppRoleAssignment struct for AppRoleAssignment
 type AppRoleAssignment struct {
 	// The unique identifier for the object. 12345678-9abc-def0-1234-56789abcde. The value of the ID property is often, but not exclusively, in the form of a GUID. The value should be treated as an opaque identifier and not based in being a GUID. Null values are not allowed. Read-only.
@@ -61,7 +58,7 @@ func NewAppRoleAssignmentWithDefaults() *AppRoleAssignment {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *AppRoleAssignment) GetId() string {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		var ret string
 		return ret
 	}
@@ -71,7 +68,7 @@ func (o *AppRoleAssignment) GetId() string {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *AppRoleAssignment) GetIdOk() (*string, bool) {
-	if o == nil || IsNil(o.Id) {
+	if o == nil || o.Id == nil {
 		return nil, false
 	}
 	return o.Id, true
@@ -79,7 +76,7 @@ func (o *AppRoleAssignment) GetIdOk() (*string, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *AppRoleAssignment) HasId() bool {
-	if o != nil && !IsNil(o.Id) {
+	if o != nil && o.Id != nil {
 		return true
 	}
 
@@ -93,7 +90,7 @@ func (o *AppRoleAssignment) SetId(v string) {
 
 // GetDeletedDateTime returns the DeletedDateTime field value if set, zero value otherwise.
 func (o *AppRoleAssignment) GetDeletedDateTime() time.Time {
-	if o == nil || IsNil(o.DeletedDateTime) {
+	if o == nil || o.DeletedDateTime == nil {
 		var ret time.Time
 		return ret
 	}
@@ -103,7 +100,7 @@ func (o *AppRoleAssignment) GetDeletedDateTime() time.Time {
 // GetDeletedDateTimeOk returns a tuple with the DeletedDateTime field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *AppRoleAssignment) GetDeletedDateTimeOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.DeletedDateTime) {
+	if o == nil || o.DeletedDateTime == nil {
 		return nil, false
 	}
 	return o.DeletedDateTime, true
@@ -111,7 +108,7 @@ func (o *AppRoleAssignment) GetDeletedDateTimeOk() (*time.Time, bool) {
 
 // HasDeletedDateTime returns a boolean if a field has been set.
 func (o *AppRoleAssignment) HasDeletedDateTime() bool {
-	if o != nil && !IsNil(o.DeletedDateTime) {
+	if o != nil && o.DeletedDateTime != nil {
 		return true
 	}
 
@@ -149,7 +146,7 @@ func (o *AppRoleAssignment) SetAppRoleId(v string) {
 
 // GetCreatedDateTime returns the CreatedDateTime field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRoleAssignment) GetCreatedDateTime() time.Time {
-	if o == nil || IsNil(o.CreatedDateTime.Get()) {
+	if o == nil || o.CreatedDateTime.Get() == nil {
 		var ret time.Time
 		return ret
 	}
@@ -192,7 +189,7 @@ func (o *AppRoleAssignment) UnsetCreatedDateTime() {
 
 // GetPrincipalDisplayName returns the PrincipalDisplayName field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRoleAssignment) GetPrincipalDisplayName() string {
-	if o == nil || IsNil(o.PrincipalDisplayName.Get()) {
+	if o == nil || o.PrincipalDisplayName.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -261,7 +258,7 @@ func (o *AppRoleAssignment) SetPrincipalId(v string) {
 
 // GetPrincipalType returns the PrincipalType field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRoleAssignment) GetPrincipalType() string {
-	if o == nil || IsNil(o.PrincipalType.Get()) {
+	if o == nil || o.PrincipalType.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -304,7 +301,7 @@ func (o *AppRoleAssignment) UnsetPrincipalType() {
 
 // GetResourceDisplayName returns the ResourceDisplayName field value if set, zero value otherwise (both if not set or set to explicit null).
 func (o *AppRoleAssignment) GetResourceDisplayName() string {
-	if o == nil || IsNil(o.ResourceDisplayName.Get()) {
+	if o == nil || o.ResourceDisplayName.Get() == nil {
 		var ret string
 		return ret
 	}
@@ -372,37 +369,35 @@ func (o *AppRoleAssignment) SetResourceId(v string) {
 }
 
 func (o AppRoleAssignment) MarshalJSON() ([]byte, error) {
-	toSerialize, err := o.ToMap()
-	if err != nil {
-		return []byte{}, err
-	}
-	return json.Marshal(toSerialize)
-}
-
-func (o AppRoleAssignment) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Id) {
+	if o.Id != nil {
 		toSerialize["id"] = o.Id
 	}
-	if !IsNil(o.DeletedDateTime) {
+	if o.DeletedDateTime != nil {
 		toSerialize["deletedDateTime"] = o.DeletedDateTime
 	}
-	toSerialize["appRoleId"] = o.AppRoleId
+	if true {
+		toSerialize["appRoleId"] = o.AppRoleId
+	}
 	if o.CreatedDateTime.IsSet() {
 		toSerialize["createdDateTime"] = o.CreatedDateTime.Get()
 	}
 	if o.PrincipalDisplayName.IsSet() {
 		toSerialize["principalDisplayName"] = o.PrincipalDisplayName.Get()
 	}
-	toSerialize["principalId"] = o.PrincipalId.Get()
+	if true {
+		toSerialize["principalId"] = o.PrincipalId.Get()
+	}
 	if o.PrincipalType.IsSet() {
 		toSerialize["principalType"] = o.PrincipalType.Get()
 	}
 	if o.ResourceDisplayName.IsSet() {
 		toSerialize["resourceDisplayName"] = o.ResourceDisplayName.Get()
 	}
-	toSerialize["resourceId"] = o.ResourceId.Get()
-	return toSerialize, nil
+	if true {
+		toSerialize["resourceId"] = o.ResourceId.Get()
+	}
+	return json.Marshal(toSerialize)
 }
 
 type NullableAppRoleAssignment struct {

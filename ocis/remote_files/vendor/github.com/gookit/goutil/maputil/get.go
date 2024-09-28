@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/gookit/goutil/reflects"
 )
 
 // some consts for separators
@@ -26,24 +24,8 @@ func QuietGet(mp map[string]any, path string) (val any) {
 	return
 }
 
-// GetFromAny get value by key path from any(map,slice) data. eg "top" "top.sub"
-func GetFromAny(path string, data any) (val any, ok bool) {
-	// empty data
-	if data == nil {
-		return nil, false
-	}
-	if len(path) == 0 {
-		return data, true
-	}
-
-	return getByPathKeys(data, strings.Split(path, "."))
-}
-
 // GetByPath get value by key path from a map(map[string]any). eg "top" "top.sub"
 func GetByPath(path string, mp map[string]any) (val any, ok bool) {
-	if len(path) == 0 {
-		return mp, true
-	}
 	if val, ok := mp[path]; ok {
 		return val, true
 	}
@@ -53,8 +35,9 @@ func GetByPath(path string, mp map[string]any) (val any, ok bool) {
 		return nil, false
 	}
 
-	// key is path. eg: "top.sub"
-	return GetByPathKeys(mp, strings.Split(path, "."))
+	// has sub key. eg. "top.sub"
+	keys := strings.Split(path, ".")
+	return GetByPathKeys(mp, keys)
 }
 
 // GetByPathKeys get value by path keys from a map(map[string]any). eg "top" "top.sub"
@@ -75,19 +58,14 @@ func GetByPathKeys(mp map[string]any, keys []string) (val any, ok bool) {
 
 	// find top item data use top key
 	var item any
+
 	topK := keys[0]
 	if item, ok = mp[topK]; !ok {
 		return
 	}
 
 	// find sub item data use sub key
-	return getByPathKeys(item, keys[1:])
-}
-
-func getByPathKeys(item any, keys []string) (val any, ok bool) {
-	kl := len(keys)
-
-	for i, k := range keys {
+	for i, k := range keys[1:] {
 		switch tData := item.(type) {
 		case map[string]string: // is string map
 			if item, ok = tData[k]; !ok {
@@ -103,76 +81,47 @@ func getByPathKeys(item any, keys []string) (val any, ok bool) {
 			}
 		case []map[string]any: // is an any-map slice
 			if k == Wildcard {
-				if kl == i+1 { // * is last key
+				if kl == i+2 {
 					return tData, true
 				}
 
-				// * is not last key, find sub item data
 				sl := make([]any, 0, len(tData))
 				for _, v := range tData {
-					if val, ok = getByPathKeys(v, keys[i+1:]); ok {
+					if val, ok = GetByPathKeys(v, keys[i+2:]); ok {
 						sl = append(sl, val)
 					}
 				}
-
-				if len(sl) > 0 {
-					return sl, true
-				}
-				return nil, false
+				return sl, true
 			}
 
 			// k is index number
 			idx, err := strconv.Atoi(k)
-			if err != nil || idx >= len(tData) {
+			if err != nil {
+				return nil, false
+			}
+
+			if idx >= len(tData) {
 				return nil, false
 			}
 			item = tData[idx]
 		default:
-			if k == Wildcard && kl == i+1 { // * is last key
-				return tData, true
-			}
-
 			rv := reflect.ValueOf(tData)
 			// check is slice
 			if rv.Kind() == reflect.Slice {
-				if k == Wildcard {
-					// * is not last key, find sub item data
-					sl := make([]any, 0, rv.Len())
-					for si := 0; si < rv.Len(); si++ {
-						el := reflects.Indirect(rv.Index(si))
-						if el.Kind() != reflect.Map {
-							return nil, false
-						}
-
-						// el is map value.
-						if val, ok = getByPathKeys(el.Interface(), keys[i+1:]); ok {
-							sl = append(sl, val)
-						}
-					}
-
-					if len(sl) > 0 {
-						return sl, true
-					}
+				i, err := strconv.Atoi(k)
+				if err != nil {
+					return nil, false
+				}
+				if i >= rv.Len() {
 					return nil, false
 				}
 
-				// check k is index number
-				ii, err := strconv.Atoi(k)
-				if err != nil || ii >= rv.Len() {
-					return nil, false
-				}
-
-				item = rv.Index(ii).Interface()
+				item = rv.Index(i).Interface()
 				continue
 			}
 
 			// as error
 			return nil, false
-		}
-
-		// next is last key and it is *
-		if kl == i+2 && keys[i+1] == Wildcard {
-			return item, true
 		}
 	}
 
