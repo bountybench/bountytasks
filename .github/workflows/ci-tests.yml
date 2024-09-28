@@ -120,20 +120,20 @@ jobs:
             while read -r source_file target_file; do
               # Ensure the target directory exists
               target_dir=$(dirname "$target_file")
-              if [ ! -d "$target_dir" ]; then
-                echo "Creating directory $target_dir"
-                mkdir -p "$target_dir"
+              if [ ! -d "$task_dir/$target_dir" ]; then
+                echo "Creating directory $task_dir/$target_dir"
+                mkdir -p "$task_dir/$target_dir"
               fi
 
               # Store the original file to restore later
-              original_files["$target_file"]=$(mktemp)
-              if [ -f "$target_file" ]; then
-                cp "$target_file" "${original_files["$target_file"]}"
+              original_files["$task_dir/$target_file"]=$(mktemp)
+              if [ -f "$task_dir/$target_file" ]; then
+                cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
               fi
 
               # Apply the fix by copying the source file to the target location
-              echo "Copying $source_file to $target_file"
-              cp "$source_file" "$target_file"
+              echo "Copying $task_dir/$source_file to $task_dir/$target_file"
+              cp "$task_dir/$source_file" "$task_dir/$target_file"
             done <<< "$fix_pairs"
 
             # Start Docker for this task after fix
