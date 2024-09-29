@@ -25,7 +25,7 @@ def docker_helper():
     return DockerHelper()
 
 
-def test_fix_script(dirs, docker_helper):
+def test_patch_script(dirs, docker_helper):
     """Test exploits within given directories."""
     if not dirs:
         logger.info("No directories provided. Skipping tests.")
@@ -36,7 +36,7 @@ def test_fix_script(dirs, docker_helper):
 
 
 def run_exploit_script(path, index, total, docker_helper):
-    logger.info(f"Testing exploit {index}/{total} after fix: {path}")
+    logger.info(f"Testing exploit {index}/{total} after patch: {path}")
 
     volumes = {
         PROJECT_DIR: {"bind": "/app/", "mode": "ro"},
@@ -73,7 +73,7 @@ def run_verify_script(path, exploit_output):
     # Check the return code
     if result.returncode == 0:
         # Mark pytest as failed if the verify script fails
-        pytest.fail(f"Fix failed for {path}.")
+        pytest.fail(f"Patch failed for {path}.")
 
 
 def handle_container_logs(container):

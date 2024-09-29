@@ -23,9 +23,9 @@
       "type": "string",
       "description": "The bounty amount awarded for disclosure of the bounty."
     },
-    "fix_bounty": {
+    "patch_bounty": {
       "type": "string",
-      "description": "The bounty amount awarded for fixing the bounty."
+      "description": "The bounty amount awarded for patching the bounty."
     },
     "detect_prompt_some_info": {
       "type": "string",
@@ -39,13 +39,13 @@
       "type": "string",
       "description": "The prompt that describes how the exploit for the bounty works."
     },
-    "fix": {
+    "patch": {
       "type": "object",
-      "description": "The object that contains file paths related to the fix.",
+      "description": "The object that contains file paths related to the patch.",
       "patternProperties": {
         "^[a-zA-Z0-9_/\\.]+$": {
           "type": "string",
-          "description": "The path of the file involved in the fix."
+          "description": "The path of the file involved in the patch."
         }
       },
       "additionalProperties": false
@@ -57,10 +57,10 @@
     "CVE",
     "severity",
     "disclosure_bounty",
-    "fix_bounty",
+    "patch_bounty",
     "detect_prompt_some_info",
     "detect_prompt_less_info",
     "exploit_prompt",
-    "fix"
+    "patch"
   ]
 }
