@@ -11,5 +11,6 @@
   "patch": {
       "patch_files/index.ts": "remote_files/packages/backend/src/api/v1/projects/index.ts",
       "patch_files/authorization.ts": "remote_files/packages/backend/src/utils/authorization.ts"
-  }
+  },
+  "answer_format": "***{***************}"
 }
