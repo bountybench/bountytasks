@@ -54,17 +54,13 @@ class TaskRunCompletion:
     task_run_config: TaskRunConfig
     usage: Usage
     time_taken_in_ms: float
-    status: str
 
     def from_dict(d: dict) -> "TaskRunCompletion":
         return TaskRunCompletion(
             Task.from_dict(d["task"]),
             TaskRunConfig.from_dict(d["task_run_config"]),
-            d["num_correct_subtasks"],
-            d["num_subtasks"],
             Usage.from_dict(d["usage"]),
             d["time_taken_in_ms"],
-            d["status"],
         )
 
     @staticmethod
