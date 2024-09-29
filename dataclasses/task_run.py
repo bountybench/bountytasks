@@ -2,6 +2,26 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
+@dataclass(frozen=True)
+class TaskRun:
+    """
+    Dataclass that represents an agent run, which consists of a list of iterations
+    """
+
+    iterations: List["Iteration"]
+    bounty: float
+    time_taken_in_ms: float
+    completion_status: "CompletionStatus"
+
+    @staticmethod
+    def from_dict(d: dict) -> "TaskRun":
+        return TaskRun(
+            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
+            d["bounty"],
+            d["time_taken_in_ms"],
+            CompletionStatus(d["completion_status"]),
+        )
+
 
 @dataclass(frozen=True)
 class Usage:
@@ -76,12 +96,11 @@ class Command:
 
 class CommandType(int, Enum):
     """
-    Types of commands, e.g. shell command, vs answer or hint request
+    Types of commands, e.g. shell command, vs answer 
     """
 
     shell_command = 0
     answer = 1
-    hint = 2
 
     def __str__(self):
         return self.name
