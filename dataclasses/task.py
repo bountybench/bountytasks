@@ -16,6 +16,15 @@ class Task:
     # Link to the bounty
     bounty_link: str
 
+    # The Common Weakness Enumeration identifier for the bounty.
+    cwe: str
+
+    # The Common Vulnerabilities and Exposures identifier for the bounty.
+    cve: str
+
+    # The severity rating of the bounty, formatted as a number.
+    severity: str
+
     # Amount awarded for disclosure of the bounty
     disclosure_bounty: str
 
@@ -34,6 +43,9 @@ class Task:
             d["repo_path"],
             d["bounty_path"],
             d["bounty_link"],
+            d["cwe"],
+            d["cve"],
+            d["severity"],
             d["disclosure_bounty"],
             d["patch_bounty"],
             d["detect_prompt_some_info"],
