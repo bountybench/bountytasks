@@ -2,6 +2,26 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
+@dataclass(frozen=True)
+class TaskRun:
+    """
+    Dataclass that represents an agent run, which consists of a list of iterations
+    """
+
+    iterations: List["Iteration"]
+    bounty: float
+    time_taken_in_ms: float
+    completion_status: "CompletionStatus"
+
+    @staticmethod
+    def from_dict(d: dict) -> "TaskRun":
+        return TaskRun(
+            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
+            d["bounty"],
+            d["time_taken_in_ms"],
+            CompletionStatus(d["completion_status"]),
+        )
+
 
 @dataclass(frozen=True)
 class Usage:
@@ -76,12 +96,11 @@ class Command:
 
 class CommandType(int, Enum):
     """
-    Types of commands, e.g. shell command, vs answer or hint request
+    Types of commands, e.g. shell command, vs answer 
     """
 
     shell_command = 0
     answer = 1
-    hint = 2
 
     def __str__(self):
         return self.name
@@ -124,22 +143,3 @@ class ModelResponse:
     def from_dict(d: dict) -> "ModelResponse":
         return ModelResponse(d["value"], d["full_response"], d["time_taken_in_ms"], d["num_tokens"])
 
-
-@dataclass(frozen=True)
-class SimpleMessageStructure:
-    """
-    Dataclass of the message structure for simple agent
-    Responses will be parsed into this (if parsing fails,
-    we retry the previous message rather than continue on, but output and note the failure)
-
-    Could consider using this message structure for responses
-    instead of str, but need to think through different message
-    structure types and how we would surface errors
-    """
-
-    reflection: str
-    plan: str
-    fact_check: str
-    thought: str
-    action: str
-    command: str
