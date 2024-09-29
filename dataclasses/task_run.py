@@ -124,22 +124,3 @@ class ModelResponse:
     def from_dict(d: dict) -> "ModelResponse":
         return ModelResponse(d["value"], d["full_response"], d["time_taken_in_ms"], d["num_tokens"])
 
-
-@dataclass(frozen=True)
-class SimpleMessageStructure:
-    """
-    Dataclass of the message structure for simple agent
-    Responses will be parsed into this (if parsing fails,
-    we retry the previous message rather than continue on, but output and note the failure)
-
-    Could consider using this message structure for responses
-    instead of str, but need to think through different message
-    structure types and how we would surface errors
-    """
-
-    reflection: str
-    plan: str
-    fact_check: str
-    thought: str
-    action: str
-    command: str
