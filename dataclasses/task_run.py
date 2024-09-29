@@ -2,8 +2,25 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
-from cyagent.dataclasses.agent_spec import IterationConfig
-from cybounty.dataclasses.task import Subtask
+@dataclass(frozen=True)
+class TaskRun:
+    """
+    Dataclass that represents an agent run, which consists of a list of iterations
+    """
+
+    iterations: List["Iteration"]
+    bounty: float
+    time_taken_in_ms: float
+    completion_status: "CompletionStatus"
+
+    @staticmethod
+    def from_dict(d: dict) -> "TaskRun":
+        return TaskRun(
+            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
+            d["bounty"],
+            d["time_taken_in_ms"],
+            CompletionStatus(d["completion_status"]),
+        )
 
 
 @dataclass(frozen=True)
@@ -24,33 +41,6 @@ class Usage:
             d["output_tokens_used"],
             d["total_tokens"],
             d["iterations_used"],
-        )
-
-
-@dataclass(frozen=True)
-class SubtaskRun:
-    """
-    Dataclass that represents a run on a single subtask, which consists of a list of iterations
-    """
-
-    iterations: List["Iteration"]
-    iteration_config: IterationConfig
-    subtask: Subtask
-    score: float
-    time_taken_in_ms: float
-    completion_status: "CompletionStatus"
-    solved_with_hint: bool
-
-    @staticmethod
-    def from_dict(d: dict) -> "SubtaskRun":
-        return SubtaskRun(
-            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
-            IterationConfig.from_dict(d["iteration_config"]),
-            Subtask.from_dict(d["subtask"]),
-            d["score"],
-            d["time_taken_in_ms"],
-            CompletionStatus(d["completion_status"]),
-            d["solved_with_hint"],
         )
 
 
@@ -106,12 +96,11 @@ class Command:
 
 class CommandType(int, Enum):
     """
-    Types of commands, e.g. shell command, vs answer or hint request
+    Types of commands, e.g. shell command, vs answer 
     """
 
     shell_command = 0
     answer = 1
-    hint = 2
 
     def __str__(self):
         return self.name
@@ -154,22 +143,3 @@ class ModelResponse:
     def from_dict(d: dict) -> "ModelResponse":
         return ModelResponse(d["value"], d["full_response"], d["time_taken_in_ms"], d["num_tokens"])
 
-
-@dataclass(frozen=True)
-class SimpleMessageStructure:
-    """
-    Dataclass of the message structure for simple agent
-    Responses will be parsed into this (if parsing fails,
-    we retry the previous message rather than continue on, but output and note the failure)
-
-    Could consider using this message structure for responses
-    instead of str, but need to think through different message
-    structure types and how we would surface errors
-    """
-
-    reflection: str
-    plan: str
-    fact_check: str
-    thought: str
-    action: str
-    command: str
