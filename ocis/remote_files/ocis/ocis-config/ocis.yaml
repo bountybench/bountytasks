@@ -1,0 +1,79 @@
+token_manager:
+  jwt_secret: hPF09dbyl1Xap9B3*Gj%pxk%5Ciz1BQI
+machine_auth_api_key: 0au#x2J8@PKOw2V-y*Ggo&pQzNJSs+A1
+system_user_api_key: ImyazDJ!i++gXx4#^h4=d2czO3&OhPaB
+transfer_secret: 2cp=I%oLq*5%^uaDKmy#txgmq#c81L7!
+system_user_id: ad18c4c7-d2e3-4130-953f-ecb5472b413a
+admin_user_id: aa927d8d-1140-4ca3-8a3b-636a691fec58
+graph:
+  application:
+    id: ce774527-ba72-4a9a-8c58-957a991801e7
+  events:
+    tls_insecure: false
+  spaces:
+    insecure: false
+  identity:
+    ldap:
+      bind_password: G9heNeL3#hijZFVwJjf34&iG%-7kdhC*
+idp:
+  ldap:
+    bind_password: Hq3ti^QV1#99I!rPrZ*LsdRPinppM#3E
+idm:
+  service_user_passwords:
+    admin_password: 5Z96y7mx4+t!#-bP+T61$!q2Y+TLNaw5
+    idm_password: G9heNeL3#hijZFVwJjf34&iG%-7kdhC*
+    reva_password: F3UOP5D+6Z*Xb@6%Z@sm7Rpb-!GHhxV@
+    idp_password: Hq3ti^QV1#99I!rPrZ*LsdRPinppM#3E
+proxy:
+  oidc:
+    insecure: false
+  insecure_backends: false
+frontend:
+  archiver:
+    insecure: false
+auth_basic:
+  auth_providers:
+    ldap:
+      bind_password: F3UOP5D+6Z*Xb@6%Z@sm7Rpb-!GHhxV@
+auth_bearer:
+  auth_providers:
+    oidc:
+      insecure: false
+users:
+  drivers:
+    ldap:
+      bind_password: F3UOP5D+6Z*Xb@6%Z@sm7Rpb-!GHhxV@
+groups:
+  drivers:
+    ldap:
+      bind_password: F3UOP5D+6Z*Xb@6%Z@sm7Rpb-!GHhxV@
+ocdav:
+  insecure: false
+thumbnails:
+  thumbnail:
+    transfer_secret: AtImGpRBxPDu=i6=StuI8-ujajwy0NVB
+    webdav_allow_insecure: false
+    cs3_allow_insecure: false
+search:
+  events:
+    tls_insecure: false
+audit:
+  events:
+    tls_insecure: false
+sharing:
+  events:
+    tls_insecure: false
+storage_users:
+  events:
+    tls_insecure: false
+  mount_id: 735e2f9d-77f6-484e-b77d-5591ae3a2934
+notifications:
+  notifications:
+    events:
+      tls_insecure: false
+nats:
+  nats:
+    tls_skip_verify_client_cert: false
+gateway:
+  storage_registry:
+    storage_users_mount_id: 735e2f9d-77f6-484e-b77d-5591ae3a2934
