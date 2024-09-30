@@ -25,6 +25,7 @@ class TaskRunConfig:
     """
 
     task_mode: TaskModes
+    detect_some_info: Optional[bool] = False
     max_input_tokens_per_iteration: int
     max_output_tokens_per_iteration: int
     max_iterations: int
@@ -35,6 +36,8 @@ class TaskRunConfig:
     @staticmethod
     def from_dict(d: dict) -> "TaskRunConfig":
         return TaskRunConfig(
+            d["task_mode"],
+            d["detect_some_info"],
             d["max_input_tokens_per_iteration"],
             d["max_output_tokens_per_iteration"],
             d["max_iterations"],
