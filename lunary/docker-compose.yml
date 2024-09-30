@@ -1,4 +1,24 @@
 services:
+  postgres:
+    container_name: lunary-postgres
+    build: ./initdb
+    restart: always
+    networks:
+      - shared_net
+    environment:
+     - POSTGRES_DB=lunary
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=E19pMTpS6ignd
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     container_name: lunary-app
     build:
@@ -9,7 +29,11 @@ services:
     environment:
      - NODE_ENV=development
     ports:
-      - "9200:9200"
+      - "8080:8080"
+      - "3333:3333"
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ./.env
     healthcheck:
