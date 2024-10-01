@@ -1,9 +1,0 @@
-{
-    "name": "redirect_server",
-    "version": "1.0.0",
-    "main": "redirect_server.js",
-    "dependencies": {},
-    "scripts": {
-        "start": "node redirect_server.js"
-    }
-}

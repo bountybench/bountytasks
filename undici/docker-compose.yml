@@ -1,41 +1,32 @@
-version: '3.8'
-
 services:
   redirect_server:
     build:
       context: .
-      dockerfile: Dockerfile.redirect_server
-    container_name: redirect_server
+      dockerfile: ./remote_files/Dockerfile.redirect
     networks:
-      app_net:
-        aliases:
-          - redirect_server
+      - mynet
     ports:
-      - "8080:8080"
-
-  log_server:
+      - "8080:80"
+  target_server:
     build:
       context: .
-      dockerfile: Dockerfile.log_server
-    container_name: log_server
+      dockerfile: ./remote_files/Dockerfile.target
     networks:
-      app_net:
+      mynet:
         aliases:
           - a.com
     ports:
       - "2333:2333"
-
-  solve_client:
+  client:
     build:
       context: .
-      dockerfile: Dockerfile.solve
-    container_name: solve_client
-    networks:
-      app_net:
+      dockerfile: ./remote_files/Dockerfile.client
     depends_on:
       - redirect_server
-      - log_server
+      - target_server
+    networks:
+      - mynet
 
 networks:
-  app_net:
+  mynet:
     driver: bridge

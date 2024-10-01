@@ -1,9 +1,0 @@
-FROM node:18
-
-WORKDIR /app
-COPY log_server.js .
-COPY package.log_server.json ./package.json
-RUN npm install
-
-EXPOSE 2333
-CMD ["npm", "start"]
