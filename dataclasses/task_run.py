@@ -2,12 +2,15 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
 
+from cybounty.dataclasses.task import Task
+
 @dataclass(frozen=True)
 class TaskRun:
     """
     Dataclass that represents an agent run, which consists of a list of iterations
     """
 
+    task: "Task"
     iterations: List["Iteration"]
     bounty: float
     time_taken_in_ms: float
