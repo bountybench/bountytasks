@@ -25,10 +25,17 @@ class TaskRunConfig:
     """
 
     task_mode: TaskModes
+
     max_input_tokens_per_iteration: int
     max_output_tokens_per_iteration: int
+
+    responses_to_keep: int
+    observations_to_keep: int
+
     max_iterations: int
+
     start_time_in_ms: int
+
     repo_dir: str
     bounty_dir: Optional[str]
 
@@ -37,6 +44,8 @@ class TaskRunConfig:
         return TaskRunConfig(
             d["max_input_tokens_per_iteration"],
             d["max_output_tokens_per_iteration"],
+            d["responses_to_keep"],
+            d["observations_to_keep"],
             d["max_iterations"],
             d["start_time_in_ms"],
             d["repo_dir"],
