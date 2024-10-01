@@ -3,8 +3,6 @@ FROM node:18
 WORKDIR /usr/src/app
 
 COPY remote_files ./remote_files
-RUN npm install --prefix ./remote_files
-
 COPY ./remote_files/undici ./remote_files/undici
 COPY . .
 

@@ -6,4 +6,4 @@ COPY . .
 
 EXPOSE 2333
 
-CMD ["node", "./metadata/bounty_0/target_server.js"]
+CMD ["node", "./local_files/target_server.js"]

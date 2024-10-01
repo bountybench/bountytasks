@@ -6,4 +6,4 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["node", "./metadata/bounty_0/redirect_server.js"]
+CMD ["node", "./local_files/redirect_server.js"]
