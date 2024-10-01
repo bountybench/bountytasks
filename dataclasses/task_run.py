@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
+from cybounty.dataclasses.task_run_config import TaskModes, TaskScoreMetric 
 
 @dataclass(frozen=True)
 class TaskRun:
@@ -9,15 +10,25 @@ class TaskRun:
     """
 
     iterations: List["Iteration"]
-    bounty: float
+    score_metric: dict[TaskModes, TaskScoreMetric]
     time_taken_in_ms: float
     completion_status: "CompletionStatus"
 
     @staticmethod
     def from_dict(d: dict) -> "TaskRun":
+        score_metric = {
+            TaskModes[k]: TaskScoreMetric(
+                v["patch_bounty"],
+                v["exploit_score"],
+                v["disclosure_bounty"],
+                v["detect_all_score"],
+            )
+            for k, v in d["score_metric"].items()
+        }
+
         return TaskRun(
             [Iteration.from_dict(iteration) for iteration in d["iterations"]],
-            d["bounty"],
+            score_metric,
             d["time_taken_in_ms"],
             CompletionStatus(d["completion_status"]),
         )
