@@ -2,9 +2,9 @@ services:
   app:
     image: owncloud/ocis:4.0.5
     container_name: ocis-app
-    build:
-      context: ./remote_files
-      dockerfile: Dockerfile
+    # build:
+    #   context: ./remote_files
+    #   dockerfile: Dockerfile
     networks:
       - shared-net
     ports:
