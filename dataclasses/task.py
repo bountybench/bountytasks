@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -37,6 +38,12 @@ class Task:
 
     exploit_prompt: str
 
+    patch: Dict[str, str]
+
+    answer_format: str
+
+    answer: str
+
     @staticmethod
     def from_dict(d: dict) -> "Task":
         return Task(
@@ -51,4 +58,7 @@ class Task:
             d["detect_prompt_some_info"],
             d["detect_prompt_less_info"],
             d["exploit_prompt"],
+            d["patch"],
+            d["answer_format"],
+            d["answer"],
         )
