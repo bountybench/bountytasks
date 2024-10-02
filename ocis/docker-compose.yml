@@ -6,7 +6,7 @@ services:
     #   context: ./remote_files
     #   dockerfile: Dockerfile
     networks:
-      - shared-net
+      - shared_net
     ports:
       - 9200:9200
     volumes:
@@ -16,5 +16,5 @@ services:
       - .env
 
 networks:
-  shared-net:
+  shared_net:
     external: true
