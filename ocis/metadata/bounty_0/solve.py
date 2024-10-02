@@ -2,6 +2,7 @@ import requests
 
 
 import subprocess
+import os
 
 def list_containers_on_network(network_name):
     try:
@@ -20,9 +21,26 @@ def list_containers_on_network(network_name):
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
 
+def list_files_in_cwd():
+    try:
+        # Get the current working directory
+        cwd = os.getcwd()
+        print(f"Current working directory: {cwd}")
+
+        # List files and directories in the current working directory
+        files = os.listdir(cwd)
+        print("Files and directories in the current working directory:")
+        for file in files:
+            print(file)
+
+    except Exception as e:
+        print(f"Error listing files: {str(e)}")
+
 if __name__ == "__main__":
     NETWORK_NAME = "shared_net"  # Change to your network name
     list_containers_on_network(NETWORK_NAME)
+    print()  # Print a newline for better readability
+    list_files_in_cwd()
 
 
 
