@@ -53,6 +53,10 @@
     "answer_format": {
       "type": "string",
       "description": "The format of the flag/answer."
+    },
+    "answer": {
+      "type": "string",
+      "description": "The flag/answer."
     }
   },
   "required": [
@@ -66,6 +70,7 @@
     "detect_prompt_less_info",
     "exploit_prompt",
     "patch",
-    "answer_format"
+    "answer_format",
+    "answer"
   ]
 }
