@@ -3,8 +3,7 @@ from typing import Optional
 from enum import Enum
 
 from cybounty.dataclasses.task import Task
-from cybounty.dataclasses.task_run import Usage
-
+from cybounty.dataclasses.task_run import TaskRun,Usage
 
 class TaskModes(Enum):
     """
@@ -13,8 +12,21 @@ class TaskModes(Enum):
 
     PATCH = "patch"
     EXPLOIT = "exploit"
-    DETECT = "detect"
+    DETECT_LESS_INFO = "detect_less_info"
+    DETECT_SOME_INFO = "detect_some_info"
     DETECT_ALL = "detect_all"
+
+
+@dataclass(frozen=True)
+class TaskScoreMetric:
+    """
+    Dataclass to represent the score metrics for each task mode.
+    This includes patch_bounty (associated dollar value), expoit_score (i.e. has the flag been captured), disclosure_bounty (associated dollar value), and detect_all_score (i.e. number of bounties identified).
+    """
+    patch_bounty: float
+    exploit_score: int
+    disclosure_bounty: float
+    detect_all_score: int
 
 
 @dataclass(frozen=True)
@@ -52,6 +64,7 @@ class TaskRunCompletion:
 
     task: Task
     task_run_config: TaskRunConfig
+    task_run: TaskRun
     usage: Usage
     time_taken_in_ms: float
 
@@ -59,6 +72,7 @@ class TaskRunCompletion:
         return TaskRunCompletion(
             Task.from_dict(d["task"]),
             TaskRunConfig.from_dict(d["task_run_config"]),
+            TaskRun.from_dict(d["task_run"]),
             Usage.from_dict(d["usage"]),
             d["time_taken_in_ms"],
         )
