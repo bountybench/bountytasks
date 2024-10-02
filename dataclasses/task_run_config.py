@@ -12,7 +12,7 @@ class TaskModes(Enum):
 
     PATCH = "patch"
     EXPLOIT = "exploit"
-    DETECT = "detect"
+    DETECT_LESS_INFO = "detect_less_info"
     DETECT_SOME_INFO = "detect_some_info"
     DETECT_ALL = "detect_all"
 

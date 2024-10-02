@@ -28,7 +28,7 @@ class TaskRun:
             elif task_mode == TaskModes.EXPLOIT:
                 score_metric[task_mode] = values["exploit_score"]
 
-            elif task_mode in {TaskModes.DETECT, TaskModes.DETECT_SOME_INFO}:
+            elif task_mode in {TaskModes.DETECT_LESS_INFO, TaskModes.DETECT_SOME_INFO}:
                 score_metric[task_mode] = values["disclosure_bounty"]
 
             elif task_mode == TaskModes.DETECT_ALL:
