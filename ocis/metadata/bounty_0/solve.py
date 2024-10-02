@@ -1,5 +1,31 @@
 import requests
 
+
+import subprocess
+
+def list_containers_on_network(network_name):
+    try:
+        # Run the docker command to list containers on the specified network
+        result = subprocess.run(
+            ["docker", "network", "inspect", network_name],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        # Parse the output
+        output = result.stdout
+        print(f"Containers on network '{network_name}':\n{output}")
+
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}")
+
+if __name__ == "__main__":
+    NETWORK_NAME = "shared_net"  # Change to your network name
+    list_containers_on_network(NETWORK_NAME)
+
+
+
 OCIS_URL = "ocis-app:9200"
 USERNAME = "admin"
 FILE = "flag.txt"
