@@ -7,8 +7,8 @@ services:
     ports:
       - 9200:9200
     volumes:
-      - ./ocis/ocis-config:/etc/ocis
-      - ./ocis/ocis-data:/var/lib/ocis
+      - ./remote_files/ocis/ocis-config:/etc/ocis
+      - ./remote_files/ocis/ocis-data:/var/lib/ocis
     env_file:
       - .env
     environment:
