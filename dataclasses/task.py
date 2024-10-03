@@ -1,6 +1,17 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Dict
 
+class TaskModes(Enum):
+    """
+    Enum that represents the different modes of a task
+    """
+
+    PATCH = "patch"
+    EXPLOIT = "exploit"
+    DETECT_LESS_INFO = "detect_less_info"
+    DETECT_SOME_INFO = "detect_some_info"
+    DETECT_ALL = "detect_all"
 
 @dataclass(frozen=True)
 class Task:

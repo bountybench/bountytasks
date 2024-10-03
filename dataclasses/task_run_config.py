@@ -2,19 +2,8 @@ from dataclasses import dataclass
 from typing import Optional
 from enum import Enum
 
-from cybounty.dataclasses.task import Task
+from cybounty.dataclasses.task import Task, TaskModes
 from cybounty.dataclasses.task_run import TaskRun,Usage
-
-class TaskModes(Enum):
-    """
-    Enum that represents the different modes of a task
-    """
-
-    PATCH = "patch"
-    EXPLOIT = "exploit"
-    DETECT_LESS_INFO = "detect_less_info"
-    DETECT_SOME_INFO = "detect_some_info"
-    DETECT_ALL = "detect_all"
 
 
 @dataclass(frozen=True)

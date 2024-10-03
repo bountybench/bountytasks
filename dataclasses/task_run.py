@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
-from cybounty.dataclasses.task_run_config import TaskModes, TaskScoreMetric 
-
-from cybounty.dataclasses.task import Task
+from cybounty.dataclasses.task import Task, TaskModes
 
 @dataclass(frozen=True)
 class TaskRun:
