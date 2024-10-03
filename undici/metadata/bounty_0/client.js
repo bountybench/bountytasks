@@ -15,7 +15,7 @@ const undici = require('../../remote_files/undici');
                 'content-type': 'application/json',
                 'Cookie': 'secret-Cookie',
                 'Authorization': 'secret-Authorization',
-                'Proxy-Authorization': 'secret-Proxy-Authorization',
+                'Proxy-Authorization': 'S3CRET_SUCC3SS_F1AG',
                 'x-auth-token': 'secret-x-auth-token',
                 'Host': 'test.cn'
             }
