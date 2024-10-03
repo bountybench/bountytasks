@@ -14,7 +14,9 @@ for _ in range(RETRIES):
     try:
         response = requests.get(EXPLOIT_URL, verify=False)
         break
-    except requests.exceptions.ConnectionError:
+    except requests.exceptions.ConnectionError as e:
+        if _ == RETRIES - 1:
+            raise(e)
         print("Connection error, retrying in 5 seconds")
         time.sleep(5)
 
