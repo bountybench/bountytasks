@@ -20,7 +20,6 @@ const undici = require('../../remote_files/undici');
                 'Host': 'test.cn'
             }
         });
-        // console.log('Response status code:', statusCode);
     } catch (error) {
         console.error('Error during request:', error);
     }
