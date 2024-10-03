@@ -11,20 +11,20 @@ const redirectableStatusCodes = [300, 301, 302, 303, 307, 308]
 const kBody = Symbol('body')
 
 class BodyAsyncIterable {
-  constructor(body) {
+  constructor (body) {
     this[kBody] = body
     this[kBodyUsed] = false
   }
 
-  async *[Symbol.asyncIterator]() {
+  async * [Symbol.asyncIterator] () {
     assert(!this[kBodyUsed], 'disturbed')
     this[kBodyUsed] = true
-    yield* this[kBody]
+    yield * this[kBody]
   }
 }
 
 class RedirectHandler {
-  constructor(dispatch, maxRedirections, opts, handler) {
+  constructor (dispatch, maxRedirections, opts, handler) {
     if (maxRedirections != null && (!Number.isInteger(maxRedirections) || maxRedirections < 0)) {
       throw new InvalidArgumentError('maxRedirections must be a positive number')
     }
@@ -74,20 +74,20 @@ class RedirectHandler {
     }
   }
 
-  onConnect(abort) {
+  onConnect (abort) {
     this.abort = abort
     this.handler.onConnect(abort, { history: this.history })
   }
 
-  onUpgrade(statusCode, headers, socket) {
+  onUpgrade (statusCode, headers, socket) {
     this.handler.onUpgrade(statusCode, headers, socket)
   }
 
-  onError(error) {
+  onError (error) {
     this.handler.onError(error)
   }
 
-  onHeaders(statusCode, headers, resume, statusText) {
+  onHeaders (statusCode, headers, resume, statusText) {
     this.location = this.history.length >= this.maxRedirections || util.isDisturbed(this.opts.body)
       ? null
       : parseLocation(statusCode, headers)
@@ -130,7 +130,7 @@ class RedirectHandler {
     }
   }
 
-  onData(chunk) {
+  onData (chunk) {
     if (this.location) {
       /*
         https://tools.ietf.org/html/rfc7231#section-6.4
@@ -154,7 +154,7 @@ class RedirectHandler {
     }
   }
 
-  onComplete(trailers) {
+  onComplete (trailers) {
     if (this.location) {
       /*
         https://tools.ietf.org/html/rfc7231#section-6.4
@@ -174,14 +174,14 @@ class RedirectHandler {
     }
   }
 
-  onBodySent(chunk) {
+  onBodySent (chunk) {
     if (this.handler.onBodySent) {
       this.handler.onBodySent(chunk)
     }
   }
 }
 
-function parseLocation(statusCode, headers) {
+function parseLocation (statusCode, headers) {
   if (redirectableStatusCodes.indexOf(statusCode) === -1) {
     return null
   }
@@ -194,22 +194,22 @@ function parseLocation(statusCode, headers) {
 }
 
 // https://tools.ietf.org/html/rfc7231#section-6.4.4
-function shouldRemoveHeader(header, removeContent, unknownOrigin) {
+function shouldRemoveHeader (header, removeContent, unknownOrigin) {
   if (header.length === 4) {
     return util.headerNameToString(header) === 'host'
   }
   if (removeContent && util.headerNameToString(header).startsWith('content-')) {
     return true
   }
-  if (unknownOrigin && (header.length === 13 || header.length === 6)) {
+  if (unknownOrigin && (header.length === 13 || header.length === 6 || header.length === 19)) {
     const name = util.headerNameToString(header)
-    return name === 'authorization' || name === 'cookie'
+    return name === 'authorization' || name === 'cookie' || name === 'proxy-authorization'
   }
   return false
 }
 
 // https://tools.ietf.org/html/rfc7231#section-6.4
-function cleanRequestHeaders(headers, removeContent, unknownOrigin) {
+function cleanRequestHeaders (headers, removeContent, unknownOrigin) {
   const ret = []
   if (Array.isArray(headers)) {
     for (let i = 0; i < headers.length; i += 2) {
