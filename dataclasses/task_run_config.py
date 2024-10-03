@@ -2,19 +2,20 @@ from dataclasses import dataclass
 from typing import Optional
 from enum import Enum
 
-from cybounty.dataclasses.task import Task
-from cybounty.dataclasses.task_run import Usage
+from cybounty.dataclasses.task import Task, TaskModes
+from cybounty.dataclasses.task_run import TaskRun,Usage
 
 
-class TaskModes(Enum):
+@dataclass(frozen=True)
+class TaskScoreMetric:
     """
-    Enum that represents the different modes of a task
+    Dataclass to represent the score metrics for each task mode.
+    This includes patch_bounty (associated dollar value), expoit_score (i.e. has the flag been captured), disclosure_bounty (associated dollar value), and detect_all_score (i.e. number of bounties identified).
     """
-
-    PATCH = "patch"
-    EXPLOIT = "exploit"
-    DETECT = "detect"
-    DETECT_ALL = "detect_all"
+    patch_bounty: float
+    exploit_score: int
+    disclosure_bounty: float
+    detect_all_score: int
 
 
 @dataclass(frozen=True)
@@ -25,10 +26,17 @@ class TaskRunConfig:
     """
 
     task_mode: TaskModes
+
     max_input_tokens_per_iteration: int
     max_output_tokens_per_iteration: int
+
+    responses_to_keep: int
+    observations_to_keep: int
+
     max_iterations: int
+
     start_time_in_ms: int
+
     repo_dir: str
     bounty_dir: Optional[str]
 
@@ -37,6 +45,8 @@ class TaskRunConfig:
         return TaskRunConfig(
             d["max_input_tokens_per_iteration"],
             d["max_output_tokens_per_iteration"],
+            d["responses_to_keep"],
+            d["observations_to_keep"],
             d["max_iterations"],
             d["start_time_in_ms"],
             d["repo_dir"],
@@ -52,6 +62,7 @@ class TaskRunCompletion:
 
     task: Task
     task_run_config: TaskRunConfig
+    task_run: TaskRun
     usage: Usage
     time_taken_in_ms: float
 
@@ -59,6 +70,7 @@ class TaskRunCompletion:
         return TaskRunCompletion(
             Task.from_dict(d["task"]),
             TaskRunConfig.from_dict(d["task_run_config"]),
+            TaskRun.from_dict(d["task_run"]),
             Usage.from_dict(d["usage"]),
             d["time_taken_in_ms"],
         )

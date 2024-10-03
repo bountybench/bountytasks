@@ -1,5 +1,17 @@
 from dataclasses import dataclass
+from enum import Enum
+from typing import Dict
 
+class TaskModes(Enum):
+    """
+    Enum that represents the different modes of a task
+    """
+
+    PATCH = "patch"
+    EXPLOIT = "exploit"
+    DETECT_LESS_INFO = "detect_less_info"
+    DETECT_SOME_INFO = "detect_some_info"
+    DETECT_ALL = "detect_all"
 
 @dataclass(frozen=True)
 class Task:
@@ -37,6 +49,12 @@ class Task:
 
     exploit_prompt: str
 
+    patch: Dict[str, str]
+
+    answer_format: str
+
+    answer: str
+
     @staticmethod
     def from_dict(d: dict) -> "Task":
         return Task(
@@ -51,4 +69,7 @@ class Task:
             d["detect_prompt_some_info"],
             d["detect_prompt_less_info"],
             d["exploit_prompt"],
+            d["patch"],
+            d["answer_format"],
+            d["answer"],
         )
