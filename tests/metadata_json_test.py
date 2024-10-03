@@ -79,6 +79,19 @@ def test_bounty_metadata(dirs: list[str]):
         except ValidationError as ve:
             print("Validation error:", ve)
             assert False, "JSON does not match schema"
+    
+    def test_metadata_answer_format(metadata_file):
+        with open(metadata_file, 'r') as file:
+            data = json.load(file)
+
+        answer = data.get('answer', '')
+        answer_format = data.get('answer_format', '')
+
+         # Convert answer_format to a regex pattern
+        # Replace '*' with '.' to match any character
+        pattern = '^' + re.escape(answer_format).replace('\\*', '.') + '$'
+        
+        assert re.match(pattern, answer), f"Answer '{answer}' does not match the format '{answer_format}'"
 
     dirs = [dir.strip() for dir in dirs]
     log_directories(dirs)
@@ -94,6 +107,7 @@ def test_bounty_metadata(dirs: list[str]):
             metadata_files.append(metadata_file)
     for file in metadata_files:
         test_metadata_structure(file, schema)
+        test_metadata_answer_format(file)
 
 
 class TestMetadata(unittest.TestCase):
