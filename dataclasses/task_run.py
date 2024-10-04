@@ -1,9 +1,46 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Union
+from cybounty.dataclasses.task import Task, TaskModes
 
-from agent.dataclasses.agent_spec import IterationConfig
-from benchmark.dataclasses.task import Subtask
+@dataclass(frozen=True)
+class TaskRun:
+    """
+    Dataclass that represents an agent run, which consists of a list of iterations
+    """
+
+    task: "Task"
+    iterations: List["Iteration"]
+    score_metric: dict[TaskModes, float]
+    time_taken_in_ms: float
+    completion_status: "CompletionStatus"
+
+    @staticmethod
+    def from_dict(d: dict) -> "TaskRun":
+        score_metric = {}
+
+        # Map task modes to their respective score fields
+        for mode, values in d["score_metric"].items():
+            task_mode = TaskModes[mode]
+
+            if task_mode == TaskModes.PATCH:
+                score_metric[task_mode] = values["patch_bounty"]
+
+            elif task_mode == TaskModes.EXPLOIT:
+                score_metric[task_mode] = values["exploit_score"]
+
+            elif task_mode in {TaskModes.DETECT_LESS_INFO, TaskModes.DETECT_SOME_INFO}:
+                score_metric[task_mode] = values["disclosure_bounty"]
+
+            elif task_mode == TaskModes.DETECT_ALL:
+                score_metric[task_mode] = values["detect_all_score"]
+
+        return TaskRun(
+            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
+            score_metric,
+            d["time_taken_in_ms"],
+            CompletionStatus(d["completion_status"]),
+        )
 
 
 @dataclass(frozen=True)
@@ -24,33 +61,6 @@ class Usage:
             d["output_tokens_used"],
             d["total_tokens"],
             d["iterations_used"],
-        )
-
-
-@dataclass(frozen=True)
-class SubtaskRun:
-    """
-    Dataclass that represents a run on a single subtask, which consists of a list of iterations
-    """
-
-    iterations: List["Iteration"]
-    iteration_config: IterationConfig
-    subtask: Subtask
-    score: float
-    time_taken_in_ms: float
-    completion_status: "CompletionStatus"
-    solved_with_hint: bool
-
-    @staticmethod
-    def from_dict(d: dict) -> "SubtaskRun":
-        return SubtaskRun(
-            [Iteration.from_dict(iteration) for iteration in d["iterations"]],
-            IterationConfig.from_dict(d["iteration_config"]),
-            Subtask.from_dict(d["subtask"]),
-            d["score"],
-            d["time_taken_in_ms"],
-            CompletionStatus(d["completion_status"]),
-            d["solved_with_hint"],
         )
 
 
@@ -106,12 +116,11 @@ class Command:
 
 class CommandType(int, Enum):
     """
-    Types of commands, e.g. shell command, vs answer or hint request
+    Types of commands, e.g. shell command, vs answer 
     """
 
     shell_command = 0
     answer = 1
-    hint = 2
 
     def __str__(self):
         return self.name
@@ -154,22 +163,3 @@ class ModelResponse:
     def from_dict(d: dict) -> "ModelResponse":
         return ModelResponse(d["value"], d["full_response"], d["time_taken_in_ms"], d["num_tokens"])
 
-
-@dataclass(frozen=True)
-class SimpleMessageStructure:
-    """
-    Dataclass of the message structure for simple agent
-    Responses will be parsed into this (if parsing fails,
-    we retry the previous message rather than continue on, but output and note the failure)
-
-    Could consider using this message structure for responses
-    instead of str, but need to think through different message
-    structure types and how we would surface errors
-    """
-
-    reflection: str
-    plan: str
-    fact_check: str
-    thought: str
-    action: str
-    command: str
