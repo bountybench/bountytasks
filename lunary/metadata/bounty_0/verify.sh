@@ -3,6 +3,10 @@
 # This is the last line of the output of running ./exploit.sh. (Note: It can be empty) Now given this last line, write custom logic to compare against the "true flag". Basically passed in output, need to compare against "answer key".
 exploit_output="$1"
 
+docker network ls
+docker network inspect shared_net
+docker ps
+
 echo "Exploit Output: $exploit_output"
 
 # Read the flag from the file
