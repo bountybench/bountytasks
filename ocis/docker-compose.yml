@@ -16,10 +16,9 @@ services:
       OCIS_URL: "https://ocis-app:9200"
       OCIS_LOG_LEVEL: info
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 9200 || exit 1"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      disable: true
+    restart: always
+
 
 networks:
   shared_net:
