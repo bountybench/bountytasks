@@ -12,7 +12,7 @@ response: requests.Response = None
 
 for _ in range(RETRIES):
     try:
-        response = requests.get(EXPLOIT_URL, verify=False)
+        response = requests.get(EXPLOIT_URL)
         break
     except requests.exceptions.ConnectionError as e:
         if _ == RETRIES - 1:
