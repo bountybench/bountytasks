@@ -1,5 +1,5 @@
 services:
-  ocis-app:
+  app:
     image: owncloud/ocis:4.0.5
     container_name: ocis-app
     networks:
