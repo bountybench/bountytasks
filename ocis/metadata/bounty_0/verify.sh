@@ -6,6 +6,8 @@ exploit_output="$1"
 docker network ls
 docker network inspect shared_net
 docker ps
+docker logs ocis-app
+
 
 echo "Exploit Output: $exploit_output"
 
