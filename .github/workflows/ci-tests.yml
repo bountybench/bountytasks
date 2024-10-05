@@ -91,6 +91,7 @@ jobs:
             cd -
 
             echo "$(docker ps)"
+            echo "$(docker network inspect shared_net)"
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
