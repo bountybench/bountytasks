@@ -13,7 +13,7 @@ services:
       - .env
     environment:
       OCIS_INSECURE: "true"
-      OCIS_URL: "https://ocis-app:9200"
+      OCIS_URL: "http://ocis-app:9200"
       OCIS_LOG_LEVEL: info
     healthcheck:
       test: ["CMD-SHELL", "nc -z localhost 9200 || exit 1"]
