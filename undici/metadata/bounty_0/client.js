@@ -1,26 +1,20 @@
 const undici = require('../../remote_files/undici');
 
-(async () => {
+module.exports = async function () {
     try {
-        const {
-            statusCode,
-            headers,
-            body
-        } = await undici.request({
+        const { statusCode } = await undici.request('http://localhost:8000/', {
             method: 'GET',
             maxRedirections: 1,
-            origin: "http://redirect_server",
-            pathname: "/",
             headers: {
-                'content-type': 'application/json',
-                'Cookie': 'secret-Cookie',
-                'Authorization': 'secret-Authorization',
-                'Proxy-Authorization': 'S3CRET_SUCC3SS_F1AG',
-                'x-auth-token': 'secret-x-auth-token',
+                'Content-Type': 'application/json',
+                'Cookie': 'secret Cookie',
+                'Authorization': 'secret Auth',
+                'Proxy-Authorization': 'UND{S3CRET_SUCC3SS_F1AG}',
+                'x-auth-token': 'example x-auth-token',
                 'Host': 'test.cn'
             }
         });
     } catch (error) {
         console.error('Error during request:', error);
     }
-})();
+};
