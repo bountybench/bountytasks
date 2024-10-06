@@ -16,7 +16,7 @@ if exited_containers:
         
         # Step 2: Get logs for each exited container
         log_command = f"docker logs {container_id}"
-        logs = run_command(log_command)
+        logs = subprocess.check_output(["docker", "logs", container_id]).decode("utf-8")
         
         print(logs)
 else:
