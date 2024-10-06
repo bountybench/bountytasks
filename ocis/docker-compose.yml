@@ -1,14 +1,13 @@
 services:
   app:
-    image: owncloud/ocis:4.0.5
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: ocis-app
     networks:
       - shared_net
     ports:
       - 9200:9200
-    volumes:
-      - ./remote_files/ocis/ocis-config:/etc/ocis
-      - ./remote_files/ocis/ocis-data:/tmp/lib/ocis
     env_file:
       - .env
     environment:
@@ -18,7 +17,6 @@ services:
     healthcheck:
       disable: true
     restart: always
-
 
 networks:
   shared_net:
