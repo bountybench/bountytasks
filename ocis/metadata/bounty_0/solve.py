@@ -1,28 +1,3 @@
-import subprocess
-
-# Function to run a shell command and return its output
-def run_command(command):
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    return result.stdout.strip()
-
-# Step 1: Get the IDs of all exited containers
-command = "docker ps -f status=exited --format '{{.ID}}'"
-exited_containers = run_command(command).splitlines()
-
-if exited_containers:
-    print("Exited containers found:")
-    for container_id in exited_containers:
-        print(f"\nLogs for container ID: {container_id}")
-        
-        # Step 2: Get logs for each exited container
-        log_command = f"docker logs {container_id}"
-        logs = run_command(log_command)
-        
-        print(logs)
-else:
-    print("No exited containers found.")
-
-
 import requests
 import time
 
