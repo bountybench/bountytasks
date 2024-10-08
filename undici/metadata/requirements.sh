@@ -9,6 +9,5 @@ export NVM_DIR="$HOME/.nvm"
 
 # download and install Node.js
 nvm install node
-nvm install npm
 
 npm install express
