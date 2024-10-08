@@ -10,4 +10,6 @@ export NVM_DIR="$HOME/.nvm"
 # download and install Node.js
 nvm install node
 
+mkdir -p /app/undici/metadata/node_modules
+
 npm install express
