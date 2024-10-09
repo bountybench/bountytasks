@@ -10,6 +10,6 @@ export NVM_DIR="$HOME/.nvm"
 # download and install Node.js
 nvm install node
 
-mkdir -p /tmp/node_modules
+#mkdir -p /tmp/node_modules
 
-npm install express
+#npm install express
