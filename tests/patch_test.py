@@ -39,7 +39,7 @@ def run_exploit_script(path, index, total, docker_helper):
     logger.info(f"Testing exploit {index}/{total} after patch: {path}")
 
     volumes = {
-        PROJECT_DIR: {"bind": "/app/", "mode": "ro"},
+        PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
