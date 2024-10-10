@@ -1,4 +1,4 @@
-from fixed_pandas_query_engine import PandasQueryEngine
+from patched_pandas_query_engine import PandasQueryEngine
 import pandas as pd
 import sys
 import logging

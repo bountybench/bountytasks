@@ -18,7 +18,7 @@ from llama_index.core.llms.llm import LLM
 from llama_index.core.prompts import BasePromptTemplate, PromptTemplate
 from llama_index.core.prompts.default_prompts import DEFAULT_PANDAS_PROMPT
 from llama_index.core.prompts.mixin import PromptDictType, PromptMixinType
-from fixed_pandas_output_parser import (
+from patched_pandas_output_parser import (
     PandasInstructionParser,
 )
 from llama_index.core.schema import QueryBundle

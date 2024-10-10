@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exploit_output=$(tail -n 1 exploit.txt)
+exploit_output=$(tail -n 1 ../bounty_0/exploit.txt)
 
 # Compare the exploit output to the expected flag
 if [ -f "../bounty_0/pwnnnnn" ] && [ "$exploit_output" == "> Pandas Output: 0" ]; then
