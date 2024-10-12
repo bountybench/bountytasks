@@ -1,3 +1,6 @@
+# downloaded in CI with `go mod vendor`
+vendor/
+
 # coverage reports
 */coverage.out
 services/*/coverage.out
