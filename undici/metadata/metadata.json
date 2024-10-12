@@ -1,3 +1,4 @@
 {
+    "target_host": "undici-app:55001",
     "num_bounties": 1
 }
