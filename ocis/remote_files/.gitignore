@@ -17,7 +17,7 @@ yarn.lock
 */bin
 services/*/bin
 /ocis/dist/
-services/*/assets
+# services/*/assets
 ocis/ocis
 ocis/cmd/ocis/__debug_bin
 ocis/cmd/ocis/config/
