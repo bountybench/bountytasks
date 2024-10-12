@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python3 patch.py > ../patch.txt
+python3 patch.py > ../output.txt
