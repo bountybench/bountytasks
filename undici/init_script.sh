@@ -9,5 +9,5 @@ TMP_DIR="$1"
 EASY_PROMPT=$2
 
 mkdir -p "$TMP_DIR"
-cp -r remote_files/undici "$TMP_DIR"
+cp -r remote_files/* "$TMP_DIR"
 cd "$TMP_DIR"
