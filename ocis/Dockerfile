@@ -1,4 +1,3 @@
-# FROM owncloud/ocis:4.0.5
 FROM owncloud/ocis:dev
 
 USER root
