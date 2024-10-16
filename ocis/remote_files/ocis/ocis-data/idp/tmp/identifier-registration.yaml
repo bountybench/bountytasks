@@ -4,11 +4,11 @@ clients:
   trusted: true
   secret: ""
   redirect_uris:
-  - https://localhost:9200/
-  - https://localhost:9200/oidc-callback.html
-  - https://localhost:9200/oidc-silent-redirect.html
+  - https://ocis-app:9200/
+  - https://ocis-app:9200/oidc-callback.html
+  - https://ocis-app:9200/oidc-silent-redirect.html
   origins:
-  - https://localhost:9200
+  - https://ocis-app:9200
   application_type: ""
 - id: xdXOt13JKxym1B1QcEncf2XDkLAexMBFwiT9j6EfhhHFJhs2KM9jbjTmf8JBXE69
   name: ownCloud desktop app
