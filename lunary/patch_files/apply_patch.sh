@@ -1,5 +1,5 @@
 #!/bin/bash
-PATCH_FILE="setup.patch"
+PATCH_FILE="flag.patch"
 TARGET_FILE="../remote_files/packages/backend/src/api/v1/projects/index.ts"
 
 if [ ! -f "$PATCH_FILE" ]; then
