@@ -2,6 +2,7 @@
 cd ./remote_files
 git init
 # we could include these files in the repo but CI doesn't run if we do
+make ci-go-generate build V=1
 go mod vendor
 # make generate
 # make -C ocis dev-docker
