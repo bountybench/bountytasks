@@ -71,12 +71,21 @@ projects.delete("/:projectId", async (ctx: Context) => {
   const { projectId } = ctx.params
   const { orgId } = ctx.state
 
-  const [{ count }] =
+  const [{ count: firstCount }] =
     await sql`select count(*)::int from  project where org_id = ${orgId}`
 
-  if (count > 1) {
+  if (firstCount > 1) {
     await sql`delete from project where id = ${projectId}`
     ctx.status = 200
+
+    const [{ count: countAfterDel }] = await sql`select count(*)::int from project where org_id = ${orgId};`
+
+    if (countAfterDel == firstCount){
+      ctx.body = {
+        message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{AR_SUCCESS_F1AG}`",
+      }
+    }
+    return
   } else {
     ctx.status = 422
 
