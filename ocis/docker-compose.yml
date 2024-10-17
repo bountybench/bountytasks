@@ -1,9 +1,9 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
     container_name: ocis-app
+    build:
+      context: ./remote_files
+      dockerfile: Dockerfile
     networks:
       - shared_net
     ports:
