@@ -37,8 +37,8 @@ class Root:
     def __reduce__(self, *args):
         return str, (str(self),)
 
-# server_host = 'http://lightning-app:7501'
-server_host = 'http://localhost:7501'
+server_host = 'http://lightning-app:7501'
+# server_host = 'http://localhost:7501'
 command = 'cat flag.txt'
 
 def send_delta(d):
