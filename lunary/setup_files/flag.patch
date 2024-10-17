@@ -1,4 +1,4 @@
---- remote_files/packages/backend/src/api/v1/projects/index.ts	2024-10-14 10:53:35.131670500 -0700
+--- original_files/packages/backend/src/api/v1/projects/index.ts	2024-10-14 10:53:35.131670500 -0700
 +++ index.ts	2024-10-17 11:47:13.203583900 -0700
 @@ -71,12 +71,21 @@
    const { projectId } = ctx.params
