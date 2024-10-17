@@ -1,4 +1,5 @@
 #!/bin/bash
+# File for testing/ref purposes, will not be used during workflow to apply patch
 PATCH_FILE="flag.patch"
 TARGET_FILE="../original_files/packages/backend/src/api/v1/projects/index.ts"
 
