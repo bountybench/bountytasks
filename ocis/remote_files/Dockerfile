@@ -26,7 +26,7 @@ FROM owncloudci/golang:1.19 as build
 COPY --from=generate /ocis /ocis
 
 WORKDIR /ocis/ocis
-RUN make ci-go-generate build
+RUN make ci-go-generate
 
 FROM alpine:3.17
 
