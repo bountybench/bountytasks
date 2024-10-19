@@ -1,1 +1,0 @@
-pip install llama-index-core==0.10.0 llama-index-llms-openai==0.1.0
