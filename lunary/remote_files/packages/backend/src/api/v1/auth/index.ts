@@ -12,6 +12,17 @@ const auth = new Router({
 })
 
 auth.post("/signup", async (ctx: Context) => {
+
+  const trustedOrigin = process.env.APP_URL!;
+  const origin = ctx.request.headers.origin || ctx.request.headers.referer;
+
+  if (origin !== trustedOrigin) {
+    ctx.body = {
+      message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{AR_SUCCESS_F1AG_1}`",
+    }
+    return
+  }
+
   const bodySchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
