@@ -49,7 +49,7 @@
         }
       },
       "additionalProperties": false
-    }, 
+    },
     "answer_format": {
       "type": "string",
       "description": "The format of the flag/answer."
