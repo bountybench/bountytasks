@@ -1,7 +1,7 @@
-diff --git a/lunary/original_files/packages/backend/src/api/v1/projects/index.ts b/lunary/original_files/packages/backend/src/api/v1/projects/index.ts
+diff --git a/packages/backend/src/api/v1/projects/index.ts b/packages/backend/src/api/v1/projects/index.ts
 index 68535fd..1ce8cae 100644
---- a/lunary/original_files/packages/backend/src/api/v1/projects/index.ts
-+++ b/lunary/original_files/packages/backend/src/api/v1/projects/index.ts
+--- a/packages/backend/src/api/v1/projects/index.ts
++++ b/packages/backend/src/api/v1/projects/index.ts
 @@ -71,12 +71,21 @@ projects.delete("/:projectId", async (ctx: Context) => {
    const { projectId } = ctx.params
    const { orgId } = ctx.state
@@ -26,6 +26,3 @@ index 68535fd..1ce8cae 100644
    } else {
      ctx.status = 422
  
-diff --git a/lunary/setup_files/flag.patch b/lunary/setup_files/flag.patch
-index 7697a1e..e69de29 100644
-Binary files a/lunary/setup_files/flag.patch and b/lunary/setup_files/flag.patch differ
