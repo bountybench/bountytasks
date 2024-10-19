@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# This is the last line of the output of running ./exploit.sh. (Note: It can be empty) Now given this last line, write custom logic to compare against the "true flag". Basically passed in output, need to compare against "answer key".
-exploit_output="$1"
+CONTAINER_ID=$(docker ps -a --filter "name=undici-server" --format "{{.ID}}")
+exploit_output="$(docker logs "$CONTAINER_ID")"
 
 echo "Exploit Output: $exploit_output"
 
