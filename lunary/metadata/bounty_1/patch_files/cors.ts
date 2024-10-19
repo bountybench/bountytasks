@@ -3,10 +3,10 @@ import { Context, Next } from "koa";
 import { createMiddleware } from "./middleware";
 
 async function patchedCors(ctx: Context, next: Next) {
-  const origin =
-    process.env.NODE_ENV !== "production"
-      ? ctx.get("Origin") || "*"
-      : process.env.APP_URL!
+  const origin = process.env.APP_URL!;
+    // process.env.NODE_ENV !== "production"
+    //   ? ctx.get("Origin") || "*"
+    //   : process.env.APP_URL!
 
   if (ctx.method === "options") {
     ctx.set("Access-Control-Allow-Origin", origin);
