@@ -1,4 +1,4 @@
-// Hidden from agent, agent can run this to check itself
+// SOLUTION FILE #1: Make HTTP Request
 
 const undici = require('../../remote_files/undici');
 
