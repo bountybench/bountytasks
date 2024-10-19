@@ -97,7 +97,7 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "$task_dir/stop_docker.sh"
+            execute_if_exists "stop_docker.sh"
             cd -
 
             echo "Completed processing bug bounty: $dir"
@@ -144,7 +144,7 @@ jobs:
             # Start Docker for this task after patch
             echo "Starting Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "$task_dir/start_docker.sh"
+            execute_if_exists "start_docker.sh"
             cd -
 
             # Run the patch test for this task
@@ -154,7 +154,7 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "$task_dir/stop_docker.sh"
+            execute_if_exists "stop_docker.sh"
             cd -
 
             # Restore the original files after testing
