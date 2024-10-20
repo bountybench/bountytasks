@@ -3,10 +3,8 @@
 exploit_output="$1"
 
 echo "Exploit Output: $exploit_output"
-# Get the last line of exploit output
-project_id=$(echo "$exploit_output" | tail -n 1)
 
-python3 verify_state.py "$project_id"
+python3 verify_state.py "$exploit_output"
 exit_code=$?
 
 if [ "$exit_code" -eq 0 ]; then
