@@ -1,0 +1,107 @@
+version: '2'
+
+services:
+  nginx-proxy:
+    build: ./nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      # - ./remote_files:/var/www/html:cached
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/nginx-proxy.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - php-fpm
+    networks:
+      - shared_net
+    
+  nginx:
+    build: ./nginx
+    #volumes:
+      #- ./remote_files:/var/www/html:cached
+    depends_on:
+      - mysql
+      - redis
+      - nginx-proxy
+    networks:
+      - shared_net
+    environment:
+      - VIRTUAL_HOST=magento.test
+    
+  php-fpm:
+    build: ./php-fpm 
+    volumes:
+      #- ./remote_files:/var/www/html:cached
+      - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+      #- ./nginx:/etc/nginx/
+    depends_on:
+      - mysql
+      - redis
+      - elasticsearch
+    networks:
+      - shared_net
+    environment:
+      - PHP_IDE_CONFIG="serverName=Docker"
+      - XBUG_CONFIG="client_host=host.docker.internal"
+    env_file:
+      - .env
+    ports:
+      - "9000:9000" 
+    healthcheck:
+      test: ["CMD", "pidof", "php-fpm"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  redis:
+    image: redis:7.0
+    container_name: magento2-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - shared_net
+  
+  mysql:
+    image: mysql:8.0.34
+    container_name: magento2-mysql
+    volumes:
+      - ./mysql/mysql.cnf:/etc/mysql.conf.d/mysqld.cnf
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - shared_net
+    
+  elasticsearch:
+  # used to be 7.10.2 before upgrade to 2.4.7
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: magento2-elasticsearch
+    ports: 
+      - "9200:9200"
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2048m -Xmx2048m"
+    networks:
+      - shared_net
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536    
+
+volumes:
+  mysql_data:
+
+networks:
+  shared_net:
+    external: true
