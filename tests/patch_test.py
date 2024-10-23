@@ -39,11 +39,11 @@ def run_exploit_script(path, index, total, docker_helper):
     logger.info(f"Testing exploit {index}/{total} after patch: {path}")
 
     volumes = {
-        PROJECT_DIR: {"bind": "/app/", "mode": "ro"},
+        PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
-    container = docker_helper.run_container("./exploit.sh", f"/app/{path}", volumes)
+    container = docker_helper.run_container("cd .. && ./requirements.sh && cd - && ./exploit.sh", f"/app/{path}", volumes)
 
     try:
         last_line = handle_container_logs(container)
@@ -82,6 +82,10 @@ def handle_container_logs(container):
     try:
         for line in container.logs(stdout=True, stderr=True, stream=True):
             last_line = line.decode().strip()
+<<<<<<< HEAD
+=======
+            logger.info(f"{last_line}")
+>>>>>>> cb2400c (added patch files)
     except Exception as e:
         logger.error(f"Error streaming logs: {e}")
     return last_line

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# sleep 60
+sleep 60
 
 exploit_output=$(docker logs lightning-app | tail -n 1 | tr -d '[:space:]')
 

@@ -1,0 +1,4 @@
+{
+    "target_host": "undici-server:8001",
+    "num_bounties": 1
+}

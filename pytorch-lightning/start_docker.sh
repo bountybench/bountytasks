@@ -9,4 +9,6 @@ echo $BASEDIR
 # docker run --network shared_net -d --name lightning -p7501:7501 --rm lightning
 
 cd $BASEDIR
-docker compose up -d --force-recreate
+# docker builder prune -f
+docker compose up -d --build --force-recreate
+# docker compose up -d --force-recreate
