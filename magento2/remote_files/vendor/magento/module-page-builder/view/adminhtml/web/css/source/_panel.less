@@ -1,0 +1,312 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+
+//
+//  _panel contains less for the left panel
+//  _____________________________________________
+
+.pagebuilder-draggable-content-type {
+    display: block;
+    width: 100%;
+
+    a {
+        background: @color-brownie-almost;
+        border-bottom: 1px solid @color-very-dark-grayish-orange;
+        color: @color-ivory;
+        cursor: pointer;
+        display: block;
+        padding: 9px;
+        text-decoration: none;
+        white-space: nowrap;
+
+        i {
+            color: @color-gray65-lighten;
+            font-size: 18px;
+            margin-right: 6px;
+
+            &:before {
+                vertical-align: middle;
+            }
+        }
+
+        &:hover {
+            -moz-transition: 200ms;
+            -o-transition: 200ms;
+            -webkit-transition: 200ms;
+            background: @color-very-dark-grayish-orange;
+            transition: 200ms;
+        }
+    }
+
+    &:hover {
+        background: @color-brownie-almost;
+        display: block;
+    }
+}
+
+.pagebuilder-panel-wrapper {
+    -moz-transition: opacity .75s ease-in-out, visibility .75s ease-in-out;
+    -webkit-transition: opacity .75s ease-in-out, visibility .75s ease-in-out;
+    float: left;
+    opacity: 0;
+    position: relative;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 87px;
+    transition: opacity .75s ease-in-out, visibility .75s ease-in-out;
+    visibility: hidden;
+    width: 150px;
+
+    &.no-position-sticky {
+        top: 0;
+    }
+
+    &.visible {
+        opacity: 1;
+        visibility: visible;
+
+        &.sticky-top {
+            position: fixed;
+            top: 90px;
+        }
+
+        &.sticky-bottom {
+            bottom: 0;
+            position: absolute;
+        }
+    }
+
+    .expand {
+        cursor: pointer;
+        position: absolute;
+        top: 0;
+
+        a {
+            -moz-border-radius-bottomright: 2px;
+            -moz-border-radius-topright: 2px;
+            -webkit-border-bottom-right-radius: 2px;
+            -webkit-border-top-right-radius: 2px;
+            background: @color-very-dark-grayish-orange;
+            border-bottom-right-radius: 2px;
+            border-top-right-radius: 2px;
+            color: @color-gray65-lighten;
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 6px;
+            text-decoration: none;
+
+            &:before {
+                content: @icon-caret-right__content;
+                font-family: @icons-admin__font-name;
+                font-style: normal;
+                font-weight: normal;
+                line-height: 1;
+                speak: none;
+            }
+        }
+    }
+
+    .pagebuilder-panel {
+        -moz-transition: .35s ease-in-out opacity, .35s ease-in-out visibility, .35s ease-in-out height;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -o-user-select: none;
+        -webkit-transition: .35s ease-in-out opacity, .35s ease-in-out visibility, .35s ease-in-out height;
+        -webkit-user-select: none;
+        background: @color-very-dark-grayish-orange;
+        transition: .35s ease-in-out opacity, .35s ease-in-out visibility, .35s ease-in-out height;
+        user-select: none;
+
+        .search-results-empty {
+            color: @color-darker-gray;
+            font-size: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .search-content-types {
+            position: relative;
+
+            label {
+                -webkit-font-smoothing: antialiased;
+                color: @color-gray65-lighten;
+                font-family: @icons-admin__font-name;
+                font-size: 1.5rem;
+                font-style: normal;
+                font-weight: normal;
+                left: 12px;
+                line-height: 1;
+                margin-top: -.8rem;
+                position: absolute;
+                speak: none;
+                top: 50%;
+                z-index: 5;
+
+                &:before {
+                    content: @icon-search__content;
+                }
+            }
+            input {
+                background: @color-very-dark-grayish-orange;
+                border: none;
+                border-bottom: 1px solid @color-brownie-almost;
+                color: @color-ivory;
+                font-size: 12px;
+                padding: 12px 36px;
+                width: 100%;
+            }
+            a {
+                color: @color-darker-gray;
+                display: inline-block;
+                font-size: 12px;
+                line-height: 16px;
+                text-decoration: none;
+                vertical-align: top;
+
+                &:hover {
+                    color: @color-gray65-lighten;
+                }
+
+                &.close {
+                    position: absolute;
+                    right: 12px;
+                    top: 12px;
+
+                    &:before {
+                        content: @icon-close-mage__content;
+                        font-family: @icons-admin__font-name;
+                        font-style: normal;
+                        font-weight: normal;
+                        line-height: 1;
+                        speak: none;
+                    }
+                }
+            }
+        }
+
+        .panel-controls {
+            height: 42px;
+            padding: 14px 10px;
+
+            a {
+                color: @color-darker-gray;
+                display: inline-block;
+                font-size: 12px;
+                line-height: 16px;
+                text-decoration: none;
+                vertical-align: top;
+
+                &:hover {
+                    color: @color-gray65-lighten;
+                }
+
+                &.collapse {
+                    cursor: pointer;
+
+                    &:before {
+                        content: @icon-caret-left__content;
+                        font-family: @icons-admin__font-name;
+                        font-style: normal;
+                        font-weight: normal;
+                        line-height: 1;
+                        padding-right: 3px;
+                        speak: none;
+                    }
+                }
+            }
+        }
+    }
+
+    &.collapsed {
+        width: 32px;
+
+        .pagebuilder-panel {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+        .collapsed-handle {
+            display: block;
+        }
+    }
+
+
+
+    .pagebuilder-panel-menu-sections {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+            display: block;
+            width: 100%;
+
+            .menu-section-title {
+                border-bottom: 1px solid @color-brownie-almost;
+                cursor: pointer;
+                padding: 9px;
+                position: relative;
+
+                :before {
+                    content: @icon-caret-down__content;
+                    font-family: @icons-admin__font-name;
+                    font-size: 1.6rem;
+                    -webkit-font-smoothing: antialiased;
+                    font-style: normal;
+                    font-weight: normal;
+                    line-height: 1;
+                    margin-top: -.8rem;
+                    position: absolute;
+                    right: 12px;
+                    speak: none;
+                    top: 50%;
+                }
+
+                h4 {
+                    color: @color-gray65-lighten;
+                    font-size: 12px;
+                    font-weight: normal;
+                    margin-bottom: 0;
+                    margin-top: 0;
+                }
+            }
+
+            .pagebuilder-panel-menu-sections-child {
+                display: none;
+
+                ul.pagebuilder-panel-menu-sections-blocks {
+                    list-style: none;
+                    width: 100%;
+                }
+            }
+
+            &.active {
+                .menu-section-title {
+                    h4 {
+                        color: @color-ivory;
+                    }
+
+                    :before {
+                        content: @icon-caret-up__content;
+                    }
+                }
+                .pagebuilder-panel-menu-sections-child {
+                    background: @color-brownie-almost;
+                    display: block;
+                }
+            }
+
+            &.hidden {
+                .pagebuilder-panel-menu-sections-child {
+                    display: none !important;
+                }
+            }
+        }
+    }
+}
+
+.modal-slide .modal-content .pagebuilder-panel-wrapper {
+    top: 10px;
+}

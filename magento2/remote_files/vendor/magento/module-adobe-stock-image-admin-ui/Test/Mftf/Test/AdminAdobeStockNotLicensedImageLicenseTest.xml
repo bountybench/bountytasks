@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockNotLicensedImageLicenseTest">
+        <annotations>
+            <skip>
+                <issueId value="https://github.com/magento/adobe-stock-integration/issues/1170"/>
+            </skip>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="User licenses an image"/>
+            <title value="Adobe Stock License Image"/>
+            <description value="User can license Adobe Stock image"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_integration_ims_signed"/>
+            <group value="pr_exclude"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetToDefaultView"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+             <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+        </after>
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForUnlicensedImage">
+            <argument name="query" value="{{AdobeStockUnlicensedImage.id}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandPreviewedImage"/>
+        <seeElement selector="{{AdminAdobeStockImagePreviewSection.licenseAndSave}}" stepKey="assertLicenseAndSaveButtonIsVisible"/>
+    </test>
+</tests>

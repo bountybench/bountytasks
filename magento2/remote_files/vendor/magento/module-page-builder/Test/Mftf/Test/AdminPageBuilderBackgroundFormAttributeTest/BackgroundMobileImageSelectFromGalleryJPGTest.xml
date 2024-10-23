@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="BackgroundMobileImageSelectFromGalleryJPGTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Background Form"/>
+            <title value="Background Mobile Image - Select From Gallery JPG"/>
+            <description value="Tests that the Background Mobile Image attribute functions as expected on Stage and Storefront for Banner for JPG file type by using the Select From Gallery button"/>
+            <severity value="BLOCKER"/>
+            <useCaseId value="MAGETWO-90828"/>
+            <testCaseId value="MC-2829"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-banner"/>
+            <group value="pagebuilder-backgroundForm"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="CliMediaGalleryEnhancedEnableActionGroup" stepKey="enableOldMediaGallery">
+                <argument name="enabled" value="0"/>
+            </actionGroup>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <resizeWindow width="1920" height="1080" stepKey="resizeWindowToDesktop"/>
+            <actionGroup ref="NavigateToMediaGalleryActionGroup" stepKey="navigateToMediaGallery"/>
+            <comment userInput="BIC workaround" stepKey="NavigateToFolder"/>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandStorageRootFolder">
+                <argument name="FolderName" value="Storage Root"/>
+            </actionGroup>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandWysiwygFolder">
+                <argument name="FolderName" value="wysiwyg"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="DeleteImageFromStorage"/>
+            <actionGroup ref="DeleteFolderActionGroup" stepKey="DeleteFolderFromMediaGallery">
+                <argument name="Image" value="{{ImageFolder.name}}"/>
+            </actionGroup>
+            <actionGroup ref="CliMediaGalleryEnhancedEnableActionGroup" stepKey="disableOldMediaGallery">
+                <argument name="enabled" value="1"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="addPageBuilderPageTitle" stepKey="enterPageTitle">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragBannerIntoStage">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <!-- Set Mobile Background Image -->
+        <comment userInput="Set Mobile Background Image" stepKey="commentSetBackgroundImage"/>
+        <actionGroup ref="openPageBuilderEditPanel" stepKey="openEditMenuOnStage">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <actionGroup ref="clickSelectFromGallerySlideOut" stepKey="clickSelectFromGallerySlideOut">
+            <argument name="property" value="PageBuilderBackgroundMobileImageRoot_JPG"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="NavigateToFolder"/>
+        <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandStorageRootFolder">
+            <argument name="FolderName" value="Storage Root"/>
+        </actionGroup>
+        <actionGroup ref="NavigateToMediaFolderActionGroup" stepKey="navigateToWysiwygFolder">
+            <argument name="FolderName" value="wysiwyg"/>
+        </actionGroup>
+        <actionGroup ref="CreateImageFolderActionGroup" stepKey="CreateImageFolder">
+            <argument name="ImageFolder" value="ImageFolder"/>
+        </actionGroup>
+        <actionGroup ref="AttachImageActionGroup" stepKey="SelectImageFromMediaStorage">
+            <argument name="Image" value="PageBuilderBackgroundMobileImageRoot_JPG"/>
+        </actionGroup>
+        <actionGroup ref="SaveImageActionGroup" stepKey="saveImage"/>
+        <!-- Fill URL field so it will show on storefront -->
+        <actionGroup ref="fillSlideOutPanelLinkUrlField" stepKey="enterBannerLinkUrl">
+            <argument name="property" value="PageBuilderBannerLinkUrlProperty"/>
+            <argument name="selection" value="{{ExternalLink.url}}"/>
+            <argument name="newTab" value="PageBuilderBannerNewTabProperty"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings"/>
+        <!-- Stage: Check No Mobile Background Image -->
+        <comment userInput="Stage: Check No Mobile Background Image" stepKey="commentStageCheck"/>
+        <actionGroup ref="ValidateAllBackgroundAttributesActionGroup" stepKey="validateNoImageStage1">
+            <argument name="section" value="BannerOnBackend"/>
+        </actionGroup>
+        <actionGroup ref="exitPageBuilderFullScreen" stepKey="exitPageBuilderFullScreen"/>
+        <actionGroup ref="SaveAndContinueEditCmsPageActionGroup" stepKey="saveAndContinueEditCmsPage"/>
+        <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage2"/>
+        <!-- Stage: Check No Mobile Background Image After Save -->
+        <comment userInput="Stage: Check No Mobile Background Image After Save" stepKey="commentStageCheckAfterSave"/>
+        <actionGroup ref="ValidateAllBackgroundAttributesActionGroup" stepKey="validateNoImageStage2">
+            <argument name="section" value="BannerOnBackend"/>
+        </actionGroup>
+        <!-- Edit Panel: Check Mobile Background Image -->
+        <comment userInput="Edit Panel: Check Mobile Background Image" stepKey="commentValidateEditPanel"/>
+        <actionGroup ref="openPageBuilderEditPanel" stepKey="openEditMenuOnStage2">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <actionGroup ref="seeImageUploadedOnSlideOut" stepKey="validateBackgroundMobileImage">
+            <argument name="property" value="PageBuilderBackgroundMobileImageRoot_JPG"/>
+        </actionGroup>
+        <!-- Storefront: Check Mobile Background Image -->
+        <comment userInput="Storefront: Check Mobile Background Image" stepKey="commentStorefrontCheck"/>
+        <resizeWindow width="767" height="1000" stepKey="resizeWindowToMobile"/>
+        <actionGroup ref="navigateToStoreFront" stepKey="navigateToStoreFront">
+            <argument name="contentType" value="PageBuilderBannerContentType"/>
+        </actionGroup>
+        <actionGroup ref="ValidateAllBackgroundAttributesActionGroup" stepKey="validateImageOnStorefront">
+            <argument name="section" value="BannerOnFrontend"/>
+            <argument name="backgroundColor" value="PageBuilderBackgroundColor_Default"/>
+            <argument name="backgroundImage" value="PageBuilderBackgroundMobileImageRoot_JPG"/>
+        </actionGroup>
+    </test>
+</tests>

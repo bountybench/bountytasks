@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateCreditMemoAutoReturnToStockVirtualProductCustomStockTest" extends="AdminCreateCreditMemoTotalRefundFullInvoiceVirtualProductDefaultStockTest">
+        <annotations>
+            <stories value="Virtual Product Custom Stock."/>
+            <title value="Create Credit Memo with Auto Return to Stock With Virtual Product on Custom Stock."/>
+            <description value="Verify, admin able to create credit memo with auto return to stock for order with virtual product on custom stock."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/735141/scenarios/2129631"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+        </annotations>
+
+        <before>
+            <!--Create additional stock and link additional source to stock.-->
+            <comment userInput="BIC workaround" stepKey="additionalStock" after="additionalSource"/>
+            <comment userInput="BIC workaround" stepKey="sourceStockLink" after="additionalStock"/>
+            <createData entity="BasicMsiStockWithMainWebsite1" stepKey="additionalStock1" after="loginAsAdmin"/>
+            <createData entity="SourceStockLinked1" stepKey="sourceStockLink1" after="additionalStock1">
+                <requiredEntity createDataKey="additionalStock1"/>
+                <requiredEntity createDataKey="additionalSource"/>
+            </createData>
+            <!--Set auto return configuration.-->
+            <magentoCLI command="config:set cataloginventory/item_options/auto_return 1" stepKey="setAutoReturnItems" after="sourceStockLink1"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex" after="setAutoReturnItems">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="flushCache" after="reindex">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+            <remove keyForRemoval="assignMainWebsiteToDefaultStock"/>
+        </before>
+        <after>
+            <actionGroup ref="AssignWebsiteToStockActionGroup" stepKey="assignMainWebsiteToDefaultStock" after="resetGrid">
+                <argument name="stockName" value="{{_defaultStock.name}}"/>
+                <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
+            </actionGroup>
+            <deleteData createDataKey="additionalStock1" stepKey="deleteStock" after="assignMainWebsiteToDefaultStock"/>
+            <!--Revert auto return configuration.-->
+            <magentoCLI command="config:set cataloginventory/item_options/auto_return 0" stepKey="revertAutoReturnItems1" after="deleteStock"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex1" after="revertAutoReturnItems1">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache" after="reindex1">
+                <argument name="tags" value="config full_page"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="revertAutoReturnItems" after="deleteProduct"/>
+            <comment userInput="BIC workaround" stepKey="reindex" after="revertAutoReturnItems"/>
+            <comment userInput="BIC workaround" stepKey="flushCache" after="reindex"/>
+        </after>
+
+        <!--Assign virtual product to additional source.-->
+        <actionGroup ref="AssignSourceToProductActionGroup" stepKey="assignTestSourceToCreatedProduct" after="openProductEditPage">
+            <argument name="sourceCode" value="$$additionalSource.source[source_code]$$"/>
+        </actionGroup>
+        <fillField selector="{{AdminProductSourcesGrid.rowQty('1')}}" userInput="100" stepKey="setCustomSourceQuantity" after="assignTestSourceToCreatedProduct"/>
+        <!--Remove check 'Return To Stock' on credit memo page.-->
+        <remove keyForRemoval="returnToStockCheckbox"/>
+        <!--Verify product quantity.-->
+        <remove keyForRemoval="checkProductSourceQtyAfterCreditMemo"/>
+        <remove keyForRemoval="checkSalableQtyAfterCreditMemo"/>
+        <see selector="{{AdminProductGridSection.productQtyPerSource('1',$$additionalSource.source[name]$$)}}" userInput="100" stepKey="checkProductSourceQtyAfterCreditMemo" after="findProductBySkuToCheckQtyAfterCreditMemo"/>
+        <see selector="{{AdminProductGridSection.productSalableQty('1', $$additionalStock1.stock[name]$$)}}" userInput="100" stepKey="checkSalableQtyAfterCreditMemo" after="checkProductSourceQtyAfterCreditMemo"/>
+    </test>
+</tests>

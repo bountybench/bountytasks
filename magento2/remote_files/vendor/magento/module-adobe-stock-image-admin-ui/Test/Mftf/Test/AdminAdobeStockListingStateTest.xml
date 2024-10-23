@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockListingStateTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="Admin user should be able return to the same state of image grid "/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/31"/>
+            <title value="User returns to the same state of image grid after saving image preview"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/943908/scenarios/3578627"/>
+            <description value="User returns to the same state of image grid after saving image preview"/>
+            <severity value="MAJOR"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandStorageRootFolder">
+                <argument name="FolderName" value="Storage Root"/>
+            </actionGroup>
+            <actionGroup ref="NavigateToMediaFolderActionGroup" stepKey="navigateToWysiwygFolder">
+                <argument name="FolderName" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="CreateImageFolderActionGroup" stepKey="CreateImageFolder">
+                <argument name="ImageFolder" value="ImageFolder"/>
+            </actionGroup>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandStorageRootFolder">
+                <argument name="FolderName" value="Storage Root"/>
+            </actionGroup>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandWysiwygFolder">
+                <argument name="FolderName" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="DeleteFolderActionGroup" stepKey="deleteMediaGalleryFolder">
+                <argument name="ImageFolder" value="ImageFolder"/>
+            </actionGroup>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="AdminAdobeStockExpandFiltersActionGroup" stepKey="expandFilters"/>
+        <actionGroup ref="AdminFilterResultsActionGroup" stepKey="setOrientationFilterToHorizontal">
+            <argument name="type" value="Horizontal"/>
+            <argument name="filter" value="{{AdminAdobeStockFilterSection.orientationFilter}}"/>
+            <argument name="filterOption" value="orientation_filter"/>
+        </actionGroup>
+        <actionGroup ref="AdminAdobeStockOpenNextPageActionGroup" stepKey="openNextPage"/>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandImagePreview"/>
+        <actionGroup ref="AdminAdobeStockSavePreviewActionGroup" stepKey="clickSavePreview"/>
+        <comment userInput="BIC workaround" stepKey="waitForPromptModal"/>
+        <grabValueFrom selector="{{AdminAdobeStockImagePreviewSection.imageNameField}}" stepKey="grabImageFileName"/>
+        <waitForElementClickable selector="{{AdminAdobeStockImagePreviewSection.confirm}}" stepKey="waitForConfirmButtonClickable"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.confirm}}" stepKey="clickOnPopupConfirm"/>
+        <waitForPageLoad stepKey="waitForMediaGalleryOpen" />
+        <dontSeeElementInDOM selector="{{AdminAdobeStockImagePreviewSection.errorMessage}}" stepKey="verifyNoErrorMessage"/>
+        <waitForElementVisible selector="{{AdminAdobeStockSection.mediaGalleryImage({$grabImageFileName})}}" stepKey="assertSavedImage"/>
+        <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        <actionGroup ref="AssertAdminAdobeStockCurrentPageNumberActionGroup" stepKey="seeSecondPage">
+            <argument name="pageNumber" value="2"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminAdobeStockFilterResultsActionGroup" stepKey="verifyAppliedFilter">
+            <argument name="resultValue" value="Horizontal"/>
+        </actionGroup>
+        <comment userInput="BIC workaround" stepKey="openNewPage"/>
+        <comment userInput="BIC workaround" stepKey="openMediaGalleryForPage"/>
+        <comment userInput="BIC workaround" stepKey="deleteImageActionGroup"/>
+    </test>
+</tests>

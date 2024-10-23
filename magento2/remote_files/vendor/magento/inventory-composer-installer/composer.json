@@ -1,0 +1,29 @@
+{
+    "name": "magento/inventory-composer-installer",
+    "version": "1.2.0",
+    "description": "Composer plugin for Magento Multi Source Inventory",
+    "type": "composer-plugin",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "repositories": {
+        "magento": {
+            "type": "composer",
+            "url": "https://repo.magento.com"
+        }
+    },
+    "require": {
+        "composer-plugin-api": "^1.1 || ^2.0",
+        "composer/composer": "^1.9 || ^2.0",
+        "magento/framework": "*"
+    },
+    "extra": {
+        "class": "Magento\\InventoryComposerInstaller\\Plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Magento\\InventoryComposerInstaller\\": "src"
+        }
+    }
+}

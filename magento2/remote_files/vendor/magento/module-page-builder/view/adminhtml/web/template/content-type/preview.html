@@ -1,0 +1,26 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="pagebuilder-stage"
+     attr="id: id, 'data-role': 'pagebuilder-stage'"
+     ko-style="pageBuilder.stageStyles"
+     css="'pagebuilder-show-borders': showBorders, 'pagebuilder-no-user-select': !userSelect(), 'panel-collapsed': pageBuilder.panel.isCollapsed, 'interacting': interacting, 'focus-child': focusChild">
+    <div class="pagebuilder-stage-loading" visible="loading">
+        <span class="spinner">
+            <span repeat="8" attr="'data-repeat-index': $index"></span>
+        </span>
+    </div>
+<!--  Assign stage to children context  -->
+    <each args="data: [$data], as: 'stage'">
+        <div class="pagebuilder-canvas"
+             css="active: !loading()"
+             afterRender="afterRenderDeferred.resolve">
+            <with args="rootContainer">
+                <render args="{ name: preview.template, data: preview }" ></render>
+            </with>
+        </div>
+    </each>
+</div>

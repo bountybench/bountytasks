@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <!-- Background Color -->
+    <entity name="PageBuilderBackgroundColor_Default" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value"/>
+        <data key="rgba">rgba(0, 0, 0, 0)</data>
+        <data key="rgb">rgba(0, 0, 0, 0)</data>
+        <data key="colorSwatchColor">transparent</data>
+        <data key="colorWheelDefault">rgb(255, 0, 0)</data>
+        <data key="placeholderText">No Color</data>
+    </entity>
+    <entity name="PageBuilderStageBackgroundColor_Default" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value"/>
+        <data key="rgba">rgba(250, 250, 250, 1)</data>
+        <data key="rgb">rgb(250, 250, 250)</data>
+        <data key="colorSwatchColor">rgba(250, 250, 250, 1)</data>
+        <data key="colorWheelDefault">rgb(250, 250, 250)</data>
+        <data key="placeholderText">No Color</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Empty" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value"/>
+        <data key="stageValue">rgb(250, 250, 250)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Transparent" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value"/>
+        <data key="rgb">rgba(0, 0, 0, 0)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Peacock" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#087e8b</data>
+        <data key="rgb">rgb(8, 126, 139)</data>
+        <data key="hex">#087e8b</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Sprout" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#a8d098</data>
+        <data key="rgb">rgb(168, 208, 152)</data>
+        <data key="hex">#a8d098</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_TonysPink" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#e48587</data>
+        <data key="rgb">rgb(228, 133, 135)</data>
+        <data key="hex">#e48587</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Cornflower" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#8fb8e3</data>
+        <data key="rgb">rgb(143, 184, 227)</data>
+        <data key="hex">#8fb8e3</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Salmon" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#ff5a5f</data>
+        <data key="rgb">rgb(255, 90, 95)</data>
+        <data key="hex">#ff5a5f</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_DarkGrey" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#3c3c3c</data>
+        <data key="rgb">rgb(60, 60, 60)</data>
+        <data key="hex">#3c3c3c</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Hex_Grey" type="pagebuilder_row_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#cccccc</data>
+        <data key="rgb">rgb(204, 204, 204)</data>
+        <data key="hex">#cccccc</data>
+        <data key="editPanelValue">#cccccc</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Pink" type="pagebuilder_row_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#ffc0cb</data>
+        <data key="rgb">rgb(255, 192, 203)</data>
+        <data key="hex">#ffc0cb</data>
+        <data key="editPanelValue">#ffc0cb</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Red" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#ff0000</data>
+        <data key="rgb">rgb(255, 0, 0)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Yellow" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#ffff0d</data>
+        <data key="rgb">rgb(255, 255, 13)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Plaintext_Green" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">green</data>
+        <data key="rgb">rgb(0, 128, 0)</data>
+        <data key="hex">#008000</data>
+        <data key="editPanelValue">#008000</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Hex_White" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#ffffff</data>
+        <data key="rgb">rgb(255, 255, 255)</data>
+        <data key="hex">#ffffff</data>
+        <data key="editPanelValue">#ffffff</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_RGB_Blue" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">rgb(0, 0, 255)</data>
+        <data key="rgb">rgb(0, 0, 255)</data>
+        <data key="hex">#0000ff</data>
+        <data key="editPanelValue">#0000ff</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_RGBa_Blue" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">rgba(0, 0, 254, 0.92)</data>
+        <data key="rgb">rgba(0, 0, 254, 0.92)</data>
+        <data key="hex">rgba(0, 0, 254, 0.92)</data>
+        <data key="editPanelValue">rgba(0, 0, 254, 0.92)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_HSL_Orange" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">hsl(31, 100%, 50%)</data>
+        <data key="rgb">rgb(255, 132, 0)</data>
+        <data key="hex">#ff8400</data>
+        <data key="editPanelValue">#ff8400</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_HSLa_Orange" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">hsla(31, 100%, 50%, .3)</data>
+        <data key="rgb">rgba(255, 132, 0, 0.3)</data>
+        <data key="hex">#ff8400</data>
+        <data key="editPanelValue">rgba(255, 132, 0, 0.3)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_HSV_Orange" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">hsv(26.09, 68.05, 66.27)</data>
+        <data key="rgb">rgb(169, 104, 54)</data>
+        <data key="hex">#a96836</data>
+        <data key="editPanelValue">#a96836</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_HSVa_Orange" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">hsva(26.09, 68.05, 66.27, .4)</data>
+        <data key="rgb">rgba(169, 104, 54, 0.4)</data>
+        <data key="hex">#a96836</data>
+        <data key="editPanelValue">rgba(169, 104, 54, 0.4)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_CenterColorPicker" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#804042</data>
+        <data key="rgb">rgb(126, 63, 63)</data>
+        <data key="hex">#7e3f3f</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_CenterColorHueSlider" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">#40807f</data>
+        <data key="rgb">rgb(63, 123, 126)</data>
+        <data key="hex">#3f7b7e</data>
+        <data key="rgbaCenterOfLightDarkSlider">rgba(64, 128, 127, 0.5)</data>
+        <data key="rgbaCenterOfLightDarkSliderRegex">^rgba\(63,\s*123,\s*126,\s*0.49(\d+)\)</data>
+    </entity>
+    <entity name="PageBuilderBackgroundColor_Invalid" type="pagebuilder_background_color_property">
+        <data key="name">Background Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_color</data>
+        <data key="value">invalid</data>
+        <data key="errorMessage">Wrong color format. Please specify color in HEX, RGBa, HSVa, HSLa or use color name.</data>
+    </entity>
+    <!-- Background Type -->
+    <entity name="PageBuilderBackgroundType_Image" type="pagebuilder_background_type_property">
+        <data key="name">Background Type</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_type</data>
+        <data key="value">image</data>
+    </entity>
+    <entity name="PageBuilderBackgroundType_Video" type="pagebuilder_background_type_property">
+        <data key="name">Background Type</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_type</data>
+        <data key="value">video</data>
+    </entity>
+    <!-- Background Image -->
+    <entity name="PageBuilderBackgroundImage_Default" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value"/>
+        <data key="fileName"/>
+        <data key="extension"/>
+        <data key="path"/>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_None" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">none</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_JPG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">magento.jpg</data>
+        <data key="fileName">magento</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage3" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">magento3.jpg</data>
+        <data key="fileName">magento3</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImageRoot_JPG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">magento.jpg</data>
+        <data key="fileName">magento</data>
+        <data key="extension">jpg</data>
+        <data key="path" />
+    </entity>
+    <entity name="PageBuilderBackgroundImage_GIF" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">m-logo.gif</data>
+        <data key="fileName">m-logo</data>
+        <data key="extension">gif</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_PNG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">magento-logo.png</data>
+        <data key="fileName">magento-logo</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderColumnGroupDesktopImage_PNG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">COLUMNS_Desktop_background_100x100px.png</data>
+        <data key="fileName">COLUMNS_Desktop_background_100x100px</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderColumnOneDesktopImage_PNG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">COLUMN_1_Desktop_background_100x100px.png</data>
+        <data key="fileName">COLUMN_1_Desktop_background_100x100px</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_SpecialCharacters" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">test-IMAGE_123,456.789.jpg</data>
+        <data key="fileName">test-IMAGE_123_456.789</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_LargerThan2MB" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">LargerThan2MB.jpg</data>
+        <data key="fileName">LargerThan2MB</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+        <data key="errorMessage">File you are trying to upload exceeds maximum file size limit.</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_InvalidFileType" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">dump.sql</data>
+        <data key="fileName">dump</data>
+        <data key="extension">sql</data>
+        <data key="errorMessage">We don't recognize or support this file extension type.</data>
+    </entity>
+    <entity name="PageBuilderBackgroundImage_InvalidMimeType" type="pagebuilder_background_image_property">
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value">not-a.png</data>
+        <data key="errorMessage">File validation failed.</data>
+    </entity>
+    <!-- Background Mobile Image -->
+    <entity name="PageBuilderBackgroundMobileImage_Default" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_image</data>
+        <data key="value"/>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_JPG" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">magento.jpg</data>
+        <data key="fileName">magento</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImageRoot_JPG" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">magento.jpg</data>
+        <data key="fileName">magento</data>
+        <data key="extension">jpg</data>
+        <data key="path" />
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_GIF" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">m-logo.gif</data>
+        <data key="fileName">m-logo</data>
+        <data key="extension">gif</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_PNG" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">magento-logo.png</data>
+        <data key="fileName">magento-logo</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_SpecialCharacters" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">test-IMAGE_123,456.789.jpg</data>
+        <data key="fileName">test-IMAGE_123_456.789</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_LargerThan2MB" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">LargerThan2MB.jpg</data>
+        <data key="fileName">LargerThan2MB</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+        <data key="errorMessage">File you are trying to upload exceeds maximum file size limit.</data>
+    </entity>
+    <entity name="PageBuilderBackgroundMobileImage_InvalidFileType" type="pagebuilder_background_mobile_image_property">
+        <data key="name">Background Mobile Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">dump.sql</data>
+        <data key="fileName">dump</data>
+        <data key="extension">sql</data>
+        <data key="errorMessage">We don't recognize or support this file extension type.</data>
+    </entity>
+    <entity name="PageBuilderColumnGroupMobileImage_PNG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">COLUMNS_Mobile_background_100x100px.png</data>
+        <data key="fileName">COLUMNS_Mobile_background_100x100px</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderColumnTwoMobileImage_PNG" type="pagebuilder_background_image_property">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">mobile_image</data>
+        <data key="value">COLUMN_2_Mobile_background_100x100px.png</data>
+        <data key="fileName">COLUMN_2_Mobile_background_100x100px</data>
+        <data key="extension">png</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <!-- Background Position -->
+    <entity name="PageBuilderBackgroundPosition_Default" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Top Left</data>
+        <data key="styleValue">left top</data>
+        <data key="computedStyleValue">0% 0%</data>
+        <data key="optionsList">[Top Left, Top Center, Top Right, Center Left, Center, Center Right, Bottom Left, Bottom Center, Bottom Right]</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_TopLeft" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Top Left</data>
+        <data key="styleValue">left top</data>
+        <data key="computedStyleValue">0% 0%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_TopCenter" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Top Center</data>
+        <data key="styleValue">center top</data>
+        <data key="computedStyleValue">50% 0%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_TopRight" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Top Right</data>
+        <data key="styleValue">right top</data>
+        <data key="computedStyleValue">100% 0%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_CenterLeft" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Center Left</data>
+        <data key="styleValue">left center</data>
+        <data key="computedStyleValue">0% 50%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_Center" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Center</data>
+        <data key="styleValue">center center</data>
+        <data key="computedStyleValue">50% 50%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_CenterRight" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Center Right</data>
+        <data key="styleValue">right center</data>
+        <data key="computedStyleValue">100% 50%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_BottomLeft" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Bottom Left</data>
+        <data key="styleValue">left bottom</data>
+        <data key="computedStyleValue">0% 100%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_BottomCenter" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Bottom Center</data>
+        <data key="styleValue">center bottom</data>
+        <data key="computedStyleValue">50% 100%</data>
+    </entity>
+    <entity name="PageBuilderBackgroundPosition_BottomRight" type="pagebuilder_background_position_property">
+        <data key="name">Background Position</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_position</data>
+        <data key="value">Bottom Right</data>
+        <data key="styleValue">right bottom</data>
+        <data key="computedStyleValue">100% 100%</data>
+    </entity>
+    <!-- Background Repeat -->
+    <entity name="PageBuilderBackgroundRepeat_Default" type="pagebuilder_background_repeat_property">
+        <data key="name">Background Repeat</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_repeat</data>
+        <data key="value">no-repeat</data>
+        <data key="styleValue">no-repeat</data>
+    </entity>
+    <entity name="PageBuilderBackgroundRepeat_Enabled" type="pagebuilder_background_repeat_property">
+        <data key="name">Background Repeat</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_repeat</data>
+        <data key="value">repeat</data>
+        <data key="styleValue">repeat</data>
+    </entity>
+    <entity name="PageBuilderBackgroundRepeat_Disabled" type="pagebuilder_background_repeat_property">
+        <data key="name">Background Repeat</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_repeat</data>
+        <data key="value">no-repeat</data>
+        <data key="styleValue">no-repeat</data>
+    </entity>
+    <!-- Background Size -->
+    <entity name="PageBuilderBackgroundSize_Default" type="pagebuilder_background_size_property">
+        <data key="name">Background Size</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_size</data>
+        <data key="value">cover</data>
+    </entity>
+    <entity name="PageBuilderBackgroundSize_Auto" type="pagebuilder_background_size_property">
+        <data key="name">Background Size</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_size</data>
+        <data key="value">auto</data>
+    </entity>
+    <entity name="PageBuilderBackgroundSize_Cover" type="pagebuilder_background_size_property">
+        <data key="name">Background Size</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_size</data>
+        <data key="value">cover</data>
+    </entity>
+    <entity name="PageBuilderBackgroundSize_Contain" type="pagebuilder_background_size_property">
+        <data key="name">Background Size</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_size</data>
+        <data key="value">contain</data>
+    </entity>
+    <!-- Background Attachment -->
+    <entity name="PageBuilderBackgroundAttachment_Default" type="pagebuilder_background_attachment_property">
+        <data key="name">Background Attachment</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_attachment</data>
+        <data key="value">scroll</data>
+        <data key="optionsList">[Scroll, Fixed]</data>
+    </entity>
+    <entity name="PageBuilderBackgroundAttachment_Scroll" type="pagebuilder_background_attachment_property">
+        <data key="name">Background Attachment</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_attachment</data>
+        <data key="value">scroll</data>
+    </entity>
+    <entity name="PageBuilderBackgroundAttachment_Fixed" type="pagebuilder_background_attachment_property">
+        <data key="name">Background Attachment</data>
+        <data key="section">background</data>
+        <data key="fieldName">background_attachment</data>
+        <data key="value">fixed</data>
+    </entity>
+    <!-- Video: Video Url -->
+    <entity name="PageBuilderVideoBackgroundUrl_Empty" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value"/>
+        <data key="tooltipText">Video URLs can be links to videos on YouTube or Vimeo, or HTTP(S) links to files with valid video extensions (we recommend .mp4)</data>
+        <data key="errorMessage">This is a required field.</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_YouTube_Embedded" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://www.youtube.com/embed/slOtnjsbff0</data>
+        <data key="renderedValue">https://www.youtube-nocookie.com/embed/slOtnjsbff0</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_YouTube_NonEmbedded" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://www.youtube.com/watch?v=slOtnjsbff0</data>
+        <data key="renderedValue">https://www.youtube-nocookie.com/embed/slOtnjsbff0</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_YouTube_Insecure" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">http://www.youtube.com/watch?v=slOtnjsbff0</data>
+        <data key="renderedValue">https://www.youtube-nocookie.com/embed/slOtnjsbff0</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Vimeo_Embedded" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://player.vimeo.com/video/2393127</data>
+        <data key="renderedValue">https://player.vimeo.com/video/2393127</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Vimeo_NonEmbedded" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://vimeo.com/2393127</data>
+        <data key="renderedValue">https://player.vimeo.com/video/2393127</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Vimeo_Insecure" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">http://vimeo.com/2393127</data>
+        <data key="renderedValue">https://player.vimeo.com/video/2393127</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Mp4_URL" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://obsessive-owls.s3.us-east-2.amazonaws.com/MFTF/avocado.mp4</data>
+        <data key="renderedValue">https://obsessive-owls.s3.us-east-2.amazonaws.com/MFTF/avocado.mp4</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Mp4_URL_Insecure" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">http://obsessive-owls.s3.us-east-2.amazonaws.com/MFTF/avocado.mp4</data>
+        <data key="renderedValue">http://obsessive-owls.s3.us-east-2.amazonaws.com/MFTF/avocado.mp4</data>
+        <data key="width">320px</data>
+        <data key="height">320px</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Invalid_Text" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">Test</data>
+        <data key="errorMessage">Please enter a valid video URL. Valid URLs have a video file extension (.mp4, .webm, .ogv) or links to videos on YouTube or Vimeo.</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundUrl_Invalid_VideoDoesNotExit" type="pagebuilder_video_background_url">
+        <data key="name">Video URL</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_source</data>
+        <data key="value">https://www.youtube.com/watch?v=doesnotexist</data>
+    </entity>
+    <!-- Video: Overlay Color -->
+    <entity name="PageBuilderVideoBackgroundOverlayColor_Empty" type="pagebuilder_video_background_overlay_color">
+        <data key="name">Overlay Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_overlay_color</data>
+        <data key="value"/>
+        <data key="rgba">rgba(0, 0, 0, 0)</data>
+        <data key="colorSwatchColor">rgba(0, 0, 0, 0)</data>
+        <data key="colorWheelDefault">rgb(255, 0, 0)</data>
+        <data key="placeholderText">No Color</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundOverlayColor_Hex_Grey" type="pagebuilder_video_background_overlay_color">
+        <data key="name">Overlay Color</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_overlay_color</data>
+        <data key="value">rgba(204, 204, 204, 0.25)</data>
+        <data key="rgba">rgba(204, 204, 204, 0.25)</data>
+    </entity>
+    <!-- Video: Infinite Loop -->
+    <entity name="PageBuilderVideoBackgroundInfiniteLoop_Enabled" type="pagebuilder_video_background_infinite_loop">
+        <data key="name">Infinite Loop</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_loop</data>
+        <data key="value">true</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundInfiniteLoop_Disabled" type="pagebuilder_video_background_infinite_loop">
+        <data key="name">Infinite Loop</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_loop</data>
+        <data key="value">false</data>
+    </entity>
+    <!-- Video: Lazy Load -->
+    <entity name="PageBuilderVideoBackgroundLazyLoad_Enabled" type="pagebuilder_video_background_lazy_load">
+        <data key="name">Lazy Load</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_lazy_load</data>
+        <data key="value">true</data>
+        <data key="helperText">Preload video only when it is visible on the screen.</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundLazyLoad_Disabled" type="pagebuilder_video_background_lazy_load">
+        <data key="name">Lazy Load</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_lazy_load</data>
+        <data key="value">false</data>
+    </entity>
+    <!-- Video: Play Only When Visible -->
+    <entity name="PageBuilderVideoBackgroundPlayOnlyWhenVisible_Enabled" type="pagebuilder_video_background_play_only_visible">
+        <data key="name">Play Only When Visible</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_play_only_visible</data>
+        <data key="value">true</data>
+        <data key="helperText">Video will play only when it is visible on the screen.</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundPlayOnlyWhenVisible_Disabled" type="pagebuilder_video_background_play_only_visible">
+        <data key="name">Play Only When Visible</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_play_only_visible</data>
+        <data key="value">false</data>
+    </entity>
+    <!-- Video: Fallback Image -->
+    <entity name="PageBuilderVideoBackgroundFallbackImage_Empty" type="pagebuilder_video_background_fallback_image">
+        <data key="name">Fallback Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_fallback_image</data>
+        <data key="value"/>
+        <data key="helperText">Maximum file size: 2 MB. Allowed file types: JPG, GIF, PNG.</data>
+        <data key="tooltipText">Fallback images appear on the screen before a video loads. When the video loads, it replaces the fallback image. If the video does not load for some reason, the fallback image remains on the screen in place of the video.</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundFallbackImage_JPG" type="pagebuilder_video_background_fallback_image">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_fallback_image</data>
+        <data key="value">magento.jpg</data>
+        <data key="fileName">magento</data>
+        <data key="extension">jpg</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+    <entity name="PageBuilderVideoBackgroundFallbackImage_GIF" type="pagebuilder_video_background_fallback_image">
+        <data key="name">Background Image</data>
+        <data key="section">background</data>
+        <data key="fieldName">video_fallback_image</data>
+        <data key="value">m-logo.gif</data>
+        <data key="fileName">m-logo</data>
+        <data key="extension">gif</data>
+        <data key="path">wysiwyg</data>
+    </entity>
+</entities>

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <!-- Min Height -->
+    <entity name="PageBuilderMinHeightProperty_Empty" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value"/>
+        <data key="helperText">Minimum height can be a single number with any valid CSS unit (50px, 50%, 50em, 50vh) or a calculation (50% + 50px).</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_0" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">0</data>
+        <data key="style">min-height: 0px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_20" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">20</data>
+        <data key="style">min-height: 20px</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_45" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">45</data>
+        <data key="style">min-height: 45px</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_75" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">75</data>
+        <data key="style">min-height: 75px</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_150" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">150</data>
+        <data key="style">min-height: 150px</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_500" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">500</data>
+        <data key="style">min-height: 500px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_500px" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">500px</data>
+        <data key="intValue">500</data>
+        <data key="style">min-height: 500px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_300" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">300</data>
+        <data key="style">min-height: 300px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_300px" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">300px</data>
+        <data key="intValue">300</data>
+        <data key="style">min-height: 300px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_200" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">200</data>
+        <data key="style">min-height: 200px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_100" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">100</data>
+        <data key="style">min-height: 100px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_200px" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">200px</data>
+        <data key="intValue">200</data>
+        <data key="style">min-height: 200px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_100px" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">100px</data>
+        <data key="intValue">100</data>
+        <data key="style">min-height: 100px</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_100vh" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">100vh</data>
+        <data key="style">min-height: 100vh</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_300vh" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">300vh</data>
+        <data key="style">min-height: 300vh</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_100vh_Minus_200px" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">calc(100vh - 200px)</data>
+        <data key="style">min-height: calc(100vh - 200px)</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_Auto" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">auto</data>
+        <data key="style">min-height: auto</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_NonNumeric" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">a</data>
+        <data key="errorMessage">Please enter a valid number or calculation: Valid numbers must have an extension (px, %, pt, vh). Calculations must have white space around the + and - operators and cannot divide by zero.</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <entity name="PageBuilderMinHeightProperty_Negative1" type="pagebuilder_min_height_property">
+        <data key="name">Minimum Height</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">min_height</data>
+        <data key="value">-1</data>
+        <data key="errorMessage">Please enter a valid number or calculation: Valid numbers must have an extension (px, %, pt, vh). Calculations must have white space around the + and - operators and cannot divide by zero.</data>
+        <data key="tooltipText">Style changes will only affect this breakpoint</data>
+    </entity>
+    <!-- Vertical Alignment -->
+    <entity name="PageBuilderVerticalAlignmentPropertyTop" type="pagebuilder_vertical_alignment_property">
+        <data key="name">Vertical alignment</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">justify_content</data>
+        <data key="value">flex-start</data>
+        <data key="optionsList">[Top, Center, Bottom]</data>
+        <data key="style">justify-content: flex-start</data>
+    </entity>
+    <entity name="PageBuilderVerticalAlignmentPropertyCenter" type="pagebuilder_vertical_alignment_property">
+        <data key="name">Vertical alignment</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">justify_content</data>
+        <data key="value">center</data>
+        <data key="optionsList">[Top, Center, Bottom]</data>
+        <data key="style">justify-content: center</data>
+    </entity>
+    <entity name="PageBuilderVerticalAlignmentPropertyBottom" type="pagebuilder_vertical_alignment_property">
+        <data key="name">Vertical alignment</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">justify_content</data>
+        <data key="value">flex-end</data>
+        <data key="optionsList">[Top, Center, Bottom]</data>
+        <data key="style">justify-content: flex-end</data>
+    </entity>
+    <!-- Appearance -->
+    <entity name="PageBuilderAppearance_Poster" type="pagebuilder_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">poster</data>
+    </entity>
+    <entity name="PageBuilderAppearance_CollageLeft" type="pagebuilder_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">collage-left</data>
+    </entity>
+    <entity name="PageBuilderAppearance_CollageCentered" type="pagebuilder_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">collage-centered</data>
+    </entity>
+    <entity name="PageBuilderAppearance_CollageRight" type="pagebuilder_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">collage-right</data>
+    </entity>
+    <!-- Box Shadow -->
+    <entity name="PageBuilderBoxShadowProperty_Default" type="pagebuilder_box_shadow_property">
+        <data key="name">Box Shadow</data>
+        <data key="value">rgba(153, 153, 153, 0.3) 0px 0px 0px 1px</data>
+    </entity>
+    <entity name="PageBuilderBoxShadowProperty_No_Box_Shadow" type="pagebuilder_box_shadow_property">
+        <data key="name">Box Shadow</data>
+        <data key="value">rgba(153, 153, 153, 0) 0px 0px 0px 1px</data>
+    </entity>
+    <entity name="PageBuilderBoxShadowOnHoverProperty_Default" type="pagebuilder_box_shadow_property">
+        <data key="name">Box Shadow</data>
+        <data key="value">rgb(153, 153, 153) 0px 0px 0px 1px</data>
+    </entity>
+    <entity name="PageBuilderBoxShadowProperty_Affordance" type="pagebuilder_box_shadow_property">
+        <data key="name">Box Shadow</data>
+        <data key="value">rgba(197, 197, 197, 0.34) 0px 0px 0px 1px</data>
+    </entity>
+    <entity name="PageBuilderBoxShadowOnHoverProperty_Affordance" type="pagebuilder_box_shadow_property">
+        <data key="name">Box Shadow</data>
+        <data key="value">rgb(197, 197, 197) 0px 0px 0px 1px</data>
+    </entity>
+    <!-- XSS Payload -->
+    <entity name="PageBuilderXSSPayloadProperty" type="pagebuilder_xss_payload">
+        <data key="value">&gt;&lt;img src=x onerror=throw(1)&gt;</data>
+    </entity>
+</entities>

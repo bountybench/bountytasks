@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="DividerNoRequiredTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Divider"/>
+            <title value="Divider No Required Attributes"/>
+            <description value="A user should only have to enter required fields."/>
+            <severity value="AVERAGE"/>
+            <useCaseId value="MAGETWO-90475"/>
+            <testCaseId value="MC-2506"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-divider"/>
+            <group value="pr_exclude"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderDividerContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragDividerIntoStage">
+            <argument name="contentType" value="PageBuilderDividerContentType"/>
+        </actionGroup>
+        <actionGroup ref="openPageBuilderEditPanel" stepKey="openEditMenuOnStage">
+            <argument name="contentType" value="PageBuilderDividerContentType"/>
+        </actionGroup>
+        <!-- Clear Fields -->
+        <comment userInput="Clear Fields" stepKey="commentClearFields"/>
+        <actionGroup ref="clearSlideOutPanelFieldGeneral" stepKey="clearDividerLineColor">
+            <argument name="property" value="PageBuilderDividerLineColor_Default"/>
+        </actionGroup>
+        <actionGroup ref="clearSlideOutPanelFieldGeneral" stepKey="enterDividerLineThickness">
+            <argument name="property" value="PageBuilderDividerLineThickness_Default"/>
+        </actionGroup>
+        <actionGroup ref="clearSlideOutPanelFieldGeneral" stepKey="enterDividerLineWidth">
+            <argument name="property" value="PageBuilderDividerLineWidth_Default"/>
+        </actionGroup>
+        <actionGroup ref="validateSlideOutPanelFieldIsNotRequired" stepKey="validateDividerLineColorNotRequired">
+            <argument name="property" value="PageBuilderDividerLineColor_Default"/>
+        </actionGroup>
+        <actionGroup ref="validateSlideOutPanelFieldIsNotRequired" stepKey="validateDividerLineThicknessNotRequired">
+            <argument name="property" value="PageBuilderDividerLineThickness_Default"/>
+        </actionGroup>
+        <actionGroup ref="validateSlideOutPanelFieldIsNotRequired" stepKey="validateDividerLineWidthNotRequired">
+            <argument name="property" value="PageBuilderDividerLineWidth_Default"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings"/>
+        <!-- Validate Stage -->
+        <comment userInput="Validate Stage" stepKey="commentValidateStage"/>
+        <actionGroup ref="ValidateDividerGeneralAttributesActionGroup" stepKey="waitForElementVisible">
+            <argument name="page" value="DividerOnStage"/>
+            <argument name="lineColor" value="PageBuilderDividerLineColor_Empty"/>
+        </actionGroup>
+        <comment userInput="---merging to remove step---" stepKey="waitForColorVisible"/>
+        <comment userInput="---merging to remove step---" stepKey="waitForThicknessVisible"/>
+        <comment userInput="---merging to remove step---" stepKey="waitForWidthVisible"/>
+    </test>
+</tests>

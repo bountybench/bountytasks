@@ -1,0 +1,36 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<div class="pagebuilder-stage-wrapper"
+     css="Object.assign(
+        {'stage-full-screen': isFullScreen, 'stage-content-snapshot': isSnapshot, 'transition-out': isSnapshotTransition, 'stage-is-active': (!isSnapshot() || isFullScreen)},
+        viewportClasses)"
+     ko-style="wrapperStyles">
+    <div class="admin__field pagebuilder-header"
+         css="visible: panel.isVisible(), 'transition-out': isSnapshotTransition()"
+         if="!isSnapshot()">
+        <span class="viewport-buttons">
+              <render args="viewportTemplate"></render>
+        </span>
+        <span class="template-buttons">
+            <button type="button" translate="'Apply Template'" if="isAllowedTemplateApply" click="toggleTemplateManger"></button>
+            <button type="button" translate="'Save as Template'" if="isAllowedTemplateSave" click="saveAsTemplate"></button>
+            <i click="toggleFullScreen.bind($data, {animate:true})"
+               css="'icon-pagebuilder-fullscreen': !isFullScreen(), 'icon-pagebuilder-fullscreen-exit': isFullScreen()"
+               attr="{title: isFullScreen() ? $t('Close Full Screen') : $t('Open in Full Screen')}">
+            </i>
+        </span>
+    </div>
+    <with args="panel">
+        <render></render>
+    </with>
+    <if args="isStageReady">
+        <with args="stage">
+            <render></render>
+        </with>
+        <iframe attr="id: 'render_frame_' + id" sandbox="allow-scripts allow-same-origin" style="position: absolute; width:0; height:0; border: none;"></iframe>
+    </if>
+</div>

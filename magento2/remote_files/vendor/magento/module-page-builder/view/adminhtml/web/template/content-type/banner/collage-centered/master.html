@@ -1,0 +1,75 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<div attr="data.main.attributes" ko-style="data.main.style" css="data.main.css">
+    <a if="data.link.attributes().href" attr="data.link.attributes" ko-style="data.link.style" css="data.link.css">
+        <div css="data.wrapper.css"
+             attr="data.wrapper.attributes"
+             ko-style="data.wrapper.style"
+             class="pagebuilder-banner-wrapper">
+            <div if="data.video_overlay.attributes()['data-video-overlay-color']"
+                 class="video-overlay"
+                 attr="data.video_overlay.attributes"
+                 ko-style="data.video_overlay.style"></div>
+            <div class="pagebuilder-overlay" attr="data.overlay.attributes" ko-style="data.overlay.style" css="data.overlay.css">
+                <div class="pagebuilder-collage-content">
+                    <!-- ko with: data.content -->
+                    <!-- ko with: {attributes: attributes, style: style, css: css, dataContentUnsanitizedHtml: html} -->
+                    <div attr="attributes" ko-style="style" css="css" html="dataContentUnsanitizedHtml"></div>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if: data.main.attributes()['data-show-button'] !== 'never' -->
+                    <!-- ko with: data.button -->
+                    <!-- ko with: {attributes: attributes, style: style, css: css, dataButtonUnsanitizedHtml: html} -->
+                    <button type="button"
+                            class="pagebuilder-banner-button"
+                            attr="attributes"
+                            ko-style="style"
+                            css="css"
+                            html="dataButtonUnsanitizedHtml">
+                    </button>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </div>
+            </div>
+        </div>
+    </a>
+    <div ifnot="data.link.attributes().href" attr="data.empty_link.attributes" ko-style="data.empty_link.style" css="data.empty_link.css">
+        <div css="data.wrapper.css"
+             attr="data.wrapper.attributes"
+             ko-style="data.wrapper.style"
+             class="pagebuilder-banner-wrapper">
+            <div if="data.video_overlay.attributes()['data-video-overlay-color']"
+                 class="video-overlay"
+                 attr="data.video_overlay.attributes"
+                 ko-style="data.video_overlay.style"></div>
+            <div class="pagebuilder-overlay" attr="data.overlay.attributes" ko-style="data.overlay.style" css="data.overlay.css">
+                <div class="pagebuilder-collage-content">
+                    <!-- ko with: data.content -->
+                    <!-- ko with: {attributes: attributes, style: style, css: css, dataContentUnsanitizedHtml: html} -->
+                    <div attr="attributes" ko-style="style" css="css" html="dataContentUnsanitizedHtml"></div>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if: data.main.attributes()['data-show-button'] !== 'never' -->
+                    <!-- ko with: data.button -->
+                    <!-- ko with: {attributes: attributes, style: style, css: css, dataButtonUnsanitizedHtml: html} -->
+                    <button type="button"
+                            class="pagebuilder-banner-button"
+                            attr="attributes"
+                            ko-style="style"
+                            css="css"
+                            html="dataButtonUnsanitizedHtml">
+                    </button>
+                    <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockACLTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #19] User controls access to Adobe Stock images from Admin Panel in ACL"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/42"/>
+            <title value="User controls access to Adobe Stock images from Admin Panel in ACL"/>
+            <description value="User controls access to Adobe Stock images from Admin Panel in ACL"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/943908/scenarios/3218882"/>
+            <severity value="MAJOR"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdminBefore"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdminAfter"/>
+            <amOnPage url="{{AdminRolesPage.url}}" stepKey="navigateToUserRoleGrid" />
+            <waitForPageLoad stepKey="waitForRolesGridLoad" />
+            <actionGroup ref="AdminDeleteRoleActionGroup" stepKey="deleteUserRole">
+                <argument name="role" value="adminRole"/>
+            </actionGroup>
+            <amOnPage url="{{AdminUsersPage.url}}" stepKey="goToAllUsersPage"/>
+            <waitForPageLoad stepKey="waitForUsersGridLoad" />
+            <actionGroup ref="AdminDeleteNewUserActionGroup" stepKey="deleteUser">
+                <argument name="userName" value="{{admin2.username}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdmin"/>
+        </after>
+        <!--Create user role-->
+        <actionGroup ref="AdminFillUserRoleRequiredDataActionGroup" stepKey="fillUserRoleRequiredData">
+            <argument name="User" value="adminRole"/>
+            <argument name="restrictedRole" value="Adobe Stock"/>
+        </actionGroup>
+        <click selector="{{AdminEditRoleInfoSection.roleResourcesTab}}" stepKey="clickRoleResourcesTab" />
+        <actionGroup ref="AdminAddRestrictedRoleActionGroup" stepKey="addRestrictedRoleAdobeStockPreview">
+            <argument name="User" value="adminRole"/>
+            <argument name="restrictedRole" value="Adobe Stock"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddRestrictedRoleActionGroup" stepKey="addRestrictedRoleAddEditNewPages">
+            <argument name="User" value="adminRole"/>
+            <argument name="restrictedRole" value="Pages"/>
+        </actionGroup>
+        <click selector="{{AdminEditRoleInfoSection.saveButton}}" stepKey="clickSaveRoleButton" />
+
+        <!--Create user and assign role to it-->
+        <actionGroup ref="AdminCreateUserActionGroup" stepKey="createAdminUser">
+            <argument name="role" value="adminRole"/>
+            <argument name="User" value="admin2"/>
+        </actionGroup>
+
+        <!--Log out of admin and login with newly created user-->
+        <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsNewUser">
+            <argument name="username" value="{{admin2.username}}"/>
+            <argument name="password" value="{{admin2.password}}"/>
+        </actionGroup>
+
+        <!-- verify that user can access to adobe stock image -->
+        <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+        <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+        <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanelWithAccess"/>
+        <grabAttributeFrom selector="{{AdminAdobeStockSection.firstImageAfterSearch}}" userInput="src"
+                           stepKey="getUrlFromFirstImageWithoutSearch"/>
+
+        <!--Change user role to not accessible -->
+        <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+        <actionGroup ref="AdminNavigateToCreatedUserRoleActionGroup" stepKey="navigateToUserRoleEditPage">
+            <argument name="userRoleName" value="{{adminRole.name}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAddRestrictedRoleActionGroup" stepKey="removeRestrictedRole">
+            <argument name="User" value="adminRole"/>
+            <argument name="restrictedRole" value="Adobe Stock"/>
+        </actionGroup>
+        <click selector="{{AdminEditRoleInfoSection.saveButton}}" stepKey="saveRole" />
+        <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutAdmin"/>
+        <actionGroup ref="AdminLoginActionGroup" stepKey="loginNewUserRole">
+            <argument name="username" value="{{admin2.username}}"/>
+            <argument name="password" value="{{admin2.password}}"/>
+        </actionGroup>
+
+        <!-- verify that user can't access to adobe stock image -->
+        <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPageWithoutAccess"/>
+        <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPageWithoutAccess"/>
+        <dontSeeElement selector="{{AdminAdobeStockSection.slideOutPanelButton}}" stepKey="dontSeeAdobeStockSearchButton" />
+        <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromCreatedUser"/>
+    </test>
+</tests>

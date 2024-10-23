@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminViewportSwitcherMobileVerifyCannotResizeColumnsTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Viewport Switcher"/>
+            <title value="Verify Cannot Resize Columns in Mobile Viewport"/>
+            <description value="Verify that users cannot resize columns or change the column grid size in admin when in the mobile viewport."/>
+            <severity value="MAJOR"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-column"/>
+            <group value="pagebuilder-columnResize"/>
+            <group value="pagebuilder-viewport-switcher"/>
+            <group value="pr_exclude"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logOut"/>
+        </after>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragColumnIntoStage">
+            <argument name="contentType" value="PageBuilderColumnGroupContentType"/>
+        </actionGroup>
+        <moveMouseOver selector="{{ColumnOnBackend.columnResizeHandle}}" stepKey="hoverToResizeHandle"/>
+        <!-- Assert column resize handle is visible -->
+        <waitForElementVisible selector="{{ColumnOnBackend.columnResizeHandle}}" stepKey="columnResizeHandleVisible"/>
+        <comment userInput="Comment is added to preserve the step key for backward compatibility" stepKey="columnGridSizeVisible"/>
+        <actionGroup ref="AdminSwitchPageBuilderViewportActionGroup" stepKey="switchToMobileViewport">
+            <argument name="viewportButton" value="mobile"/>
+            <argument name="viewportStage" value="mobile"/>
+        </actionGroup>
+        <!-- Assert column resize handle is not visible -->
+        <executeJS function="return window.getComputedStyle(document.querySelector('{{ColumnOnBackend.columnResizeHandle}}')).getPropertyValue('display')" stepKey="grabComputedDisplayPropertyCMSPageStage"/>
+        <assertEquals stepKey="assertColumnResizeHandleNotVisible">
+            <expectedResult type="string">none</expectedResult>
+            <actualResult type="variable">grabComputedDisplayPropertyCMSPageStage</actualResult>
+        </assertEquals>
+        <comment userInput="Comment is added to preserve the step key for backward compatibility" stepKey="columnGridSizeNotVisible"/>
+    </test>
+</tests>

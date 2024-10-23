@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockVerifyUnlicensedLabelTest">
+        <annotations>
+            <features value="MediaGallery"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/460"/>
+            <title value="User saves image preview and verify unlicensed label"/>
+            <stories value="[Story #41] User views limited image information from the image grid in Media Gallery"/>
+            <testCaseId value="https://studio.cucumber.io/projects/131313/test-plan/folders/1054245/scenarios/3839218"/>
+            <description value="Admin should be able to saves image preview and see unlicensed label"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_media_gallery"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <comment userInput="BIC workaround" stepKey="deleteAllImages"/>
+            <actionGroup ref="AdminOpenStandaloneMediaGalleryActionGroup" stepKey="openMediaGallery"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="clearGridFilters"/>
+            <actionGroup ref="AdminMediaGalleryFolderSelectActionGroup" stepKey="selectWysiwygFolder">
+                <argument name="name" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryOpenNewFolderFormActionGroup" stepKey="openNewFolderForm"/>
+            <actionGroup ref="AdminMediaGalleryCreateNewFolderActionGroup" stepKey="createNewFolder">
+                <argument name="name" value="{{AdminMediaGalleryFolderData.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminAdobeStockOpenFromEnhancedMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+
+        <after>
+            <comment userInput="BIC workaround" stepKey="removeSavedPreview"/>
+            <comment userInput="BIC workaround" stepKey="clearFilters"/>
+            <actionGroup ref="AdminEnhancedMediaGalleryDeletedAllImagesActionGroup" stepKey="deleteAllImages"/>
+            <actionGroup ref="AdminOpenStandaloneMediaGalleryActionGroup" stepKey="openStandaloneMediaGallery"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandWysiwygFolder">
+                <argument name="FolderName" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryFolderSelectActionGroup" stepKey="selectCreatedFolder">
+                <argument name="name" value="{{AdminMediaGalleryFolderData.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryFolderDeleteActionGroup" stepKey="deleteCreatedFolder"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <conditionalClick selector="{{AdminAdobeStockImagePreviewSection.close}}" dependentSelector="{{AdminAdobeStockImagePreviewSection.close}}" visible="true" stepKey="expandImagePreview"/>
+        <waitForPageLoad stepKey="waitForImagePreviewToClose"/>
+        <click selector="{{AdminAdobeStockSection.selectAnImage('2')}}" stepKey="clickOnThumbnail"/>
+        <waitForPageLoad stepKey="waitForImagePreviewToExpand"/>
+        <actionGroup ref="AdminAdobeStockSavePreviewActionGroup" stepKey="openTheSaveImagePreviewPopup"/>
+        <actionGroup ref="AdminSaveAdobeStockImagePreviewActionGroup" stepKey="saveImagePreview"/>
+        <actionGroup ref="AssertAdminAdobeStockImageUnlicensedLabelActionGroup" stepKey="assertUnlicensedLabel"/>
+    </test>
+</tests>

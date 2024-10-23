@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="hideContentType">
+        <arguments>
+            <argument name="section"/>
+            <argument name="contentType"/>
+            <argument name="targetIndex" defaultValue="1" type="string"/>
+            <argument name="x" defaultValue="null" type="string"/>
+            <argument name="y" defaultValue="null" type="string"/>
+        </arguments>
+        <!-- Hiding content type -->
+        <comment userInput="Hiding content type" stepKey="commentHideContentType"/>
+        <waitForElementVisible selector="{{section.base(targetIndex)}}" stepKey="waitForContentType"/>
+        <executeJS function="return ['row', 'column', 'column-group'].include('{{contentType.role}}') ? '//div[contains(@class, &quot;pagebuilder-display-label&quot;) and contains(.,&quot;'+'{{contentType.name}}'.toUpperCase()+'&quot;)]' : '';" stepKey="contentTypeLabelSelector" />
+        <executeJS function="return ['row'].include('{{contentType.role}}') ? '(//div[contains(@class, &quot;pagebuilder-content-type-affordance&quot;) and contains(concat(&quot; &quot;, @class, &quot; &quot;), &quot; pagebuilder-affordance-{{contentType.role}} &quot;)])[{{targetIndex}}]' : '(//div[contains(@class, &quot;pagebuilder-content-type&quot;) and contains(concat(&quot; &quot;, @class, &quot; &quot;), &quot; pagebuilder-{{contentType.role}} &quot;)])[{{targetIndex}}]';" stepKey="contentTypeByIndexSelector" />
+        <moveMouseOver selector="{$contentTypeByIndexSelector}{$contentTypeLabelSelector}" x="{{x}}" y="{{y}}" stepKey="moveMouseOverContentType"/>
+        <waitForPageLoad stepKey="waitForMouseOver"/>
+        <waitForElementVisible selector="{{PageBuilderContentTypeOptionsMenu.contentTypeHide(contentType.role, targetIndex)}}" stepKey="waitForHideOptionVisible"/>
+        <click selector="{{PageBuilderContentTypeOptionsMenu.contentTypeHide(contentType.role, targetIndex)}}" stepKey="hideContentType"/>
+        <waitForPageLoad stepKey="waitForDisable"/>
+        <waitForElementVisible selector="{{PageBuilderContentTypeOptionsMenu.contentTypeShow(contentType.role, targetIndex)}}" stepKey="waitForShowOptionVisible"/>
+        <seeElement selector="{{section.hidden(targetIndex)}}" stepKey="waitForContentTypeHidden"/>
+    </actionGroup>
+</actionGroups>

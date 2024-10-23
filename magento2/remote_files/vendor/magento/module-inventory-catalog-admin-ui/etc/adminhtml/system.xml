@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="cataloginventory">
+            <group id="options" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="synchronize_with_catalog" translate="label" type="select" sortOrder="100" showInDefault="1" canRestore="1">
+                    <label>Synchronize with Catalog</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Automatically synchronize inventory data according to the catalog changes.</comment>
+                </field>
+            </group>
+            <group id="bulk_operations" translate="label" type="text" sortOrder="600" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Admin bulk operations</label>
+                <field id="async" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0"
+                       showInStore="0" canRestore="1">
+                    <label>Run asynchronously</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>An asynchronous queue manager must be configured</comment>
+                </field>
+                <field id="batch_size" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="0"
+                       showInStore="0" canRestore="1">
+                    <label>Asynchronous batch size</label>
+                    <depends>
+                        <field id="async">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="indexer" translate="label" type="text" sortOrder="600" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Inventory Indexer Settings</label>
+                <field id="async" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0"
+                       showInStore="0" canRestore="1">
+                    <label>Stock/Source reindex strategy</label>
+                    <source_model>Magento\InventoryIndexer\Model\ReindexStrategyOptions</source_model>
+                    <config_path>cataloginventory/indexer/strategy</config_path>
+                    <comment>An asynchronous queue manager must be configured for async mode.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

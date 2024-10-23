@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateVirtualProductWithDefaultSourceTest">
+        <annotations>
+            <stories value="Add Virtual Product"/>
+            <title value="Virtual Product created with Default Source assigned by Admin user"/>
+            <description value="Virtual Product created with Default Source assigned by Admin user."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/457015/scenarios/1436612"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+        </annotations>
+
+        <before>
+            <!--Create test data.-->
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="VirtualProduct" stepKey="product"/>
+            <createData entity="FullSource1" stepKey="source"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <amOnPage url="{{AdminProductEditPage.url($product.id$)}}" stepKey="openProductEditPage"/>
+            <actionGroup ref="AdminAssignCategoryToProductAndSaveActionGroup" stepKey="assignCategoryToProduct">
+                <argument name="categoryName" value="$category.name$"/>
+            </actionGroup>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex1">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="flushCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
+        </before>
+        <after>
+            <!--Clean up test data.-->
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <deleteData createDataKey="product" stepKey="deleteProduct"/>
+            <actionGroup ref="DisableAllSourcesActionGroup" stepKey="disableAllSources"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </after>
+
+        <!--Verify product on category page.-->
+        <actionGroup ref="AssertProductInStorefrontCategoryPage" stepKey="verifyProductOnCategoryPage">
+            <argument name="category" value="$category$"/>
+            <argument name="product" value="$product$"/>
+        </actionGroup>
+        <!--Verify product on PDP.-->
+        <amOnPage url="{{StorefrontProductPage.url($product.custom_attributes[url_key]$)}}" stepKey="navigateToVirtualProductPage"/>
+        <actionGroup ref="StorefrontAssertProductNameOnProductPageActionGroup" stepKey="verifyProductName">
+            <argument name="productName" value="$product.name$"/>
+        </actionGroup>
+        <actionGroup ref="StorefrontAssertProductPriceOnProductPageActionGroup" stepKey="verifyProductPrice">
+            <argument name="productPrice" value="$product.price$"/>
+        </actionGroup>
+    </test>
+</tests>

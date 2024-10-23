@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <general>
+            <validator_data>
+                <input_types>
+                    <child_entity>child_entity</child_entity>
+                    <entity_list>entity_list</entity_list>
+                    <pagebuilder>pagebuilder</pagebuilder>
+                </input_types>
+            </validator_data>
+        </general>
+        <cms>
+            <pagebuilder>
+                <enabled>1</enabled>
+                <enable_content_preview>1</enable_content_preview>
+                <column_grid_default>12</column_grid_default>
+                <column_grid_max>16</column_grid_max>
+            </pagebuilder>
+        </cms>
+        <web>
+            <default_layouts>
+                <default_category_layout>category-full-width</default_category_layout>
+                <default_product_layout>product-full-width</default_product_layout>
+                <default_cms_layout>cms-full-width</default_cms_layout>
+            </default_layouts>
+        </web>
+        <system>
+            <media_storage_configuration>
+                <allowed_resources>
+                    <template_manager_folder>.template-manager</template_manager_folder>
+                </allowed_resources>
+            </media_storage_configuration>
+        </system>
+        <catalog>
+            <fields_masks>
+                <meta_description>{{name}}</meta_description>
+            </fields_masks>
+        </catalog>
+    </default>
+</config>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="ColumnDragColumnWithContentBetweenColumnGroupsTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Column"/>
+            <title value="Drag Column containing Heading from one column group to another in the same row"/>
+            <description value="Move column containing content blocks between column groups"/>
+            <severity value="MAJOR"/>
+            <useCaseId value="MAGETWO-86953"/>
+            <testCaseId value="MC-2782"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-column"/>
+            <group value="pagebuilder-heading"/>
+            <group value="pr_exclude"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragFirstColumnIntoStage">
+            <argument name="contentType" value="PageBuilderColumnGroupContentType"/>
+        </actionGroup>
+        <comment userInput="Drag Column beneath existing columns to make a new column group" stepKey="commentDragColumnBelowColumns"/>
+        <actionGroup ref="dragContentTypeToDropZone" stepKey="dragColumnIntoStage">
+            <argument name="contentType" value="PageBuilderColumnGroupContentType"/>
+            <argument name="contentTypeIndex" value="2"/>
+            <argument name="containerTargetType" value="PageBuilderRowContentType"/>
+            <argument name="containerTargetIndex" value="1"/>
+            <argument name="dropZoneIndex" value="2"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('1')}}" userInput="2" stepKey="seeTwoColumnsFirstGroup"/>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('2')}}" userInput="2" stepKey="seeTwoColumnsSecondGroup"/>
+        <seeNumberOfElements selector="{{ColumnOnBackend.allColumns}}" userInput="4" stepKey="validateColumnGroupAdded"/>
+        <comment userInput="Drag new column onto first group" stepKey="commentDragColumnToFirstColumnGroup"/>
+        <actionGroup ref="dragColumnToColumnGroup" stepKey="dragColumnIntoFirstColumnGroup">
+            <argument name="containerTargetIndex" value="1"/>
+            <argument name="contentTypeIndex" value="3"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('1')}}" userInput="3" stepKey="seeThreeColumnsFirstGroup"/>
+        <seeNumberOfElements selector="{{ColumnOnBackend.allColumns}}" userInput="5" stepKey="validateFiveTotalColumns"/>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderHeadingContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToContainer" stepKey="dragHeadingIntoColumn">
+            <argument name="contentType" value="PageBuilderHeadingContentType"/>
+            <argument name="contentTypeIndex" value="1"/>
+            <argument name="containerTargetType" value="PageBuilderColumnContentType"/>
+            <argument name="containerTargetIndex" value="3"/>
+        </actionGroup>
+        <comment userInput="Validate heading is in third column" stepKey="commentConfirmHeadingInThirdColumn"/>
+        <actionGroup ref="validateContentTypeInsideContainerStage" stepKey="confirmHeadingInThirdColumn">
+            <argument name="containerTargetType" value="PageBuilderColumnContentType"/>
+            <argument name="containerTargetIndex" value="3"/>
+            <argument name="positionInContainer" value="1"/>
+            <argument name="contentType" value="PageBuilderHeadingContentType"/>
+            <argument name="contentTypeIndex" value="1"/>
+        </actionGroup>
+        <actionGroup ref="clickOutsideLiveEditHeading" stepKey="clickOutsideLiveEditHeading">
+            <argument name="index" value="1"/>
+        </actionGroup>
+        <comment userInput="Move column containing heading from first to second column group" stepKey="commentMoveColumnToSecondGroup"/>
+        <actionGroup ref="dragColumnToAnotherColumnGroup" stepKey="moveColumnToSecondGroup">
+            <argument name="contentTypeIndex" value="3"/>
+            <argument name="containerTargetIndex" value="5"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{ColumnOnBackend.allColumns}}" userInput="5" stepKey="validateSameNumberOfColumns"/>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('1')}}" userInput="2" stepKey="seeTwoColumnsFirstGroupAgain"/>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('2')}}" userInput="3" stepKey="seeThreeColumnsSecondGroup"/>
+        <seeNumberOfElements selector="{{PageBuilderStage.contentTypeInStage(PageBuilderHeadingContentType.role)}}" userInput="1" stepKey="validateOnlySingleHeadingAfterMove"/>
+        <actionGroup ref="validateContentTypeInsideContainerStage" stepKey="confirmHeadingInMovedColumn">
+            <argument name="containerTargetType" value="PageBuilderColumnContentType"/>
+            <argument name="containerTargetIndex" value="4"/>
+            <argument name="positionInContainer" value="1"/>
+            <argument name="contentType" value="PageBuilderHeadingContentType"/>
+            <argument name="contentTypeIndex" value="1"/>
+        </actionGroup>
+    </test>
+</tests>

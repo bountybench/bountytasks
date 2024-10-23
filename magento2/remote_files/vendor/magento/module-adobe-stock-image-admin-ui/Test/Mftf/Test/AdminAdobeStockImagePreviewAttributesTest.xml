@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockImagePreviewAttributesTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #3] User views the image details"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/24"/>
+            <title value="User views the image details"/>
+            <description value="Admin should be able to see images attributes in the image preview"/>
+            <severity value="BLOCKER"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandImagePreview"/>
+
+        <!-- Assert that image attributes visible "-->
+        <actionGroup ref="AssertAdminAdobeStockImagePreviewAttributeVisibleActionGroup" stepKey="verifyAttributeDimension">
+            <argument name="attributeName" value="Dimensions"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminAdobeStockImagePreviewAttributeVisibleActionGroup" stepKey="verifyAttributeFileType">
+            <argument name="attributeName" value="File type"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminAdobeStockImagePreviewAttributeVisibleActionGroup" stepKey="verifyAttributeCategory">
+            <argument name="attributeName" value="Category"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminAdobeStockImagePreviewAttributeVisibleActionGroup" stepKey="verifyAttributeFile">
+            <argument name="attributeName" value="File #"/>
+        </actionGroup>
+        <grabTextFrom selector="{{AdminAdobeStockImagePreviewSection.attribute('File #')}}" stepKey="getFileAttributeValue"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.navigation('next')}}" stepKey="navigateToNextImage"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForNextImageToLoad"/>
+
+        <!-- Assert that file # attribute changed "-->
+        <assertStringNotContainsString stepKey="assertAttributeFileChanged">
+            <actualResult type="string">{$getFileAttributeValue}</actualResult>
+            <expectedResult type="string">AdminAdobeStockImagePreviewSection.attribute('File #')</expectedResult>
+        </assertStringNotContainsString>
+    </test>
+</tests>

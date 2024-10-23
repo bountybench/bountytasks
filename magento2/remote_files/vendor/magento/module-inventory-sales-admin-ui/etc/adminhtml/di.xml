@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\InventorySalesAdminUi\Model\SalesChannelNameResolverInterface" type="Magento\InventorySalesAdminUi\Model\WebsiteNameResolver"/>
+    <!-- Stock delete button -->
+    <type name="Magento\InventorySalesAdminUi\Ui\Component\Control\Stock\DeleteButton">
+        <arguments>
+            <argument name="deleteButton" xsi:type="object">Magento\InventoryAdminUi\Ui\Component\Control\Stock\DeleteButton</argument>
+        </arguments>
+    </type>
+    <type name="Magento\InventoryAdminUi\Ui\DataProvider\StockDataProvider">
+        <plugin name="sales_channel_data" type="Magento\InventorySalesAdminUi\Plugin\InventoryAdminUi\Ui\StockDataProvider\SalesChannels" />
+    </type>
+    <virtualType name="Magento\Catalog\Ui\DataProvider\Product\Form\Modifier\Pool">
+        <arguments>
+            <argument name="modifiers" xsi:type="array">
+                <item name="salable_quantity" xsi:type="array">
+                    <item name="class" xsi:type="string">Magento\InventorySalesAdminUi\Ui\DataProvider\Product\Form\Modifier\SalableQuantity</item>
+                    <item name="sortOrder" xsi:type="number">300</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\InventoryApi\Api\StockRepositoryInterface">
+        <plugin name="add_notice_for_unassigned_sales_channels" type="Magento\InventorySalesAdminUi\Plugin\InventoryApi\StockRepository\AddNoticeForUnassignedSalesChannels" sortOrder="10"/>
+    </type>
+    <type name="Magento\Sales\Block\Adminhtml\Items\Renderer\DefaultRenderer">
+        <plugin name="can_return_item_to_stock_child_manage_stock_is_on" type="Magento\InventorySalesAdminUi\Plugin\Sales\Block\Items\Renderer\DefaultRenderer\ChildManageStockIsOn"/>
+    </type>
+    <type name="Magento\InventorySalesApi\Model\GetSalableQtyInterface">
+        <plugin name="inventory_sales_admin_ui_adjust_product_qty_in_stock_for_edit_order"
+                type="Magento\InventorySalesAdminUi\Plugin\InventorySalesApi\Api\AdjustProductQtyInStockForEditOrder"/>
+    </type>
+    <type name="Magento\InventorySalesAdminUi\Model\ResourceModel\GetAssignedStockIdsBySku">
+        <arguments>
+            <argument name="getSourceItemsBySku" xsi:type="object">Magento\Inventory\Model\SourceItem\Command\GetSourceItemsBySkuCache</argument>
+        </arguments>
+    </type>
+    <type name="Magento\InventorySalesAdminUi\Ui\Component\Listing\Column\SalableQuantity">
+        <arguments>
+            <argument name="maximumStocksToShow" xsi:type="number">15</argument>
+        </arguments>
+    </type>
+</config>

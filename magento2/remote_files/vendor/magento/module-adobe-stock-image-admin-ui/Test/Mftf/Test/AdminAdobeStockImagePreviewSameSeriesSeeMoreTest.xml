@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockImagePreviewSameSeriesSeeMoreTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #31] User searches for images from the same series as the currently viewed one"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/346"/>
+            <title value="User searches for images from the same series as the currently viewed one"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/1051731/scenarios/3579513"/>
+            <description value="Admin should be able to see more images from series filter"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForCars">
+            <argument name="query" value="cars"/>
+        </actionGroup>
+        <grabTextFrom selector="{{AdminAdobeStockSection.recordsFound}}" stepKey="countWithoutModelFilter"/>
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForUnlicensedImage">
+            <argument name="query" value="{{AdobeStockUnlicensedNewImage.id}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandImagePreview"/>
+        <waitForAjaxLoad stepKey="waitForRelatedImagesToLoad"/>
+        <executeJS function="document.querySelector('#adobe-stock-tabs').scrollIntoView()" stepKey="scrollToSeeMoreTabs"/>
+        <grabTextFrom selector="{{AdminAdobeStockImagePreviewSection.attribute('File #')}}" stepKey="getFileAttributeValue"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.moreFromThisSeries}}" stepKey="clickOnTabMoreForThisSeries"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.moreFromThisSeriesSeeMore}}" stepKey="clickOnSeeMore"/>
+        <waitForPageLoad stepKey="waitForGridReload"/>
+        <executeJS function="document.querySelector('.admin__data-grid-filters-current').scrollIntoView()" stepKey="scrollToAppliedFilters"/>
+        <actionGroup ref="AssertAdminAdobeStockFilterResultsActionGroup" stepKey="verifyAppliedFilter">
+            <argument name="resultValue" value="$getFileAttributeValue"/>
+        </actionGroup>
+        <grabTextFrom selector="{{AdminAdobeStockSection.recordsFound}}" stepKey="countWithAppliedFilter"/>
+        <assertNotEquals stepKey="checkThatResultCountChangesAfterFilterApplied">
+            <actualResult type="variable">$countWithoutModelFilter</actualResult>
+            <expectedResult type="variable">$countWithAppliedFilter</expectedResult>
+        </assertNotEquals>
+    </test>
+</tests>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockSaveLicensedTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="User saves licensed image into Magento Media Gallery"/>
+            <title value="Adobe Stock Not Previewed Licensed Image Save"/>
+            <description value="User saves previously licensed image into Magento Media Gallery"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_integration_ims_signed"/>
+            <skip>
+                <issueId value="https://github.com/magento/adobe-stock-integration/issues/1170"/>
+            </skip>
+            <group value="pr_exclude"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetToDefaultView"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+        </after>
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForNotPreviewedLicensedImageToSave">
+            <argument name="query" value="{{AdobeStockLicensedImage.id}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandLicensedImage"/>
+        <waitForElementVisible selector="{{AdminAdobeStockImagePreviewSection.saveLicensedImage}}" stepKey="waitForSaveButton"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.saveLicensedImage}}" stepKey="clickSave"/>
+        <waitForPageLoad stepKey="waitForPromptModal" />
+        <grabValueFrom selector="{{AdminAdobeStockImagePreviewSection.imageNameField}}" stepKey="grabImageFileName" />
+        <waitForElementClickable selector="{{AdminAdobeStockImagePreviewSection.confirm}}" stepKey="waitForConfirmButtonClickable"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.confirm}}" stepKey="clickOnPopupConfirm"/>
+        <waitForPageLoad stepKey="waitForMediaGalleryOpen" />
+        <dontSeeElementInDOM selector="{{AdminAdobeStockImagePreviewSection.errorMessage}}" stepKey="verifyNoErrorMessage"/>
+        <seeElement selector="{{AdminAdobeStockSection.mediaGalleryImage({$grabImageFileName})}}" stepKey="assertSavedImage" />
+        <actionGroup ref="AdminMediaGalleryDeleteImage" stepKey="deleteImageActionGroup">
+            <argument name="name" value="{$grabImageFileName}"/>
+        </actionGroup>
+    </test>
+</tests>

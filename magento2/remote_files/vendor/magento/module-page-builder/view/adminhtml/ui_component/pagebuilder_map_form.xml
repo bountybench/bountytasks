@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd" extends="pagebuilder_base_form">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">pagebuilder_map_form.pagebuilder_map_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Map</item>
+    </argument>
+    <settings>
+        <deps>
+            <dep>pagebuilder_map_form.pagebuilder_map_form_data_source</dep>
+        </deps>
+        <namespace>pagebuilder_map_form</namespace>
+    </settings>
+    <dataSource name="pagebuilder_map_form_data_source" component="Magento_PageBuilder/js/form/provider">
+        <dataProvider name="pagebuilder_map_form_data_source" class="Magento\PageBuilder\Model\ContentType\DataProvider">
+            <settings>
+                <requestFieldName/>
+                <primaryFieldName/>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <container sortOrder="10" name="google_map_api_key_check" component="Magento_Ui/js/form/components/html" class="Magento\PageBuilder\Component\GoogleMapsApiKeyValidationContainer">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="additionalClasses" xsi:type="string">message message-warning</item>
+                <item name="visible" xsi:type="boolean">false</item>
+                <item name="map_configuration_url" xsi:type="string">adminhtml/system_config/edit/section/cms</item>
+                <item name="content" xsi:type="string" translate="true"><![CDATA[You must provide a valid <a href="%s" target="_blank">Google Maps API key</a> to use a map.]]></item>
+            </item>
+        </argument>
+    </container>
+    <fieldset name="appearance_fieldset" sortOrder="20" component="Magento_PageBuilder/js/form/element/dependent-fieldset">
+        <settings>
+            <label translate="true">Appearance</label>
+            <additionalClasses>
+                <class name="admin__fieldset-visual-select-large">true</class>
+            </additionalClasses>
+            <collapsible>false</collapsible>
+            <opened>true</opened>
+            <imports>
+                <link name="hideFieldset">${$.name}.appearance:options</link>
+                <link name="hideLabel">${$.name}.appearance:options</link>
+            </imports>
+        </settings>
+        <field name="appearance" formElement="select" sortOrder="10" component="Magento_PageBuilder/js/form/element/dependent-visual-select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">default</item>
+                </item>
+            </argument>
+            <settings>
+                <additionalClasses>
+                    <class name="admin__field-wide">true</class>
+                    <class name="admin__field-visual-select-container">true</class>
+                </additionalClasses>
+                <dataType>text</dataType>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <elementTmpl>Magento_PageBuilder/form/element/visual-select</elementTmpl>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="AppearanceSourceMap" />
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
+    <fieldset name="general" sortOrder="20">
+        <settings>
+            <label/>
+            <additionalClasses>
+                <class name="admin__field-map-locations">true</class>
+            </additionalClasses>
+        </settings>
+        <modal name="map_location_modal">
+            <settings>
+                <options>
+                    <option name="title" xsi:type="string" translate="true">Add Location</option>
+                </options>
+            </settings>
+            <insertForm name="map_location_insert_form" component="Magento_PageBuilder/js/form/components/map-location-insert-form">
+                <settings>
+                    <toolbarContainer>${ $.parentName }</toolbarContainer>
+                    <renderUrl path="mui/index/render_handle">
+                        <param name="buttons">1</param>
+                        <param name="handle">pagebuilder_map_location_form</param>
+                    </renderUrl>
+                    <externalProvider>${ $.ns}.pagebuilder_map_location_form_data_source</externalProvider>
+                    <ns>pagebuilder_map_location_form</ns>
+                </settings>
+            </insertForm>
+        </modal>
+        <container name="add_location" sortOrder="10" template="ui/form/components/complex">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="content" xsi:type="string"/>
+                    <item name="label" xsi:type="string"/>
+                </item>
+            </argument>
+            <button name="add_location_button">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="actions" xsi:type="array">
+                            <item name="0" xsi:type="array">
+                                <item name="targetName" xsi:type="string">index=map_location_insert_form</item>
+                                <item name="actionName" xsi:type="string">destroyInserted</item>
+                            </item>
+                            <item name="1" xsi:type="array">
+                                <item name="targetName" xsi:type="string">index=map_location_modal</item>
+                                <item name="actionName" xsi:type="string">openModal</item>
+                            </item>
+                            <item name="2" xsi:type="array">
+                                <item name="targetName" xsi:type="string">index=map_location_insert_form</item>
+                                <item name="actionName" xsi:type="string">render</item>
+                            </item>
+                        </item>
+                    </item>
+                </argument>
+                <settings>
+                    <title translate="true">Add Location</title>
+                </settings>
+            </button>
+        </container>
+        <dynamicRows name="locations" sortOrder="20" component="Magento_PageBuilder/js/form/components/map-location-dynamic-rows" template="Magento_PageBuilder/form/components/dynamic-rows/edit-form-on-click-grid">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="insertFormProvider" xsi:type="string">index = map_location_insert_form</item>
+                    <item name="modalProvider" xsi:type="string">index=map_location_modal</item>
+                    <item name="emptyContentPlaceholder" xsi:type="string">No locations found. Click "Add Location"</item>
+                </item>
+            </argument>
+            <settings>
+                <dndConfig>
+                    <param name="enabled" xsi:type="boolean">false</param>
+                </dndConfig>
+                <identificationProperty>record_id</identificationProperty>
+                <addButton>false</addButton>
+                <visible>true</visible>
+                <additionalClasses>
+                    <class name="admin__field-wide">true</class>
+                </additionalClasses>
+                <componentType>dynamicRows</componentType>
+            </settings>
+            <container name="record" component="Magento_Ui/js/dynamic-rows/record">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="isTemplate" xsi:type="boolean">true</item>
+                        <item name="is_collection" xsi:type="boolean">true</item>
+                        <item name="componentType" xsi:type="string">container</item>
+                    </item>
+                </argument>
+                <field name="location_name" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Location Name</label>
+                        <visible>true</visible>
+                        <dataScope>location_name</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="phone" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Phone Number</label>
+                        <visible>true</visible>
+                        <dataScope>phone</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="address" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Street Address</label>
+                        <visible>true</visible>
+                        <dataScope>address</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="city" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">City</label>
+                        <visible>true</visible>
+                        <dataScope>city</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="state" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Region/State</label>
+                        <visible>true</visible>
+                        <dataScope>state</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="zipcode" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Zip/Postal Code</label>
+                        <visible>true</visible>
+                        <dataScope>zipcode</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <field name="country" component="Magento_Ui/js/form/element/text" template="Magento_PageBuilder/dynamic-rows/element/text" formElement="input">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Country</label>
+                        <visible>true</visible>
+                        <dataScope>country</dataScope>
+                        <elementTmpl>ui/dynamic-rows/cells/text</elementTmpl>
+                    </settings>
+                </field>
+                <button name="actions" component="Magento_PageBuilder/js/form/components/action-button" template="Magento_PageBuilder/form/components/dynamic-rows/actions">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="insertFormProvider" xsi:type="string">index = map_location_insert_form</item>
+                            <item name="modalProvider" xsi:type="string">index = map_location_modal</item>
+                            <item name="noClickEdit" xsi:type="boolean">true</item>
+                            <item name="actions" xsi:type="array">
+                                <item name="0" xsi:type="array">
+                                    <item name="targetName" xsi:type="string">${ $.name }</item>
+                                    <item name="actionName" xsi:type="string">edit</item>
+                                    <item name="label" xsi:type="string" translate="true">Edit</item>
+                                </item>
+                                <item name="1" xsi:type="array">
+                                    <item name="targetName" xsi:type="string">${ $.name }</item>
+                                    <item name="actionName" xsi:type="string">deleteRecord</item>
+                                    <item name="label" xsi:type="string" translate="true">Delete</item>
+                                </item>
+                            </item>
+                            <item name="label" translate="true" xsi:type="string">Select</item>
+                        </item>
+                    </argument>
+                </button>
+            </container>
+        </dynamicRows>
+        <field name="height" sortOrder="30" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">block</item>
+                    <item name="default" xsi:type="string">300</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Height</label>
+                <dataScope>height</dataScope>
+                <additionalClasses>
+                    <class name="admin__field-small">true</class>
+                </additionalClasses>
+                <addAfter translate="true">px</addAfter>
+                <validation>
+                    <rule name="validate-number" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="show_controls" sortOrder="40" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">true</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Show Controls</label>
+                <dataScope>show_controls</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="string">false</map>
+                            <map name="true" xsi:type="string">true</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\InventoryApi\Api\SourceRepositoryInterface">
+        <plugin name="load_in_store_pickup_on_get_list" type="Magento\InventoryInStorePickup\Plugin\InventoryApi\SourceRepository\LoadInStorePickupOnGetListPlugin"/>
+        <plugin name="load_in_store_pickup_on_get" type="Magento\InventoryInStorePickup\Plugin\InventoryApi\SourceRepository\LoadInStorePickupOnGetPlugin"/>
+        <plugin name="save_in_store_pickup_links" type="Magento\InventoryInStorePickup\Plugin\InventoryApi\SourceRepository\SaveInStorePickupPlugin"/>
+    </type>
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\PickupLocationInterface" type="Magento\InventoryInStorePickup\Model\PickupLocation" />
+    <type name="Magento\InventoryInStorePickupApi\Model\Mapper">
+        <arguments>
+            <argument name="map" xsi:type="array">
+                <item name="extension_attributes.frontend_name" xsi:type="string">name</item>
+                <item name="extension_attributes.frontend_description" xsi:type="string">description</item>
+            </argument>
+            <argument name="preProcessors" xsi:type="array">
+                <item name="extension_attributes.frontend_description" xsi:type="object">Magento\InventoryInStorePickup\Model\PickupLocation\Mapper\PreProcessor\FrontendDescription</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="Magento\InventoryInStorePickupApi\Api\GetPickupLocationsInterface" type="Magento\InventoryInStorePickup\Model\GetPickupLocations" />
+    <preference for="Magento\InventoryInStorePickupApi\Model\GetPickupLocationInterface" type="Magento\InventoryInStorePickup\Model\GetPickupLocation"/>
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchResultInterface" type="Magento\InventoryInStorePickup\Model\SearchResult"/>
+    <preference for="Magento\InventoryInStorePickupApi\Model\SearchResult\ExtractStrategyInterface" type="Magento\InventoryInStorePickup\Model\SearchResult\ExtractStrategy" />
+    <type name="Magento\InventoryInStorePickupApi\Model\SearchCriteriaResolverInterface">
+        <arguments>
+            <argument name="resolvers" xsi:type="array">
+                <item name="resolve-default-filters" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveDefaultFilters</item>
+                <item name="resolve-filter-set" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveFilters</item>
+                <item name="resolve-distance-filter" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveArea</item>
+                <item name="resolve-scope-filter" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveScopeFilter</item>
+                <item name="resolve-meta" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveMeta</item>
+                <item name="resolve-products-assignment-intersection" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchCriteria\ResolveIntersection</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchRequest\AreaInterface" type="Magento\InventoryInStorePickup\Model\SearchRequest\Area" />
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchRequest\FiltersInterface" type="Magento\InventoryInStorePickup\Model\SearchRequest\Filters" />
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchRequest\FilterInterface" type="Magento\InventoryInStorePickup\Model\SearchRequest\Filter" />
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchRequestInterface" type="Magento\InventoryInStorePickup\Model\SearchRequest" />
+    <preference for="Magento\InventoryInStorePickupApi\Model\SearchRequestBuilderInterface" type="Magento\InventoryInStorePickup\Model\SearchRequestBuilder" />
+    <type name="Magento\InventoryInStorePickupApi\Model\SearchResult\Extractor">
+        <arguments>
+            <argument name="strategies" xsi:type="array">
+                <item name="distance-based" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchResult\Strategy\DistanceBased</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\InventoryApi\Model\SourceValidatorChain">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="city" xsi:type="object">Magento\InventoryInStorePickup\Model\Source\Validator\CityValidator</item>
+                <item name="street" xsi:type="object">Magento\InventoryInStorePickup\Model\Source\Validator\StreetValidator</item>
+                <item name="phone" xsi:type="object">Magento\InventoryInStorePickup\Model\Source\Validator\PhoneValidator</item>
+                <item name="default_source_use_as_pickup_location_validator" xsi:type="object">Magento\InventoryInStorePickup\Model\Source\Validator\DefaultSourceUseForPickupLocationValidator</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\InventoryInStorePickupApi\Model\SearchRequest\Area\Pipeline">
+        <arguments>
+            <argument name="parsers" xsi:type="array">
+                <item name="country" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchRequest\Area\SearchTerm\CountryParser</item>
+                <item name="postcode" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchRequest\Area\SearchTerm\PostcodeParser</item>
+                <item name="city" xsi:type="object">Magento\InventoryInStorePickup\Model\SearchRequest\Area\SearchTerm\CityParser</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="Magento\InventoryInStorePickupApi\Api\Data\SearchRequest\ProductInfoInterface" type="Magento\InventoryInStorePickup\Model\ProductInfo" />
+</config>

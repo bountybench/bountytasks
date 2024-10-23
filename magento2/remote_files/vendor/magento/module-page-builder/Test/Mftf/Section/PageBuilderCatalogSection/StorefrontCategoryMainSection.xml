@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
+    <section name="StorefrontCategoryMainSection">
+        <!-- This goes in CE repo -->
+        <element name="CatalogDescription" type="text" selector="//div[@class='category-description']"/>
+        <element name="DataAppearanceRow" type="text" selector="div.category-description > [data-appearance='{{appearance}}']" parameterized="true"/>
+        <!-- Category Contents -->
+        <element name="categoryTitleWrapper" type="button" selector=".page-title-wrapper"/>
+        <element name="categoryImage" type="button" selector=".category-image"/>
+        <element name="categoryDescription" type="text" selector=".category-description"/>
+        <element name="categoryCMS" type="text" selector=".category-cms"/>
+        <element name="productGrid" type="block" selector="#maincontent .column.main"/>
+        <element name="sidebarFilters" type="block" selector="#maincontent .sidebar.sidebar-main"/>
+        <element name="sidebarAdditional" type="block" selector="#maincontent .sidebar.sidebar-additional"/>
+    </section>
+</sections>

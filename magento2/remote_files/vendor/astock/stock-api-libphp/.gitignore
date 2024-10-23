@@ -1,0 +1,20 @@
+# composer
+/vendor
+
+# data
+/data
+
+# phpunit
+/phpunit.xml
+
+# ide
+.idea/
+
+# osx
+.DS_Store
+
+# misc
+*~
+*#
+TAGS
+.phpunit.result.cache

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="RemovingColumnDistributesWidthTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Column"/>
+            <title value="Column Width Distribution"/>
+            <description value="Removing a column distributes column widths in group"/>
+            <severity value="MAJOR"/>
+            <useCaseId value="MAGETWO-83556"/>
+            <testCaseId value="MC-2750"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-column"/>
+            <group value="pr_exclude"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="dragContentTypeToContainer" stepKey="dragFirstTwoColumns">
+            <argument name="contentType" value="PageBuilderColumnGroupContentType"/>
+            <argument name="containerTargetType" value="PageBuilderRowContentType"/>
+            <argument name="containerTargetIndex" value="1"/>
+            <argument name="contentTypeIndex" value="1"/>
+        </actionGroup>
+        <actionGroup ref="dragColumnToColumnGroup" stepKey="dragThirdColumn">
+            <argument name="containerTargetIndex" value="1"/>
+            <argument name="contentTypeIndex" value="3"/>
+        </actionGroup>
+        <actionGroup ref="ValidateColumnWidthActionGroup" stepKey="seeFirstColumnWidth">
+            <argument name="columnWidth" value="{{PageBuilderColumnStyles.widthOneTwelfth}}"/>
+        </actionGroup>
+        <actionGroup ref="ValidateColumnWidthActionGroup" stepKey="seeSecondColumnWidth">
+            <argument name="index" value="2"/>
+            <argument name="columnWidth" value="{{PageBuilderColumnStyles.widthFiveTwelfth}}"/>
+        </actionGroup>
+        <actionGroup ref="ValidateColumnWidthActionGroup" stepKey="seeThirdColumnWidth">
+            <argument name="index" value="3"/>
+            <argument name="columnWidth" value="{{PageBuilderColumnStyles.widthHalf}}"/>
+        </actionGroup>
+        <actionGroup ref="removeEmptyContentTypeFromStage" stepKey="removeColumn1">
+            <argument name="contentType" value="PageBuilderColumnContentType"/>
+        </actionGroup>
+        <actionGroup ref="ValidateColumnWidthActionGroup" stepKey="seeFirstColumnWidthDistributed">
+            <argument name="columnWidth" value="{{PageBuilderColumnStyles.widthHalf}}"/>
+        </actionGroup>
+        <actionGroup ref="ValidateColumnWidthActionGroup" stepKey="seeSecondColumnWidthDistributed">
+            <argument name="index" value="2"/>
+            <argument name="columnWidth" value="{{PageBuilderColumnStyles.widthHalf}}"/>
+        </actionGroup>
+    </test>
+</tests>

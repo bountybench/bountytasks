@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAddImageToWYSIWYGBlockTest">
+        <before>
+            <magentoCLI command="config:set cms/pagebuilder/enabled 0" stepKey="disablePageBuilder" after="enableTinyMCE"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="flushCache" after="disablePageBuilder">
+                <argument name="tags" value="config"/>
+            </actionGroup>
+        </before>
+        <after>
+            <magentoCLI command="config:set cms/pagebuilder/enabled 1" stepKey="enablePageBuilder" after="disableWYSIWYG"/>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="flushCache" after="enablePageBuilder">
+                <argument name="tags" value="config"/>
+            </actionGroup>
+        </after>
+    </test>
+</tests>

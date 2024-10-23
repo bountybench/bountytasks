@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Cms\Block\Adminhtml\Wysiwyg\Images\Content">
+        <plugin name="add_search_button" type="Magento\AdobeStockImageAdminUi\Plugin\AddSearchButton"/>
+    </type>
+    <type name="Magento\MediaGalleryUi\Model\GetDetailsByAssetId">
+        <plugin name="add_adobe_stock_image_details_plugin" type="Magento\AdobeStockImageAdminUi\Plugin\AddAdobeStockImageDetailsPlugin"/>
+    </type>
+    <type name="Magento\MediaGalleryUi\Ui\Component\Listing\Columns\Source\Options">
+        <plugin name="add_adobe_stock_source_option_plugin" type="Magento\AdobeStockImageAdminUi\Plugin\AddAdobeStockSourceOptionPlugin"/>
+    </type>
+    <type name="Magento\MediaGalleryUi\Ui\Component\Listing\Columns\SourceIconProvider">
+        <arguments>
+            <argument name="sourceIcons" xsi:type="array">
+                <item name="Adobe Stock" xsi:type="string">Magento_MediaGalleryUi::images/Astock.png</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\AdobeStockImageAdminUi\Ui\Component\Listing\Columns\ContentType\Options">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="photo_option" xsi:type="array">
+                    <item name="value" xsi:type="string">photo</item>
+                    <item name="label" xsi:type="string">Photo</item>
+                </item>
+                <item name="illustration_option" xsi:type="array">
+                    <item name="value" xsi:type="string">illustration</item>
+                    <item name="label" xsi:type="string">Illustration</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Magento\MediaGalleryUi\Model\Api\SearchCriteria\CollectionProcessor\JoinProcessor">
+        <arguments>
+            <argument name="customJoins" xsi:type="array">
+                <item name="is_licensed" xsi:type="object">Magento\AdobeStockImageAdminUi\Model\SearchCriteria\CollectionProcessor\JoinProcessor\IsLicensed</item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>

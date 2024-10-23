@@ -1,0 +1,122 @@
+// /**
+//  * Copyright © Magento, Inc. All rights reserved.
+//  * See COPYING.txt for license details.
+//  */
+
+.error-border (@color) {
+    border: 1px solid @color;
+    overflow: hidden;
+}
+
+[data-role='modal'] {
+    .action-pagebuilder-cancel,
+    .action-pagebuilder-cancel:hover {
+        color: @color-black;
+    }
+
+    .pagebuilder-modal-content-body li {
+        list-style-position: inside;
+        margin-bottom: 15px;
+        margin-top: 15px;
+    }
+
+    .admin__field {
+        &._error {
+            .url-input-element-linked-element {
+                input,
+                .action-select-wrap {
+                    .error-border(@field-error-control__border-color);
+                }
+            }
+
+            .admin__field-control > .admin__field-design-options > .layout-onion {
+                .error-border(@field-error-control__border-color);
+            }
+            ._error {
+                .admin__control-wysiwig {
+                    .textarea {
+                        .error-border(@field-error-control__border-color);
+                    }
+                    .tox-tinymce {
+                        .error-border(@field-error-control__border-color);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//
+//  Page Builder full width field
+//  _____________________________________________
+
+.admin__fieldset {
+    > .admin__field.admin__field-wide.admin__field-page-builder[class]:not(.admin__field-option),
+    .admin__field.admin__field-wide.admin__fieldset-page-builder .admin__field-page-builder {
+        > .admin__field-label {
+            margin-bottom: @indent__xs;
+            margin-top: @indent__xs;
+            min-height: 32px;
+
+            span[data-config-scope] {
+                &:before {
+                    left: 0;
+                }
+            }
+        }
+    }
+
+    //  Product page
+    > fieldset.admin__field-page-builder {
+        .admin__field-label {
+            text-align: left;
+
+            span[data-config-scope] {
+                &:before {
+                    right: auto;
+                }
+            }
+        }
+    }
+
+    .admin__field.admin__field-wide.admin__fieldset-page-builder {
+        > .admin__field-control {
+            width: calc(~'100% - 30px');
+
+            .admin__field.admin__field-wide.admin__field-page-builder {
+                position: relative;
+
+                .admin__field-control {
+                    clear: left;
+                }
+            }
+        }
+    }
+
+    .admin__field.admin__field-wide.admin__fieldset-page-builder .admin__field-page-builder {
+        > .admin__field-label {
+            display: block;
+            line-height: @field-label__font-size;
+            margin-left: 0;
+            position: relative;
+            text-align: left;
+            width: auto;
+
+            span[data-config-scope] {
+                &:before {
+                    right: auto;
+                }
+            }
+        }
+    }
+}
+
+.admin__field-wide.admin__field-page-builder {
+    margin-bottom: 32px;
+
+    button.action-default {
+        position: absolute;
+        right: 0;
+        top: @indent__xs;
+    }
+}

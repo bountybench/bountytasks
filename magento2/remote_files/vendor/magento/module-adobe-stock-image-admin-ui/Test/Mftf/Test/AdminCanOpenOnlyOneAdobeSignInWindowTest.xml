@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCanOpenOnlyOneAdobeSignInWindowTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/1007"/>
+            <title value="User can not open several `Sign In Adobe ID` windows copy"/>
+            <testCaseId value="https://studio.cucumber.io/projects/131313/test-plan/folders/943908/scenarios/4314374"/>
+            <description value="User can open only one `Sign In Adobe ID` window"/>
+            <stories value="User can open only one `Sign In Adobe ID` window"/>
+            <severity value="MAJOR"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <executeJS function="return window.name;" stepKey="rootWindow"/>
+        <actionGroup ref="AdminAdobeStockClickSignInActionGroup" stepKey="clickSignIn"/>
+        <switchToWindow userInput="{$rootWindow}" stepKey="switchToRoot1"/>
+        <actionGroup ref="AdminAdobeStockClickSignInActionGroup" stepKey="clickSignTheSecondTime"/>
+        <switchToWindow userInput="{$rootWindow}" stepKey="switchToRoot2"/>
+        <actionGroup ref="AdminAdobeStockClickSignInActionGroup" stepKey="clickSignTheThirdTime"/>
+
+        <switchToWindow userInput="{$rootWindow}" stepKey="switchToAdobeImsGallery"/>
+        <seeElement selector="{{AdminAdobeStockSection.adobeSignIn}}" stepKey="seeSignInButton"/>
+        <seeElement selector="{{AdminAdobeStockSection.searchInput}}" stepKey="seeSearchInput"/>
+        <switchToWindow userInput="authorization_widnow" stepKey="switchToCloseWindow"/>
+        <closeTab stepKey="closeAuthorizationWindow"/>
+    </test>
+</tests>

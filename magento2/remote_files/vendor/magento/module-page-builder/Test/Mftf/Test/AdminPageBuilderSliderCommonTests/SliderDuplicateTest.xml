@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="SliderDuplicateTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Slider"/>
+            <title value="Slider - Duplicate Slider"/>
+            <description value="A user should be able to duplicate Slider content type. Verify on Stage and Storefront."/>
+            <severity value="MAJOR"/>
+            <useCaseId value="MC-965"/>
+            <testCaseId value="MC-3599"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-slide"/>
+            <group value="pagebuilder-sliderCommon"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="addPageBuilderPageTitle" stepKey="enterPageTitle">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <!-- Add Slider to Stage -->
+        <comment userInput="Add Slider to Stage" stepKey="commentAddSliderToStage"/>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragContentTypeToStage">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="openPageBuilderEditPanelSmallByIndex" stepKey="openEditPanelAfterDrop">
+            <argument name="section" value="SlideOnBackend"/>
+        </actionGroup>
+        <actionGroup ref="addTextToTinyMCE" stepKey="enterMessageText">
+            <argument name="property" value="PageBuilderSlideItemContent_Slide1"/>
+            <argument name="section" value="SlideOnConfigurationPanel"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings"/>
+        <click selector="{{PageBuilderPanel.searchPanel}}" stepKey="unFocusSlide"/>
+        <!-- Add second slide -->
+        <comment userInput="Add second slide" stepKey="addSecondSlide"/>
+        <actionGroup ref="addChildContentTypeFromOptionMenu" stepKey="addChildContentType">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="openPageBuilderEditPanelSmallByIndex" stepKey="openEditPanelAfterAdd">
+            <argument name="section" value="SlideOnBackend"/>
+            <argument name="targetIndex" value="2"/>
+        </actionGroup>
+        <actionGroup ref="addTextToTinyMCE" stepKey="enterMessageText2">
+            <argument name="property" value="PageBuilderSlideItemContent_Slide2"/>
+            <argument name="section" value="SlideOnConfigurationPanel"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings2"/>
+        <click selector="{{PageBuilderPanel.searchPanel}}" stepKey="unFocusSlide2"/>
+        <!-- Edit Slider settings -->
+        <comment userInput="Edit Slider settings" stepKey="EditSlider"/>
+        <actionGroup ref="openPageBuilderEditPanelByIndex" stepKey="openSliderEditPanel">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+            <argument name="contentTypeIndex" value="1"/>
+        </actionGroup>
+        <actionGroup ref="conditionalClickSlideOutPanelFieldGeneral" stepKey="enterAutoPlay">
+            <argument name="property" value="PageBuilderSliderAutoPlay_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelFieldGeneral" stepKey="enterAutoPlaySpeed">
+            <argument name="property" value="PageBuilderSliderAutoPlaySpeed_50000"/>
+        </actionGroup>
+        <actionGroup ref="conditionalClickSlideOutPanelFieldGeneral" stepKey="enterFade">
+            <argument name="property" value="PageBuilderSliderFade_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="conditionalClickSlideOutPanelFieldGeneral" stepKey="enterInfiniteLoop">
+            <argument name="property" value="PageBuilderSliderInfiniteLoop_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="conditionalClickSlideOutPanelFieldGeneral" stepKey="enterShowArrow">
+            <argument name="property" value="PageBuilderSliderShowArrows_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="conditionalClickSlideOutPanelFieldGeneral" stepKey="enterShowDots">
+            <argument name="property" value="PageBuilderSliderShowDots_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelFieldGeneral" stepKey="enterSliderMinHeight">
+            <argument name="property" value="PageBuilderMinHeightProperty_100px"/>
+        </actionGroup>
+        <!-- Edit Advanced Slider settings -->
+        <comment userInput="Edit Advanced Slider settings" stepKey="commentEditSliderAdvanced"/>
+        <actionGroup ref="expandConfigurationSection" stepKey="expandConfigurationSection"/>
+        <actionGroup ref="chooseVisualSelectOption" stepKey="selectAlignmentLeft2">
+            <argument name="property" value="PageBuilderAdvancedAlignmentPropertyCenter"/>
+        </actionGroup>
+        <actionGroup ref="selectSlideOutPanelField" stepKey="enterAdvancedBorderProperty">
+            <argument name="property" value="PageBuilderAdvancedBorderPropertyDouble"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelFieldGeneral" stepKey="enterBorderColor">
+            <argument name="property" value="PageBuilderAdvancedBorderColorProperty_green"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelField" stepKey="enterAdvancedBorderWidthProperty">
+            <argument name="property" value="PageBuilderAdvancedBorderWidthProperty10"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelField" stepKey="enterAdvancedBorderRadiusProperty">
+            <argument name="property" value="PageBuilderAdvancedBorderRadiusProperty12"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelField" stepKey="enterAdvancedClassProperty">
+            <argument name="property" value="PageBuilderAdvancedCssClassesPropertyThreeClasses"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelFieldMargins" stepKey="enterMargins">
+            <argument name="property" value="PageBuilderMarginsPropertyUnique"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelFieldPadding" stepKey="enterPadding">
+            <argument name="property" value="PageBuilderPaddingPropertyUnique"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings3"/>
+        <actionGroup ref="hideContentType" stepKey="hideContentType">
+            <argument name="section" value="SliderOnStage"/>
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <!-- Duplicate -->
+        <comment userInput="Duplicate" stepKey="commentDuplicate"/>
+        <actionGroup ref="duplicateContentType" stepKey="duplicateContentType">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <!-- Validate Duplicate Is Disabled -->
+        <comment userInput="Validate Duplicate Is Disabled" stepKey="commentValidateDisabledStage"/>
+        <seeElement selector="{{SliderOnStage.hidden('1')}}" stepKey="seeContentTypeDisabled1"/>
+        <seeElement selector="{{SliderOnStage.hidden('2')}}" stepKey="seeContentTypeDisabled2"/>
+        <!-- Validate Stage: Slider Settings -->
+        <comment userInput="Validate Stage: Slider Settings" stepKey="commentValidateSettingsStage"/>
+        <seeElement selector="{{SliderOnStage.autoPlay('2', PageBuilderSliderAutoPlay_Enabled.value)}}" stepKey="seeAutoPlayStage"/>
+        <seeElement selector="{{SliderOnStage.autoPlaySpeed('2', PageBuilderSliderAutoPlaySpeed_50000.value)}}" stepKey="seeAutoPlaySpeedStage"/>
+        <seeElement selector="{{SliderOnStage.fade('2', PageBuilderSliderFade_Enabled.value)}}" stepKey="seeFadeStage"/>
+        <seeElement selector="{{SliderOnStage.infiniteLoop('2', PageBuilderSliderInfiniteLoop_Enabled.value)}}" stepKey="seeInfiniteLoopStage"/>
+        <seeElement selector="{{SliderOnStage.showArrows('2', PageBuilderSliderShowArrows_Enabled.value)}}" stepKey="seeArrowsStage"/>
+        <seeElement selector="{{SliderOnStage.showDots('2', PageBuilderSliderShowDots_Enabled.value)}}" stepKey="seeDotsStage"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeMinHeightStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMinHeightProperty_100px.intValue}}"/>
+            <argument name="cssProperty" value="minHeight"/>
+        </actionGroup>
+        <!-- Validate Stage: Advanced Settings -->
+        <comment userInput="Validate Stage: Advanced Settings" stepKey="commentValidateAdvancedStage"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeAlignmentStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedAlignmentPropertyCenter.value}}"/>
+            <argument name="cssProperty" value="textAlign"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderPropertyDouble.value}}"/>
+            <argument name="cssProperty" value="borderStyle"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderColorStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderColorProperty_green.rgb}}"/>
+            <argument name="cssProperty" value="borderColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderWidthStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderWidthProperty10.value}}"/>
+            <argument name="cssProperty" value="borderWidth"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderRadiusStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderRadiusProperty12.value}}"/>
+            <argument name="cssProperty" value="borderRadius"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeMarginsStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMarginsPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="margin"/>
+        </actionGroup>
+        <seeElement selector="{{SliderOnStage.cssClasses('1', PageBuilderAdvancedCssClassesPropertyThreeClasses.value)}}" stepKey="seeCSSClassesStage1"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seePaddingStage">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderPaddingPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <!-- Show Content -->
+        <comment userInput="Show Content" stepKey="commentShowContent"/>
+        <actionGroup ref="showContentType" stepKey="showContentTypeFirstSlider">
+            <argument name="section" value="SliderOnStage"/>
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="showContentType" stepKey="showContentTypeSecondSlider">
+            <argument name="section" value="SliderOnStage"/>
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+            <argument name="targetIndex" value="2"/>
+        </actionGroup>
+        <seeElement selector="{{SliderOnStage.notHidden('1')}}" stepKey="seeContentTypeNotDisabled1"/>
+        <seeElement selector="{{SliderOnStage.notHidden('2')}}" stepKey="seeContentTypeNotDisabled2"/>
+        <!-- Validate Stage: Slide Items -->
+        <comment userInput="Validate Stage: Slide Items" stepKey="commentValidateSlideItemsStage"/>
+        <click selector="{{SliderOnStage.slideNavigationDot('2', '1')}}" stepKey="clickSlide1NavigationDot"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+        <seeElement selector="{{SlideOnBackend.messageContent('3', PageBuilderSlideItemContent_Slide1.value)}}" stepKey="seeMessageContentSlideItem1Stage"/>
+        <click selector="{{SliderOnStage.slideNavigationDot('2', '2')}}" stepKey="clickSlide2NavigationDot"/>
+        <waitForPageLoad stepKey="waitForPageLoad2"/>
+        <seeElement selector="{{SlideOnBackend.messageContent('4', PageBuilderSlideItemContent_Slide2.value)}}" stepKey="seeMessageContentSlideItem2Stage"/>
+        <actionGroup ref="exitPageBuilderFullScreen" stepKey="exitPageBuilderFullScreen"/>
+        <actionGroup ref="SaveAndContinueEditCmsPageActionGroup" stepKey="saveAndContinueEditCmsPage1"/>
+        <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage1"/>
+        <!-- Validate Stage After Save: Slider Settings -->
+        <comment userInput="Validate Stage After Save: Slider Settings" stepKey="commentValidateSettingsStage2"/>
+        <seeElement selector="{{SliderOnStage.autoPlay('2', PageBuilderSliderAutoPlay_Enabled.value)}}" stepKey="seeAutoPlayStage2"/>
+        <seeElement selector="{{SliderOnStage.autoPlaySpeed('2', PageBuilderSliderAutoPlaySpeed_50000.value)}}" stepKey="seeAutoPlaySpeedStage2"/>
+        <seeElement selector="{{SliderOnStage.fade('2', PageBuilderSliderFade_Enabled.value)}}" stepKey="seeFadeStage2"/>
+        <seeElement selector="{{SliderOnStage.infiniteLoop('2', PageBuilderSliderInfiniteLoop_Enabled.value)}}" stepKey="seeInfiniteLoopStage2"/>
+        <seeElement selector="{{SliderOnStage.showArrows('2', PageBuilderSliderShowArrows_Enabled.value)}}" stepKey="seeArrowsStage2"/>
+        <seeElement selector="{{SliderOnStage.showDots('2', PageBuilderSliderShowDots_Enabled.value)}}" stepKey="seeDotsStage2"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeMinHeightStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMinHeightProperty_100px.intValue}}"/>
+            <argument name="cssProperty" value="minHeight"/>
+        </actionGroup>
+        <!-- Validate Stage After Save: Advanced Settings -->
+        <comment userInput="Validate Stage After Save: Advanced Settings" stepKey="commentValidateAdvancedStage2"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeAlignmentStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedAlignmentPropertyCenter.value}}"/>
+            <argument name="cssProperty" value="textAlign"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderPropertyDouble.value}}"/>
+            <argument name="cssProperty" value="borderStyle"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderColorStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderColorProperty_green.rgb}}"/>
+            <argument name="cssProperty" value="borderColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderWidthStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderWidthProperty10.value}}"/>
+            <argument name="cssProperty" value="borderWidth"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderRadiusStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderRadiusProperty12.value}}"/>
+            <argument name="cssProperty" value="borderRadius"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeMarginsStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMarginsPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="margin"/>
+        </actionGroup>
+        <seeElement selector="{{SliderOnStage.cssClasses('1', PageBuilderAdvancedCssClassesPropertyThreeClasses.value)}}" stepKey="seeCSSClassesStage2"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seePaddingStage2">
+            <argument name="selector" value="{{SliderOnStage.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderPaddingPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <!-- Validate Stage After Save: Slide Items -->
+        <comment userInput="Validate Stage After Save: Slide Items" stepKey="commentValidateSlideItemsStage2"/>
+        <click selector="{{SliderOnStage.slideNavigationDot('2', '1')}}" stepKey="clickSlide1NavigationDot2"/>
+        <waitForPageLoad stepKey="waitForPageLoad3"/>
+        <seeElement selector="{{SlideOnBackend.messageContent('3', PageBuilderSlideItemContent_Slide1.value)}}" stepKey="seeMessageContentSlideItem1Stage2"/>
+        <click selector="{{SliderOnStage.slideNavigationDot('2', '2')}}" stepKey="clickSlide2NavigationDot2"/>
+        <waitForPageLoad stepKey="waitForPageLoad4"/>
+        <seeElement selector="{{SlideOnBackend.messageContent('4', PageBuilderSlideItemContent_Slide2.value)}}" stepKey="seeMessageContentSlideItem2Stage2"/>
+        <click selector="{{PageBuilderPanel.searchPanel}}" stepKey="unFocusSlide4"/>
+        <!-- Validate Edit Panel After Save -->
+        <comment userInput="Validate Edit Panel After Save" stepKey="commentValidateEditPanel"/>
+        <actionGroup ref="openPageBuilderEditPanelByIndex" stepKey="openEditPanel">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+            <argument name="index" value="2"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsCheckedSlideOutProperty" stepKey="validateAutoPlay">
+            <argument name="property" value="PageBuilderSliderAutoPlay_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateAutoPlaySpeed">
+            <argument name="property" value="PageBuilderSliderAutoPlaySpeed_50000"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsCheckedSlideOutProperty" stepKey="validateFade">
+            <argument name="property" value="PageBuilderSliderFade_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsCheckedSlideOutProperty" stepKey="validateInfiniteLoop">
+            <argument name="property" value="PageBuilderSliderInfiniteLoop_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsCheckedSlideOutProperty" stepKey="validateShowArrows">
+            <argument name="property" value="PageBuilderSliderShowArrows_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsCheckedSlideOutProperty" stepKey="validateShowDots">
+            <argument name="property" value="PageBuilderSliderShowDots_Enabled"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateMinHeight">
+            <argument name="property" value="PageBuilderMinHeightProperty_100px"/>
+        </actionGroup>
+        <!-- Validate Edit Panel After Save: Advanced -->
+        <comment userInput="Validate Edit Panel After Save: Advanced" stepKey="commentValidateEditPanelAdvanced"/>
+        <actionGroup ref="expandConfigurationSection" stepKey="expandConfigurationSection3"/>
+        <actionGroup ref="seeOptionIsSelectedSlideOutProperty" stepKey="validateAlignment2">
+            <argument name="property" value="PageBuilderAdvancedAlignmentPropertyCenter"/>
+        </actionGroup>
+        <actionGroup ref="seeOptionIsSelectedSlideOutProperty" stepKey="validateBorder2">
+            <argument name="property" value="PageBuilderAdvancedBorderPropertyDouble"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateBorderColor2">
+            <argument name="property" value="PageBuilderAdvancedBorderColorProperty_green"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateBorderWidth2">
+            <argument name="property" value="PageBuilderAdvancedBorderWidthProperty10"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateBorderRadius2">
+            <argument name="property" value="PageBuilderAdvancedBorderRadiusProperty12"/>
+        </actionGroup>
+        <actionGroup ref="seeInFieldSlideOutProperty" stepKey="validateCssClasses2">
+            <argument name="property" value="PageBuilderSliderAdvancedCssClassesPropertyThreeClasses"/>
+        </actionGroup>
+        <actionGroup ref="seeInMarginFieldsSlideOutPanel" stepKey="validateMargins2">
+            <argument name="property" value="PageBuilderMarginsPropertyUnique"/>
+        </actionGroup>
+        <actionGroup ref="seeInPaddingFieldsSlideOutPanel" stepKey="validatePadding2">
+            <argument name="property" value="PageBuilderPaddingPropertyUnique"/>
+        </actionGroup>
+        <!-- Validate Storefront: Slider Settings -->
+        <comment userInput="Validate Storefront: Slider Settings" stepKey="commentValidateSettingsStorefront"/>
+        <actionGroup ref="navigateToStoreFront" stepKey="navigateToStoreFront">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleDoesNotEqualExpectedStyleActionGroup" stepKey="waitForContentTypeShownStorefront1">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('1')}}"/>
+            <argument name="notExpectedProperty" value="none"/>
+            <argument name="cssProperty" value="display"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleDoesNotEqualExpectedStyleActionGroup" stepKey="waitForContentTypeShownStorefront2">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="notExpectedProperty" value="none"/>
+            <argument name="cssProperty" value="display"/>
+        </actionGroup>
+        <seeElement selector="{{SliderOnFrontend.autoPlay('2', PageBuilderSliderAutoPlay_Enabled.value)}}" stepKey="seeAutoPlayStorefront"/>
+        <seeElement selector="{{SliderOnFrontend.autoPlaySpeed('2', PageBuilderSliderAutoPlaySpeed_50000.value)}}" stepKey="seeAutoPlaySpeedStorefront"/>
+        <seeElement selector="{{SliderOnFrontend.fade('2', PageBuilderSliderFade_Enabled.value)}}" stepKey="seeFadeStorefront"/>
+        <seeElement selector="{{SliderOnFrontend.infiniteLoop('2', PageBuilderSliderInfiniteLoop_Enabled.value)}}" stepKey="seeInfiniteLoopStorefront"/>
+        <seeElement selector="{{SliderOnFrontend.showArrows('2', PageBuilderSliderShowArrows_Enabled.value)}}" stepKey="seeArrowsStorefront"/>
+        <seeElement selector="{{SliderOnFrontend.showDots('2', PageBuilderSliderShowDots_Enabled.value)}}" stepKey="seeDotsStorefront"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeHeightStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMinHeightProperty_100px.intValue}}"/>
+            <argument name="cssProperty" value="minHeight"/>
+        </actionGroup>
+        <!-- Validate Storefront: Advanced Settings -->
+        <comment userInput="Validate Storefront: Advanced Settings" stepKey="commentValidateAdvancedStorefront"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeAlignmentStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedAlignmentPropertyCenter.value}}"/>
+            <argument name="cssProperty" value="textAlign"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderPropertyDouble.value}}"/>
+            <argument name="cssProperty" value="borderStyle"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderColorStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderColorProperty_green.rgb}}"/>
+            <argument name="cssProperty" value="borderColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderWidthStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderWidthProperty10.value}}"/>
+            <argument name="cssProperty" value="borderWidth"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeBorderRadiusStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderAdvancedBorderRadiusProperty12.value}}"/>
+            <argument name="cssProperty" value="borderRadius"/>
+        </actionGroup>
+        <seeElement selector="{{SliderOnFrontend.cssClasses('1', PageBuilderAdvancedCssClassesPropertyThreeClasses.value)}}" stepKey="seeCSSClassesStorefront"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeMarginsStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderMarginsPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="margin"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seePaddingStorefront">
+            <argument name="selector" value="{{SliderOnFrontend.advancedConfigurationPath('2')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderPaddingPropertyUnique.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <!-- Validate Storefront: Slide Items -->
+        <comment userInput="Validate Storefront: Slide Items" stepKey="commentValidateSlideItemsStorefront"/>
+        <click selector="{{SliderOnFrontend.slideNavigationDot('2', '1')}}" stepKey="clickSlide1NavigationDotStorefront"/>
+        <waitForPageLoad stepKey="waitForPageLoad5"/>
+        <seeElement selector="{{SlideOnFrontend.messageContent('3', PageBuilderSlideItemContent_Slide1.value)}}" stepKey="seeMessageContentSlideItem1Storefront"/>
+        <click selector="{{SliderOnFrontend.slideNavigationDot('2', '2')}}" stepKey="clickSlide2NavigationDotStorefront"/>
+        <waitForPageLoad stepKey="waitForPageLoad6"/>
+        <seeElement selector="{{SlideOnFrontend.messageContent('4', PageBuilderSlideItemContent_Slide2.value)}}" stepKey="seeMessageContentSlideItem2Storefront"/>
+    </test>
+</tests>

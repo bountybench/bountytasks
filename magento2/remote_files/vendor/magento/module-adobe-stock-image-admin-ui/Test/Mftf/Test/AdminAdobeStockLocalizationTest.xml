@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockLocalizationTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #18] User sees stock image attributes localized"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/41"/>
+            <title value="User sees stock image attributes localized"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/943908/scenarios/3218880"/>
+            <description value="Admin should be able to sees stock image attributes localized"/>
+            <severity value="MAJOR"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <!-- Deploy ru_RU locale static content -->
+            <magentoCLI command="setup:static-content:deploy" arguments="-f ru_RU --area adminhtml" stepKey="staticDeployBeforeChangeLocaleToRU"/>
+            <!--Set Admin "Interface Locale" to ru_RU-->
+            <actionGroup ref="SetAdminAccountActionGroup" stepKey="setAdminInterfaceLocaleToDefaultValue">
+                <argument name="InterfaceLocaleByValue" value="ru_RU"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="SetAdminAccountActionGroup" stepKey="setAdminInterfaceLocaleToDefaultValue">
+                <argument name="InterfaceLocaleByValue" value="en_US"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <!-- verify that user can search adobe stock image in ru_RU locale -->
+        <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+        <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+        <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForPopular">
+            <argument name="query" value="Автомобили"/>
+        </actionGroup>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandImagePreview"/>
+        <wait time="5" stepKey="waitBeforeExpandSectionLoadFull"/>
+        <grabTextFrom selector="{{AdminAdobeStockImagePreviewSection.firstKeywordNotAI}}" stepKey="grabKeyword"/>
+        <grabTextFrom selector="{{AdminAdobeStockImagePreviewSection.imagePreviewCategoryText}}" stepKey="grabCategoryText"/>
+        <actionGroup ref="AssertAdminAdobeStockKeywordLocalizedActionGroup" stepKey="assertKeywordLocalized">
+             <argument name="stringToBeVerified" value="{$grabKeyword}"/>
+        </actionGroup>
+        <actionGroup ref="AssertAdminAdobeStockKeywordLocalizedActionGroup" stepKey="assertCategoryLocalized">
+             <argument name="stringToBeVerified" value="{$grabCategoryText}"/>
+        </actionGroup>
+    </test>
+</tests>

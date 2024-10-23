@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="ElasticSearchLayeredNavigationCustomStockTest">
+        <annotations>
+            <stories value="Elasticsearch layered navigation on custom stock"/>
+            <title value="Elasticsearch layered navigation simple product on custom stock."/>
+            <description value="Verify, Category page and Layered Navigation for Simple Products on custom stock with Elasticsearch enabled."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/441590/scenarios/2688239"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+            <group value="SearchEngine"/>
+        </annotations>
+
+        <before>
+            <createData entity="SimpleSubCategory" stepKey="category"/>
+            <createData entity="Msi_US_Customer" stepKey="customer"/>
+
+            <createData entity="FullSource1" stepKey="customSource"/>
+            <createData entity="BasicMsiStock1" stepKey="customStock"/>
+            <createData entity="SourceStockLinked1" stepKey="stockSourceLink">
+                <requiredEntity createDataKey="customStock"/>
+                <requiredEntity createDataKey="customSource"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginToAdminArea"/>
+
+            <actionGroup ref="AssignWebsiteToStockActionGroup" stepKey="assignMainWebsiteToCustomStock">
+                <argument name="stockName" value="$$customStock.stock[name]$$"/>
+                <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="amOnTheStockGridPage"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockGridPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="searchCustomStockByKeyword"/>
+            <comment userInput="BIC workaround" stepKey="clickOnEditForCustomStock"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockEditPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="selectWebsiteAsSalesChannel"/>
+            <comment userInput="BIC workaround" stepKey="saveCustomStock"/>
+            <comment userInput="BIC workaround" stepKey="reindexCacheFlushAfterAssignDefaultStockToMainWebsite"/>
+
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="performReindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCache">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+
+            <createData entity="SimpleProduct" stepKey="simpleProduct">
+                <field key="price">10.00</field>
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <amOnPage url="{{AdminProductEditPage.url($$simpleProduct.id$$)}}" stepKey="openProductEditPageToAssignSource"/>
+            <actionGroup ref="AssignSourceToProductActionGroup" stepKey="assignUSSource1ToCreatedProduct">
+                <argument name="sourceCode" value="$$customSource.source[source_code]$$"/>
+            </actionGroup>
+            <fillField selector="{{AdminProductSourcesGrid.rowQty('1')}}" userInput="100" stepKey="setCustomSourceQuantity"/>
+            <actionGroup ref="UnassignSourceFromProductActionGroup" stepKey="unassignDefaultSourceFromProduct">
+                <argument name="sourceCode" value="{{_defaultSource.name}}"/>
+            </actionGroup>
+            <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="saveEditedSimpleProduct"/>
+
+            <createData entity="SimpleProduct" stepKey="simpleProduct2">
+                <field key="price">40.00</field>
+                <requiredEntity createDataKey="category"/>
+            </createData>
+            <amOnPage url="{{AdminProductEditPage.url($$simpleProduct2.id$$)}}" stepKey="openProductEditPageToAssignSource2"/>
+            <actionGroup ref="AssignSourceToProductActionGroup" stepKey="assignUSSource1ToCreatedProduct2">
+                <argument name="sourceCode" value="$$customSource.source[source_code]$$"/>
+            </actionGroup>
+            <fillField selector="{{AdminProductSourcesGrid.rowQty('1')}}" userInput="100" stepKey="setCustomSourceQuantity2"/>
+            <actionGroup ref="UnassignSourceFromProductActionGroup" stepKey="unassignDefaultSourceFromProduct2">
+                <argument name="sourceCode" value="{{_defaultSource.name}}"/>
+            </actionGroup>
+            <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="saveEditedSimpleProduct2"/>
+
+            <comment userInput="BIC workaround" stepKey="reindexInvalidatedIndices"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="performReindexAfterElasticSearchEnable">
+                <argument name="indices" value="catalogsearch_fulltext"/>
+            </actionGroup>
+            <actionGroup ref="CliCacheCleanActionGroup" stepKey="cleanCacheAfterElasticSearchEnable">
+                <argument name="tags" value="full_page"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AssignWebsiteToStockActionGroup" stepKey="assignMainWebsiteToDefaultStock">
+                <argument name="stockName" value="{{_defaultStock.name}}"/>
+                <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="assignDefaultStockToMainWebsiteComment"/>
+            <comment userInput="BIC workaround" stepKey="navigateToStockListPage"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockListPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="searchDefaultStockByName"/>
+            <comment userInput="BIC workaround" stepKey="clickEditDefaultStock"/>
+            <comment userInput="BIC workaround" stepKey="waitFroDefaultStockEditPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="selectDefaultWebsiteAsSalesChannelForDefaultStock"/>
+            <comment userInput="BIC workaround" stepKey="saveDefaultStock"/>
+
+            <actionGroup ref="DisableSourceActionGroup" stepKey="disableCreatedCustomSource">
+                <argument name="sourceCode" value="$$customSource.source[source_code]$$"/>
+            </actionGroup>
+            <deleteData createDataKey="category" stepKey="deleteCategory"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCustomer" />
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <deleteData createDataKey="simpleProduct" stepKey="deleteProduct"/>
+            <deleteData createDataKey="simpleProduct2" stepKey="deleteProduct2"/>
+            <deleteData createDataKey="customStock" stepKey="deleteCustomStock"/>
+
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="performReindexAfterElasticSearchDisable">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="cleanCacheAfterElasticSearchDisable">
+                <argument name="tags" value=""/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin1"/>
+        </after>
+
+        <!--Verify products are visible on storefront page.-->
+        <amOnPage url="{{StorefrontCategoryPage.url($$category.custom_attributes[url_key]$$)}}" stepKey="navigateToCategoryToVerifyProductsAreVisible"/>
+        <waitForPageLoad time="30" stepKey="waitForCategoryPageIsLoadToVerifyProductIsNotVisible"/>
+        <see userInput="$$simpleProduct.name$$" stepKey="verifyProduct1IsVisible"/>
+        <see userInput="$$simpleProduct2.name$$" stepKey="verifyProduct2IsVisible"/>
+        <!--Verify prices in layered navigation.-->
+        <click selector="{{StorefrontLayeredNavigationSection.shoppingOptionsByName('Price')}}" stepKey="openLayeredNavigation"/>
+        <see userInput="$10.00 - $19.99" selector="//a[contains(@href, 'price=10-20')]" stepKey="verifySmallerPriceRange"/>
+        <see userInput="40.00 and above" selector="//a[contains(@href, 'price=40')]" stepKey="verifyLargerPriceRange"/>
+    </test>
+</tests>

@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Magento\AdobeStockClientApi\Api\ClientInterface" type="Magento\AdobeStockClient\Model\Client"/>
+    <preference for="Magento\AdobeStockClientApi\Api\ConfigInterface" type="Magento\AdobeStockClient\Model\Config"/>
+    <preference for="Magento\AdobeStockClientApi\Api\Data\UserQuotaInterface" type="Magento\AdobeStockClient\Model\UserQuota"/>
+    <preference for="Magento\AdobeStockClientApi\Api\Data\LicenseConfirmationInterface" type="Magento\AdobeStockClient\Model\LicenseConfirmation"/>
+    <preference for="Magento\AdobeStockClientApi\Api\Client\FilesInterface" type="Magento\AdobeStockClient\Model\Client\Files"/>
+    <type name="Magento\AdobeStockClientApi\Api\ClientInterface">
+        <arguments>
+            <argument name="searchParametersProvider" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProviderComposite</argument>
+            <argument name="searchResultFields" xsi:type="array">
+                <item name="0" xsi:type="string">ID</item>
+                <item name="1" xsi:type="string">NB_RESULTS</item>
+                <item name="2" xsi:type="string">COMP_URL</item>
+                <item name="3" xsi:type="string">THUMBNAIL_240_URL</item>
+                <item name="4" xsi:type="string">WIDTH</item>
+                <item name="5" xsi:type="string">HEIGHT</item>
+                <item name="6" xsi:type="string">THUMBNAIL_500_URL</item>
+                <item name="7" xsi:type="string">TITLE</item>
+                <item name="8" xsi:type="string">CREATOR_ID</item>
+                <item name="9" xsi:type="string">CREATOR_NAME</item>
+                <item name="10" xsi:type="string">CREATION_DATE</item>
+                <item name="11" xsi:type="string">COUNTRY_NAME</item>
+                <item name="13" xsi:type="string">CATEGORY</item>
+                <item name="14" xsi:type="string">KEYWORDS</item>
+                <item name="15" xsi:type="string">MEDIA_TYPE_ID</item>
+                <item name="16" xsi:type="string">CONTENT_TYPE</item>
+                <item name="17" xsi:type="string">DETAILS_URL</item>
+                <item name="18" xsi:type="string">PREMIUM_LEVEL_ID</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\AdobeStockClient\Model\SearchParametersProviderComposite">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="simpleFilters" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\SimpleFilters</item>
+                <item name="pagination" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Pagination</item>
+                <item name="content_type_filter" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\ContentType</item>
+                <item name="isolated_filter" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Isolated</item>
+                <item name="offensive_filter" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Offensive</item>
+                <item name="sorting" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Sorting</item>
+                <item name="orientation_filter" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Orientation</item>
+                <item name="words" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Words</item>
+                <item name="media_id" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\MediaId</item>
+                <item name="premium_price_filter" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Premium</item>
+                <item name="similar" xsi:type="object">Magento\AdobeStockClient\Model\SearchParametersProvider\Similar</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\AdobeStockClient\Model\SearchParametersProvider\SimpleFilters">
+        <arguments>
+            <argument name="filters" xsi:type="array">
+                <item name="colors_filter" xsi:type="string">setFilterColors</item>
+                <item name="serie_id" xsi:type="string">setSerieId</item>
+                <item name="model_id" xsi:type="string">setModelId</item>
+                <item name="premium_filter" xsi:type="string">setFilterPremium</item>
+                <item name="gallery_id" xsi:type="string">setGalleryId</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

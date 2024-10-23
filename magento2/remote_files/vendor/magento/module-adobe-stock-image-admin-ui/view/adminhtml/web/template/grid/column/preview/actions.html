@@ -1,0 +1,33 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<ul class="messages" if="getMessages().length > 0">
+    <each args="getMessages()">
+        <div class="messages">
+            <div attr="class: 'message message-'+code">
+                <div data-ui-id="messages-message-error">
+                    <span html="messageUnsanitizedHtml"></span>
+                </div>
+            </div>
+        </div>
+    </each>
+</ul>
+<button class="action-secondary" type="button" visible="!isDownloaded() && !isLicensed()" click="function(){ savePreviewClick() }">
+    <span translate="'Save Preview'"></span>
+</button>
+<button class="action-secondary" type="button" visible="isDownloaded()" click="function(){ openInMediaGalleryClick() }">
+    <span translate="'Open in Media Gallery'"></span>
+</button>
+<button class="action-default primary"
+        type="button"
+        attr="title: getLicenseButtonTitle()"
+        visible="!isLicensedLocally() && !isLicensed()" click="function () { licenseClick(); }">
+    <span text="getLicenseButtonTitle()"></span>
+</button>
+<button class="action-default primary" type="button" visible="isLicensed()" click="function () { saveLicensedClick(); }">
+    <span translate="'Save Licensed'"></span>
+</button>
+

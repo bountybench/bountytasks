@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCacheValidationWhenDownloadableProductIsSoldOutOnMultipleStockModeTest">
+        <annotations>
+            <stories value="Cache Validation"/>
+            <title value="Cache validation when Downloadable product on Test stock totally sold"/>
+            <description value="Cache validation when Downloadable product on Test stock totally sold,"/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/457024/scenarios/2200020"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+        </annotations>
+
+        <before>
+            <magentoCLI stepKey="addDownloadableDomain" command="downloadable:domains:add static.magento.com example.com"/>
+            <magentoCLI command="config:set {{TurnOnManageStockConfig.path}} {{TurnOnManageStockConfig.value}}" stepKey="enableStockManagement1"/>
+            <createData entity="SimpleSubCategory" stepKey="simpleCategory1"/>
+            <createData entity="DownloadableMsiProduct" stepKey="downloadableProduct1">
+                <requiredEntity createDataKey="simpleCategory1"/>
+            </createData>
+            <createData entity="_minimalSource" stepKey="createSource1"/>
+            <createData entity="BasicMsiStockWithMainWebsite1" stepKey="createStock1"/>
+            <createData entity="SourceStockLinked1" stepKey="linkSourceStock1">
+                <requiredEntity createDataKey="createStock1"/>
+                <requiredEntity createDataKey="createSource1"/>
+            </createData>
+            <comment userInput="Perform reindex and cache flush after assign default stock to main website." stepKey="reindexCacheFlushAfterAssignDefaultStockToMainWebsite"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="performReindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+            <actionGroup ref="CliCacheFlushActionGroup" stepKey="cleanCache">
+                <argument name="tags" value=""/>
+            </actionGroup>
+            <createData entity="Msi_US_Customer" stepKey="customer"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin1"/>
+        </before>
+        <after>
+            <magentoCLI stepKey="removeDownloadableDomain" command="downloadable:domains:remove static.magento.com example.com"/>
+            <actionGroup ref="AssignWebsiteToStockActionGroup" stepKey="assignMainWebsiteToDefaultStock">
+                <argument name="stockName" value="{{_defaultStock.name}}"/>
+                <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="assignDefaultStockToMainWebsiteComment"/>
+            <comment userInput="BIC workaround" stepKey="navigateToStockListPage"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockListPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="searchDefaultStockByName"/>
+            <comment userInput="BIC workaround" stepKey="clickEditDefaultStock"/>
+            <comment userInput="BIC workaround" stepKey="waitFroDefaultStockEditPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="selectDefaultWebsiteAsSalesChannelForDefaultStock"/>
+            <comment userInput="BIC workaround" stepKey="saveDefaultStock"/>
+            <actionGroup ref="DisableSourceActionGroup" stepKey="disableCreatedCustomSource">
+                <argument name="sourceCode" value="$$createSource1.source[source_code]$$"/>
+            </actionGroup>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutFromAdminArea"/>
+            <deleteData createDataKey="simpleCategory1" stepKey="deleteCategory"/>
+            <deleteData createDataKey="downloadableProduct1" stepKey="deleteProduct"/>
+            <deleteData createDataKey="createStock1" stepKey="deleteCustomStock"/>
+            <actionGroup ref="StorefrontCustomerLogoutActionGroup" stepKey="logoutCustomer" />
+            <deleteData createDataKey="customer" stepKey="deleteCustomer"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </after>
+
+        <comment userInput="Preserve BIC. AdminProductIndexPage.url" stepKey="adminProductIndexPageAdd"/>
+        <comment userInput="Preserve BIC." stepKey="waitForPageLoad1"/>
+        <comment userInput="Preserving BIC. AdminGridFilterSearchResultsByInput" stepKey="findDownloadableProductBySkuForFillData" />
+        <comment userInput="Preserve BIC." stepKey="clickOnEditDownloadableProductForCheckInStock"/>
+
+        <amOnPage url="{{AdminProductEditPage.url($$downloadableProduct1.id$$)}}" stepKey="openDownloadableProductEditPage" />
+
+        <comment userInput="Assign category to product." stepKey="assignCategoryComment"/>
+        <waitForPageLoad stepKey="waitForPageLoad2"/>
+        <searchAndMultiSelectOption selector="{{AdminProductFormSection.categoriesDropdown}}" parameterArray="[$$simpleCategory1.name$$]" requiredAction="true" stepKey="searchAndSelectCategory"/>
+
+        <click selector="{{AdminProductDownloadableSection.sectionHeader}}" stepKey="openDownloadableSection1"/>
+        <waitForPageLoad stepKey="waitForPageLoad3"/>
+        <checkOption selector="{{AdminProductDownloadableSection.isDownloadableProduct}}" stepKey="checkIsDownloadable1"/>
+        <fillField userInput="{{downloadableData.link_title}}" selector="{{AdminProductDownloadableSection.linksTitleInput}}" stepKey="fillDownloadableLinkTitle1"/>
+        <checkOption selector="{{AdminProductDownloadableSection.isLinksPurchasedSeparately}}" stepKey="checkLinksPurchasedSeparately1"/>
+        <fillField userInput="{{downloadableData.sample_title}}" selector="{{AdminProductDownloadableSection.samplesTitleInput}}" stepKey="fillDownloadableSampleTitle1"/>
+
+        <click selector="{{AdminProductDownloadableSection.linksAddLinkButton}}" stepKey="clickLinkAddLinkButton1"/>
+        <waitForPageLoad stepKey="waitForPageLoad4"/>
+        <fillField userInput="{{downloadableLink.title}}" selector="{{AdminProductDownloadableSection.addLinkTitleInput('0')}}" stepKey="fillDownloadableLinkTitle2"/>
+        <fillField userInput="{{downloadableLink.price}}" selector="{{AdminProductDownloadableSection.addLinkPriceInput('0')}}" stepKey="fillDownloadableLinkPrice2"/>
+        <selectOption userInput="{{downloadableLink.file_type}}" selector="{{AdminProductDownloadableSection.addLinkFileTypeSelector('0')}}" stepKey="selectDownloadableLinkFileType2"/>
+        <selectOption userInput="{{downloadableLink.sample_type}}" selector="{{AdminProductDownloadableSection.addLinkSampleTypeSelector('0')}}" stepKey="selectDownloadableLinkSampleType2"/>
+        <selectOption userInput="{{downloadableLink.shareable}}" selector="{{AdminProductDownloadableSection.addLinkShareableSelector('0')}}" stepKey="selectDownloadableLinkShareable2"/>
+        <checkOption selector="{{AdminProductDownloadableSection.addLinkIsUnlimitedDownloads('0')}}" stepKey="checkDownloadableLinkUnlimited2"/>
+        <fillField userInput="{{downloadableLink.file}}" selector="{{AdminProductDownloadableSection.addLinkFileUrlInput('0')}}" stepKey="fillDownloadableLinkFileUrl2"/>
+        <attachFile userInput="{{downloadableLink.sample}}" selector="{{AdminProductDownloadableSection.addLinkSampleUploadFile('0')}}" stepKey="attachDownloadableLinkUploadSample2"/>
+
+        <scrollToTopOfPage stepKey="scrollToTopOfPage1"/>
+        <actionGroup ref="AdminOnProductEditPageAssignSourceToProduct" stepKey="AdminOnProductEditPageAssignSourceToProduct1">
+            <argument name="filter_selector" value="AdminManageSourcesGridFilterControls.code"/>
+            <argument name="filter_value" value="$$createSource1.source[source_code]$$"/>
+        </actionGroup>
+        <fillField selector="input[name='sources[assigned_sources][1][quantity]']" userInput="100" stepKey="fillSourceQtyField2"/>
+        <actionGroup ref="UnassignSourceFromProductActionGroup" stepKey="unassignDefaultSourceFromProduct">
+            <argument name="sourceCode" value="{{_defaultSource.name}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminFormSaveAndCloseActionGroup" stepKey="saveAndCloseProduct"/>
+
+        <actionGroup ref="LoginToStorefrontActionGroup" stepKey="loginToStorefront">
+            <argument name="Customer" value="$$customer$$"/>
+        </actionGroup>
+
+        <amOnPage url="{{StorefrontCategoryPage.url($$simpleCategory1.custom_attributes[url_key]$$)}}" stepKey="navigateToCategory"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad5"/>
+        <click selector="{{StorefrontCategoryMainSection.specifiedProductItemInfo($$downloadableProduct1.product[name]$$)}}" stepKey="openProductPage"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad6"/>
+
+        <checkOption selector=".downloads input[id^='links']" stepKey="clickOnLinkCheckbox1"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad7"/>
+        <click selector="{{StorefrontProductPageSection.addToCartBtn}}" stepKey="addToCart"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad8"/>
+
+        <conditionalClick selector="{{StorefrontMinicartSection.showCart}}" dependentSelector="{{StorefrontMinicartSection.miniCartOpened}}" visible="false" stepKey="openMiniCart"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad9"/>
+        <doubleClick selector="{{StorefrontMinicartSection.cartItemQty}}" stepKey="doubleClickOnQty"/>
+        <pressKey selector="{{StorefrontMinicartSection.cartItemQty}}" parameterArray="[\Facebook\WebDriver\WebDriverKeys::DELETE]" stepKey="clearQty"/>
+        <fillField selector="{{StorefrontMinicartSection.cartItemQty}}" userInput="100" stepKey="fillQty"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad10"/>
+
+        <click selector=".update-cart-item" stepKey="updateQtyInMiniCart"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad11"/>
+        <click selector="{{StorefrontMinicartSection.goToCheckout}}" stepKey="goToCheckout"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder3"/>
+        <comment userInput="BIC workaround" stepKey="waitForPageLoad17"/>
+        <see selector="{{CheckoutSuccessMainSection.successTitle}}" userInput="Thank you for your purchase!" stepKey="waitForLoadSuccessPage3"/>
+        <grabTextFrom selector=".checkout-success .order-number strong" stepKey="grabOrderNumber"/>
+
+        <actionGroup ref="OpenOrderByIdActionGroup" stepKey="openOrder">
+            <argument name="orderId" value="{$grabOrderNumber}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForPageLoad20"/>
+
+        <click selector="{{AdminOrderDetailsMainActionsSection.invoice}}" stepKey="clickInvoice"/>
+        <click selector="{{AdminInvoiceMainActionsSection.submitInvoice}}" stepKey="clickSubmitInvoice"/>
+        <waitForPageLoad time="60" stepKey="waitForPageLoad21"/>
+        <scrollToTopOfPage stepKey="scrollToTopMessage"/>
+        <waitForPageLoad stepKey="waitForPageLoad22"/>
+
+        <see selector="{{AdminOrderDetailsMessagesSection.successMessage}}" userInput="The invoice has been created." stepKey="checkSuccessMessage"/>
+        <click selector="{{AdminOrderDetailsOrderViewSection.invoices}}" stepKey="clickInvoices"/>
+        <waitForPageLoad stepKey="waitForPageLoad23"/>
+        <see selector="{{AdminOrderDetailsInvoicesSection.content}}" userInput="{$grabOrderNumber}" stepKey="checkOrderId"/>
+        <see selector="{{AdminOrderDetailsInvoicesSection.content}}" userInput="John Doe" stepKey="checkUserName"/>
+        <click selector="{{AdminOrderDetailsOrderViewSection.information}}" stepKey="clickInformation"/>
+        <waitForPageLoad stepKey="waitForPageLoad24"/>
+        <see selector="{{AdminOrderDetailsInformationSection.orderStatus}}" userInput="Complete" stepKey="checkOrderStatus"/>
+
+        <amOnPage url="{{StorefrontCategoryPage.url($$simpleCategory1.custom_attributes[url_key]$$)}}" stepKey="navigateToCategoryPage2"/>
+        <see selector=".empty" userInput="We can't find products matching the selection." stepKey="seeErrorMessage1"/>
+    </test>
+</tests>

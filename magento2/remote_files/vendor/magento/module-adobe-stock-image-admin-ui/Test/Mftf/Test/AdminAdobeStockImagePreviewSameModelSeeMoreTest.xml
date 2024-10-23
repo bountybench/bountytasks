@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockImagePreviewSameModelSeeMoreTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #32] User searches for images with the same model as the currently viewed one"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/347"/>
+            <title value="User searches for images from the same model as the currently viewed one"/>
+            <description value="User sees images with the same model filtered grid"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+
+        <grabTextFrom selector="{{AdminAdobeStockSection.recordsFound}}" stepKey="countWithoutModelFilter"/>
+        <actionGroup ref="AdminAdobeStockExpandImagePreviewActionGroup" stepKey="expandImagePreview"/>
+        <waitForAjaxLoad stepKey="waitForRelatedImagesToLoad"/>
+        <executeJS function="document.querySelector('#adobe-stock-tabs').scrollIntoView()" stepKey="scrollToSeeMoreTabs"/>
+        <grabTextFrom selector="{{AdminAdobeStockImagePreviewSection.attribute('File #')}}" stepKey="getFileAttributeValue"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.moreFromThisModel}}" stepKey="clickOnTabMoreForThisModel"/>
+        <click selector="{{AdminAdobeStockImagePreviewSection.moreFromThisModelSeeMore}}" stepKey="clickOnSeeMore"/>
+        <waitForPageLoad stepKey="waitForGridReload"/>
+        <executeJS function="document.querySelector('.admin__data-grid-filters-current').scrollIntoView()" stepKey="scrollToAppliedFilters"/>
+        <actionGroup ref="AssertAdminAdobeStockFilterResultsActionGroup" stepKey="verifyAppliedFilter">
+            <argument name="resultValue" value="$getFileAttributeValue"/>
+        </actionGroup>
+        <grabTextFrom selector="{{AdminAdobeStockSection.recordsFound}}" stepKey="countWithAppliedFilter"/>
+        <assertNotEquals stepKey="checkThatResultCountChangesAfterFilterApplied">
+            <actualResult type="variable">$countWithoutModelFilter</actualResult>
+            <expectedResult type="variable">$countWithAppliedFilter</expectedResult>
+        </assertNotEquals>
+    </test>
+</tests>

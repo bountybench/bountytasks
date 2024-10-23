@@ -1,0 +1,13 @@
+/vendor/*
+/composer.lock
+
+/.buildpath
+/.cache
+/.metadata
+/.project
+/.settings
+/.vscode
+/nbproject
+/.idea
+/.gitattributes
+.DS_Store

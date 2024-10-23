@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="template" xsi:type="string">templates/edit_form</item>
+    </argument>
+    <dataSource name="pagebuilder_modal_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <dataProvider name="pagebuilder_modal_form_data_source" class="Magento\PageBuilder\Model\ContentType\DataProvider">
+            <settings>
+                <requestFieldName/>
+                <primaryFieldName/>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <modal name="modal" component="Magento_PageBuilder/js/modal/modal">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="insertFormProvider" xsi:type="string">${ $.name }.insert_form</item>
+            </item>
+        </argument>
+        <settings>
+            <options>
+                <option name="title" xsi:type="string" translate="true">Edit</option>
+            </options>
+        </settings>
+        <insertForm name="insert_form" component="Magento_PageBuilder/js/form/components/insert-form">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="appearanceIndex" xsi:type="string">appearance</item>
+                </item>
+            </argument>
+            <settings>
+                <toolbarContainer>${ $.parentName }</toolbarContainer>
+                <renderUrl path="mui/index/render_handle">
+                    <param name="buttons">1</param>
+                </renderUrl>
+            </settings>
+        </insertForm>
+    </modal>
+</container>

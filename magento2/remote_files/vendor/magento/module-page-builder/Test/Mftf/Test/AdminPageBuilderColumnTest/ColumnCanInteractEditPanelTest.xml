@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="ColumnCanInteractEditPanelTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Column"/>
+            <title value="Can close the edit panel"/>
+            <description value="A user should be able to open the edit form on an added column."/>
+            <severity value="BLOCKER"/>
+            <useCaseId value="MC-1954"/>
+            <testCaseId value="MC-2582"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-column"/>
+            <group value="pr_exclude"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <comment userInput="Comment is added to preserve the step key for backward compatibility" stepKey="dragColumnIntoStage"/>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragColumnGroupIntoStage">
+            <argument name="contentType" value="PageBuilderColumnGroupContentType"/>
+        </actionGroup>
+        <seeNumberOfElements selector="{{ColumnOnBackend.columnGroupColumns('1')}}" userInput="2" stepKey="seeElementColumn"/>
+        <actionGroup ref="openPageBuilderEditPanelByIndex" stepKey="openEditPanelForFirstColumn">
+            <argument name="contentType" value="PageBuilderColumnContentType"/>
+        </actionGroup>
+        <seeElement selector="{{EditPanelForm.editForm}}" stepKey="seeEditForm"/>
+        <waitForLoadingMaskToDisappear stepKey="waitForLoadingMask"/>
+        <waitForElementVisible time="2" selector="{{EditPanelForm.editFormClose}}" stepKey="waitForEditFormClose"/>
+        <click selector="{{EditPanelForm.editFormClose}}" stepKey="clickEditFormClose"/>
+        <waitForElementNotVisible time="2" selector="{{EditPanelForm.editForm}}" stepKey="waitClose"/>
+        <dontSeeElement selector="{{EditPanelForm.editForm}}" stepKey="dontSeeEditForm"/>
+    </test>
+</tests>

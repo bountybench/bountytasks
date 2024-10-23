@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAssignMultipleSourcesToStockTest">
+        <annotations>
+            <stories value="Assign Sources to Stocks"/>
+            <title value="Multiple Sources assigned to a Stock"/>
+            <description value="You should be able to assign multiple Sources to a Stock, via the Admin."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/910527/scenarios/1408734"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+        </annotations>
+
+        <before>
+            <createData entity="BasicMsiStock1" stepKey="createStock1"/>
+            <createData entity="FullSource1" stepKey="createSource1"/>
+            <createData entity="FullSource2" stepKey="createSource2"/>
+            <createData entity="FullSource3" stepKey="createSource3"/>
+            <createData entity="FullSource4" stepKey="createSource4"/>
+            <createData entity="FullSource5" stepKey="createSource5"/>
+            <createData entity="FullSource6" stepKey="createSource6"/>
+            <createData entity="FullSource7" stepKey="createSource7"/>
+            <createData entity="FullSource8" stepKey="createSource8"/>
+            <createData entity="FullSource9" stepKey="createSource9"/>
+            <createData entity="FullSource10" stepKey="createSource10"/>
+            <createData entity="FullSource11" stepKey="createSource11"/>
+            <createData entity="FullSource12" stepKey="createSource12"/>
+            <createData entity="FullSource13" stepKey="createSource13"/>
+            <createData entity="FullSource14" stepKey="createSource14"/>
+            <createData entity="FullSource15" stepKey="createSource15"/>
+            <createData entity="FullSource16" stepKey="createSource16"/>
+            <createData entity="FullSource17" stepKey="createSource17"/>
+            <createData entity="FullSource18" stepKey="createSource18"/>
+            <createData entity="FullSource19" stepKey="createSource19"/>
+            <createData entity="FullSource20" stepKey="createSource20"/>
+            <createData entity="FullSource21" stepKey="createSource21"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin1"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin1"/>
+        </after>
+
+        <actionGroup ref="AdminGoToStockGridFilterResultsByInputEditStock" stepKey="goToStockGridFilterResultsByInputEditStock1">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createStock1.stock[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock1">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource1.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock2">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource2.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock3">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource3.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock4">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource4.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock5">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource5.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock6">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource6.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock7">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource7.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock8">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource8.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock9">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource9.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock10">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource10.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock11">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource11.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock12">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource12.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock13">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource13.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock14">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource14.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock15">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource15.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock16">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource16.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock17">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource17.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock18">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource18.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock19">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource19.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock20">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource20.source[name]$$"/>
+        </actionGroup>
+
+        <actionGroup ref="AdminOnStockEditPageAssignSourceToStock" stepKey="onStockEditPageAssignSourceToStock21">
+            <argument name="filter_selector" value="AdminManageStockGridFilterControls.name"/>
+            <argument name="filter_value" value="$$createSource21.source[name]$$"/>
+        </actionGroup>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('0')}}" userInput="$$createSource1.source[source_code]$$" stepKey="seeSource1CodeInGrid1"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('0')}}" userInput="$$createSource1.source[name]$$" stepKey="seeSource1NameInGrid1"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('1')}}" userInput="$$createSource2.source[source_code]$$" stepKey="seeSource2CodeInGrid1"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('1')}}" userInput="$$createSource2.source[name]$$" stepKey="seeSource2NameInGrid1"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('2')}}" userInput="$$createSource3.source[source_code]$$" stepKey="seeSource3CodeInGrid1"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('2')}}" userInput="$$createSource3.source[name]$$" stepKey="seeSource3NameInGrid1"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('3')}}" userInput="$$createSource4.source[source_code]$$" stepKey="seeSource4CodeInGrid1"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('3')}}" userInput="$$createSource4.source[name]$$" stepKey="seeSource4NameInGrid1"/>
+
+        <click selector="{{AdminProductFormActionSection.saveButton}}" stepKey="clickOnSaveAndContinue"/>
+
+        <seeElement selector=".success" stepKey="seeSuccessMessage"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('0')}}" userInput="$$createSource1.source[source_code]$$" stepKey="seeSource1CodeInGrid2"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('0')}}" userInput="$$createSource1.source[name]$$" stepKey="seeSource1NameInGrid2"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('1')}}" userInput="$$createSource2.source[source_code]$$" stepKey="seeSource2CodeInGrid2"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('1')}}" userInput="$$createSource2.source[name]$$" stepKey="seeSource2NameInGrid2"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('2')}}" userInput="$$createSource3.source[source_code]$$" stepKey="seeSource3CodeInGrid2"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('2')}}" userInput="$$createSource3.source[name]$$" stepKey="seeSource3NameInGrid2"/>
+
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('3')}}" userInput="$$createSource4.source[source_code]$$" stepKey="seeSource4CodeInGrid2"/>
+        <see selector="{{AdminProductSourcesGrid.rowByIndex('3')}}" userInput="$$createSource4.source[name]$$" stepKey="seeSource4NameInGrid2"/>
+    </test>
+</tests>

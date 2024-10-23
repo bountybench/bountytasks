@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="StorefrontAddConfigurableProductWithTextSwatchToTheCartActionGroup" extends="StorefrontAddConfigurableProductToTheCartActionGroup">
+        <annotations>
+            <description>Goes to the provided Storefront URL. Selects the provided Product Option under the Product Attribute. Fills in the provided Quantity. Clicks Add to Cart. Validates that the Success Message is present.</description>
+        </annotations>
+        <waitForElementVisible selector="{{StorefrontProductInfoMainSection.swatchOptionByLabel(productOption)}}" stepKey="waitForSwatchOption" after="waitForProductFrontPageToLoad"/>
+        <click selector="{{StorefrontProductInfoMainSection.swatchOptionByLabel(productOption)}}" stepKey="clickSwatchOption" after="waitForSwatchOption"/>
+        <comment userInput="BIC workaround" stepKey="waitForOptions"/>
+        <remove keyForRemoval="selectOption1"/>
+    </actionGroup>
+</actionGroups>

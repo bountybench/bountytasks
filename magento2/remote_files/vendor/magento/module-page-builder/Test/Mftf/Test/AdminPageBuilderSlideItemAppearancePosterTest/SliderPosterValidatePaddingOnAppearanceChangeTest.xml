@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="SliderPosterValidatePaddingOnAppearanceChangeTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Slider"/>
+            <title value="Poster - Validate paddings on appearance switch"/>
+            <description value="Validate that paddings are correctly applied to the slide within the admin when switching between appearances."/>
+            <severity value="MAJOR"/>
+            <useCaseId value="MC-3799"/>
+            <testCaseId value="MC-5179"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-slider"/>
+            <group value="pagebuilder-slideItemPoster"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragSliderIntoStage">
+            <argument name="contentType" value="PageBuilderSliderContentType"/>
+        </actionGroup>
+        <actionGroup ref="openPageBuilderEditPanelSmallByIndex" stepKey="openSliderEditPanel">
+            <argument name="section" value="SlideOnBackend"/>
+        </actionGroup>
+        <!-- Fill Out Edit Panel: Appearance Poster -->
+        <comment userInput="Fill Out Edit Panel: Appearance Poster" stepKey="commentFillEditPanel"/>
+        <actionGroup ref="chooseVisualSelectOption" stepKey="enterAppearancePropertyPoster">
+            <argument name="property" value="PageBuilderAppearance_Poster"/>
+        </actionGroup>
+        <actionGroup ref="selectSlideOutPanelField" stepKey="enterOverlayAlways">
+            <argument name="property" value="PageBuilderSlideItemShowOverlay_Always"/>
+        </actionGroup>
+        <actionGroup ref="fillSlideOutPanelField" stepKey="enterOverlayColor">
+            <argument name="property" value="PageBuilderSlideItemOverlayColor_Blue_Opaque"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings"/>
+        <!-- Validate Stage Overlay and Padding -->
+        <comment userInput="Validate Stage Overlay and Padding" stepKey="commentValidateOverlayPadding"/>
+        <seeElement selector="{{SlideOnBackend.showOverlay('1', PageBuilderSlideItemShowOverlay_Always.value)}}" stepKey="seeOverlayStateStage"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeOverlayColorAndTransparencyStage">
+            <argument name="selector" value="{{SlideOnBackend.overlay('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderSlideItemOverlayColor_Blue_Opaque.value}}"/>
+            <argument name="cssProperty" value="backgroundColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seePosterPadding">
+            <argument name="selector" value="{{SlideOnBackend.posterPaddingPath('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderPaddingPropertyOverlayDefault.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleDoesNotEqualExpectedStyleActionGroup" stepKey="dontSeeCollagePadding">
+            <argument name="selector" value="{{SlideOnBackend.collagePaddingPath('1')}}"/>
+            <argument name="notExpectedProperty" value="{{PageBuilderPaddingPropertyOverlayDefault.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <!-- Change Appearance to Collage Left -->
+        <comment userInput="Change Appearance to Collage Left" stepKey="commentChangeAppearanceCollageLeft"/>
+        <actionGroup ref="openPageBuilderEditPanelSmallByIndex" stepKey="openEditMenuOnStage">
+            <argument name="section" value="SlideOnBackend"/>
+        </actionGroup>
+        <actionGroup ref="chooseVisualSelectOption" stepKey="enterAppearancePropertyCollageRight">
+            <argument name="property" value="PageBuilderAppearance_CollageRight"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings2"/>
+        <seeElement selector="{{SlideOnBackend.showOverlay('1', PageBuilderSlideItemShowOverlay_Always.value)}}" stepKey="seeOverlayStateStage2"/>
+
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeOverlayColorAndTransparencyStage2">
+            <argument name="selector" value="{{SlideOnBackend.overlay('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderSlideItemOverlayColor_Blue_Opaque.value}}"/>
+            <argument name="cssProperty" value="backgroundColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleDoesNotEqualExpectedStyleActionGroup" stepKey="dontSeeDefaultPosterPadding">
+            <argument name="selector" value="{{SlideOnBackend.posterPaddingPath('1')}}"/>
+            <argument name="notExpectedProperty" value="{{PageBuilderPaddingProperty0.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <!-- Change Appearance back to Poster -->
+        <comment userInput="Change Appearance back to Poster" stepKey="commentChangeAppearanceBackToPoster"/>
+        <actionGroup ref="openPageBuilderEditPanelSmallByIndex" stepKey="openEditMenuOnStage2">
+            <argument name="section" value="SlideOnBackend"/>
+        </actionGroup>
+        <actionGroup ref="chooseVisualSelectOption" stepKey="enterAppearancePropertyPoster2">
+            <argument name="property" value="PageBuilderAppearance_Poster"/>
+        </actionGroup>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings3"/>
+        <!-- Validate Stage Overlay and Padding after appearance change -->
+        <comment userInput="Validate Stage Overlay and Padding after appearance change" stepKey="commentValidateOverlayPadding2"/>
+        <seeElement selector="{{SlideOnBackend.showOverlay('1', PageBuilderSlideItemShowOverlay_Always.value)}}" stepKey="seeOverlayStateStage3"/>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seeOverlayColorAndTransparencyStage3">
+            <argument name="selector" value="{{SlideOnBackend.overlay('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderSlideItemOverlayColor_Blue_Opaque.value}}"/>
+            <argument name="cssProperty" value="backgroundColor"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleEqualsExpectedStyleActionGroup" stepKey="seePosterPadding2">
+            <argument name="selector" value="{{SlideOnBackend.posterPaddingPath('1')}}"/>
+            <argument name="expectedProperty" value="{{PageBuilderPaddingPropertyOverlayDefault.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+        <actionGroup ref="ValidateContentTypesStyleDoesNotEqualExpectedStyleActionGroup" stepKey="dontSeeCollagePadding2">
+            <argument name="selector" value="{{SlideOnBackend.collagePaddingPath('1')}}"/>
+            <argument name="notExpectedProperty" value="{{PageBuilderPaddingPropertyOverlayDefault.value}}"/>
+            <argument name="cssProperty" value="padding"/>
+        </actionGroup>
+    </test>
+</tests>

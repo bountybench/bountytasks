@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:DataGenerator/etc/dataProfileSchema.xsd">
+    <entity name="PageBuilderRowDefaultHeight" type="pagebuilder_row">
+        <data key="value">300</data>
+    </entity>
+    <entity name="PageBuilderRowAffordanceWidth" type="pagebuilder_row">
+        <data key="borderWidth">15</data>
+        <data key="bottom">15</data>
+        <data key="left">15</data>
+        <data key="right">15</data>
+        <data key="top">15</data>
+        <data key="value">30</data>
+    </entity>
+    <!-- Appearance -->
+    <entity name="PageBuilderRowAppearance_Contained" type="pagebuilder_row_background_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">contained</data>
+    </entity>
+    <entity name="PageBuilderRowAppearance_FullWidth" type="pagebuilder_row_background_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">full-width</data>
+        <data key="warningMessage">Full Width appearance will work only with supported layouts.</data>
+    </entity>
+    <entity name="PageBuilderRowAppearance_FullBleed" type="pagebuilder_row_background_appearance_property">
+        <data key="name">Appearance</data>
+        <data key="section">appearance_fieldset</data>
+        <data key="fieldName">appearance</data>
+        <data key="value">full-bleed</data>
+        <data key="warningMessage">Full Bleed appearance will work only with supported layouts.</data>
+    </entity>
+    <!-- Parallax Enabled -->
+    <entity name="PageBuilderRowParallax_Disabled" type="pagebuilder_row_parallax_property">
+        <data key="name">Enable Parallax Background</data>
+        <data key="section">parallax_background</data>
+        <data key="fieldName">enable_parallax</data>
+        <data key="value">0</data>
+    </entity>
+    <entity name="PageBuilderRowParallax_Enabled" type="pagebuilder_row_parallax_property">
+        <data key="name">Enable Parallax Background</data>
+        <data key="section">parallax_background</data>
+        <data key="fieldName">enable_parallax</data>
+        <data key="value">1</data>
+    </entity>
+    <!-- Parallax Speed -->
+    <entity name="PageBuilderRowParallaxSpeed_0_5" type="pagebuilder_row_parallax_speed_property">
+        <data key="name">Parallax Speed</data>
+        <data key="section">parallax_background</data>
+        <data key="fieldName">parallax_speed</data>
+        <data key="value">0.5</data>
+        <data key="notice">Enter fractional number from -1.0 to 2.0.</data>
+    </entity>
+    <entity name="PageBuilderRowParallaxSpeed_2" type="pagebuilder_row_parallax_speed_property">
+        <data key="name">Parallax Speed</data>
+        <data key="section">parallax_background</data>
+        <data key="fieldName">parallax_speed</data>
+        <data key="value">2.0</data>
+    </entity>
+</entities>

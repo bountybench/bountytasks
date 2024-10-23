@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Buttons configurations -->
+    <type name="Magento\InventoryShippingAdminUi\Ui\Component\Control\SourceSelection\AlgorithmSelectionButton">
+        <arguments>
+            <argument name="targetName" xsi:type="string">inventory_shipping_source_selection_form.inventory_shipping_source_selection_form</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Sales\Block\Adminhtml\Order\Invoice\Create\Form">
+        <plugin name="disallow_create_shipment_in_multi_source_mode" type="Magento\InventoryShippingAdminUi\Plugin\Sales\Block\Order\Invoice\Create\DisallowCreateShipmentPlugin"/>
+    </type>
+    <type name="Magento\Shipping\Controller\Adminhtml\Order\Shipment\NewAction">
+        <arguments>
+            <argument name="shipmentProvider" xsi:type="object">Magento\InventoryShippingAdminUi\Model\ShipmentProvider</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Shipping\Block\Adminhtml\Create">
+        <plugin name="back_button_url" type="Magento\InventoryShippingAdminUi\Plugin\Sales\Block\Shipment\BackButtonUrlOnNewShipmentPagePlugin"/>
+    </type>
+    <type name="Magento\InventoryShippingAdminUi\Controller\Adminhtml\SourceSelection\ProcessAlgorithm">
+        <arguments>
+            <!-- @deprecated parameter stockByWebsiteIdResolver has been deprecated and not in use now -->
+            <argument name="stockByWebsiteIdResolver" xsi:type="null"/>
+            <!-- @deprecated parameter inventoryRequestFactory has been deprecated and not in use now -->
+            <argument name="inventoryRequestFactory" xsi:type="null"/>
+        </arguments>
+    </type>
+    <type name="Magento\InventoryShippingAdminUi\Ui\DataProvider\SourceSelectionDataProvider">
+        <arguments>
+            <!-- @deprecated parameter getSourcesByStockIdSkuAndQty has been deprecated and not in use now -->
+            <argument name="getSourcesByStockIdSkuAndQty" xsi:type="null"/>
+        </arguments>
+    </type>
+    <type name="Magento\Ui\Model\Export\MetadataProvider">
+        <plugin name="setAllocatedSourceData" type="Magento\InventoryShippingAdminUi\Plugin\SetAllocatedSourceValueInExportCsv" sortOrder="1"/>
+    </type>
+</config>

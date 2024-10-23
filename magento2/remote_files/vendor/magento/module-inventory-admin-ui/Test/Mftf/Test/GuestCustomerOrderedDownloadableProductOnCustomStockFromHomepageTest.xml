@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="GuestCustomerOrderedDownloadableProductOnCustomStockFromHomepageTest">
+        <annotations>
+            <stories value="Add Order"/>
+            <title value="Create an Order with a Downloadable Product assigned to Custom Stock via the Storefront as Guest"/>
+            <description value="You should be able to create an Order with a Downloadable Product from the Storefront as Guest."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/419539/scenarios/1680148"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+        </annotations>
+
+        <before>
+            <magentoCLI stepKey="addDownloadableDomain" command="downloadable:domains:add static.magento.com example.com"/>
+            <magentoCLI stepKey="enableGuestCheckoutForDownloadable" command="config:set catalog/downloadable/disable_guest_checkout 0" />
+            <magentoCLI command="config:set {{TurnOnManageStockConfig.path}} {{TurnOnManageStockConfig.value}}" stepKey="enableStockManagement"/>
+            <createData entity="FullSource1" stepKey="createSource"/>
+            <createData entity="BasicMsiStockWithMainWebsite1" stepKey="createStock"/>
+            <createData entity="SourceStockLinked1" stepKey="linkSourceStock">
+                <requiredEntity createDataKey="createStock"/>
+                <requiredEntity createDataKey="createSource"/>
+            </createData>
+            <createData entity="SimpleSubCategory" stepKey="createCategory"/>
+            <createData entity="MsiDownloadableProduct" stepKey="downloadableProduct">
+                <requiredEntity createDataKey="createCategory"/>
+            </createData>
+            <createData entity="downloadableLink1" stepKey="addDownloadableLink">
+                <field key="is_shareable">1</field>
+                <requiredEntity createDataKey="downloadableProduct"/>
+            </createData>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <amOnPage url="{{AdminProductEditPage.url($$downloadableProduct.id$$)}}" stepKey="openProductEditPage" />
+            <actionGroup ref="AssignSourceToProductActionGroup" stepKey="assignCustomSource">
+                <argument name="sourceCode" value="$$createSource.source[source_code]$$" />
+            </actionGroup>
+            <fillField selector="{{AdminProductSourcesGrid.rowQty('1')}}" userInput="100" stepKey="fillCustomSourceQtyField"/>
+            <actionGroup ref="UnassignSourceFromProductActionGroup" stepKey="unassignDefaultSourceFromProduct">
+                <argument name="sourceCode" value="{{_defaultSource.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminFormSaveAndCloseActionGroup" stepKey="saveAndCloseProduct"/>
+        </before>
+        <after>
+            <magentoCLI stepKey="removeDownloadableDomain" command="downloadable:domains:remove static.magento.com example.com"/>
+            <magentoCLI stepKey="disableGuestCheckoutForDownloadable" command="config:set catalog/downloadable/disable_guest_checkout 1" />
+            <!-- Assign Sales Channel to Default Stock -->
+            <actionGroup ref="AssignWebsiteToStockActionGroup" stepKey="assignMainWebsiteToDefaultStock">
+                <argument name="stockName" value="{{_defaultStock.name}}"/>
+                <argument name="websiteName" value="{{_defaultWebsite.name}}"/>
+            </actionGroup>
+            <comment userInput="BIC workaround" stepKey="amOnTheStockGridPage"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockGridPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="searchDefaultStockByKeyword"/>
+            <comment userInput="BIC workaround" stepKey="clickOnEditForDefaultStock"/>
+            <comment userInput="BIC workaround" stepKey="waitForStockEditPageLoad"/>
+            <comment userInput="BIC workaround" stepKey="selectWebsiteAsSalesChannel"/>
+            <comment userInput="BIC workaround" stepKey="saveDefaultStock"/>
+
+            <actionGroup ref="DisableSourceActionGroup" stepKey="disableSource">
+                <argument name="sourceCode" value="$$createSource.source[source_code]$$"/>
+            </actionGroup>
+            <deleteData createDataKey="createCategory" stepKey="deleteCategory"/>
+            <deleteData createDataKey="createStock" stepKey="deleteStock"/>
+            <deleteData createDataKey="downloadableProduct" stepKey="deleteProduct"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin"/>
+            <actionGroup ref="CliIndexerReindexActionGroup" stepKey="reindex">
+                <argument name="indices" value=""/>
+            </actionGroup>
+        </after>
+
+        <amOnPage url="{{StorefrontProductPage.url($$downloadableProduct.custom_attributes[url_key]$$)}}" stepKey="openProductPage"/>
+        <waitForPageLoad stepKey="waitForImageLoader"/>
+        <click selector="{{StorefrontProductPageSection.addToCartBtn}}" stepKey="addToCart"/>
+        <waitForElementVisible selector="{{StorefrontProductPageSection.successMsg}}" time="30" stepKey="waitForProductAdded"/>
+
+        <!-- Place Order -->
+        <actionGroup ref="GoToCheckoutFromMinicartActionGroup" stepKey="goToCheckoutFromMinicart"/>
+
+        <fillField selector="{{CheckoutShippingSection.emailAddress}}" userInput="{{MsiCustomer1.email}}" stepKey="enterEmail"/>
+        <fillField selector="{{CheckoutPaymentSection.guestFirstName}}" userInput="{{MsiCustomer1.firstname}}" stepKey="enterFirstName"/>
+        <fillField selector="{{CheckoutPaymentSection.guestLastName}}" userInput="{{MsiCustomer1.lastname}}" stepKey="enterLastName"/>
+        <fillField selector="{{CheckoutPaymentSection.guestStreet}}" userInput="{{CustomerAddressSimple.street[0]}}" stepKey="enterStreet"/>
+        <fillField selector="{{CheckoutPaymentSection.guestCity}}" userInput="{{CustomerAddressSimple.city}}" stepKey="enterCity"/>
+        <selectOption selector="{{CheckoutPaymentSection.guestRegion}}" userInput="{{CustomerAddressSimple.state}}" stepKey="selectRegion"/>
+        <fillField selector="{{CheckoutPaymentSection.guestPostcode}}" userInput="{{CustomerAddressSimple.postcode}}" stepKey="enterPostcode"/>
+        <fillField selector="{{CheckoutPaymentSection.guestTelephone}}" userInput="{{CustomerAddressSimple.telephone}}" stepKey="enterTelephone"/>
+
+        <click selector="{{CheckoutPaymentSection.update}}" stepKey="clickUpdate"/>
+        <waitForPageLoad stepKey="waitForPageLoad"/>
+
+        <actionGroup ref="ClickPlaceOrderActionGroup" stepKey="clickPlaceOrder"/>
+        <seeElement selector="{{CheckoutSuccessMainSection.success}}" stepKey="seeOrderNumber"/>
+        <grabTextFrom selector="{{CheckoutSuccessMainSection.orderNumber}}" stepKey="grabOrderNumber"/>
+
+        <amOnPage url="{{AdminOrdersPage.url}}" stepKey="goToOrdersPage"/>
+        <waitForPageLoad time="30" stepKey="waitForOrdersPagePageLoad"/>
+
+        <conditionalClick selector="{{AdminGridFilterControls.clearAll}}" dependentSelector=".admin__data-grid-header[data-bind='afterRender: \$data.setToolbarNode'] .admin__data-grid-filters-current._show" visible="true" stepKey="clearTheFiltersIfPresent"/>
+
+        <fillField userInput="$grabOrderNumber" selector="{{OrdersGridSection.search}}" stepKey="fillCodeField"/>
+        <click selector=".data-grid-search-control-wrap button" stepKey="clickOnApplyFilters"/>
+        <waitForPageLoad time="5" stepKey="waitForFiltersApplied"/>
+
+        <see selector="{{AdminGridRow.rowOne}}" userInput="{{MsiCustomer1.firstname}}" stepKey="seeFirstName"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="{{MsiCustomer1.lastname}}" stepKey="seeLastName"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="Pending" stepKey="seePending"/>
+
+
+        <actionGroup ref="AdminOpenProductIndexPageActionGroup" stepKey="navigateToProductIndexPage"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetGrid"/>
+        <actionGroup ref="AdminGridFilterSearchResultsByInput" stepKey="goToProductGridFilterResultsByInput">
+            <argument name="selector" value="AdminProductGridFilterSection.skuFilter"/>
+            <argument name="value" value="$$downloadableProduct.product[sku]$$"/>
+        </actionGroup>
+
+        <see selector="{{AdminGridRow.rowOne}}" userInput="$100.00" stepKey="seeProductPriceInGrid"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="$$createSource.source[name]$$: 100"
+             stepKey="seeProductQuantityInGrid"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="$$createStock.stock[name]$$: 99"
+             stepKey="seeProductSalableQuantityInGrid"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="Enabled" stepKey="seeProductStatusInGrid"/>
+        <see selector="{{AdminGridRow.rowOne}}" userInput="Main Website" stepKey="seeProductWebsiteInGrid"/>
+    </test>
+</tests>

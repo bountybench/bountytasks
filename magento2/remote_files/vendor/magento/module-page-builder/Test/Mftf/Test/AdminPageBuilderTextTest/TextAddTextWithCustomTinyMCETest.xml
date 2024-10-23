@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="TextAddTextWithCustomTinyMCETest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Text"/>
+            <title value="Validate Custom WYSIWYG Inside Pagebuilder"/>
+            <description value="Custom buttons on WYSIWYG toolbar inside PageBuilder"/>
+            <severity value="CRITICAL"/>
+            <useCaseId value="MC-1412"/>
+            <testCaseId value="MC-1333"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-text"/>
+            <group value="pr_exclude"/>
+        </annotations>
+        <before>
+            <createData entity="_defaultCmsPage" stepKey="createCMSPage"/>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="CliEnableTinyMCEActionGroup" stepKey="enableTinyMCE" />
+        </before>
+        <after>
+            <deleteData createDataKey="createCMSPage" stepKey="deletePreReqCMSPage"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="NavigateToCreatedCMSPageActionGroup" stepKey="navigateToCreatedCMSPage1">
+            <argument name="CMSPage" value="$$createCMSPage$$"/>
+        </actionGroup>
+        <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+            <argument name="contentType" value="PageBuilderRowContentType"/>
+            <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+        </actionGroup>
+        <actionGroup ref="expandPageBuilderPanelMenuSection" stepKey="expandPageBuilderPanelMenuSection">
+            <argument name="contentType" value="PageBuilderTextContentType"/>
+        </actionGroup>
+        <actionGroup ref="dragContentTypeToStage" stepKey="dragButtonsOntoStage">
+            <argument name="contentType" value="PageBuilderTextContentType"/>
+        </actionGroup>
+        <actionGroup ref="clickOutsideTextInlineEditing" stepKey="closeLiveEdit"/>
+        <actionGroup ref="openPageBuilderEditPanel" stepKey="openEditMenuOnStage">
+            <argument name="contentType" value="PageBuilderTextContentType"/>
+        </actionGroup>
+        <seeElement selector="{{WYSIWYGOnPageBuilder.undo}}" stepKey="seeUndo"/>
+        <seeElement selector="{{WYSIWYGOnPageBuilder.redo}}" stepKey="seeRedo"/>
+        <seeElement selector="{{WYSIWYGOnPageBuilder.fontSize}}" stepKey="seeFontsize"/>
+        <seeElement selector="{{WYSIWYGOnPageBuilder.textColor}}" stepKey="seeTextColor"/>
+        <seeElement selector="{{WYSIWYGOnPageBuilder.backgroundColor}}" stepKey="seeBackgroundColor"/>
+
+        <!--Verify FontStyle on preview-->
+        <executeJS function="tinyMCE.get('pagebuilder_text_form_content').setContent('{{PageBuilderTextContentTypeDefault.value}}');" stepKey="executeJSFillContent"/>
+        <click selector="{{WYSIWYGOnPageBuilder.formatSelector}}" stepKey="expandFormatList"/>
+        <see userInput="Headings" stepKey="seeHeadingsStyle"/>
+        <click selector="{{TextOnStage.headingsList}}" stepKey="selectHeadingsList"/>
+        <click selector="{{TextOnStage.heading1Style}}" stepKey="selectHeading1Style"/>
+        <actionGroup ref="saveEditPanelSettings" stepKey="saveEditPanelSettings"/>
+        <seeElement selector="{{TextOnStage.emptyTextInHeading1Style}}" stepKey="seeTextInHeadingStyleOnPreview"/>
+        <grabValueFrom selector="{{TextOnStage.emptyTextInHeading1Style}}" stepKey="grabTextFromEditor"/>
+        <assertEmpty stepKey="assertTextIsEmpty">
+            <actualResult type="variable">grabTextFromEditor</actualResult>
+        </assertEmpty>
+        <actionGroup ref="exitPageBuilderFullScreen" stepKey="exitPageBuilderFullScreen"/>
+        <actionGroup ref="SaveAndContinueEditCmsPageActionGroup" stepKey="saveAndContinueEditCmsPage2"/>
+        <!--Verify FontStyle on Storeview-->
+        <amOnPage url="$$createCMSPage.identifier$$" stepKey="amOnPageTestPage2"/>
+        <waitForPageLoad stepKey="waitForPageLoad3"/>
+        <seeElement selector="{{TextOnStorefront.emptyTextInHeading1Style}}" stepKey="seeTextInHeading1StyleOnStorefrontWithEmptyContent"/>
+    </test>
+</tests>

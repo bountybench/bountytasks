@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockPageNumberTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #15] User chooses the number of images to display on the page"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/38"/>
+            <title value="User chooses the number of images to display on the page"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/943908/scenarios/3218849"/>
+            <description value="Admin should be able to chooses the number of images to display on the page"/>
+            <severity value="MAJOR"/>
+            <group value="adobe_stock_integration"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+        </before>
+        <after>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="AdminDataGridSelectPerPageActionGroup" stepKey="select64PerPage">
+            <argument name="perPage" value="{{AdobeStockCountPerPage.productCount64}}"/>
+        </actionGroup>
+        <seeInField selector="{{AdminDataGridPaginationSection.perPageDropDownValue}}" userInput="{{AdobeStockCountPerPage.productCount64}}" stepKey="seePerPageValueInDropDown"/>
+        <actionGroup ref="AssertAdminAdobeStockThumbnailsNumberActionGroup" stepKey="see64imagesOnTheSecondPage">
+            <argument name="thumbnailsNumber" value="{{AdobeStockCountPerPage.productCount64}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminDataGridSelectPerPageActionGroup" stepKey="select48PerPage">
+            <argument name="perPage" value="{{AdobeStockCountPerPage.productCount48}}"/>
+        </actionGroup>
+        <seeInField selector="{{AdminDataGridPaginationSection.perPageDropDownValue}}" userInput="{{AdobeStockCountPerPage.productCount48}}" stepKey="see48PerPageValueInDropDown"/>
+        <actionGroup ref="AssertAdminAdobeStockThumbnailsNumberActionGroup" stepKey="see48imagesOnTheSecondPage">
+            <argument name="thumbnailsNumber" value="{{AdobeStockCountPerPage.productCount48}}"/>
+        </actionGroup>
+        <!-- assert custom page size -->
+        <actionGroup ref="AdminDataGridSelectCustomPerPageActionGroup" stepKey="selectCustomPerPage">
+            <argument name="perPage" value="AdobeStockCountPerPage.productCountCustom"/>
+        </actionGroup>
+        <seeInField selector="{{AdminDataGridPaginationSection.perPageDropDownValue}}" userInput="{{AdobeStockCountPerPage.productCountCustom}}" stepKey="seePerPage"/>
+        <actionGroup ref="AssertAdminAdobeStockThumbnailsNumberActionGroup" stepKey="see100imagesOnTheSecondPage">
+            <argument name="thumbnailsNumber" value="{{AdobeStockCountPerPage.productCountCustom}}"/>
+        </actionGroup>
+    </test>
+</tests>

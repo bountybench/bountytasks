@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="switchToPageBuilderStage">
+        <arguments>
+            <argument name="sectionSelector" defaultValue="{{CmsNewPagePageContentSection.header}}" type="string"/>
+            <argument name="sectionDependentSelector" defaultValue="{{CmsNewPagePageContentSection.header}}._show" type="string"/>
+            <argument name="snapshotSelector" defaultValue="{{PageBuilderStage.snapshot}}" type="string"/>
+            <argument name="editButtonSelector" defaultValue="{{PageBuilderStage.editButtonSelector}}" type="string"/>
+            <argument name="rowIndex" defaultValue="1" type="string"/>
+        </arguments>
+        <waitForElementClickable selector="{{sectionSelector}}" stepKey="waitForSection"/>
+        <conditionalClick selector="{{sectionSelector}}" dependentSelector="{{sectionDependentSelector}}" visible="false" stepKey="expandSection"/>
+        <waitForPageLoad time="30" stepKey="waitForStageToLoad"/>
+        <waitForElementVisible time="30" selector="{{snapshotSelector}}" stepKey="waitForSnapshot"/>
+        <waitForElementVisible time="30" selector="{{editButtonSelector}}" stepKey="waitForEditButton"/>
+        <click selector="{{editButtonSelector}}" stepKey="clickEditButton"/>
+        <waitForPageLoad stepKey="waitForFullScreenAnimation"/>
+        <waitForElementNotVisible selector="{{PageBuilderStage.stageLoading}}" stepKey="waitForStageLoadingGraphicNotVisible"/>
+        <waitForElementVisible time="30" selector="{{PageBuilderStage.rootContainer(rowIndex)}}" stepKey="waitForPageBuilderRootContainer"/>
+        <comment userInput="removing deprecated element" stepKey="waitForPageBuilderRow"/>
+    </actionGroup>
+</actionGroups>

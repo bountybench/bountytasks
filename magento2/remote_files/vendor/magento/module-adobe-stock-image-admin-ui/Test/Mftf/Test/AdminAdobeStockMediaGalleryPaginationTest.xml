@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockMediaGalleryPaginationTest">
+        <annotations>
+            <features value="AdobeStockImageAdminUi"/>
+            <stories value="User chooses the number of images to display on the page"/>
+            <title value="User uses pagination to navigate through the images in Media Gallery"/>
+            <testCaseId value="https://studio.cucumber.io/projects/131313/test-plan/folders/1054245/scenarios/3963369"/>
+            <description value="Admin should be able to chooses the number of images to display on the media gallery page"/>
+            <severity value="BLOCKER"/>
+            <group value="adobe_stock_media_gallery"/>
+        </annotations>
+        <before>
+            <actionGroup ref="EnabledWYSIWYGActionGroup" stepKey="enableWYSIWYG"/>
+            <actionGroup ref="CliEnableTinyMCEActionGroup" stepKey="enableTinyMCE" />
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <comment userInput="BIC workaround" stepKey="deleteAllImages"/>
+            <actionGroup ref="AdminOpenStandaloneMediaGalleryActionGroup" stepKey="openMediaGallery"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="clearGridFilters"/>
+            <actionGroup ref="AdminMediaGalleryFolderSelectActionGroup" stepKey="selectWysiwygFolder">
+                <argument name="name" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryOpenNewFolderFormActionGroup" stepKey="openNewFolderForm"/>
+            <actionGroup ref="AdminMediaGalleryCreateNewFolderActionGroup" stepKey="createNewFolder">
+                <argument name="name" value="{{AdminMediaGalleryFolderData.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadFirstImage">
+                <argument name="image" value="ImageUpload"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadSecondImage">
+                <argument name="image" value="ImageUpload1"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadThirdImage">
+                <argument name="image" value="ImageUpload_1"/>
+            </actionGroup>
+            <actionGroup ref="AdminEnhancedMediaGalleryUploadImageActionGroup" stepKey="uploadFourthImage">
+                <argument name="image" value="ImageUpload3"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminDisableWYSIWYGActionGroup" stepKey="disableWYSIWYG"/>
+            <actionGroup ref="AdminOpenStandaloneMediaGalleryActionGroup" stepKey="openMediaGalleryToResetGrid"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+            <comment userInput="BIC workaround" stepKey="deleteAllImagesAfterTest"/>
+            <actionGroup ref="AdminExpandMediaGalleryFolderActionGroup" stepKey="expandWysiwygFolder">
+                <argument name="FolderName" value="wysiwyg"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryFolderSelectActionGroup" stepKey="selectCreatedFolder">
+                <argument name="name" value="{{AdminMediaGalleryFolderData.name}}"/>
+            </actionGroup>
+            <actionGroup ref="AdminMediaGalleryFolderDeleteActionGroup" stepKey="deleteCreatedFolder"/>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewCmsPage"/>
+        <actionGroup ref="AdminOpenMediaGalleryTinyMceActionGroup" stepKey="openMediaGalleryFromWysiwyg"/>
+        <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+
+        <!-- Assert that Admin user sees 32 images per page -->
+        <actionGroup ref="AdminAssertGridRecordsPerPageNumberActionGroup" stepKey="checkDefaultPerPageValue"/>
+        <actionGroup ref="AdminGridAssertCurrentPageNumberActionGroup" stepKey="assertCurrentPageNumber"/>
+
+        <!-- User change the per page to custom value and applies it  -->
+        <actionGroup ref="AdminDataGridSelectCustomPerPageActionGroup" stepKey="selectCustomPerPage">
+            <argument name="perPage" value="GridCountPerPageData.customCountPerPage"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridAssertCurrentPageNumberActionGroup" stepKey="assertFirstPageNumber"/>
+
+        <!-- User clicks to the next page of results -->
+        <actionGroup ref="AdminGridGoToNextPageActionGroup" stepKey="goToNextGridPage"/>
+        <actionGroup ref="AdminGridAssertCurrentPageNumberActionGroup" stepKey="assertSecondPageNumber">
+            <argument name="expectedCurrentPageNumber" value="{{GridPageNumberData.page2}}"/>
+        </actionGroup>
+
+        <!-- User change the page number to custom value -->
+        <actionGroup ref="AdminGridGoToCustomPageNumberActionGroup" stepKey="goToFourthPage">
+            <argument name="pageNumber" value="{{GridPageNumberData.page4}}"/>
+        </actionGroup>
+        <actionGroup ref="AdminGridAssertCurrentPageNumberActionGroup" stepKey="assertFourthPageNumber">
+            <argument name="expectedCurrentPageNumber" value="{{GridPageNumberData.page4}}"/>
+        </actionGroup>
+    </test>
+</tests>

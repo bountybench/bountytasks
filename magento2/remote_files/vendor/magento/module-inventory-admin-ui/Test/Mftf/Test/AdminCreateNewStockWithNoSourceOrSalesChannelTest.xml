@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminCreateNewStockWithNoSourceOrSalesChannelTest">
+        <annotations>
+            <stories value="Add Stock"/>
+            <title value="New Stock created by Admin user with no Source and Sales Channel assigned"/>
+            <description value="You should be able to create a New Stock, via the Admin, without adding a Source or Sales Channel."/>
+            <testCaseId value="https://app.hiptest.com/projects/69435/test-plan/folders/409123/scenarios/1408724"/>
+            <severity value="CRITICAL"/>
+            <group value="msi"/>
+            <group value="multi_mode"/>
+            <group value="cloud"/>
+        </annotations>
+
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin1"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logoutOfAdmin1"/>
+        </after>
+
+        <amOnPage url="{{AdminManageStockPage.url}}" stepKey="amOnTheStockListPage1"/>
+        <waitForPageLoad time="30" stepKey="waitForPageLoad1"/>
+        <click selector="{{AdminGridMainControls.add}}" stepKey="clickOnAddStock1"/>
+
+        <fillField userInput="{{BasicMsiStock1.name}}" selector="{{AdminEditStockGeneralSection.name}}" stepKey="fillStockName1"/>
+
+        <actionGroup ref="AdminFormSaveAndCloseActionGroup" stepKey="saveAndClose1"/>
+
+        <actionGroup ref="SearchAdminDataGridByKeywordActionGroup" stepKey="searchByKeyword1">
+            <argument name="keyword" value="BasicMsiStock1.name"/>
+        </actionGroup>
+
+        <see userInput="{{BasicMsiStock1.name}}" selector="{{AdminGridRow.rowOne}}" stepKey="seeCodeInRow1"/>
+    </test>
+</tests>

@@ -1,0 +1,54 @@
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+
+<div id="pagebuilder-panel-wrapper" class="pagebuilder-panel-wrapper" visible="!pageBuilder.isSnapshot()"
+     css="visible: isVisible(), 'sticky-top': isStickyTop, 'sticky-bottom': isStickyBottom, 'transition-out': pageBuilder.isSnapshotTransition"
+     afterRender="afterRender">
+    <div id="pagebuilder-panel" class="pagebuilder-panel">
+        <div class="search-content-types">
+            <label for="search-content-types-input"></label>
+            <a href="" class="close" click="clearSearch" attr="title: searchTitle" visible="searching"></a>
+            <input type="text" id="search-content-types-input" name="search" ko-value="searchValue" event="keyup: search" attr="placeholder: searchPlaceholder" autocomplete="off"/>
+        </div>
+        <ul id="search-results" visible="searching() && searchResults().length" each="searchResults">
+            <li class="pagebuilder-draggable-content-type" attr="id: 'content-type-' + identifier()" data-bind="draggable: Object.assign($parent.getDraggableOptions(), getDraggableOptions())">
+                <a>
+                    <span>
+                        <i attr="class: icon"></i>
+                    </span>
+                    <span translate="label"></span>
+                </a>
+            </li>
+        </ul>
+        <div class="search-results-empty" visible="searching() && !searchResults().length">
+            <div translate="searchNoResult"></div>
+        </div>
+        <ul id="pagebuilder-panel-menu-sections" class="pagebuilder-panel-menu-sections" visible="!searching()" each="menuSections">
+            <li attr="id: 'menu-section-' + id()" css="active: active">
+                <div class="menu-section-title" event="click: toggle">
+                    <h4 translate="label"></h4>
+                </div>
+                <div class="pagebuilder-panel-menu-sections-child" css="hidden: hidden">
+                    <div>
+                        <ul class="pagebuilder-panel-menu-sections-content-types" each="contentTypes">
+                            <li class="pagebuilder-draggable-content-type"
+                                data-bind="draggable: Object.assign($parents[1].getDraggableOptions($element), getDraggableOptions($element))"
+                                attr="id: 'content-type-' + identifier()">
+                                <a>
+                                    <span class="content-type-icon">
+                                        <i attr="class: icon"></i>
+                                    </span>
+                                    <span translate="label"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

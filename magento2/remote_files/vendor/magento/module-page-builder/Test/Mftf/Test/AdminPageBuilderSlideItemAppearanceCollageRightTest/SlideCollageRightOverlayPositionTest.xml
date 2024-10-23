@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="SlideCollageRightOverlayPositionTest" extends="SlideCollageLeftOverlayPositionTest">
+        <annotations>
+            <features value="PageBuilder"/>
+            <stories value="Slider"/>
+            <title value="Collage Right - Check collage right overlay position is correct"/>
+            <description value="Check collage right overlay is correct"/>
+            <severity value="BLOCKER"/>
+            <useCaseId value="MC-4116"/>
+            <testCaseId value="MC-4974"/>
+            <group value="pagebuilder"/>
+            <group value="pagebuilder-slide"/>
+            <group value="pagebuilder-slideItemCollageRight"/>
+            <group value="cloud"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="navigateToAPageWithPageBuilder" stepKey="navigateToAPageWithPageBuilder"/>
+            <actionGroup ref="switchToPageBuilderStage" stepKey="switchToPageBuilderStage"/>
+            <actionGroup ref="dragContentTypeToStage" stepKey="dragRowToRootContainer">
+                <argument name="contentType" value="PageBuilderRowContentType"/>
+                <argument name="containerTargetType" value="PageBuilderRootContainerContentType"/>
+            </actionGroup>
+        </before>
+        <after>
+            <actionGroup ref="AdminLogoutActionGroup" stepKey="logout"/>
+        </after>
+        <actionGroup ref="chooseVisualSelectOption" stepKey="enterAppearanceProperty">
+            <argument name="property" value="PageBuilderAppearance_CollageRight"/>
+        </actionGroup>
+        <actionGroup ref="validateOverlayPositionCollageRight" stepKey="validateOverlayPositionStage">
+            <argument name="page" value="SlideOnBackend"/>
+            <argument name="padding" value="PageBuilderPaddingProperty0"/>
+        </actionGroup>
+        <actionGroup ref="validateOverlayPositionCollageRight" stepKey="validateOverlayPositionStageAfterSave">
+            <argument name="page" value="SlideOnBackend"/>
+            <argument name="padding" value="PageBuilderPaddingProperty0"/>
+        </actionGroup>
+        <actionGroup ref="validateOverlayPositionCollageRight" stepKey="validateOverlayPositionStorefront">
+            <argument name="page" value="SlideOnFrontend"/>
+            <argument name="padding" value="PageBuilderPaddingProperty0"/>
+        </actionGroup>
+    </test>
+</tests>

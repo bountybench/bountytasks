@@ -1,0 +1,26 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/**
+ * Wrapper for product sections to include title
+ *
+ * @var Template $block
+ * @var Escaper $escaper
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+$childHtml = $block->getChildHtml();
+$sectionId = $block->getSectionId();
+$sectionIdAttribute = $sectionId ? ' id="' . $escaper->escapeHtmlAttr($sectionId) . '"' : '';
+?>
+<?php if (trim($childHtml) !== ""): ?>
+    <div class="product-full-width-section"<?= /* @noEscape */ $sectionIdAttribute ?>>
+        <h2 class="product-section-title"><?= $escaper->escapeHtml($block->getTitle()); ?></h2>
+        <?= $block->getChildHtml(); ?>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,47 @@
+{
+    "name": "magento/module-page-builder",
+    "description": "Page Builder module",
+    "type": "magento2-module",
+    "license": [
+        "proprietary"
+    ],
+    "version": "2.2.5",
+    "require": {
+        "magento/framework": "*",
+        "magento/module-eav": "*",
+        "magento/module-store": "*",
+        "magento/module-backend": "*",
+        "magento/module-cms": "*",
+        "magento/module-catalog": "*",
+        "magento/module-catalog-inventory": "*",
+        "magento/module-config": "*",
+        "magento/module-ui": "*",
+        "magento/module-variable": "*",
+        "magento/module-widget": "*",
+        "magento/module-catalog-widget": "*",
+        "magento/module-rule": "*",
+        "magento/module-directory": "*",
+        "magento/module-email": "*",
+        "magento/module-theme": "*",
+        "magento/module-wishlist": "*",
+        "magento/module-require-js": "*",
+        "magento/module-media-storage": "*",
+        "php": "~8.1.0||~8.2.0||~8.3.0",
+        "phpgt/dom": "^4.1"
+    },
+    "suggest": {
+        "magento/module-review": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Magento\\PageBuilder\\": ""
+        }
+    },
+    "conflict": {
+        "gene/bluefoot": "*"
+    }
+}
+

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<actionGroups xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/actionGroupSchema.xsd">
+    <actionGroup name="duplicateContentType">
+        <arguments>
+            <argument name="contentType"/>
+            <argument name="targetIndex" defaultValue="1" type="string"/>
+            <argument name="contentTypeXCoordinate" defaultValue="null" type="string"/>
+            <argument name="contentTypeYCoordinate" defaultValue="null" type="string"/>
+        </arguments>
+        <moveMouseOver selector="{{PageBuilderPanel.searchPanel}}" stepKey="moveMouseToSearchPanel"/>
+        <waitForElement selector="{{PageBuilderStage.contentTypeTotalInStage(contentType.role)}}" stepKey="waitForAllContentTypes"/>
+        <executeJS function="return document.querySelectorAll('{{PageBuilderStage.contentTypeTotalInStage(contentType.role)}}').length+1" stepKey="expectedContentTypeCount"/>
+        <waitForElementVisible selector="{{PageBuilderStage.contentTypeInStageByIndex(contentType.role, targetIndex)}}" stepKey="waitForContentTypeInStageVisible"/>
+        <executeJS function="return ['row', 'column', 'column-group'].include('{{contentType.role}}') ? '//div[contains(@class, &quot;pagebuilder-display-label&quot;) and contains(.,&quot;'+'{{contentType.name}}'.toUpperCase()+'&quot;)]' : ['tabs'].include('{{contentType.role}}') ? '//ul[@data-element=&quot;navigation&quot;]' : '';" stepKey="contentTypeLabelSelector" />
+        <executeJS function="return ['row'].include('{{contentType.role}}') ? '(//div[contains(@class, &quot;pagebuilder-content-type-affordance&quot;) and contains(concat(&quot; &quot;, @class, &quot; &quot;), &quot; pagebuilder-affordance-{{contentType.role}} &quot;)])[{{targetIndex}}]' : '(//div[contains(@class, &quot;pagebuilder-content-type&quot;) and contains(concat(&quot; &quot;, @class, &quot; &quot;), &quot; pagebuilder-{{contentType.role}} &quot;)])[{{targetIndex}}]';" stepKey="contentTypeByIndexSelector" />
+        <moveMouseOver selector="{$contentTypeByIndexSelector}{$contentTypeLabelSelector}" x="{{contentTypeXCoordinate}}" y="{{contentTypeYCoordinate}}" stepKey="onMouseOverContentTypeStage"/>
+        <waitForElementVisible selector="{{PageBuilderContentTypeOptionsMenu.contentTypeOptionsMenuByIndex(contentType.role, targetIndex)}}" stepKey="waitForOptionsMenu"/>
+        <waitForElementVisible selector="{{PageBuilderContentTypeOptionsMenu.contentTypeDuplicate(contentType.role, targetIndex)}}" stepKey="waitForDuplicate"/>
+        <click selector="{{PageBuilderContentTypeOptionsMenu.contentTypeDuplicate(contentType.role, targetIndex)}}" stepKey="clickDuplicateContentType"/>
+        <waitForPageLoad time="30" stepKey="waitForAnimation"/>
+        <executeJS function="return document.querySelectorAll('{{PageBuilderStage.contentTypeTotalInStage(contentType.role)}}').length" stepKey="resultingContentTypeCount"/>
+        <assertEquals stepKey="assertContentTypeCount">
+            <actualResult type="variable">$resultingContentTypeCount</actualResult>
+            <expectedResult type="variable">$expectedContentTypeCount</expectedResult>
+        </assertEquals>
+    </actionGroup>
+</actionGroups>

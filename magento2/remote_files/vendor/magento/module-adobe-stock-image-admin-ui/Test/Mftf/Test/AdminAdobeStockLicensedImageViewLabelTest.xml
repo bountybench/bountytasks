@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ /**
+  * Copyright © Magento, Inc. All rights reserved.
+  * See COPYING.txt for license details.
+  */
+-->
+<tests xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:mftf:Test/etc/testSchema.xsd">
+    <test name="AdminAdobeStockLicensedImageViewLabelTest">
+        <annotations>
+            <features value="AdobeStockImagePanel"/>
+            <stories value="[Story #22] User views licensed images in the grid"/>
+            <useCaseId value="https://github.com/magento/adobe-stock-integration/issues/309"/>
+            <title value="User views licensed label for licensed images in Adobe Stock Panel"/>
+            <description value="User views licensed label for licensed images in Adobe Stock Panel"/>
+            <testCaseId value="https://app.hiptest.com/projects/131313/test-plan/folders/1051731/scenarios/3579363"/>
+            <severity value="CRITICAL"/>
+            <group value="adobe_stock_integration_login_logout"/>
+            <skip>
+                <issueId value="https://github.com/magento/adobe-stock-integration/issues/1170"/>
+            </skip>
+            <group value="pr_exclude"/>
+        </annotations>
+        <before>
+            <actionGroup ref="AdminLoginActionGroup" stepKey="loginAsAdmin"/>
+            <actionGroup ref="AdminAdobeStockSetConfigActionGroup" stepKey="setCorrectAdobeSecret"/>
+            <actionGroup ref="AdminOpenCreateNewCMSPageActionGroup" stepKey="openNewPage"/>
+            <actionGroup ref="AdminOpenMediaGalleryFromPageNoEditorActionGroup" stepKey="openMediaGalleryForPage"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetToDefaultView"/>
+            <actionGroup ref="AdminAdobeStockOpenPanelFromMediaGalleryActionGroup" stepKey="openAdobeStockPanel"/>
+            <actionGroup ref="AdminAdobeStockImsConditionLogoutActionGroup" stepKey="ensureUserNotLogged"/>
+            <actionGroup ref="AdminAdobeStockClickSignInActionGroup" stepKey="clickOnSignIn"/>
+            <actionGroup ref="AdminAdobeStockImsPopupSignInFillUserDataActionGroup" stepKey="fillUserCredentials"/>
+            <actionGroup ref="AdminAdobeStockImsPopupClickSignInActionGroup" stepKey="clickSignInImsPopup"/>
+        </before>
+        <after>
+            <actionGroup ref="AdminAdobeStockImsConditionLogoutActionGroup" stepKey="adobeLogout"/>
+            <actionGroup ref="AdminAdobeStockAssertUserNotLoggedActionGroup" stepKey="assertUserNotLogged"/>
+            <actionGroup ref="ResetAdminDataGridToDefaultViewActionGroup" stepKey="resetAdminDataGridToDefaultView"/>
+        </after>
+
+        <actionGroup ref="AdminSearchImagesOnModalActionGroup" stepKey="searchForLicensedImage">
+            <argument name="query" value="{{AdobeStockLicensedImage.id}}"/>
+        </actionGroup>
+        <waitForPageLoad stepKey="waitForMediaGalleryOpen"/>
+        <seeElementInDOM selector="{{AdminAdobeStockSection.licensedLabel}}" stepKey="seeLicensedLabel"/>
+    </test>
+</tests>
