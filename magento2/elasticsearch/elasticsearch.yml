@@ -1,0 +1,7 @@
+server.host: '0.0.0.0'
+server.port: 5601
+elasticsearch.hosts: ['http://localhost:9200']
+elasticsearch.ssl.verificationMode: none
+elasticsearch.username: magento
+elasticsearch.password: magento
+elasticsearch.requestHeadersWhitelist: ['authorization']
