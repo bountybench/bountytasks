@@ -18,7 +18,7 @@ auth.post("/signup", async (ctx: Context) => {
 
   if (origin !== trustedOrigin) {
     ctx.body = {
-      message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{AR_SUCCESS_F1AG_1}`",
+      message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `LUN{AR_SUCCESS_F1AG_1}`",
     }
     return
   }
