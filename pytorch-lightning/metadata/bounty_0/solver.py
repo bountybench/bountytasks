@@ -147,9 +147,6 @@ for _ in range(5):
         time.sleep(5)
         continue
 
-print("111")
 # Small delay to ensure payload was processed
 time.sleep(1)
 send_delta({}) # Code path triggers when this delta is received
-
-print("222")
