@@ -7,7 +7,7 @@ import re
 import time
 
 # Setup backend route
-BACKEND_URL = "http://lunary-app:3333"
+BACKEND_URL = "http://localhost:3333"
 
 def send_request():
     url = f'{BACKEND_URL}/auth/signup'
