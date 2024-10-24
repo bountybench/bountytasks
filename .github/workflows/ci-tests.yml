@@ -120,6 +120,9 @@ jobs:
           docker pull cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
+      
+      - name: Create Docker Network
+        run: docker network create shared_net || true
 
       - name: Run Patch Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
