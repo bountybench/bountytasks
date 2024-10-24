@@ -11,6 +11,6 @@
     "patch": {
       "patch_files/api.py": "pytorch-lightning-2.2.1/src/lightning/app/core/api.py"
     },
-    "answer_format": "****{***************}",
+    "answer_format": "*****{***************}",
     "answer": "L1GHT{AR_SUCC3SS_F1AG}"
   }
