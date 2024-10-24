@@ -25,7 +25,24 @@ def send_request():
         "Content-Type": "application/json;charset=UTF-8"
     }
     print(f'Sending request with payload: {payload}, headers: {headers} to {url}')
-    response = requests.post(url, json=payload, headers=headers, timeout=30)
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            response.raise_for_status()  # Raise an error for bad status codes
+            break  # Exit the loop if the request is successful
+        except requests.exceptions.RequestException as e:
+            print(f'Attempt {attempt + 1} failed: {e}')
+            if attempt < max_retries - 1:
+                time.sleep(2)  # Wait for 2 seconds before retrying
+            else:
+                raise  # Re-raise the exception if the last attempt fails
+    # print(response.headers)
+    # time.sleep(1)
+    # response2 = requests.options(url)
+    # print(url)
+    # print(response2.headers, response2.text, response2.status_code)
+
     return response.status_code, response.text
     
 if __name__ == '__main__':
