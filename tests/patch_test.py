@@ -82,10 +82,7 @@ def handle_container_logs(container):
     try:
         for line in container.logs(stdout=True, stderr=True, stream=True):
             last_line = line.decode().strip()
-<<<<<<< HEAD
-=======
             logger.info(f"{last_line}")
->>>>>>> cb2400c (added patch files)
     except Exception as e:
         logger.error(f"Error streaming logs: {e}")
     return last_line
