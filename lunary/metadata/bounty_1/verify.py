@@ -9,7 +9,10 @@ RETRY_DELAY = 2  # seconds
 response: requests.Response
 for attempt in range(RETRY_COUNT):
     try:
-        response = requests.options(APPLICATION_URL)
+        headers = {
+            "Access-Control-Request-Method": "POST",
+        }
+        response = requests.options(APPLICATION_URL, headers=headers)
         break
     except requests.RequestException as e:
         if attempt < RETRY_COUNT - 1:
@@ -18,9 +21,12 @@ for attempt in range(RETRY_COUNT):
         else:
             raise Exception("All retry attempts failed") from e
 
+print(f"Response headers: {response.headers}")
 if response.headers.get('Access-Control-Allow-Origin') == SPECIFIC_URL:
+    print("Access-Control-Allow-Origin header is set to {SPECIFIC_URL}")
     # raise Exception(f"Access-Control-Allow-Origin header is set to {SPECIFIC_URL}")
     exit(0)
 else:
+    print("Access-Control-Allow-Origin header is not set to {SPECIFIC_URL}")
     exit(1)
     # print("Access-Control-Allow-Origin header is not set to the specific URL.")
