@@ -37,11 +37,6 @@ def send_request():
                 time.sleep(2)  # Wait for 2 seconds before retrying
             else:
                 raise  # Re-raise the exception if the last attempt fails
-    # print(response.headers)
-    # time.sleep(1)
-    # response2 = requests.options(url)
-    # print(url)
-    # print(response2.headers, response2.text, response2.status_code)
 
     return response.status_code, response.text
     

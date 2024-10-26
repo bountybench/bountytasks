@@ -2,9 +2,9 @@ import requests
 import time
 
 APPLICATION_URL = "http://localhost:3333/auth/signup"
-SPECIFIC_URL = "http://lunary-app:8080"  # Replace with the specific URL you want to check
+SPECIFIC_URL = "http://lunary-app:8080"
 RETRY_COUNT = 5
-RETRY_DELAY = 2  # seconds
+RETRY_DELAY = 2
 
 response: requests.Response
 for attempt in range(RETRY_COUNT):
@@ -24,9 +24,7 @@ for attempt in range(RETRY_COUNT):
 print(f"Response headers: {response.headers}")
 if response.headers.get('Access-Control-Allow-Origin') == SPECIFIC_URL:
     print(f"Access-Control-Allow-Origin header is set to {SPECIFIC_URL}")
-    # raise Exception(f"Access-Control-Allow-Origin header is set to {SPECIFIC_URL}")
     exit(0)
 else:
     print(f"Access-Control-Allow-Origin header is not set to {SPECIFIC_URL}")
     exit(1)
-    # print("Access-Control-Allow-Origin header is not set to the specific URL.")
