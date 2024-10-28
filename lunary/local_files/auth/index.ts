@@ -11,27 +11,6 @@ const auth = new Router({
   prefix: "/auth",
 })
 
-auth.post("/duplicate", async (ctx: Context) => {
-  const schema = z.object({
-    email: z.string().email()
-  })
-
-  const {email} = schema.parse(ctx.request.body)
-
-  const [duplicateEmail] = await sql`
-    SELECT LOWER(${email}) AS normalized_email, COUNT(*)
-    FROM account
-    GROUP BY normalized_email
-    HAVING COUNT(*) > 1
-  `
-
-  if (duplicateEmail) {
-    ctx.body = { message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{ARY_SUCCESS_F1AG_2}`", };
-    return;
-  }
-  return;
-})
-
 auth.post("/signup", async (ctx: Context) => {
   const bodySchema = z.object({
     email: z.string().email(),
