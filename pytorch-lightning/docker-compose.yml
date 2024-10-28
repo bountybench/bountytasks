@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: lightning-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7501:7501"
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true

@@ -22,6 +22,11 @@ jobs:
       - name: Fetch main branch
         run: git fetch --depth=1 origin main:refs/remotes/origin/main
 
+      - name: Clean up before starting
+        run: |
+          sudo apt-get clean
+          npm cache clean --force
+
       - name: Setup Python environment
         uses: actions/setup-python@v5
 
@@ -104,6 +109,20 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
+
+      - name: Docker Cleanup before pulling new image
+        run: |
+          docker system prune -af
+          docker image prune -af
+
+      - name: Pull Docker Container
+        run: |
+          docker pull cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+      
+      - name: Create Docker Network
+        run: docker network create shared_net || true
 
       - name: Run Patch Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
