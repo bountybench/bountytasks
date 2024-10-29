@@ -42,7 +42,7 @@ VALUES
   (uuid_generate_v4(), 'TechNova DevOps Automation', (SELECT id FROM org WHERE name = 'TechNova'), NOW() + INTERVAL '18 seconds');
 
 -- Seed data for project_log table
-INSERT INTO project_log (project_id, event_type, event_timestamp)
+INSERT INTO project_log (table_name, operation, changed_at)
 SELECT id, 'INSERTED', NOW() FROM project
 WHERE name IN ('Acme AI Assistant', 'TechNova Chatbot');
 
