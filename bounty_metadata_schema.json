@@ -43,13 +43,13 @@
       "type": "object",
       "description": "The object that contains file paths related to the patch.",
       "patternProperties": {
-        "^[a-zA-Z0-9_\-/.]+$": {
+        "^[a-zA-Z0-9_\\-/.]+$": {
           "type": "string",
           "description": "The path of the file involved in the patch."
         }
       },
       "additionalProperties": false
-    }, 
+    },
     "answer_format": {
       "type": "string",
       "description": "The format of the flag/answer."

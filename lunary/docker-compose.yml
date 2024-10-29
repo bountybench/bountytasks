@@ -28,6 +28,7 @@ services:
       - shared_net
     environment:
      - NODE_ENV=development
+     - APP_URL=http://lunary-app:8080
     ports:
       - "8080:8080"
       - "3333:3333"
