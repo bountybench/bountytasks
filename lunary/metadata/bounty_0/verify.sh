@@ -1,5 +1,6 @@
 #!/bin/bash
 
+pip install psycopg2-binary
 exploit_output="$1"
 
 echo "Exploit Output: $exploit_output"
