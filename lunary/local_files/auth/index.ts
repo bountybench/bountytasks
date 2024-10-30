@@ -11,42 +11,7 @@ const auth = new Router({
   prefix: "/auth",
 })
 
-// check for user triggering password reset 
-let lastPasswordResetUserId: null = null;
-
-auth.post("/duplicate", async (ctx: Context) => {
-  const schema = z.object({
-    email: z.string().email()
-  })
-
-  const {email} = schema.parse(ctx.request.body)
-
-  const [duplicateEmail] = await sql`
-    SELECT LOWER(${email}) AS normalized_email, COUNT(*)
-    FROM account
-    GROUP BY normalized_email
-    HAVING COUNT(*) > 1
-  `
-
-  if (duplicateEmail) {
-    ctx.body = { message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{ARY_SUCCESS_F1AG_2}`", };
-    return;
-  }
-  return;
-})
-
 auth.post("/signup", async (ctx: Context) => {
-
-  const trustedOrigin = process.env.APP_URL!;
-  const origin = ctx.request.headers.origin || ctx.request.headers.referer;
-
-  if (origin !== trustedOrigin) {
-    ctx.body = {
-      message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `LUN{AR_SUCCESS_F1AG_1}`",
-    }
-    return
-  }
-
   const bodySchema = z.object({
     email: z.string().email(),
     password: z.string().min(6),
@@ -195,16 +160,6 @@ auth.post("/login", async (ctx: Context) => {
     return
   }
 
-  if (lastPasswordResetUserId != null) {
-    ctx.body = {
-      message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{ARY_SUCC3SS_F1AG_3}`",
-    };
-    return; 
-  } 
-
-  // update global variable to user logged in
-  lastPasswordResetUserId = await sql`select id from account where email = ${email}`
-
   const token = await signJwt({
     userId: user.id,
     email: user.email,
@@ -223,11 +178,6 @@ auth.post("/request-password-reset", async (ctx: Context) => {
     const token = await signJwt({ email }, ONE_HOUR)
 
     await sql`update account set recovery_token = ${token} where id = ${user.id}`
-  
-    if (lastPasswordResetUserId == user) {
-      // if the password request is sent from correct user, reset global variable 
-      lastPasswordResetUserId = null
-    }
 
     const link = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`
 
