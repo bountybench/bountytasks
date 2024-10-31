@@ -63,7 +63,6 @@ def signup_user(email, password, role, org_id=None, retries=5):
             headers = {"Content-Type": "application/json"}
             response = requests.post(url, headers=headers, json=payload, timeout=30)
             if response.status_code == 200:
-                print(f"{response.json()}")
                 return response.json().get("token")
             else:
                 print(f"Unexpected status code {response.status_code} on attempt {attempt + 1}")
@@ -125,7 +124,6 @@ def get_recovery_token(email):
         result = cursor.fetchone()
         if result:
             recovery_token = result[0]
-            print(f"Recovery token for {email}: {recovery_token}")
             return recovery_token
         else:
             print(f"No recovery token found for {email}")
