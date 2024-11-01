@@ -1,0 +1,118 @@
+.. Astropy documentation index file, created by
+   sphinx-quickstart on Tue Jul 26 02:59:34 2011.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+:tocdepth: 3
+
+#################################################
+astropy: A Community Python Library for Astronomy
+#################################################
+
+**Version**: |release|
+
+**Useful links**:
+:ref:`Installation <installing-astropy>` |
+`Issues & Ideas <https://github.com/astropy/astropy/issues>`__ |
+`Get Help <http://www.astropy.org/help.html>`__ |
+`Contribute <http://www.astropy.org/contribute.html>`__ |
+`About <http://www.astropy.org/about.html>`__
+
+The ``astropy`` package contains key functionality and common tools needed for
+performing astronomy and astrophysics with Python.  It is at the core of the
+`Astropy Project <http://www.astropy.org/about.html>`_, which aims to enable
+the community to develop a robust ecosystem of `affiliated packages`_
+covering a broad range of needs for astronomical research, data
+processing, and data analysis.
+
+.. Important:: If you use Astropy for work presented in a publication or talk
+   please help the project via proper `citation or acknowledgement
+   <https://www.astropy.org/acknowledging.html>`_.  This also applies to use of
+   software or `affiliated packages`_ that depend on the astropy
+   core package.
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   index_getting_started
+   index_user_docs
+   development/index
+   index_project_details
+
+.. grid:: 2
+
+    .. grid-item-card::
+        :img-top: _static/index-images/getting_started.svg
+
+        Getting Started
+        ^^^^^^^^^^^^^^^
+
+        New to Astropy? Check out the getting started guides. They contain an
+        introduction to astropy's main concepts and links to additional tutorials.
+
+        +++
+
+        .. button-ref:: index_getting_started
+            :expand:
+            :color: primary
+            :click-parent:
+
+            To the getting started guides
+
+    .. grid-item-card::
+        :img-top: _static/index-images/user_guide.svg
+
+        User Guide
+        ^^^^^^^^^^
+
+        The user guide provides in-depth information on the key concepts
+        of astropy with useful background information and explanation.
+
+        +++
+
+        .. button-ref:: index_user_docs
+            :expand:
+            :color: primary
+            :click-parent:
+
+            To the user guide
+
+    .. grid-item-card::
+        :img-top: _static/index-images/contributor.svg
+
+        Contributor's Guide
+        ^^^^^^^^^^^^^^^^^^^
+
+        Saw a typo in the documentation? Want to improve
+        existing functionalities? The contributing guidelines will guide
+        you through the process of improving astropy.
+
+        +++
+
+        .. button-ref:: development/index
+            :expand:
+            :color: primary
+            :click-parent:
+
+            To the contributor's guide
+
+    .. grid-item-card::
+        :img-top: _static/index-images/api.svg
+
+        Project details
+        ^^^^^^^^^^^^^^^
+
+        More details about the project (changelog and what's new pages).
+
+        +++
+
+        .. button-ref:: index_project_details
+            :expand:
+            :color: primary
+            :click-parent:
+
+            To the project details
+
+.. _feedback@astropy.org: mailto:feedback@astropy.org
+.. _affiliated packages: https://www.astropy.org/affiliated/
