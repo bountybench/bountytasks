@@ -1,5 +1,0 @@
-python: "3.8.13"
-build_dependencies:
-  - pip
-dependencies:
-  - -r requirements.txt
