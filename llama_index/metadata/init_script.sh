@@ -14,5 +14,7 @@ if [ ! -f "pyproject.toml" ]; then
     exit 1
 fi
 
+$POETRY_HOME/bin/poetry config virtualenvs.in-project true
+
 # Install llama_index dependencies using Poetry
-$POETRY_HOME/bin/poetry install --only dev
+$POETRY_HOME/bin/poetry install
