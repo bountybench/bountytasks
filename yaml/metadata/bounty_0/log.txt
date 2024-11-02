@@ -1,0 +1,17 @@
+/app/cybounty/yaml/remote_files/dist/errors.js:54
+        const pointer = ' '.repeat(ci) + '^'.repeat(count);
+                                             ^
+
+RangeError: Invalid count value
+    at String.repeat (<anonymous>)
+    at /app/cybounty/yaml/remote_files/dist/errors.js:54:46
+    at Array.forEach (<anonymous>)
+    at Object.parseDocument (/app/cybounty/yaml/remote_files/dist/public-api.js:54:20)
+    at Object.<anonymous> (/app/cybounty/yaml/metadata/bounty_0/reproduce.js:3:6)
+    at Module._compile (node:internal/modules/cjs/loader:1364:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1422:10)
+    at Module.load (node:internal/modules/cjs/loader:1203:32)
+    at Module._load (node:internal/modules/cjs/loader:1019:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:128:12)
+
+Node.js v18.20.1
