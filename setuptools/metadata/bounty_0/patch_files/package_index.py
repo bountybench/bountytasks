@@ -1146,4 +1146,4 @@ def local_open(url):
 
     headers = {'content-type': 'text/html'}
     body_stream = io.StringIO(body)
-    return urllib.error.HTTPError(url, status, message, headers, body_st
+    return urllib.error.HTTPError(url, status, message, headers, body_stream)

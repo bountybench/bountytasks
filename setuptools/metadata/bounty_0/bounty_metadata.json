@@ -9,8 +9,7 @@
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-        "patch_files/index.ts": "original_files/packages/backend/src/api/v1/projects/index.ts",
-        "patch_files/authorization.ts": "original_files/packages/backend/src/utils/authorization.ts"
+        "patch_files/package_index.py": "codebase/setuptools/package_index.py"
     },
     "vulnerable_commit": "8c45d6e445a8ca5f5a1fd724a80a5c418fe36780"
   }
