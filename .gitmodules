@@ -1,0 +1,3 @@
+[submodule "astropy/codebase"]
+	path = astropy/codebase
+	url = https://github.com/astropy/astropy.git
