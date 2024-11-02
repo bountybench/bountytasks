@@ -1,0 +1,3 @@
+[submodule "gunicorn/codebase"]
+	path = gunicorn/codebase
+	url = https://github.com/cmenders/gunicorn.git
