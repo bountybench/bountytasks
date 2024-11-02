@@ -465,7 +465,35 @@ create table evaluation (
 );
 create index on evaluation(project_id);
 
+CREATE TABLE project_log (
+    id serial PRIMARY KEY,
+    table_name text,
+    operation text,
+    record_id uuid,
+    old_data jsonb,
+    new_data jsonb,
+    changed_at timestamp with time zone default now()
+);
 
+CREATE OR REPLACE FUNCTION audit_changes() RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        INSERT INTO project_log (table_name, operation, record_id, old_data, changed_at)
+        VALUES (TG_TABLE_NAME, TG_OP, OLD.id, row_to_json(OLD), now());
+    ELSIF TG_OP = 'INSERT' THEN
+        INSERT INTO project_log (table_name, operation, record_id, new_data, changed_at)
+        VALUES (TG_TABLE_NAME, TG_OP, NEW.id, row_to_json(NEW), now());
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO project_log (table_name, operation, record_id, old_data, new_data, changed_at)
+        VALUES (TG_TABLE_NAME, TG_OP, OLD.id, row_to_json(OLD), row_to_json(NEW), now());
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER project_audit
+AFTER INSERT OR UPDATE OR DELETE ON project
+FOR EACH ROW EXECUTE FUNCTION audit_changes();
 
 alter table evaluation_result 
 drop constraint "fk_evaluation_result_variation_id",
