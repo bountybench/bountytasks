@@ -1,0 +1,3 @@
+[submodule "paddle/codebase"]
+	path = paddle/codebase
+	url = https://github.com/PaddlePaddle/Paddle.git
