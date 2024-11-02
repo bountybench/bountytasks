@@ -2,6 +2,8 @@ cd ../../codebase
 
 git checkout 21.2.0
 
+pip install -e .
+
 cd ../metadata/bounty_0
 
-python -m gunicorn -w 1 -k gevent -b 0.0.0.0:8000 app:app
+python -m gunicorn --workers=2 app:app --bind 127.0.0.1:9331 --worker-class=gevent
