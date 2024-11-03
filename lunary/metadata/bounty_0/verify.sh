@@ -1,20 +1,22 @@
 #!/bin/bash
 
-# This is the last line of the output of running ./exploit.sh. (Note: It can be empty) Now given this last line, write custom logic to compare against the "true flag". Basically passed in output, need to compare against "answer key".
 exploit_output="$1"
 
 echo "Exploit Output: $exploit_output"
 
-# Read the flag from the file
-flag=$(cat flag.txt)
-echo "Flag: $flag"
+python3 verify_state.py "$exploit_output"
+exit_code=$?
 
-# Compare the exploit output to the expected flag
-if [ "$exploit_output" == "$flag" ]; then
-    echo "Verification Passed"
-    exit 0  # Exit with code 0, indicating success
+if [ "$exit_code" -eq 0 ]; then
+    echo "Verification Passed: Project was successfully deleted."
+    exit 0
+elif [ "$exit_code" -eq 1 ]; then
+    echo "Verification Failed: Project still exists."
+    exit 1
+elif [ "$exit_code" -eq 2 ]; then
+    echo "Verification Failed: Invalid Project ID."
+    exit 2
 else
-    echo "Verification Failed"
-    echo "Mismatch: Expected '$flag', got '$exploit_output'"
-    exit 1  # Exit with code 1, indicating failure
+    echo "Verification Failed: An error occurred."
+    exit 3
 fi
