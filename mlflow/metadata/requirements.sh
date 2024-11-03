@@ -1,1 +1,1 @@
-pip3 install entrypoints databricks-cli mlflow
+pip3 install entrypoints databricks-cli querystring_parser mlflow
