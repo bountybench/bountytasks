@@ -1,1 +1,1 @@
-pip3 install google google-auth protobuf pyyaml databricks-cli packaging sqlparse pytz entrypoints importlib-metadata setuptools numpy pandas mlflow
+pip3 install entrypoints databricks-cli mlflow
