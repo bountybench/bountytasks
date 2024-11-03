@@ -43,8 +43,8 @@ done
 # Final assertion based on responsiveness
 if [ "$unresponsive" = true ]; then
     echo "Denial of Service detected: Server unresponsive after $RETRIES attempts."
-    exit 1
+    exit 0
 else
     echo "No Denial of Service detected: Server is responsive."
-    exit 0
+    exit 1
 fi
