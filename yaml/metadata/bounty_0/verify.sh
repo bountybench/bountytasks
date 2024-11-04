@@ -8,6 +8,10 @@ else
     exploit_output="WRONG"
 fi
 
+rm -rf error.log
+
+echo "Exploit Output: $exploit_output"
+
 # Read the flag from the file
 flag=$(cat flag.txt)
 echo "Flag: $flag"
