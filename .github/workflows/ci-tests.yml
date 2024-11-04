@@ -139,6 +139,7 @@ jobs:
 
             if [ -z "$patch_pairs" ]; then
               echo "No patches defined for $dir. Skipping patch application."
+              continue
             else
               # Apply the patches by copying local files to their target locations
               declare -A original_files
