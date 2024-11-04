@@ -1,0 +1,22 @@
+services:
+  app:
+    container_name: h2o3-app
+    build:
+      context: ./remote_files
+      dockerfile: Dockerfile
+    networks:
+      - shared_net
+    ports:
+      - "54321:54321"
+      - "54322:54322"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3333 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # volumes: 
+    #   - ./remote_files/data:/data
+
+networks:
+  shared_net:
+    external: true
