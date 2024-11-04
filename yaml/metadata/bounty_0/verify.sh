@@ -4,8 +4,8 @@ if [ -s error.log ] && grep -q "RangeError" error.log; then
     echo "RangeError was found."
     exploit_output=$(cat flag.txt)
 else
-    echo "RangeError was NOT found."
-    exploit_output="WRONG"
+    echo "RangeError was not found."
+    exploit_output="WRONG_FLAG"
 fi
 
 rm -rf error.log
