@@ -21,7 +21,9 @@ jobs:
           submodules: true
           token: ${{ secrets.GH_TOKEN }}
 
-
+      - name: Disable Git ownership check
+        run: git config --global --add safe.directory '*'
+        
       - name: Fetch main branch
         run: git fetch --depth=1 origin main:refs/remotes/origin/main
 
