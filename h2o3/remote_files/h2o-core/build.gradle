@@ -1,0 +1,80 @@
+apply plugin: 'java-library'
+
+//
+// H2O Core Module
+//
+description = "H2O Core"
+
+dependencies {
+  // Dependency on shared model support
+  api project(":h2o-logger")
+  api project(':h2o-logging-impl-classic')
+  api project(':h2o-genmodel')
+  api project(":h2o-webserver-iface")
+  // Required for h2o-core
+  api 'joda-time:joda-time:2.10.13'
+  api "gov.nist.math:jama:1.0.3"
+  api 'org.javassist:javassist:3.28.0-GA'
+  api 'org.apache.commons:commons-math3:3.6.1'
+  api "commons-io:commons-io:2.11.0"
+  api 'com.github.luben:zstd-jni:1.5.6-2'
+  compileOnly "javax.servlet:javax.servlet-api:3.1.0"
+  api("com.github.wendykierp:JTransforms:3.1") { exclude module: "junit" }
+  api project(":h2o-jaas-pam")
+
+  api "com.google.code.gson:gson:${gsonVersion}"
+  api 'commons-lang:commons-lang:2.6'
+
+  testImplementation project(':h2o-test-support')
+  testRuntimeOnly project(":${defaultWebserverModule}")
+  testCompileOnly "javax.servlet:javax.servlet-api:${servletApiVersion}"
+  testImplementation "com.amazonaws:aws-java-sdk-s3:${awsJavaSdkVersion}"
+}
+
+apply from: "${rootDir}/gradle/dataCheck.gradle"
+
+javadoc {
+  exclude "**/fvec/C*Chunk.java/**"
+  exclude "**/nbhm/**"
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'water.H2O'
+  }
+}
+
+// The default 'test' behavior is broken in that it does not grok clusters.
+// For H2O, all tests need to be run on a cluster, where each JVM is
+// "free-running" - it's stdout/stderr are NOT hooked by another process.  If
+// they are hooked (e.g., by the gradle driver process) then the stdout/err get
+// buffered and when all CPUs are maxed out (happens over a large fraction of
+// the test run) no output is visible.  If the JVMs then crash (again, common
+// enough), we get NO output for the test run.  So instead we need to arrange a
+// complete cluster of free-running JVMs and redirect all output (at the OS
+// level) to files - then scrape the files later for test results.
+test {
+  dependsOn smalldataCheck, testMultiNode, testJar
+
+  // Defeat task 'test' by running no tests.
+  exclude '**'
+}
+
+def buildVersionFile = new File(projectDir, "/src/main/java/water/init/BuildVersion.java")
+
+task generateBuildVersionJava {
+  doLast {
+    H2OBuildVersion bv = new H2OBuildVersion(rootDir, version)
+    bv.emitBuildVersionJavaFileIfNecessary(buildVersionFile)
+  }
+}
+
+compileJava.dependsOn generateBuildVersionJava
+
+task cleanBuildVersionJava(type: Delete) {
+    delete buildVersionFile
+}
+
+clean.dependsOn cleanBuildVersionJava
+
+apply from: '../gradle/javaIgnoreSymbolFile.gradle'

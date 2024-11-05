@@ -1,0 +1,30 @@
+sources:
+  - src/product/flow/SiteIntro.md
+  - src/product/howto/H2O-DevCmdLine.md
+  - src/product/howto/H2O-DevS3Creds.md
+  - src/product/howto/H2O-DevHadoop.md   
+  - src/product/howto/H2O-DevDocker.md
+  - src/product/flow/README.md
+  - src/product/tutorials/datascience/DataScienceH2O-Dev.md
+  - src/product/howto/YARN_BP.md
+  - src/product/howto/H2O-DevLogs.md
+  - src/product/upgrade/Migration.md
+  - src/product/howto/POJO_QuickStart.md
+  - src/product/tutorials/GridSearch.md
+  - src/product/architecture/Architecture.md
+  - src/product/security/Security.md
+  - src/product/howto/FAQ.md
+  - src/product/tutorials/glossary.md
+  - src/product/howto/Videos.md
+
+assets:
+  - 
+    source: src/product/flow/images
+    target: images
+  - 
+    source: src/product/howto/images
+    target: images
+  -
+    source: src/product/architecture/images
+    target: images
+

@@ -1,0 +1,13 @@
+web/
+routes.json
+schemas.json
+
+# Ignore latex stuff
+*.aux
+*.log
+*.out
+*.toc
+
+# Ignore _build folder and version file
+src/product/_build
+src/product/project_version

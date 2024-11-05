@@ -1,0 +1,55 @@
+// WARNING: This is a modified copy of the main assembly with some dependencies excluded
+// TODO: refactor the build script to avoid code duplication
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java-library'
+
+description = "Minimal H2O Application Assembly - includes all algos, but has only limited support for data sources"
+
+apply from: '../standalone_assembly.gradle'
+
+configurations {
+    api.exclude module: "h2o-jaas-pam"
+}
+
+// Dependencies
+dependencies {
+    api(project(":h2o-app")) {
+        exclude module: "${defaultWebserverModule}"
+    }
+    api project(":h2o-logging-impl-log4j2")
+    runtimeOnly project(":h2o-jetty-9-minimal")
+    api project(":h2o-web")
+    api project(":h2o-persist-http")
+
+    constraints {
+        api('com.google.guava:guava:32.0.1-jre') {
+            because 'Fixes CVE-2023-2976'
+            because 'Fixes CVE-2020-8908'
+            because 'Fixes CVE-2018-10237'
+        }
+    }
+}
+
+shadowJar {
+  mergeServiceFiles()
+  classifier = ''
+  exclude 'META-INF/*.DSA'
+  exclude 'META-INF/*.SF'
+  exclude 'synchronize.properties'
+  exclude 'uploader.properties'
+  exclude 'test.properties'
+  exclude 'cockpitlite.properties'
+  exclude 'devpay_products.properties'
+  exclude 'javax/servlet/jsp/resources/*.*'
+  manifest {
+    attributes 'Main-Class': 'water.H2OApp'
+    attributes 'Add-Opens': 'java.base/java.lang java.base/java.util java.base/java.lang.reflect'
+    attributes 'Multi-Release': 'true'
+  }
+  transform(com.github.jengelman.gradle.plugins.shadow.transformers.IncludeResourceTransformer.class) {
+    file = file("${buildDir}/reports/license/dependency-license.xml")
+    resource = "META-INF/license/h2o-depedencies-licenses.xml"
+  }
+  transform(com.github.jengelman.gradle.plugins.shadow.transformers.Log4j2PluginsCacheFileTransformer)
+}

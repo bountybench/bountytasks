@@ -1,0 +1,147 @@
+apply plugin: 'java-library'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+description = 'H2O HDFS client shadowjar for Hadoop ' + hadoopVersion
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+ext {
+  defaultParquetVersion = "1.8.1"
+}
+
+def hasCustomHdfsDep = ext.has("hdfsDependency") && (ext.get("hdfsDependency") != defaultHdfsDependency)
+
+if (hasCustomHdfsDep) {
+  configurations {
+    api.exclude group: "org.apache.hadoop", module: "$defaultHdfsDependency"
+  }
+}
+
+dependencies {
+  api("org.apache.hadoop:hadoop-client:$hadoopMavenArtifactVersion") {
+    force = true
+  }
+  api("org.apache.hadoop:hadoop-common:$hadoopMavenArtifactVersion") {
+    force = true
+  }
+  if (hasCustomHdfsDep) {
+    api("org.apache.hadoop:${hdfsDependency}:$hadoopMavenArtifactVersion") {
+      force = true
+    }
+  }
+  api(project(":h2o-mapreduce-generic")) {
+    transitive = false
+  }
+  api project(":h2o-security")
+  api project(":h2o-ext-steam")
+  // Libraries need for Google Cloud Storage strongly require this Guava version
+  api('com.google.guava:guava:20.0') {force = true}
+  api(project(':h2o-app')) {
+    exclude module: "${defaultWebserverModule}"
+  }
+  api project(":h2o-web")
+  api project(":h2o-avro-parser")
+  // Include GCS persist layer
+  api project(":h2o-persist-gcs")
+  // Include S3 persist layer
+  api project(":h2o-persist-s3")
+  // Include HDFS persist layer
+  api(project(':h2o-persist-hdfs')) {
+    transitive = false
+  }
+  api(project(':h2o-hive')) {
+    transitive = false
+  }
+  api(project(":h2o-ext-krbstandalone")) {
+    transitive = false // we just need hadoop-auth which is provided by the hadoop-client dependency
+  }
+  api("org.apache.parquet:parquet-avro:${defaultParquetVersion}") // required by h2o-hive
+
+  // For standalone mode to work with MapR, this extra library needs to be
+  // included, and it's not pulled in by the dependency stuff;  this must
+  // be a bug in MapR's packaging process.
+  if (project.hasProperty("maprExtraDependency")) {
+    api(project.property("maprExtraDependency"))
+  }
+  if (orcSupported) {
+    api(project(":h2o-orc-parser")) {
+      // We do not get any dependencies but directly rely on provided environment
+      transitive = false
+    }
+
+    // Here we depends on hive-exec, but it is Hadoop version specific
+    api("org.apache.hive:hive-exec:$orcHiveExecVersion") {
+      transitive = false
+    }
+  }
+  api(project(":h2o-parquet-parser")) {
+    transitive = false
+  }
+}
+
+apply from: "${rootDir}/h2o-parsers/h2o-parquet-parser/parquet_dependencies.gradle"
+
+//
+// Bundle optional modules
+// The process is defined by convention. There are two flags:
+//  - -Pwith${componentName}=true - enables component "componentName" and includes it in assembly
+//  - -P${componentName}Version=3.14 - overrides default component version
+//
+for (comp in optionalComponents) {
+  def compName = comp['name']
+  def compVersion = comp['version']
+  def compEnabled = comp['enabled']
+  def compPropName = "with${compName.capitalize()}"
+  def compPropVersionName = "${compName}Version"
+
+  if (!project.hasProperty(compPropVersionName)) {
+    project.ext.set(compPropVersionName, compVersion)
+  }
+  if (compEnabled || project.hasProperty(compPropName) && project.property(compPropName)) {
+    logger.lifecycle("== ${project.path}: Using optional component: ${compName}, version ${project.findProperty(compPropVersionName)}")
+    apply from: "$rootDir/gradle/components/${compName}.gradle"
+  }
+
+}
+
+def hadoopShadowJarExcludes = ['META-INF/*.DSA',
+                            'META-INF/*.SF',
+                            'synchronize.properties',
+                            'uploader.properties',
+                            'test.properties',
+                            'cockpitlite.properties',
+                            'devpay_products.properties', 
+                            'org/apache/log4j/net/*',
+                            'org/apache/log4j/jdbc/*',
+                            'org/apache/log4j/nt/*',
+                            // the license files are excluded for OS X compatibility (this is mainly for development)
+                            // OS X is unable to unpack these files from the jar on filesystem that is not case sensitive
+                            'LICENSE', 'license', 'LICENSE/*', 'license/*', 'META-INF/license', 'META-INF/LICENSE'
+]
+
+shadowJar {
+  mergeServiceFiles()
+  // CDH 5.3.0 provides joda-time v1.6 which is too old, shadow the library instead
+  relocate 'org.joda.time', 'ai.h2o.org.joda.time'
+  relocate 'org.apache.http', 'ai.h2o.org.apache.http'
+  exclude hadoopShadowJarExcludes
+  relocate 'com.google.common', 'ai.h2o.com.google.common'
+  baseName = 'h2odriver'
+  classifier = ''
+  manifest {
+    attributes 'Main-Class': 'water.hadoop.h2odriver'
+  }
+  zip64 true
+}
+
+artifacts {
+  archives shadowJar
+}
+
+// We just need Shadow Jar
+jar {
+  enabled = false
+}
+
+build.dependsOn shadowJar

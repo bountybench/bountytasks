@@ -1,0 +1,47 @@
+description = "H2O XGBoost support"
+
+ext {
+    xgboost4jVersion = "1.6.1.24"
+}
+
+dependencies {
+    api project(":h2o-core")
+    api project(":h2o-algos")
+    api project(":h2o-genmodel")
+    api project(":h2o-genmodel-ext-xgboost")
+    api project(":h2o-ext-steam")
+    compileOnly 'com.esotericsoftware.kryo:kryo:2.21'
+    compileOnly "javax.servlet:javax.servlet-api:${servletApiVersion}"
+    api "org.apache.httpcomponents:httpclient:${httpClientVersion}"
+    api "org.apache.httpcomponents:httpmime:${httpClientVersion}"
+    api "com.github.oshi:oshi-core:5.7.4"
+
+    // XGBoost dependencies published into Maven central by H2O
+    // Versioning rules may differ for XGBoost artifacts published by H2O
+    api("ai.h2o:xgboost4j_2.12:${xgboost4jVersion}") {
+        exclude group: 'org.scala-lang', module: 'scala-compiler'
+        exclude group: 'org.scala-lang', module: 'scala-reflect'
+        exclude group: 'org.scala-lang', module: 'scala-library'
+        exclude group: 'com.typesafe.akka', module: 'akka-actor_2.12'
+        exclude group: 'org.scalatest', module: 'scalatest_2.12'
+        exclude group: 'com.esotericsoftware.kryo', module: 'kryo'
+    }
+    api "ai.h2o:xgboost4j-linux-gpuv4:${xgboost4jVersion}"
+    api "ai.h2o:xgboost4j-linux-minimal:${xgboost4jVersion}"
+    api "ai.h2o:xgboost4j-osx-minimal:${xgboost4jVersion}"
+
+    testImplementation project(":h2o-test-support")
+    testImplementation 'com.esotericsoftware.kryo:kryo:2.21'
+    testRuntimeOnly project(":${defaultWebserverModule}")
+}
+
+apply from: "${rootDir}/gradle/dataCheck.gradle"
+
+test {
+    dependsOn ":h2o-core:testJar"
+    // Note: multi node tests are ignored right now!
+    dependsOn smalldataCheck, jar, testJar, testSingleNode, testMultiNode
+
+    // Defeat task 'test' by running no tests.
+    exclude '**'
+}

@@ -1,0 +1,1 @@
+This document has been moved [here](https://github.com/h2oai/h2o-3/tree/master/h2o-docs/src/cheatsheets/Python_H2OFrame_PandasDataFrame_Parity.md).

@@ -1,0 +1,23 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+description = "H2O GenModel XGBoost support"
+
+// MOJO has to stay Java 1.7 compatible! 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+ext {
+    xgboostPredictorVersion = "0.3.20"
+}
+
+dependencies {
+    api project(":h2o-genmodel")
+    api("ai.h2o:xgboost-predictor:${xgboostPredictorVersion}") {
+        exclude group: 'net.jafama', 'module': 'jafama'
+    }
+    api "commons-logging:commons-logging:1.2"
+    compileOnly 'com.esotericsoftware.kryo:kryo:2.21'
+
+    testImplementation 'com.esotericsoftware.kryo:kryo:2.21'
+    testImplementation "junit:junit:${junitVersion}"
+}

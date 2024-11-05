@@ -1,0 +1,27 @@
+apply plugin: 'java-library'
+
+description = "H2O Target Encoder plugin"
+
+dependencies {
+    api project(":h2o-core")
+    api project(":h2o-algos")
+    api project(":h2o-genmodel")
+
+    testImplementation project(":h2o-test-support")
+    testImplementation "com.pholser:junit-quickcheck-core:0.9"
+    testImplementation 'com.pholser:junit-quickcheck-generators:0.9'
+    testRuntimeOnly project(":${defaultWebserverModule}")
+    
+    jmh project(":${defaultWebserverModule}") 
+}
+
+apply from: "${rootDir}/gradle/dataCheck.gradle"
+
+test {
+    dependsOn ":h2o-core:testJar"
+    // Note: multi node tests are ignored right now!
+    dependsOn smalldataCheck, jar, testJar, testSingleNode, testMultiNode
+
+    // Defeat task 'test' by running no tests.
+    exclude '**'
+}

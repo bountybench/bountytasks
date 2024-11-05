@@ -1,0 +1,46 @@
+description = "H2O Persist S3"
+
+configurations {
+    testImplementation.exclude group: "ch.qos.logback", module: "logback-classic"
+}
+
+
+dependencies {
+  api project(":h2o-core")
+  compileOnly("org.apache.hadoop:hadoop-common:$defaultHadoopVersion")
+  api "com.amazonaws:aws-java-sdk-s3:${awsJavaSdkVersion}"
+  api "com.amazonaws:aws-java-sdk-sts:${awsJavaSdkVersion}" // Required by WebIdentityTokenCredentialsProvider from AWS SDK
+  api "org.apache.httpcomponents:httpclient:${httpClientVersion}"
+  api "javax.xml.bind:jaxb-api:2.3.1"
+  compileOnly project(":h2o-persist-hdfs")
+
+  testImplementation project(":h2o-test-support")
+  testImplementation "com.adobe.testing:s3mock:2.1.28"
+  testImplementation "com.adobe.testing:s3mock-junit4:2.1.28"
+  testRuntimeOnly project(":${defaultWebserverModule}")
+  testRuntimeOnly project(":h2o-parquet-parser")
+  testImplementation project(":h2o-persist-hdfs")
+  testImplementation "org.apache.hadoop:hadoop-common:$defaultHadoopVersion"
+  testImplementation("org.apache.hadoop:hadoop-mapreduce-client-core:$defaultHadoopVersion") {
+    transitive = false
+  }
+}
+
+apply from: "${rootDir}/gradle/dataCheck.gradle"
+
+// The default 'test' behavior is broken in that it does not grok clusters.
+// For H2O, all tests need to be run on a cluster, where each JVM is
+// "free-running" - it's stdout/stderr are NOT hooked by another process.  If
+// they are hooked (e.g., by the gradle driver process) then the stdout/err get
+// buffered and when all CPUs are maxed out (happens over a large fraction of
+// the test run) no output is visible.  If the JVMs then crash (again, common
+// enough), we get NO output for the test run.  So instead we need to arrange a
+// complete cluster of free-running JVMs and redirect all output (at the OS
+// level) to files - then scrape the files later for test results.
+test {
+  dependsOn ":h2o-core:testJar"
+  dependsOn smalldataCheck, jar, testJar, testMultiNode
+
+  // Defeat task 'test' by running no tests.
+  exclude '**'
+}

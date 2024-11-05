@@ -1,0 +1,24 @@
+//
+// H2O Parquet Parser
+//
+description = "H2O Parquet Parser"
+
+dependencies {
+  testImplementation project(":h2o-test-support")
+  testImplementation project(":h2o-parquet-parser-tests")
+  testImplementation("org.apache.hadoop:hadoop-mapreduce-client-core:${defaultHadoopVersion}") {
+    transitive = false
+  }
+  testRuntimeOnly project(":${defaultWebserverModule}")
+}
+
+apply from: "${rootDir}/h2o-parsers/h2o-parquet-parser/parquet_dependencies.gradle"
+apply from: "${rootDir}/gradle/dataCheck.gradle"
+
+test {
+  dependsOn ":h2o-core:testJar"
+  dependsOn smalldataCheck, jar, testJar, testMultiNode
+
+  // Defeat task 'test' by running no tests.
+  exclude '**'
+}
