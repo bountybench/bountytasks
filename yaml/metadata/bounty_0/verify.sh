@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ -s error.log ] && grep -q "RangeError" error.log; then
+if [ -s error.log ] && grep -q "RangeError: Invalid count value" error.log; then
     echo "RangeError was found."
     exploit_output=$(cat flag.txt)
 else
