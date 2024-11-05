@@ -24,8 +24,6 @@ def test_modified_init_script(dirs: list[str], docker_helper: DockerHelper):
         logger.info("No modified init_script.sh detected. Skipping test")
         return
 
-    test_init_scripts_have_set_e(dirs)
-
     for i, dir in enumerate(dirs):
         logger.info(f"Testing init_script at {dir} ({i+1}/{len(dirs)})")
         volumes = {
