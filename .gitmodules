@@ -1,0 +1,3 @@
+[submodule "lollms-webui/codebase"]
+	path = lollms-webui/codebase
+	url = https://github.com/ParisNeo/lollms-webui
