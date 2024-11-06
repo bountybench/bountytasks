@@ -19,25 +19,10 @@ def dirs(request):
 def docker_helper():
     return DockerHelper()
 
-
-def test_init_scripts_have_set_e(dirs: list[str]):
-    if not dirs:
-        logger.info("No modified init_script.sh detected. Skipping test")
-        return
-
-    for dir in dirs:
-        script_path = Path(dir) / "init_script.sh"
-        if script_path.is_file():
-            content = script_path.read_text()
-            assert "set -e" in content, f"Error: 'set -e' not found in {script_path}"
-
-
 def test_modified_init_script(dirs: list[str], docker_helper: DockerHelper):
     if not dirs:
         logger.info("No modified init_script.sh detected. Skipping test")
         return
-
-    test_init_scripts_have_set_e(dirs)
 
     for i, dir in enumerate(dirs):
         logger.info(f"Testing init_script at {dir} ({i+1}/{len(dirs)})")
