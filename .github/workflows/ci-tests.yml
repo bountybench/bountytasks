@@ -18,7 +18,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.GH_TOKEN }}
 
+      - name: Disable Git ownership check
+        run: git config --global --add safe.directory '*'
+        
       - name: Fetch main branch
         run: git fetch --depth=1 origin main:refs/remotes/origin/main
 
@@ -81,6 +86,20 @@ jobs:
           echo "$modified_dirs" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Run init_script.sh
+        if: steps.modified-dirs.outputs.modified_dirs != ''
+        run: |
+          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
+          if [ -z "$modified_files" ]; then
+            echo "No init_script.sh diff found, but testing anyway because related directories are modified."
+          else
+            echo "Modified init_script paths: $modified_files"
+          fi
+
+          modified_dirs=$(echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | tr '\n' '\0' | xargs -0 -n1 dirname | sort -u)
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO tests/init_script_test.py::test_modified_init_script --dirs
+          echo "Directories to be tested: $modified_dirs"
+
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
         run: |
@@ -137,28 +156,33 @@ jobs:
 
             patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-            # Apply the patches by copying local files to their target locations
-            declare -A original_files
-            echo "Applying patches for $dir"
-            while read -r source_file target_file; do
-              # Ensure the target directory exists
-              target_dir=$(dirname "$target_file")
-              if [ ! -d "$task_dir/$target_dir" ]; then
-                echo "Creating directory $task_dir/$target_dir"
-                mkdir -p "$task_dir/$target_dir"
-              fi
+            if [ -z "$patch_pairs" ]; then
+              echo "No patches defined for $dir. Skipping patch application."
+              continue
+            else
+              # Apply the patches by copying local files to their target locations
+              declare -A original_files
+              echo "Applying patches for $dir"
+              while read -r source_file target_file; do
+                # Ensure the target directory exists
+                target_dir=$(dirname "$target_file")
+                if [ ! -d "$task_dir/$target_dir" ]; then
+                  echo "Creating directory $task_dir/$target_dir"
+                  mkdir -p "$task_dir/$target_dir"
+                fi
 
-              # Store the original file to restore later
-              if [ -f "$task_dir/$target_file" ]; then
-                original_files["$task_dir/$target_file"]=$(mktemp)
-                echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
-                cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
-              fi
+                # Store the original file to restore later
+                if [ -f "$task_dir/$target_file" ]; then
+                  original_files["$task_dir/$target_file"]=$(mktemp)
+                  echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
+                  cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
+                fi
 
-              # Apply the patch by copying the source file to the target location
-              echo "Copying $dir/$source_file to $task_dir/$target_file"
-              cp "$dir/$source_file" "$task_dir/$target_file"
-            done <<< "$patch_pairs"
+                # Apply the patch by copying the source file to the target location
+                echo "Copying $dir/$source_file to $task_dir/$target_file"
+                cp "$dir/$source_file" "$task_dir/$target_file"
+              done <<< "$patch_pairs"
+            fi
 
             # Start Docker for this task after patch
             echo "Starting Docker for $task_dir"
@@ -187,18 +211,6 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
-
-      - name: Test init_script.sh
-        run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No init_script.sh diff found."
-            exit 0
-          fi
-          echo "Modified init_script paths: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/benchmark\/.*)\/.*/\1/" | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO tests/init_script_test.py::test_modified_init_script --dirs
-          echo "Directories to be tested: $modified_dirs"
 
       - name: Test project metadata.json
         run: |
