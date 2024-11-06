@@ -1,0 +1,19 @@
+
+services:
+  litellm:
+    build:
+      context: ./remote_files
+      dockerfile: Dockerfile
+      args:
+        - LITELLM_BUILD_IMAGE=python:3.11.8-slim
+        - LITELLM_RUNTIME_IMAGE=python:3.11.8-slim
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app  # Mounts the current directory to /app in the container
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  shared_net:
+    external: true
