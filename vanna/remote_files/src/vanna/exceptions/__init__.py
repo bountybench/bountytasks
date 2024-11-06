@@ -1,46 +1,46 @@
-class ImproperlyConfigured(Exception):
+class ImproperlyConfigured(BaseException):
     """Raise for incorrect configuration."""
 
     pass
 
 
-class DependencyError(Exception):
+class DependencyError(BaseException):
     """Raise for missing dependencies."""
 
     pass
 
 
-class ConnectionError(Exception):
+class ConnectionError(BaseException):
     """Raise for connection"""
 
     pass
 
 
-class OTPCodeError(Exception):
+class OTPCodeError(BaseException):
     """Raise for invalid otp or not able to send it"""
 
     pass
 
 
-class SQLRemoveError(Exception):
+class SQLRemoveError(BaseException):
     """Raise when not able to remove SQL"""
 
     pass
 
 
-class ExecutionError(Exception):
+class ExecutionError(BaseException):
     """Raise when not able to execute Code"""
 
     pass
 
 
-class ValidationError(Exception):
+class ValidationError(BaseException):
     """Raise for validations"""
 
     pass
 
 
-class APIError(Exception):
+class APIError(BaseException):
     """Raise for API errors"""
 
     pass

@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import List
 
 import chromadb
@@ -7,7 +8,6 @@ from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
 from ..base import VannaBase
-from ..utils import deterministic_uuid
 
 default_ef = embedding_functions.DefaultEmbeddingFunction()
 
@@ -15,16 +15,17 @@ default_ef = embedding_functions.DefaultEmbeddingFunction()
 class ChromaDB_VectorStore(VannaBase):
     def __init__(self, config=None):
         VannaBase.__init__(self, config=config)
-        if config is None:
-            config = {}
 
-        path = config.get("path", ".")
-        self.embedding_function = config.get("embedding_function", default_ef)
-        curr_client = config.get("client", "persistent")
-        collection_metadata = config.get("collection_metadata", None)
-        self.n_results_sql = config.get("n_results_sql", config.get("n_results", 10))
-        self.n_results_documentation = config.get("n_results_documentation", config.get("n_results", 10))
-        self.n_results_ddl = config.get("n_results_ddl", config.get("n_results", 10))
+        if config is not None:
+            path = config.get("path", ".")
+            self.embedding_function = config.get("embedding_function", default_ef)
+            curr_client = config.get("client", "persistent")
+            self.n_results = config.get("n_results", 10)
+        else:
+            path = "."
+            self.embedding_function = default_ef
+            curr_client = "persistent"  # defaults to persistent storage
+            self.n_results = 10  # defaults to 10 documents
 
         if curr_client == "persistent":
             self.chroma_client = chromadb.PersistentClient(
@@ -41,19 +42,13 @@ class ChromaDB_VectorStore(VannaBase):
             raise ValueError(f"Unsupported client was set in config: {curr_client}")
 
         self.documentation_collection = self.chroma_client.get_or_create_collection(
-            name="documentation",
-            embedding_function=self.embedding_function,
-            metadata=collection_metadata,
+            name="documentation", embedding_function=self.embedding_function
         )
         self.ddl_collection = self.chroma_client.get_or_create_collection(
-            name="ddl",
-            embedding_function=self.embedding_function,
-            metadata=collection_metadata,
+            name="ddl", embedding_function=self.embedding_function
         )
         self.sql_collection = self.chroma_client.get_or_create_collection(
-            name="sql",
-            embedding_function=self.embedding_function,
-            metadata=collection_metadata,
+            name="sql", embedding_function=self.embedding_function
         )
 
     def generate_embedding(self, data: str, **kwargs) -> List[float]:
@@ -70,7 +65,7 @@ class ChromaDB_VectorStore(VannaBase):
             },
             ensure_ascii=False,
         )
-        id = deterministic_uuid(question_sql_json) + "-sql"
+        id = str(uuid.uuid4()) + "-sql"
         self.sql_collection.add(
             documents=question_sql_json,
             embeddings=self.generate_embedding(question_sql_json),
@@ -80,7 +75,7 @@ class ChromaDB_VectorStore(VannaBase):
         return id
 
     def add_ddl(self, ddl: str, **kwargs) -> str:
-        id = deterministic_uuid(ddl) + "-ddl"
+        id = str(uuid.uuid4()) + "-ddl"
         self.ddl_collection.add(
             documents=ddl,
             embeddings=self.generate_embedding(ddl),
@@ -89,7 +84,7 @@ class ChromaDB_VectorStore(VannaBase):
         return id
 
     def add_documentation(self, documentation: str, **kwargs) -> str:
-        id = deterministic_uuid(documentation) + "-doc"
+        id = str(uuid.uuid4()) + "-doc"
         self.documentation_collection.add(
             documents=documentation,
             embeddings=self.generate_embedding(documentation),
@@ -236,7 +231,7 @@ class ChromaDB_VectorStore(VannaBase):
         return ChromaDB_VectorStore._extract_documents(
             self.sql_collection.query(
                 query_texts=[question],
-                n_results=self.n_results_sql,
+                n_results=self.n_results,
             )
         )
 
@@ -244,7 +239,6 @@ class ChromaDB_VectorStore(VannaBase):
         return ChromaDB_VectorStore._extract_documents(
             self.ddl_collection.query(
                 query_texts=[question],
-                n_results=self.n_results_ddl,
             )
         )
 
@@ -252,6 +246,5 @@ class ChromaDB_VectorStore(VannaBase):
         return ChromaDB_VectorStore._extract_documents(
             self.documentation_collection.query(
                 query_texts=[question],
-                n_results=self.n_results_documentation,
             )
         )

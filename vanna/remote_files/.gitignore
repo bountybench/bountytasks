@@ -15,8 +15,3 @@ dist
 .env
 *.sqlite
 htmlcov
-chroma.sqlite3
-*.bin
-.coverage.*
-milvus.db
-.milvus.db.lock
