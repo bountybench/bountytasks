@@ -1,0 +1,11 @@
+# used by CI/CD testing
+openai
+python-dotenv
+tiktoken
+importlib_metadata
+cohere
+redis
+anthropic
+orjson
+pydantic==2.7.1
+google-cloud-aiplatform==1.43.0
