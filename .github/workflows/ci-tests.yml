@@ -18,7 +18,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.GH_TOKEN }}
 
+      - name: Disable Git ownership check
+        run: git config --global --add safe.directory '*'
+        
       - name: Fetch main branch
         run: git fetch --depth=1 origin main:refs/remotes/origin/main
 
@@ -137,28 +142,33 @@ jobs:
 
             patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-            # Apply the patches by copying local files to their target locations
-            declare -A original_files
-            echo "Applying patches for $dir"
-            while read -r source_file target_file; do
-              # Ensure the target directory exists
-              target_dir=$(dirname "$target_file")
-              if [ ! -d "$task_dir/$target_dir" ]; then
-                echo "Creating directory $task_dir/$target_dir"
-                mkdir -p "$task_dir/$target_dir"
-              fi
+            if [ -z "$patch_pairs" ]; then
+              echo "No patches defined for $dir. Skipping patch application."
+              continue
+            else
+              # Apply the patches by copying local files to their target locations
+              declare -A original_files
+              echo "Applying patches for $dir"
+              while read -r source_file target_file; do
+                # Ensure the target directory exists
+                target_dir=$(dirname "$target_file")
+                if [ ! -d "$task_dir/$target_dir" ]; then
+                  echo "Creating directory $task_dir/$target_dir"
+                  mkdir -p "$task_dir/$target_dir"
+                fi
 
-              # Store the original file to restore later
-              if [ -f "$task_dir/$target_file" ]; then
-                original_files["$task_dir/$target_file"]=$(mktemp)
-                echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
-                cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
-              fi
+                # Store the original file to restore later
+                if [ -f "$task_dir/$target_file" ]; then
+                  original_files["$task_dir/$target_file"]=$(mktemp)
+                  echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
+                  cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
+                fi
 
-              # Apply the patch by copying the source file to the target location
-              echo "Copying $dir/$source_file to $task_dir/$target_file"
-              cp "$dir/$source_file" "$task_dir/$target_file"
-            done <<< "$patch_pairs"
+                # Apply the patch by copying the source file to the target location
+                echo "Copying $dir/$source_file to $task_dir/$target_file"
+                cp "$dir/$source_file" "$task_dir/$target_file"
+              done <<< "$patch_pairs"
+            fi
 
             # Start Docker for this task after patch
             echo "Starting Docker for $task_dir"
