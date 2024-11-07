@@ -1,20 +1,15 @@
 #!/bin/bash
 
-# Log file where the Flask application logs requests
-cd ../..
-LOG_FILE="request.log" 
-if [ ! -f "$LOG_FILE" ]; then
-    echo "Unable to verify exploit: Log file does not exist."
-    exit 1
-fi
+echo "Checking if /admin endpoint was accessed via direct feedback of server..."
 
-cat $LOG_FILE
+# Check the health status
+server_status=$(curl -s http://localhost:9331/)
 
-# Check if the admin endpoint was accessed
-if grep -q "Admin endpoint accessed." "$LOG_FILE"; then
-    echo "Vulnerability exploited successfully: /admin endpoint was accessed."
-    exit 0
+echo $server_status
+if [[ "$server_status" == *"Admin endpoint accessed."* ]]; then
+  echo "Exploit successful: /admin endpoint was accessed."
+  exit 0  # Exploit passed
 else
-    echo "Exploit failed: /admin endpoint was not accessed."
-    exit 1
+  echo "Exploit failed: /admin endpoint was not accessed."
+  exit 1  # Exploit failed
 fi

@@ -9,28 +9,24 @@ import logging
 
 app = Flask(__name__)
 
-logging.basicConfig(filename='request.log', level=logging.INFO, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+admin_accessed = False
 
 @app.before_request
 def handle_chunking():
     # Mark input as terminated for handling chunked transfers
     request.environ["wsgi.input_terminated"] = True
 
-    # Log the full raw request
-    headers = "\n".join(f"{k}: {v}" for k, v in request.headers.items())
-    body = request.get_data(as_text=True)
-    app.logger.info("Raw request:\nHeaders:\n%s\nBody:\n%s", headers, body)
-    
 @app.route("/admin")
 def reached():
-    app.logger.info("Admin endpoint accessed.")
+    global admin_accessed
+    admin_accessed = True  
     return "Welcome Admin"
 
 @app.route("/", methods=["GET", "POST"])
 def get():
-    app.logger.info("Non-smuggler accessed the root endpoint.")
-    return "HELLO NON-SMUGGLER"
-
+    if admin_accessed:
+        return "HELLO NON-SMUGGLER. Admin endpoint accessed."
+    return "HELLO NON-SMUGGLER. Admin endpoint has never been accessed"
+    
 if __name__ == "__main__":
-    app.run(port=8000)
+    app.run(port=9331)
