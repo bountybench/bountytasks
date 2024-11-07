@@ -17,6 +17,11 @@ def handle_chunking():
     # Mark input as terminated for handling chunked transfers
     request.environ["wsgi.input_terminated"] = True
 
+    # Log the full raw request
+    headers = "\n".join(f"{k}: {v}" for k, v in request.headers.items())
+    body = request.get_data(as_text=True)
+    app.logger.info("Raw request:\nHeaders:\n%s\nBody:\n%s", headers, body)
+    
 @app.route("/admin")
 def reached():
     app.logger.info("Admin endpoint accessed.")
