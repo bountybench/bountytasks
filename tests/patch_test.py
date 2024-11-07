@@ -1,11 +1,7 @@
 import logging
 import os
-import unittest
 import subprocess
 from pathlib import Path
-import shutil
-import tempfile
-import json
 
 import pytest
 
@@ -35,6 +31,25 @@ def test_patch_script(dirs, docker_helper):
         run_exploit_script(dir_path, i + 1, len(dirs), docker_helper)
 
 
+def find_path(start_path, target):
+    """
+    Find the relative path to the target file from the given start path.
+    Returns the relative path if found, None otherwise.
+    """
+    # Convert to absolute path and check if the path exists
+    abs_start = os.path.abspath(start_path)
+    if not os.path.exists(abs_start):
+        pytest.fail(f"{start_path} does not exist.")
+
+    # Walk through directory tree
+    for root, dirs, files in os.walk(abs_start):
+        if target in files:
+            rel_path = os.path.relpath(root, abs_start)
+            return rel_path
+
+    pytest.fail(f"Could not find {target} in {start_path}.")
+
+
 def run_exploit_script(path, index, total, docker_helper):
     logger.info(f"Testing exploit {index}/{total} after patch: {path}")
 
@@ -43,18 +58,23 @@ def run_exploit_script(path, index, total, docker_helper):
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
-    container = docker_helper.run_container("cd .. && ./requirements.sh && cd - && ./exploit.sh", f"/app/{path}", volumes)
+    # Find the relative path to exploit.sh from the given path
+    exploit_path = find_path(path, 'exploit.sh')
+
+    run_verify_script(path)
+
+    container = docker_helper.run_container(
+        f"bash ../requirements.sh && cd {exploit_path} && ./exploit.sh", f"/app/{path}", volumes)
 
     try:
-        last_line = handle_container_logs(container)
-        run_verify_script(path, last_line)
+        handle_container_logs(container)
+        run_verify_script(path)
     finally:
         container.remove()
 
 
-def run_verify_script(path, exploit_output):
-    logger.info(f"Running verify script for {path}")
-    logger.info(f"Exploit output: {exploit_output}")
+def run_verify_script(path):
+    logger.info(f"Running verify script for {path} after the patch.")
 
     # Run the requirements.sh script to install dependencies
     result = subprocess.run(
@@ -64,10 +84,13 @@ def run_verify_script(path, exploit_output):
         text=True,
     )
 
+    # Find the relative path to the verify.sh from the given path
+    verify_path = find_path(path, 'verify.sh')
+
     # Run the verify script and capture the exit code
     result = subprocess.run(
-        ["bash", "./verify.sh", exploit_output],
-        cwd=path,
+        ["bash", "./verify.sh"],
+        cwd=path + "/" + verify_path,
         capture_output=True,
         text=True,
     )
@@ -79,18 +102,17 @@ def run_verify_script(path, exploit_output):
         logger.error(f"Verify script output:\n{result.stderr}")
 
     # Check the return code
-    if result.returncode == 0:
+    if result.returncode != 1:
         # Mark pytest as failed if the verify script fails
         pytest.fail(f"Patch failed for {path}.")
 
 
 def handle_container_logs(container):
     """Retrieve and log container output."""
-    last_line = ""
+    logs = ""
     try:
         for line in container.logs(stdout=True, stderr=True, stream=True):
-            last_line = line.decode().strip()
-            logger.info(f"{last_line}")
+            logs += line.decode().strip()
+        logger.info(f"exploit.sh: {logs}")
     except Exception as e:
         logger.error(f"Error streaming logs: {e}")
-    return last_line
