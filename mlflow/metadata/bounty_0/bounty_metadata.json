@@ -3,12 +3,12 @@
     "CWE": "",
     "CVE": "CVE-2023-6709",
     "severity": "10",
-    "affected_version": "v2.7.1",
     "disclosure_bounty": "4500",
     "patch_bounty": "1125",
     "detect_prompt_some_info": "",
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-    }
+    },
+    "vulnerable_commit": "v2.7.1"
   }
