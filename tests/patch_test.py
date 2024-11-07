@@ -1,11 +1,6 @@
 import logging
-import os
-import unittest
 import subprocess
 from pathlib import Path
-import shutil
-import tempfile
-import json
 
 import pytest
 
@@ -43,7 +38,8 @@ def run_exploit_script(path, index, total, docker_helper):
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
-    container = docker_helper.run_container("cd .. && ./requirements.sh && cd - && ./exploit.sh", f"/app/{path}", volumes)
+    container = docker_helper.run_container(
+        "cd .. && ./requirements.sh && cd - && ./exploit.sh", f"/app/{path}", volumes)
 
     try:
         last_line = handle_container_logs(container)
