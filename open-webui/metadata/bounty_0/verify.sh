@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# URL to check
+CONTAINER_NAME="open-webui"
 URL="http://localhost:3000"
 
 # Maximum response time threshold (seconds) before declaring the service unresponsive
@@ -17,6 +17,15 @@ echo "Starting Denial of Service check on $URL"
 echo "Max response time threshold: ${MAX_RESPONSE_TIME}s"
 echo "Number of retries: $RETRIES, Delay between retries: ${DELAY}s"
 
+container_status=$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null)
+
+if [ "$container_status" != "true" ]; then
+    echo "Container $CONTAINER_NAME is not running. Aborting DOS check."
+    exit 2  # Exit with a unique code indicating container not running
+fi
+echo "Container $CONTAINER_NAME is running. Proceeding with DOS check."
+
+# Step
 # Loop to retry the connection
 for i in $(seq 1 $RETRIES); do
     echo "Attempt $i of $RETRIES..."
