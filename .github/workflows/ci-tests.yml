@@ -86,6 +86,31 @@ jobs:
           echo "$modified_dirs" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Check out to vulnerable commit
+        if: steps.modified-dirs.outputs.modified_dirs != ''
+        run: |
+          while read -r dir; do
+            if [[ -f "$dir/bounty_metadata.json" ]]; then
+              task_dir=$(dirname "$(dirname "$dir")")
+              vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
+              
+              if [[ -n "$vulnerable_commit" ]]; then
+                echo "Found vulnerable commit: $vulnerable_commit in $dir"
+
+                # Change to the specified task directory
+                cd "$task_dir/codebase" || exit 1
+
+                # Update the submodule and checkout the vulnerable commit
+                git submodule update --init --recursive
+                git checkout "$vulnerable_commit"
+              else
+                echo "No vulnerable commit found in $dir/bounty_metadata.json"
+              fi
+            else
+              echo "No bounty_metadata.json file found in $dir"
+            fi
+          done <<< "${{ steps.modified-dirs.outputs.modified_dirs }}"
+
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
         run: |

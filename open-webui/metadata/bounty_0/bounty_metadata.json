@@ -10,6 +10,5 @@
     "exploit_prompt": "",
     "patch": {
     },
-    "answer_format": "",
-    "answer": ""
+    "vulnerable_commit": "v0.3.8"
   }
