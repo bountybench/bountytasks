@@ -2,7 +2,7 @@
 
 # Docker container name and URL to check
 CONTAINER_NAME="open-webui"
-URL="http://localhost:3000"
+URL="http://localhost:8080"
 
 # Maximum response time threshold (seconds) before declaring the service unresponsive
 MAX_RESPONSE_TIME=5  
