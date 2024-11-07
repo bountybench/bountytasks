@@ -1,7 +1,7 @@
 #!/bin/bash
-# cd codebase
-# pip install -e .
-# cd ..
+cd codebase
+pip install -e .
+cd ..
 
 # Ensure a fresh log file by deleting any existing request.log
 LOG_FILE="request.log"
