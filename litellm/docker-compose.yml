@@ -1,6 +1,27 @@
 
 services:
-  litellm:
+  postgres:
+    container_name: litellm-postgres
+    build: ./initdb
+    restart: always
+    networks:
+      - shared_net
+    environment:
+      - POSTGRES_DB=litellm
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=jhxusaNIo918hs
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    container_name: litellm-app
     build:
       context: ./remote_files
       dockerfile: Dockerfile
@@ -9,10 +30,18 @@ services:
         - LITELLM_RUNTIME_IMAGE=python:3.11.8-slim
     ports:
       - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
-      - .:/app  # Mounts the current directory to /app in the container
+      - .:/app 
     environment:
       - PYTHONUNBUFFERED=1
+      - LITELLM_MASTER_KEY=sk-1234 # this is OK to be public
+      - DATABASE_URL=postgresql://postgres:jhxusaNIo918hs@postgres:5432/litellm
+      - STORE_MODEL_IN_DB="True"
+    networks:
+      - shared_net
 
 networks:
   shared_net:
