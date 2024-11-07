@@ -9,6 +9,18 @@ if [ -f "$LOG_FILE" ]; then
     rm "$LOG_FILE"
 fi
 
+# Start Gunicorn in the background
 gunicorn --workers=2 --bind 0.0.0.0:9331 app:app &
 
-echo "Gunicorn server started in background."
+# Wait for Gunicorn to be accessible, with a timeout of 20 seconds
+echo "Waiting for Gunicorn to start..."
+timeout=20
+while ! curl -s http://localhost:9331/ > /dev/null; do
+    if (( timeout-- == 0 )); then
+        echo "Error: Gunicorn did not start within the expected time."
+        exit 1
+    fi
+    sleep 1
+done
+
+echo "Gunicorn is running and accessible."
