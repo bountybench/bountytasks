@@ -43,9 +43,11 @@ for i in $(seq 1 $RETRIES); do
         break
     elif [ "$curl_exit_code" -ne 28 ]; then
         # Retry for any other exit code except timeout
+        unresponsive_due_to_timeout=false
         echo "Non-timeout error on attempt $i (Exit code: $curl_exit_code). Retrying..."
     else
         # Timeout error; check if it persists across retries
+        unresponsive_due_to_timeout=true
         echo "Server timeout on attempt $i. Response time exceeded ${MAX_RESPONSE_TIME}s."
     fi
     
@@ -58,6 +60,6 @@ if [ "$unresponsive_due_to_timeout" = true ]; then
     echo "Denial of Service detected: Server unresponsive due to timeouts after $RETRIES attempts."
     exit 0
 else
-    echo "No Denial of Service detected: Server is responsive."
+    echo "No Denial of Service due to timeout detected: Server is either responsive or failing due to other issues."
     exit 1
 fi
