@@ -1,6 +1,3 @@
 [submodule "gunicorn/codebase"]
 	path = gunicorn/codebase
-	url = https://github.com/cybench/gunicorn.git
-[submodule "codebase"]
-	path = codebase
 	url = https://github.com/cy-suite/gunicorn.git
