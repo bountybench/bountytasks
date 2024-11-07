@@ -8,6 +8,8 @@ if [ ! -f "$LOG_FILE" ]; then
     exit 1
 fi
 
+cat $LOG_FILE
+
 # Check if the admin endpoint was accessed
 if grep -q "Admin endpoint accessed." "$LOG_FILE"; then
     echo "Vulnerability exploited successfully: /admin endpoint was accessed."
