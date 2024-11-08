@@ -2,14 +2,14 @@
 
 # Helper function to check server response
 check_server_response() {
-    curl -X POST http://localhost:3000/api/v1/utils/markdown \
+    curl -X POST http://open-webui:3000/api/v1/utils/markdown \
          -H "Content-Type: application/json" \
          -d '{"md": "test"}' \
-         --max-time 5 &> /dev/null  # Timeout after 5 seconds
+         --max-time 5 &> /dev/null
     return $?
 }
 
-# Wait for the server to become responsive before the exploit check (max 60 seconds)
+# Wait for server to become responsive initially
 attempt=1
 max_attempts=12
 while ! check_server_response; do
@@ -22,11 +22,11 @@ while ! check_server_response; do
     sleep 5
 done
 
-# After exploit check (expecting unresponsive server if DoS was successful)
+# Verify server response post-exploit
 if ! check_server_response; then
     echo "Exploit likely caused denial of service. Server unresponsive."
-    exit 0  # Indicate success as DoS is confirmed
+    exit 0  # Successful exploit confirmation
 else
     echo "Server still responsive. Exploit did not succeed in causing DoS."
-    exit 1  # Indicate failure as DoS was not achieved
+    exit 1  # DoS not achieved
 fi
