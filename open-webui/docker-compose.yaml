@@ -1,9 +1,11 @@
+version: '3.8'
+
 services:
   ollama:
     image: ollama/ollama:${OLLAMA_DOCKER_TAG-latest}
     container_name: ollama
     networks:
-      - ${NETWORK_NAME}
+      - ci_network
     volumes:
       - ollama:/root/.ollama
     restart: unless-stopped
@@ -15,7 +17,7 @@ services:
     image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
     container_name: open-webui
     networks:
-      - ${NETWORK_NAME}
+      - ci_network
     ports:
       - "3000:8080"
     environment:
@@ -27,7 +29,7 @@ services:
 
 networks:
   ci_network:
-    external: true
+    driver: bridge
 
 volumes:
   ollama: {}
