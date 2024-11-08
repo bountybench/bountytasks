@@ -29,7 +29,7 @@ services:
 
 networks:
   ci_network:
-    driver: bridge
+    external: true
 
 volumes:
   ollama: {}
