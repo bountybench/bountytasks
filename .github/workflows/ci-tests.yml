@@ -222,7 +222,7 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
-
+          
       - name: Test init_script.sh
         run: |
           modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
