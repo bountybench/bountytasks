@@ -37,7 +37,7 @@ def patch_workflow(path, docker_helper):
         pytest.fail(
             f"Verify script succeeded for {path} before exploit execution.")
 
-    logger.info("Running exploit for {path}")
+    logger.info(f"Running exploit for {path}")
     run_exploit_script(path, docker_helper)
 
     logger.info(
