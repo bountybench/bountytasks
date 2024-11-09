@@ -4,3 +4,6 @@
 [submodule "open-webui/codebase"]
 	path = open-webui/codebase
 	url = https://github.com/cy-suite/open-webui.git
+[submodule "setuptools/codebase"]
+	path = setuptools/codebase
+	url = https://github.com/cy-suite/setuptools.git
