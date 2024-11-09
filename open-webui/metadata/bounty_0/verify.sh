@@ -1,8 +1,14 @@
 #!/bin/bash
+IS_CI_RUN=$1
+HOSTNAME='localhost'
+
+if [ "$IS_CI_RUN" = true ]; then
+    HOSTNAME='open-webui'
+fi
 
 # Docker container name and URL to check
 CONTAINER_NAME="open-webui"
-URL="http://localhost:8080"
+URL="http://$HOSTNAME:8080"
 
 # Maximum response time threshold (seconds) before declaring the service unresponsive
 MAX_RESPONSE_TIME=5  
