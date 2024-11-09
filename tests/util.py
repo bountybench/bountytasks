@@ -1,10 +1,12 @@
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import pytest
+
 from tests.docker_helper import DOCKER_SOCKET, PROJECT_DIR
 from tests.logger import logger
+
 
 def find_path(start_path, target):
     """
@@ -24,6 +26,7 @@ def find_path(start_path, target):
 
     pytest.fail(f"Could not find {target} in {start_path}.")
 
+
 def run_exploit_script(bounty_dir, docker_helper):
     volumes = {
         PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
@@ -39,20 +42,15 @@ def run_exploit_script(bounty_dir, docker_helper):
         f"cd {repo_dir}/metadata && bash requirements.sh && cd - && cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
 
     try:
-        logger.info(f"=================Exploit Logs=================\n\n {docker_helper.stream_logs(container)}\n\n=================End=================")
+        logger.info(
+            f"=================Exploit Logs=================\n\n {docker_helper.stream_logs(container)}\n\n=================End=================")
     except Exception as e:
         logger.error(f"Error streaming logs: {e}")
     finally:
         container.remove()
 
-def run_verify_script(path, exploit_status):
-    if exploit_status:
-        logger.info(
-            f"Running verify script for {path} after executing the exploit")
-    else:
-        logger.info(
-            f"Running verify script for {path} before executing the exploit")
 
+def run_verify_script(path):
     # Run the requirements.sh script to install dependencies
     result = subprocess.run(
         ["bash", "./requirements.sh"],
@@ -65,68 +63,14 @@ def run_verify_script(path, exploit_status):
     verify_path = find_path(path, 'verify.sh')
 
     # Run the verify script and capture the exit code
-    result = subprocess.run(
+    verify_result = subprocess.run(
         ["bash", "./verify.sh"],
         cwd=path + "/" + verify_path,
         capture_output=True,
         text=True
     )
 
-    logger.info(f"=================Verify Logs=================\n\n {result.stdout}\n{result.stderr}\n\n=================End=================")
-    # Log the output from the verify script
-    if result.stdout:
-        logger.info(f"Verify script output:\n{result.stdout}")
-    if result.stderr:
-        logger.error(f"Verify script error output:\n{result.stderr}")
+    logger.info(
+        f"=================Verify Logs=================\n\n {verify_result.stdout}\n{verify_result.stderr}\n\n=================End=================")
 
-    if exploit_status:
-        # Check the return code
-        if result.returncode != 0:
-            # Mark pytest as failed if the verify script fails
-            pytest.fail(
-                f"Verify script failed for {path} after exploit execution.")
-    else:
-        # Check the return code
-        if result.returncode != 1:
-            # Mark pytest as failed if the verify script passes
-            pytest.fail(
-                f"Verify script passed for {path} before exploit execution.")
-
-def run_verify_script(path):
-    result = subprocess.run(
-        ["bash", "./requirements.sh"],
-        cwd=Path(path).parent,
-        capture_output=True,
-        text=True,
-    )
-
-    # Find the relative path to the verify.sh from the given path
-    verify_path = find_path(path, 'verify.sh')
-
-    # Run the verify script and capture the exit code
-    result = subprocess.run(
-        ["bash", "./verify.sh"],
-        cwd=path + "/" + verify_path,
-        capture_output=True,
-        text=True,
-    )
-
-    logger.info(f"=================Verify Logs=================\n\n {result.stdout}\n{result.stderr}\n\n=================End=================")
-
-    return result.returncode
-
-def run_verify_script(path):
-    logger.info(f"Running verify script for {path} after the patch.")
-
-    
-
-    # Log the output from the verify script
-    if result.stdout:
-        logger.info(f"Verify script output:\n{result.stdout}")
-    if result.stderr:
-        logger.error(f"Verify script output:\n{result.stderr}")
-
-    # Check the return code
-    if result.returncode != 1:
-        # Mark pytest as failed if the verify script fails
-        pytest.fail(f"Patch failed for {path}.")
+    return verify_result.returncode
