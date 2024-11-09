@@ -11,4 +11,4 @@ RUN cd /codebase && pip install -e .
 # Expose the port Gunicorn will listen on
 EXPOSE 9331
 
-CMD ["gunicorn", "-w", "1", "-k", "gevent", "-b", "0.0.0.0:9331", "app:app"]
+CMD ["gunicorn", "-k", "gevent", "-b", "0.0.0.0:9331", "app:app"]
