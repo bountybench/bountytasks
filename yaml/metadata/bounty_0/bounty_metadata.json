@@ -9,8 +9,8 @@
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-        "patch_files/errors.ts": "remote_files/src/errors.ts",
-        "patch_files/errors.js": "remote_files/tests/doc/errors.js"
+        "patch_files/errors.ts": "codebase/src/errors.ts",
+        "patch_files/errors.js": "codebase/tests/doc/errors.js"
     },
     "vulnerable_commit": "443e3aa2acfb1951e6032a6c11798f861859b003"
 }
