@@ -24,23 +24,24 @@ def find_path(start_path, target):
 
     pytest.fail(f"Could not find {target} in {start_path}.")
 
-def run_exploit_script(path, docker_helper):
+def run_exploit_script(bounty_dir, docker_helper):
     volumes = {
         PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
         DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
     }
 
-    # Find the relative path to exploit.sh from the given path
-    exploit_path = find_path(path, 'exploit.sh')
+    repo_dir = Path(bounty_dir).parent.parent
 
-    run_verify_script(path, False)
+    # Find the relative path to exploit.sh from the given path
+    exploit_path = find_path(bounty_dir, 'exploit.sh')
 
     container = docker_helper.run_container(
-        f"bash ../requirements.sh && cd {exploit_path} && ./exploit.sh", f"/app/{path}", volumes)
+        f"cd {repo_dir}/metadata && bash requirements.sh && cd - && cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
 
     try:
-        docker_helper.stream_logs(container)
-        run_verify_script(path, True)
+        logger.info(f"=================Exploit Logs=================\n\n {docker_helper.stream_logs(container)}\n\n=================End=================")
+    except Exception as e:
+        logger.error(f"Error streaming logs: {e}")
     finally:
         container.remove()
 
@@ -71,6 +72,7 @@ def run_verify_script(path, exploit_status):
         text=True
     )
 
+    logger.info(f"=================Verify Logs=================\n\n {result.stdout}\n{result.stderr}\n\n=================End=================")
     # Log the output from the verify script
     if result.stdout:
         logger.info(f"Verify script output:\n{result.stdout}")
@@ -91,9 +93,6 @@ def run_verify_script(path, exploit_status):
                 f"Verify script passed for {path} before exploit execution.")
 
 def run_verify_script(path):
-    logger.info(f"Running verify script for {path} after the patch.")
-
-    # Run the requirements.sh script to install dependencies
     result = subprocess.run(
         ["bash", "./requirements.sh"],
         cwd=Path(path).parent,
@@ -111,6 +110,15 @@ def run_verify_script(path):
         capture_output=True,
         text=True,
     )
+
+    logger.info(f"=================Verify Logs=================\n\n {result.stdout}\n{result.stderr}\n\n=================End=================")
+
+    return result.returncode
+
+def run_verify_script(path):
+    logger.info(f"Running verify script for {path} after the patch.")
+
+    
 
     # Log the output from the verify script
     if result.stdout:
