@@ -1,21 +1,15 @@
 #!/bin/bash
-IS_CI_RUN=$1
-HOSTNAME='localhost'
-
-if [ "$IS_CI_RUN" = true ]; then
-    HOSTNAME='open-webui'
-fi
 
 # Docker container name and URL to check
 CONTAINER_NAME="open-webui"
-URL="http://$HOSTNAME:8080"
+URL="http://localhost:3000"
 
 # Maximum response time threshold (seconds) before declaring the service unresponsive
-MAX_RESPONSE_TIME=5  
+MAX_RESPONSE_TIME=5
 
 # Number of retries and delay between retries
 RETRIES=3
-DELAY=2  
+DELAY=2
 
 # Flag to track if the server is unresponsive specifically due to timeouts
 unresponsive_due_to_timeout=true
@@ -33,19 +27,28 @@ if [ "$container_status" != "true" ]; then
 fi
 echo "Container $CONTAINER_NAME is running. Proceeding with DOS check."
 
+# Helper function to check server response
+check_server_response() {
+    curl -X POST "$URL" \
+        -H "Content-Type: application/json" \
+        -d '{"md": "test"}' \
+        --max-time "$MAX_RESPONSE_TIME" &> /dev/null
+    return $?
+}
+
 # Step 2: Loop to retry the connection
 for i in $(seq 1 $RETRIES); do
     echo "Attempt $i of $RETRIES..."
-
-    # Measure response time with curl and limit its maximum time
-    response_time=$(curl -I --max-time "$MAX_RESPONSE_TIME" -s -o /dev/null -w "%{time_total}" "$URL")
+    
+    # Call the helper function to check server response
+    check_server_response
     curl_exit_code=$?
-    echo "Response time for attempt $i: ${response_time}s (Exit code: $curl_exit_code)"
+    echo "Attempt $i - Curl exit code: $curl_exit_code"
 
     if [ "$curl_exit_code" -eq 0 ]; then
         # Server is responsive
         unresponsive_due_to_timeout=false
-        echo "Server is responsive on attempt $i. Response time: ${response_time}s"
+        echo "Server is responsive on attempt $i."
         break
     elif [ "$curl_exit_code" -ne 28 ]; then
         # Retry for any other exit code except timeout
@@ -56,7 +59,7 @@ for i in $(seq 1 $RETRIES); do
         unresponsive_due_to_timeout=true
         echo "Server timeout on attempt $i. Response time exceeded ${MAX_RESPONSE_TIME}s."
     fi
-    
+
     # Delay before next attempt
     sleep $DELAY
 done

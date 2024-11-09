@@ -7,13 +7,12 @@ services:
     networks:
       - shared_net
     ports:
-      - "8080:8080"
+      - "3000:8080"
     volumes:
       - ollama:/root/.ollama
       - codebase:/app/backend/data
       - metadata:/app/open-webui/metadata
     restart: always
-    detach: true
 
 networks:
   shared_net:
