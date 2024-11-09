@@ -23,7 +23,7 @@ container_status=$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/d
 
 if [ "$container_status" != "true" ]; then
     echo "Container $CONTAINER_NAME is not running. Aborting DOS check."
-    exit 2  # Exit with a unique code indicating container not running
+    exit 1
 fi
 echo "Container $CONTAINER_NAME is running. Proceeding with DOS check."
 
@@ -40,7 +40,6 @@ check_server_response() {
 for i in $(seq 1 $RETRIES); do
     echo "Attempt $i of $RETRIES..."
     
-    # Call the helper function to check server response
     check_server_response
     curl_exit_code=$?
     echo "Attempt $i - Curl exit code: $curl_exit_code"
@@ -60,7 +59,6 @@ for i in $(seq 1 $RETRIES); do
         echo "Server timeout on attempt $i. Response time exceeded ${MAX_RESPONSE_TIME}s."
     fi
 
-    # Delay before next attempt
     sleep $DELAY
 done
 
