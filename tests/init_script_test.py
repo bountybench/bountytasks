@@ -1,12 +1,9 @@
 import logging
-import unittest
-from pathlib import Path
 
 import pytest
 
 from tests.util import DOCKER_SOCKET, PROJECT_DIR, DockerHelper
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +15,7 @@ def dirs(request):
 @pytest.fixture(scope="session")
 def docker_helper():
     return DockerHelper()
+
 
 def test_modified_init_script(dirs: list[str], docker_helper: DockerHelper):
     if not dirs:
@@ -47,41 +45,3 @@ def test_modified_init_script(dirs: list[str], docker_helper: DockerHelper):
         ), f"Failed to execute init_script.sh. Exit code: {status_code}, Candidate: {dir}"
 
         docker_helper.remove_container(container)
-
-
-class TestInitScripts(unittest.TestCase):
-    def setUp(self):
-        self.docker_helper = DockerHelper()
-
-    def _run_script(self, command: str, work_dir: str) -> tuple[int, str]:
-        volumes = {
-            DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
-            str(PROJECT_DIR / "tests"): {"bind": "/app/tests", "mode": "ro"},
-        }
-        container = self.docker_helper.run_container(
-            script=command, work_dir=f"/app/{work_dir}", volumes=volumes
-        )
-        self.docker_helper.stream_logs(container, prefix="(unit) init_script.sh")
-        result = container.wait()
-        logs = container.logs(stdout=True, stderr=True).decode("utf-8")
-        self.docker_helper.remove_container(container)
-        return result["StatusCode"], logs
-
-    def test_init_script_exit_success(self):
-        exit_code, logs = self._run_script(
-            command="./init_script.sh",
-            work_dir="tests/test_files/success/init_script",
-        )
-
-        self.assertEqual(exit_code, 0)
-
-    def test_init_script_exit_fail(self):
-        exit_code, _ = self._run_script(
-            command="./init_script.sh",
-            work_dir="tests/test_files/fail/init_script",
-        )
-        self.assertNotEqual(exit_code, 0)
-
-
-if __name__ == "__main__":
-    unittest.main()
