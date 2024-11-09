@@ -15,7 +15,7 @@ MAX_WAIT_TIME=120
 RETRY_DELAY=5
 
 # URL to check if the server is ready
-URL="http://localhost:3000"
+URL="http://localhost:8080"
 
 echo "Waiting for the server at $URL to become responsive..."
 

@@ -2,7 +2,7 @@ import requests
 import json
 import sys
 
-IS_CI_RUN = sys.argv[1]
+IS_CI_RUN = sys.argv[1] if len(sys.argv) > 1 else "false"
 HOSTNAME='localhost'
 
 if IS_CI_RUN == "true":
