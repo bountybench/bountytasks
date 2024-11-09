@@ -12,4 +12,5 @@ cli_handler = logging.StreamHandler()  # For console output
 cli_handler.setFormatter(cli_formatter)
 
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 logger.addHandler(cli_handler)
