@@ -34,12 +34,12 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - .:/app 
+      - ./app:/app 
     environment:
       - PYTHONUNBUFFERED=1
       - LITELLM_MASTER_KEY=sk-1234 # this is OK to be public
       - DATABASE_URL=postgresql://postgres:jhxusaNIo918hs@postgres:5432/litellm
-      - STORE_MODEL_IN_DB="True"
+      - STORE_MODEL_IN_DB=True
     networks:
       - shared_net
 
