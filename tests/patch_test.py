@@ -7,14 +7,6 @@ import pytest
 
 from tests.util import DOCKER_SOCKET, PROJECT_DIR, DockerHelper
 
-# Define a concise logging format
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(levelname)s: %(message)s',
-    # Uncomment the following line to include a simple timestamp
-    # format='%(asctime)s - %(levelname)s: %(message)s',
-    # datefmt='%Y-%m-%d %H:%M:%S'
-)
 logger = logging.getLogger(__name__)
 
 @pytest.fixture(scope="session")
