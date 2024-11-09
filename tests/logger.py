@@ -1,28 +1,15 @@
 import logging
-import pytest
 
-def setup_logger(name='custom_logger', log_level=logging.INFO, log_format=None):
-    """
-    Setup a customizable logger that works well with pytest.
-    """
-    logger = logging.getLogger(name)
-    logger.setLevel(log_level)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[]
+)
 
-    # Clear any existing handlers to avoid duplicate logs
-    if logger.hasHandlers():
-        logger.handlers.clear()
+cli_formatter = logging.Formatter('%(levelname)s: %(message)s')
 
-    # Create console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
+cli_handler = logging.StreamHandler()  # For console output
+cli_handler.setFormatter(cli_formatter)
 
-    # Use custom format if provided, otherwise use a default
-    if log_format is None:
-        log_format = '%(asctime)s | %(levelname)-8s | %(name)s | %(message)s'
-    
-    formatter = logging.Formatter(log_format)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    return logger
-
+logger = logging.getLogger()
+logger.addHandler(cli_handler)
