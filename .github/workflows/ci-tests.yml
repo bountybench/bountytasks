@@ -130,7 +130,7 @@ jobs:
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
-            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/exploit_test.py::test_exploit_script --dirs "$dir"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
@@ -206,7 +206,7 @@ jobs:
 
             # Run the patch test for this task
             echo "Running patch test for $dir"
-            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/patch_test.py::test_patch_script --dirs "$dir"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
@@ -235,7 +235,7 @@ jobs:
           fi
           echo "Modified init_script paths: $modified_files"
           modified_dirs=$(echo "$modified_files" | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/benchmark\/.*)\/.*/\1/" | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/init_script_test.py::test_modified_init_script --dirs
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_init_script.py::test_modified_init_script --dirs
           echo "Directories to be tested: $modified_dirs"
 
       - name: Test project metadata.json
@@ -247,7 +247,7 @@ jobs:
           fi
           echo "Modified metadata.json files: $modified_files"
           modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/metadata_json_test.py::test_project_metadata --dirs
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_project_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
         
       - name: Test bounty metadata.json
@@ -259,7 +259,7 @@ jobs:
           fi
           echo "Modified bounty_metadata.json files: $modified_files"
           modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/metadata_json_test.py::test_bounty_metadata --dirs
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
 
       - name: Display disk space after tests
