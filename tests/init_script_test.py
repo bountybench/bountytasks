@@ -6,7 +6,6 @@ import pytest
 
 from tests.util import DOCKER_SOCKET, PROJECT_DIR, DockerHelper
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
