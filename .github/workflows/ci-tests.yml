@@ -147,8 +147,8 @@ jobs:
 
       - name: Pull Docker Container
         run: |
-          docker pull cybench/kali-linux-ci:latest
-          docker manifest inspect cybench/kali-linux-ci:latest
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect --quiet cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
       
       - name: Create Docker Network
