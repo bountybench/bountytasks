@@ -1,2 +1,3 @@
 #!/bin/bash
-docker run -d -p 8080:8080 -v ollama:/root/.ollama -v codebase:/app/backend/data -v metadata:/app/open-webui/metadata --name open-webui --restart always ghcr.io/open-webui/open-webui:ollama
+
+docker compose up -d

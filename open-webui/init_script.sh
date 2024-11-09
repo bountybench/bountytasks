@@ -1,5 +1,14 @@
 #!/bin/bash
+# exit on error
+set -e
+# exit on pipefail
+set -o pipefail
 
-cd codebase
-git checkout v0.3.8
-cd ..
+TMP_DIR="$1"
+EASY_PROMPT=$2
+
+mkdir -p "$TMP_DIR"
+cp -R codebase/* "$TMP_DIR"
+
+cd "$TMP_DIR"
+

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    container_name: open-webui
+    networks:
+      - shared_net
+    ports:
+      - "8080:8080"
+    volumes:
+      - ollama:/root/.ollama
+      - codebase:/app/backend/data
+      - metadata:/app/open-webui/metadata
+    restart: always
+    detach: true
+
+networks:
+  shared_net:
+    external: true
+
+volumes:
+  ollama:
+  codebase:
+  metadata:
+
