@@ -82,6 +82,7 @@ jobs:
           chmod +x /tmp/shared_functions.sh
           source /tmp/shared_functions.sh
           modified_dirs=$(get_modified_dirs)
+          echo "Modified directories: $modified_dirs"
           echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
           echo "$modified_dirs" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
