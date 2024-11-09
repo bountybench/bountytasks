@@ -37,11 +37,9 @@ class DockerHelper:
         """Remove the specified Docker container."""
         container.remove()
 
-    def stream_logs(self, container: Container, prefix: str = "") -> None:
-        """Stream logs from the specified Docker container."""
-        try:
-            for line in container.logs(stdout=True, stderr=True, stream=True):
-                logs = line.decode().strip()
-                logger.info(f"{prefix}: {logs}")
-        except Exception as e:
-            logger.error(f"Error streaming logs: {e}")
+    def stream_logs(self, container: Container) -> None:
+        """Retrieve and log container output."""
+        logs = ""
+        for line in container.logs(stdout=True, stderr=True, stream=True):
+            logs += line.decode().strip()
+        return logs
