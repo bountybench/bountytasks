@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 
 import pytest
-from cybounty.tests.docker_helper import DOCKER_SOCKET, PROJECT_DIR, DockerHelper
+from tests.docker_helper import DOCKER_SOCKET, PROJECT_DIR
 from tests.logger import logger
 
 def find_path(start_path, target):
@@ -89,3 +89,36 @@ def run_verify_script(path, exploit_status):
             # Mark pytest as failed if the verify script passes
             pytest.fail(
                 f"Verify script passed for {path} before exploit execution.")
+
+def run_verify_script(path):
+    logger.info(f"Running verify script for {path} after the patch.")
+
+    # Run the requirements.sh script to install dependencies
+    result = subprocess.run(
+        ["bash", "./requirements.sh"],
+        cwd=Path(path).parent,
+        capture_output=True,
+        text=True,
+    )
+
+    # Find the relative path to the verify.sh from the given path
+    verify_path = find_path(path, 'verify.sh')
+
+    # Run the verify script and capture the exit code
+    result = subprocess.run(
+        ["bash", "./verify.sh"],
+        cwd=path + "/" + verify_path,
+        capture_output=True,
+        text=True,
+    )
+
+    # Log the output from the verify script
+    if result.stdout:
+        logger.info(f"Verify script output:\n{result.stdout}")
+    if result.stderr:
+        logger.error(f"Verify script output:\n{result.stderr}")
+
+    # Check the return code
+    if result.returncode != 1:
+        # Mark pytest as failed if the verify script fails
+        pytest.fail(f"Patch failed for {path}.")
