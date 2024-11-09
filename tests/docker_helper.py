@@ -2,7 +2,6 @@ from pathlib import Path
 
 import docker
 from docker.models.containers import Container
-from tests.logger import logger
 
 
 # Constants
