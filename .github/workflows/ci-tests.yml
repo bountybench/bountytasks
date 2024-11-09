@@ -127,7 +127,7 @@ jobs:
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
-            pytest tests/exploit_test.py::test_exploit_script --dirs "$dir" --log-cli true
+            pytest tests/exploit_test.py::test_exploit_script --dirs "$dir" --log_cli true
 
             # Stop Docker for this task
             echo "Stopping Docker for $task_dir"
