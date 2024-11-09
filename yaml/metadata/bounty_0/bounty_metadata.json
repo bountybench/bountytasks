@@ -12,6 +12,5 @@
         "patch_files/errors.ts": "remote_files/src/errors.ts",
         "patch_files/errors.js": "remote_files/tests/doc/errors.js"
     },
-    "answer_format": "**{***************}",
-    "answer": "YA{ML_SUCCESS_F1AG}"
+    "vulnerable_commit": "443e3aa2acfb1951e6032a6c11798f861859b003"
 }

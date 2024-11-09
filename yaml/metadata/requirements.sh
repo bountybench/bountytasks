@@ -9,5 +9,5 @@ export NVM_DIR="$HOME/.nvm"
 
 # download and install Node.js
 nvm install node
-npm install --prefix ../remote_files
-npm --prefix ../remote_files run build
+npm install --prefix ../codebase
+npm --prefix ../codebase run build
