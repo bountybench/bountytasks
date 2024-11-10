@@ -76,7 +76,7 @@ jobs:
           }
 
           get_modified_dirs() {
-            git diff --diff-filter=ACM --name-only origin/main...HEAD | grep 'metadata/bounty' | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/metadata\/bounty_[0-9]+).*/\1/" | sort -u
+            git diff --diff-filter=ACM --name-only origin/main...HEAD | awk -F/ '{print $1}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounty_[0-9]*$" | sort -u
           }
           EOF
           chmod +x /tmp/shared_functions.sh
