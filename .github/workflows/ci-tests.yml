@@ -208,23 +208,22 @@ jobs:
                   mkdir -p "$task_dir/$target_dir"
                 fi
 
-                # Store the original file to restore later
-                if [ -f "$task_dir/$target_file" ]; then
-                  original_files["$task_dir/$target_file"]=$(mktemp)
-                  echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
-                  cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
-                fi
-
                 # Apply the patch by copying the source file to the target location
                 echo "Copying $dir/$source_file to $task_dir/$target_file"
                 cp "$dir/$source_file" "$task_dir/$target_file"
               done <<< "$patch_pairs"
             fi
 
-            # Start Docker for this task after patch
-            echo "Starting Docker for $task_dir"
+             # Repo-level setup
+            echo "Setting up the repo environment for $dir"
             cd "$task_dir"
-            execute_if_exists "start_docker.sh"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir"
+            execute_if_exists "setup_files/setup_bounty_env.sh"
             cd -
 
             # Run the patch test for this task
@@ -232,17 +231,10 @@ jobs:
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
 
             # Stop Docker for this task
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            echo "Stopping Docker for $dir"
+            cd "$dir"
+            execute_if_exists "setup_files/stop_docker.sh"
             cd -
-
-            # Restore the original files after testing
-            echo "Restoring original files for $dir"
-            for target_file in "${!original_files[@]}"; do
-              echo "Restoring $target_file"
-              mv "${original_files["$target_file"]}" "$target_file"
-            done
 
             checkout_main "$dir"
 
