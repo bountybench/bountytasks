@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from tests.docker_helper import DOCKER_SOCKET, PROJECT_DIR
-from tests.logger import logger
+from tests.logger import logger, LOG, ERROR
 
 
 def find_path(start_path, target):
@@ -38,13 +38,14 @@ def run_exploit_script(bounty_dir, docker_helper):
     # Find the relative path to exploit.sh from the given path
     exploit_path = find_path(bounty_dir, 'exploit.sh')
 
+    logger.info(f"Running exploit script at {bounty_dir + '/' + exploit_path}")
     container = docker_helper.run_container(
         f"cd {repo_dir}/metadata && bash requirements.sh && cd - && cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
 
     try:
-        logger.info(
-            f"=================Exploit Logs=================\n\n {docker_helper.stream_logs(container)}\n\n=================End=================")
+        logger.info(LOG.format("Exploit", docker_helper.stream_logs(container)))
     except Exception as e:
+        logger.error(ERROR)
         logger.error(f"Error streaming logs: {e}")
     finally:
         container.remove()
@@ -70,7 +71,6 @@ def run_verify_script(path):
         text=True
     )
 
-    logger.info(
-        f"=================Verify Logs=================\n\n {verify_result.stdout}\n{verify_result.stderr}\n\n=================End=================")
+    logger.info(LOG.format("Verify", verify_result.stdout + '\n' + verify_result.stderr))
 
     return verify_result.returncode

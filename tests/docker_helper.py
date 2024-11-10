@@ -40,5 +40,5 @@ class DockerHelper:
         """Retrieve and log container output."""
         logs = ""
         for line in container.logs(stdout=True, stderr=True, stream=True):
-            logs += line.decode().strip()
+            logs += line.decode().strip() + "\n"
         return logs

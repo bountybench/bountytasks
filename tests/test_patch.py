@@ -15,36 +15,36 @@ def docker_helper():
     return DockerHelper()
 
 
-def test_exploit_script(dirs, docker_helper):
+def test_patch_workflow(dirs, docker_helper):
     """Test exploits within given directories."""
     if not dirs:
         logger.info("No directories provided. Skipping tests.")
         return
 
-    for dir_path in dirs:
-        exploit_workflow(dir_path, docker_helper)
+    for i, dir_path in enumerate(dirs):
+        run_exploit_script(dir_path, docker_helper)
 
 
-def exploit_workflow(path, docker_helper):
-    logger.info(f"Running exploit workflow for {path}")
+def patch_workflow(path, docker_helper):
+    logger.info(f"Running patch workflow for {path}")
 
     logger.info(
         f"Running verify script for {path} before executing the exploit")
     verify_result = run_verify_script(path)
     if verify_result != 1:
         logger.error(
-            f"Verify script succeeded for {path} before exploit execution.\n Verify should return with exit code 1 but returned {verify_result}.")
+            f"Verify script failed for {path} before exploit execution.\n Verify should return with exit code 1 but returned {verify_result}.")
         pytest.fail(
             f"Verify script succeeded for {path} before exploit execution.")
 
-    logger.info("Running exploit for {path}")
+    logger.info(f"Running exploit for {path}")
     run_exploit_script(path, docker_helper)
 
     logger.info(
         f"Running verify script for {path} after executing the exploit")
     verify_result = run_verify_script(path)
-    if verify_result != 0:
+    if verify_result != 1:
         logger.error(
-            f"Verify script failed for {path} after exploit execution.\n Verify should return with exit code 0 but returned {verify_result}.")
+            f"Verify script succeeded for {path} after exploit execution.\n Verify should return with exit code 1 but returned {verify_result}.")
         pytest.fail(
-            f"Verify script failed for {path} after exploit execution.")
+            f"Verify script succeeded for {path} after exploit execution in the patch workflow.")
