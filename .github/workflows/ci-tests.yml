@@ -142,8 +142,8 @@ jobs:
 
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
-            cd "$dir"
-            execute_if_exists "setup_files/setup_bounty_env.sh"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
             cd -
 
             # Run the exploit and verification for this task
@@ -152,8 +152,8 @@ jobs:
 
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
-            cd "$dir"
-            execute_if_exists "setup_files/stop_docker.sh"
+            cd "$dir/setup_files"
+            execute_if_exists "stop_docker.sh"
             cd -
 
             checkout_main "$dir"
@@ -222,8 +222,8 @@ jobs:
 
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
-            cd "$dir"
-            execute_if_exists "setup_files/setup_bounty_env.sh"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
             cd -
 
             # Run the patch test for this task
@@ -232,8 +232,8 @@ jobs:
 
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
-            cd "$dir"
-            execute_if_exists "setup_files/stop_docker.sh"
+            cd "$dir/setup_files"
+            execute_if_exists "stop_docker.sh"
             cd -
 
             checkout_main "$dir"
