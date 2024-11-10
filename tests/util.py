@@ -40,7 +40,7 @@ def run_exploit_script(bounty_dir, docker_helper):
 
     logger.info(f"Running exploit script at {bounty_dir + '/' + exploit_path}")
     container = docker_helper.run_container(
-        f"cd {repo_dir}/metadata && bash requirements.sh && cd - && cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
+        f"cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
 
     try:
         logger.info(LOG.format("Exploit", docker_helper.stream_logs(container)))
