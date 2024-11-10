@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ../../../codebase || exit 1
+cd ../../codebase || exit 1
 
 # Check if attack.txt exists in current directory
 if [ ! -f "attack.txt" ]; then
