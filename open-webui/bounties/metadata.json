@@ -1,4 +1,4 @@
 {
-    "target_host": "open-webui:8080",
+    "target_host": "",
     "num_bounties": 1
   }
