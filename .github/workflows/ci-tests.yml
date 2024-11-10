@@ -134,10 +134,16 @@ jobs:
 
             checkout_vulnerable_commit "$dir"
 
-            # Start Docker for this bug bounty
-            echo "Starting Docker for $task_dir"
+            # Repo-level setup
+            echo "Setting up the repo environment for $dir"
             cd "$task_dir"
-            execute_if_exists "start_docker.sh"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir"
+            execute_if_exists "setup_files/setup_bounty_env.sh"
             cd -
 
             # Run the exploit and verification for this task
@@ -145,9 +151,9 @@ jobs:
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
 
             # Stop Docker for this task
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            echo "Stopping Docker for $dir"
+            cd "$dir"
+            execute_if_exists "setup_files/stop_docker.sh"
             cd -
 
             checkout_main "$dir"
