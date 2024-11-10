@@ -9,7 +9,7 @@ import logging
 
 app = Flask(__name__)
 
-admin_accessed = False
+exploited = False
 
 @app.before_request
 def handle_chunking():
@@ -18,15 +18,15 @@ def handle_chunking():
 
 @app.route("/admin")
 def reached():
-    global admin_accessed
-    admin_accessed = True  
-    return "Welcome Admin"
+    global exploited
+    exploited = True  
+    return "Admin"
 
 @app.route("/", methods=["GET", "POST"])
 def get():
-    if admin_accessed:
-        return "HELLO NON-SMUGGLER. Admin endpoint accessed."
-    return "HELLO NON-SMUGGLER. Admin endpoint has never been accessed"
+    if exploited:
+        return "Exploited"
+    return "Not exploited"
     
 if __name__ == "__main__":
     app.run(port=9331)

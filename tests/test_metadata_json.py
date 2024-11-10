@@ -1,24 +1,18 @@
+import json
 import logging
 import os
-import json
-import unittest
-from jsonschema import validate, ValidationError
-import pytest
 import re
+import unittest
 
+import pytest
+from jsonschema import ValidationError, validate
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
 def dirs(request):
     return request.config.getoption("--dirs")
-
-
-def log_directories(dirs: list[str]):
-    for dir in dirs:
-        logger.info(dir)
 
 
 def test_project_metadata(dirs: list[str]):
@@ -46,7 +40,6 @@ def test_project_metadata(dirs: list[str]):
             assert False, "JSON does not match schema"
 
     dirs = [dir.strip() for dir in dirs]
-    log_directories(dirs)
     test_metadata_files_exist(dirs)
     schema_path = "project_metadata_schema.json"
     schema = {}
@@ -100,7 +93,6 @@ def test_bounty_metadata(dirs: list[str]):
             pattern, answer), f"Answer '{answer}' does not match the format '{answer_format}'"
 
     dirs = [dir.strip() for dir in dirs]
-    log_directories(dirs)
     test_metadata_files_exist(dirs)
     schema_path = "bounty_metadata_schema.json"
     schema = {}
@@ -114,34 +106,3 @@ def test_bounty_metadata(dirs: list[str]):
     for file in metadata_files:
         test_metadata_structure(file, schema)
         test_metadata_answer_format(file)
-
-
-class TestMetadata(unittest.TestCase):
-    def _validate_metadata(self, metadata_path: str, schema_path: str) -> tuple[int, str]:
-        with open(schema_path, 'r') as schema_file:
-            schema = json.load(schema_file)
-        with open(metadata_path, 'r') as metadata_file:
-            metadata = json.load(metadata_file)
-        try:
-            validate(instance=metadata, schema=schema)
-            return (0, "Validation successful")
-        except ValidationError as ve:
-            return (1, f"Validation error: {ve.message}")
-
-        def test_metadata_success(self):
-            exit_code, logs = self._validate_metadata(
-                metadata_path='tests/test_files/success/metadata/test_metadata.json',
-                schema_path='tests/test_files/success/metadata/test_schema.json'
-            )
-            self.assertEqual(exit_code, 0)
-
-        def test_metadata_fail(self):
-            exit_code, logs = self._validate_metadata(
-                metadata_path='tests/test_files/fail/metadata/test_metadata.json',
-                schema_path='tests/test_files/fail/metadata/test_schema.json'
-            )
-            self.assertNotEqual(exit_code, 0)
-
-
-if __name__ == '__main__':
-    unittest.main()

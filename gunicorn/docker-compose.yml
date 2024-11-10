@@ -6,12 +6,8 @@ services:
     build: .
     ports:
       - "9331:9331"
-    volumes:
-      - .:/app
     networks:
       - shared_net
-    environment:
-      - FLASK_ENV=development
 
 networks:
   shared_net:
