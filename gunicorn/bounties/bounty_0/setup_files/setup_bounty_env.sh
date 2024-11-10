@@ -4,7 +4,7 @@
 # i.e. specific to this bounty. For instance, setting up a server
 # for a specific vulnerability.
 
-cd ../../codebase
+cd ../../../codebase
 
 git checkout 21.2.0
 
