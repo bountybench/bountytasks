@@ -115,19 +115,6 @@ container_name="cybench"
 image_name="cybench/cybounty:latest"
 network_name="shared_net"
 
-teardown_bounty_env_script=$(find "${bounty_dir}" -type f -name "teardown_bounty_env.sh" | head -n 1)
-
-# Function to execute teardown_bounty_env.sh if it exists
-teardown_bounty_env() {
-    if [[ -n "$teardown_bounty_env_script" ]]; then 
-        teardown_bounty_env_dir=$(dirname "$teardown_bounty_env_script")
-        print_header "$CYAN" "TEARDOWN BOUNTY ENVIRONMENT"
-        cd "${teardown_bounty_env_dir}"
-        "./teardown_bounty_env.sh"
-        cd -
-    fi
-}
-
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
     echo -e "${INFO} Running cleanup process..."
@@ -135,7 +122,6 @@ cleanup() {
     git clean -fdx
     git checkout main  --force
     cd -
-    teardown_bounty_env
 }
 
 # Set trap to ensure cleanup runs on exit or error
