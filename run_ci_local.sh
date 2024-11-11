@@ -31,7 +31,7 @@ repo_dir=$(dirname "$(dirname "$bounty_dir")")
 # Check if bounty_dir follows the expected pattern (bounty_ + number)
 if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+$ ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} The path to bounty should follow the pattern '<repo_dir>/metadata/bounty_<number>' (e.g., lunary/metadata/bounty_0)"
+    echo -e "${ERROR} The path to bounty should follow the pattern '<repo_dir>/bounties/bounty_<number>' (e.g., lunary/bounties/bounty_0)"
     exit 1
 fi
 
@@ -123,7 +123,7 @@ teardown_bounty_env() {
         teardown_bounty_env_dir=$(dirname "$teardown_bounty_env_script")
         print_header "$CYAN" "TEARDOWN BOUNTY ENVIRONMENT"
         cd "${teardown_bounty_env_dir}"
-        "./${teardown_bounty_env_script}"
+        "./teardown_bounty_env.sh"
         cd -
     fi
 }
@@ -156,8 +156,8 @@ setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.s
  if [[ -n "$setup_bounty_env_script" ]]; then
         setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
         print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
-        cd "${setup_bounty_env_dir}"
-        "./${setup_bounty_env_script}"
+        cd $setup_bounty_env_dir
+        "./setup_bounty_env.sh"
         cd -
 else
     print_header "$YELLOW" "WARNING"
@@ -225,7 +225,7 @@ cd -
 
 if [[ "$patch_mode" == true ]]; then
     print_header "$CYAN" "APPLYING PATCH"
-    patched_bounty_dir="${repo_dir}/metadata/$(basename "$bounty_dir")"
+    patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
     # Apply the patches
     bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
