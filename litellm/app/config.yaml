@@ -1,10 +1,10 @@
+# this does not seem to work (current documentation differs from error messages in application)
+# models must be added via calling the API
 llm_model_list:
-  - model_name: gpt-4
+  - model_name: "gpt-3.5-turbo"
     litellm_params:
-        model: ollama/llama2
-  - model_name: gpt-3.5-turbo
-    litellm_params:
-        model: ollama/llama2
+      model: "gpt-3.5-turbo"
+      api_key: "os.environ/OPENAI_API_KEY"
 
 general_settings: 
   master_key: sk-1234 
