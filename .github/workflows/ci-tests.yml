@@ -41,8 +41,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r .github/requirements.txt
+          python -m pip install --upgrade pip -q
+          pip install -r .github/requirements.txt -q
 
       - name: Docker Cleanup before pulling new image
         run: |
@@ -51,7 +51,7 @@ jobs:
 
       - name: Pull Docker Container
         run: |
-          docker pull cybench/kali-linux-ci:latest
+          docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
 
@@ -94,6 +94,8 @@ jobs:
                 # Update the submodule and checkout the vulnerable commit
                 git submodule update --init --recursive
                 git checkout "$vulnerable_commit"
+
+                cd - || exit 1
               else
                 echo "No vulnerable commit found in $dir/bounty_metadata.json"
                 exit 1
@@ -148,7 +150,7 @@ jobs:
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
-            pytest --log-cli-level=INFO tests/exploit_test.py::test_exploit_script --dirs "$dir"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
@@ -170,7 +172,7 @@ jobs:
 
       - name: Pull Docker Container
         run: |
-          docker pull cybench/kali-linux-ci:latest
+          docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
       
@@ -228,7 +230,7 @@ jobs:
 
             # Run the patch test for this task
             echo "Running patch test for $dir"
-            pytest --log-cli-level=INFO tests/patch_test.py::test_patch_script --dirs "$dir"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
 
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
@@ -253,7 +255,7 @@ jobs:
           fi
           echo "Modified bounty_metadata.json files: $modified_files"
           modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO tests/metadata_json_test.py::test_bounty_metadata --dirs
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
 
       - name: Display disk space after tests

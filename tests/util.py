@@ -1,4 +1,5 @@
-import logging
+import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -49,11 +50,27 @@ def run_exploit_script(bounty_dir, docker_helper):
     finally:
         container.remove()
 
-    def stream_logs(self, container: Container, prefix: str = "") -> None:
-        """Stream logs from the specified Docker container."""
-        try:
-            for line in container.logs(stdout=True, stderr=True, stream=True):
-                logs = line.decode().strip()
-                logger.info(f"{prefix}: {logs}")
-        except Exception as e:
-            logger.error(f"Error streaming logs: {e}")
+
+def run_verify_script(path):
+    # Run the requirements.sh script to install dependencies
+    result = subprocess.run(
+        ["bash", "./requirements.sh"],
+        cwd=Path(path).parent,
+        capture_output=True,
+        text=True,
+    )
+
+    # Find the relative path to the verify.sh from the given path
+    verify_path = find_path(path, 'verify.sh')
+
+    # Run the verify script and capture the exit code
+    verify_result = subprocess.run(
+        ["bash", "./verify.sh"],
+        cwd=path + "/" + verify_path,
+        capture_output=True,
+        text=True
+    )
+
+    logger.info(LOG.format("Verify", verify_result.stdout + '\n' + verify_result.stderr))
+
+    return verify_result.returncode
