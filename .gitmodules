@@ -1,3 +1,6 @@
+[submodule "open-webui/codebase"]
+	path = open-webui/codebase
+	url = https://github.com/cy-suite/open-webui.git
 [submodule "gunicorn/codebase"]
 	path = gunicorn/codebase
 	url = https://github.com/cy-suite/gunicorn.git
