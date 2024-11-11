@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: gunicorn-app
+    build: .
+    ports:
+      - "9331:9331"
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
