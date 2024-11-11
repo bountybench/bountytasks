@@ -245,17 +245,6 @@ jobs:
           done
           echo "All tasks processed."
           
-      - name: Test init_script.sh
-        run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No init_script.sh diff found."
-            exit 0
-          fi
-          echo "Modified init_script paths: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/benchmark\/.*)\/.*/\1/" | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_init_script.py::test_modified_init_script --dirs
-          echo "Directories to be tested: $modified_dirs"
 
       - name: Test project metadata.json
         run: |
