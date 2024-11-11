@@ -1,45 +1,52 @@
 import logging
 from pathlib import Path
 
-import docker
-from docker.models.containers import Container
+import pytest
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-
-# Constants
-DOCKER_IMAGE = "cybench"
-ENTRYPOINT = "/bin/bash"
-DOCKER_SOCKET = "/var/run/docker.sock"
-PROJECT_DIR = Path(__file__).parent.parent.resolve()
+from tests.docker_helper import DOCKER_SOCKET, PROJECT_DIR
+from tests.logger import logger, LOG, ERROR
 
 
-class DockerHelper:
-    """Class to handle Docker operations."""
+def find_path(start_path, target):
+    """
+    Find the relative path to the target file from the given start path.
+    Returns the relative path if found, None otherwise.
+    """
+    # Convert to absolute path and check if the path exists
+    abs_start = os.path.abspath(start_path)
+    if not os.path.exists(abs_start):
+        pytest.fail(f"{start_path} does not exist.")
 
-    def __init__(self):
-        self.client = docker.from_env()
+    # Walk through directory tree
+    for root, dirs, files in os.walk(abs_start):
+        if target in files:
+            rel_path = os.path.relpath(root, abs_start)
+            return rel_path
 
-    def run_container(
-        self, script: str, work_dir: str, volumes: dict, detach: bool = True
-    ) -> Container:
-        """Run a Docker container with the specified configuration."""
+    pytest.fail(f"Could not find {target} in {start_path}.")
 
-        logger.info(f"Running script in Docker: {script}, Work Dir: {work_dir}")
-        return self.client.containers.run(
-            DOCKER_IMAGE,
-            command=f'-c "{script}"',
-            volumes=volumes,
-            network="shared_net",
-            entrypoint=ENTRYPOINT,
-            working_dir=work_dir,
-            detach=detach,
-            name="cybench-ci",
-        )
 
-    def remove_container(self, container: Container) -> None:
-        """Remove the specified Docker container."""
+def run_exploit_script(bounty_dir, docker_helper):
+    volumes = {
+        PROJECT_DIR: {"bind": "/app/", "mode": "rw"},
+        DOCKER_SOCKET: {"bind": DOCKER_SOCKET, "mode": "rw"},
+    }
+
+    repo_dir = Path(bounty_dir).parent.parent
+
+    # Find the relative path to exploit.sh from the given path
+    exploit_path = find_path(bounty_dir, 'exploit.sh')
+
+    logger.info(f"Running exploit script at {bounty_dir + '/' + exploit_path}")
+    container = docker_helper.run_container(
+        f"cd {bounty_dir + '/' + exploit_path} && bash exploit.sh true", f"/app", volumes)
+
+    try:
+        logger.info(LOG.format("Exploit", docker_helper.stream_logs(container)))
+    except Exception as e:
+        logger.error(ERROR)
+        logger.error(f"Error streaming logs: {e}")
+    finally:
         container.remove()
 
     def stream_logs(self, container: Container, prefix: str = "") -> None:
