@@ -43,6 +43,19 @@ if [[ "$2" == "--patch" ]]; then
     echo -e "${INFO} Patch mode enabled."
 fi
 
+
+if [[ -f "${repo_dir}/setup_repo_env.sh" ]]; then
+    print_header "$CYAN" "SETTING UP REPO ENVIRONMENT"
+    echo -e "${INFO} Executing setup_repo_env.sh script for the task"
+    setup_repo_env_log=$(cd "${repo_dir}" && ./setup_repo_env.sh)
+    echo -e "${INFO} ${setup_repo_env_log}\n"
+    cd -
+else
+    print_header "$YELLOW" "WARNING"
+    echo -e "${WARNING} setup_repo_env.sh not found in ${repo_dir}"
+fi
+
+
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
 if [[ ! -f "$bounty_metadata_file" ]]; then
@@ -76,37 +89,41 @@ fi
 exploit_script=$(find "${bounty_dir}" -type f -name "exploit.sh" | head -n 1)
 verify_script=$(find "${bounty_dir}" -type f -name "verify.sh" | head -n 1)
 
+print_header "$CYAN" "CHECKING IF EXPLOIT AND VERIFY SCRIPTS EXIST"
+
 if [[ -z "$exploit_script" ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Could not find exploit.sh in ${bounty_dir}"
     exit 1
+else
+    echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
 fi
 
 if [[ -z "$verify_script" ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}"
     exit 1
+else
+    echo -e "${SUCCESS} Found verify script at: ${verify_script}"
 fi
 
 # Store the directories for later use
 exploit_dir=$(dirname "$exploit_script")
 verify_dir=$(dirname "$verify_script")
 
-print_header "$CYAN" "CHECKING IF EXPLOIT AND VERIFY SCRIPTS EXIST"
-echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
-echo -e "${SUCCESS} Found verify script at: ${verify_script}"
-
 container_name="cybench"
 image_name="cybench/cybounty:latest"
 network_name="shared_net"
 
-# Function to execute stop_docker.sh if it exists
-execute_stop_docker() {
-    if [[ -f "${repo_dir}/stop_docker.sh" ]]; then
-        print_header "$CYAN" "EXECUTE STOP_DOCKER.SH"
-        echo -e "${INFO} Executing stop_docker.sh script for the task"
-        cd "${repo_dir}"
-        "./stop_docker.sh"
+teardown_bounty_env_script=$(find "${bounty_dir}" -type f -name "teardown_bounty_env.sh" | head -n 1)
+
+# Function to execute teardown_bounty_env.sh if it exists
+teardown_bounty_env() {
+    if [[ -n "$teardown_bounty_env_script" ]]; then 
+        teardown_bounty_env_dir=$(dirname "$teardown_bounty_env_script")
+        print_header "$CYAN" "TEARDOWN BOUNTY ENVIRONMENT"
+        cd "${teardown_bounty_env_dir}"
+        "./${teardown_bounty_env_script}"
         cd -
     fi
 }
@@ -118,7 +135,7 @@ cleanup() {
     git clean -fdx
     git checkout main  --force
     cd -
-    execute_stop_docker
+    teardown_bounty_env
 }
 
 # Set trap to ensure cleanup runs on exit or error
@@ -131,20 +148,22 @@ if ! docker network ls | grep -q "${network_name}"; then
     docker network create "${network_name}"
 fi
 
-# Make scripts executable
-chmod +x "$exploit_script" "$verify_script" "${repo_dir}/metadata/requirements.sh"
 
-# Step 1: Run start_docker.sh from local machine
-if [[ -f "${repo_dir}/start_docker.sh" ]]; then
-    print_header "$CYAN" "EXECUTE START_DOCKER.SH"
-    echo -e "${INFO} Executing start_docker.sh script for the task"
-    cd "${repo_dir}"
-    "./start_docker.sh"
-    cd -
+
+setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.sh" | head -n 1)
+
+
+ if [[ -n "$setup_bounty_env_script" ]]; then
+        setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
+        print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
+        cd "${setup_bounty_env_dir}"
+        "./${setup_bounty_env_script}"
+        cd -
 else
     print_header "$YELLOW" "WARNING"
-    echo -e "${WARNING} start_docker.sh not found in ${repo_dir}"
+    echo -e "${WARNING} setup_bounty_env.sh not found in ${bounty_dir}"
 fi
+
 
 # Exploit mode flow
 print_header "$CYAN" "RUNNING VERIFY SCRIPT BEFORE EXPLOIT"
@@ -175,7 +194,7 @@ exploit_log=$(docker run \
     --cgroupns host \
     -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '${repo_dir}/metadata' && bash requirements.sh && cd - && cd '${exploit_dir}' && bash exploit.sh true")
+    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
 
 print_header "$CYAN" "EXPLOIT LOG"
 echo -e "${INFO} ${exploit_log}\n"
@@ -229,15 +248,15 @@ if [[ "$patch_mode" == true ]]; then
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
-    if [[ -f "${repo_dir}/start_docker.sh" ]]; then
-        print_header "$CYAN" "EXECUTE START_DOCKER.SH AFTER PATCH"
-        echo -e "${INFO} Executing start_docker.sh script for the task after patching"
-        cd "${repo_dir}"
-        "./start_docker.sh"
-        cd -
+    if [[ -f "${repo_dir}/setup_repo_env.sh" ]]; then
+    print_header "$CYAN" "SETTING UP REPO ENVIRONMENT AFTER PATCH"
+    echo -e "${INFO} Executing setup_repo_env.sh script for the task"
+    setup_repo_env_log=$(cd "${repo_dir}" && ./setup_repo_env.sh)
+    echo -e "${INFO} ${setup_repo_env_log}\n"
+    cd -
     else
         print_header "$YELLOW" "WARNING"
-        echo -e "${WARNING} start_docker.sh not found in ${repo_dir}"
+        echo -e "${WARNING} setup_repo_env.sh not found in ${repo_dir}"
     fi
 
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
@@ -251,7 +270,7 @@ if [[ "$patch_mode" == true ]]; then
         --cgroupns host \
         -v "$(pwd)":/app \
         "${image_name}" \
-        /bin/bash -c "cd '${repo_dir}/metadata' && bash requirements.sh && cd - && cd '${exploit_dir}' && bash exploit.sh true")
+        /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
 
     print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
     echo -e "${INFO} Log:\n ${log}"
