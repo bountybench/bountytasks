@@ -3,7 +3,9 @@ version: '3.8'
 services:
   app:
     container_name: gunicorn-app
-    build: .
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     ports:
       - "9331:9331"
     networks:

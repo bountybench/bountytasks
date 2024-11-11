@@ -76,21 +76,11 @@ jobs:
           }
 
           get_modified_dirs() {
-            git diff --diff-filter=ACM --name-only origin/main...HEAD | grep 'metadata/bounty' | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/metadata\/bounty_[0-9]+).*/\1/" | sort -u
+            git diff --diff-filter=ACM --name-only origin/main...HEAD | awk -F/ '{print $1}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounty_[0-9]*$" | sort -u
           }
-          EOF
-          chmod +x /tmp/shared_functions.sh
-          source /tmp/shared_functions.sh
-          modified_dirs=$(get_modified_dirs)
-          echo "Modified directories: $modified_dirs"
-          echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
-          echo "$modified_dirs" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Check out to vulnerable commit
-        if: steps.modified-dirs.outputs.modified_dirs != ''
-        run: |
-          while read -r dir; do
+          checkout_vulnerable_commit() {
+            local dir="$1"
             if [[ -f "$dir/bounty_metadata.json" ]]; then
               task_dir=$(dirname "$(dirname "$dir")")
               vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
@@ -108,11 +98,33 @@ jobs:
                 cd - || exit 1
               else
                 echo "No vulnerable commit found in $dir/bounty_metadata.json"
+                exit 1
               fi
             else
               echo "No bounty_metadata.json file found in $dir"
+              exit 1
             fi
-          done <<< "${{ steps.modified-dirs.outputs.modified_dirs }}"
+          }
+
+          checkout_main() {
+            local dir="$1"
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Checking out main branch at $task_dir/codebase"
+            cd "$task_dir/codebase" || exit 1
+            echo "Cleaning up the codebase"
+            git clean -fd
+            git checkout main --force
+            cd - || exit 1
+          }
+
+          EOF
+          chmod +x /tmp/shared_functions.sh
+          source /tmp/shared_functions.sh
+          modified_dirs=$(get_modified_dirs)
+          echo "Modified directories: $modified_dirs"
+          echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
+          echo "$modified_dirs" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
@@ -122,10 +134,18 @@ jobs:
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
-            # Start Docker for this bug bounty
-            echo "Starting Docker for $task_dir"
+            checkout_vulnerable_commit "$dir"
+
+            # Repo-level setup
+            echo "Setting up the repo environment for $dir"
             cd "$task_dir"
-            execute_if_exists "start_docker.sh"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
             cd -
 
             # Run the exploit and verification for this task
@@ -133,10 +153,12 @@ jobs:
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
 
             # Stop Docker for this task
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
+            echo "Stopping Docker for $dir"
+            cd "$dir/setup_files"
             execute_if_exists "stop_docker.sh"
             cd -
+
+            checkout_main "$dir"
 
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
@@ -165,6 +187,8 @@ jobs:
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
+            checkout_vulnerable_commit "$dir"
+
             # Patch the bug for this task
             bounty_metadata="$dir/bounty_metadata.json"
 
@@ -172,6 +196,7 @@ jobs:
 
             if [ -z "$patch_pairs" ]; then
               echo "No patches defined for $dir. Skipping patch application."
+              checkout_main "$dir"
               continue
             else
               # Apply the patches by copying local files to their target locations
@@ -185,23 +210,22 @@ jobs:
                   mkdir -p "$task_dir/$target_dir"
                 fi
 
-                # Store the original file to restore later
-                if [ -f "$task_dir/$target_file" ]; then
-                  original_files["$task_dir/$target_file"]=$(mktemp)
-                  echo "Backing up $task_dir/$target_file to ${original_files["$task_dir/$target_file"]}"
-                  cp "$task_dir/$target_file" "${original_files["$task_dir/$target_file"]}"
-                fi
-
                 # Apply the patch by copying the source file to the target location
                 echo "Copying $dir/$source_file to $task_dir/$target_file"
                 cp "$dir/$source_file" "$task_dir/$target_file"
               done <<< "$patch_pairs"
             fi
 
-            # Start Docker for this task after patch
-            echo "Starting Docker for $task_dir"
+             # Repo-level setup
+            echo "Setting up the repo environment for $dir"
             cd "$task_dir"
-            execute_if_exists "start_docker.sh"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
             cd -
 
             # Run the patch test for this task
@@ -209,50 +233,22 @@ jobs:
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
 
             # Stop Docker for this task
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
+            echo "Stopping Docker for $dir"
+            cd "$dir/setup_files"
             execute_if_exists "stop_docker.sh"
             cd -
 
-            # Restore the original files after testing
-            echo "Restoring original files for $dir"
-            for target_file in "${!original_files[@]}"; do
-              echo "Restoring $target_file"
-              mv "${original_files["$target_file"]}" "$target_file"
-            done
+            checkout_main "$dir"
 
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
           done
           echo "All tasks processed."
-          
-      - name: Test init_script.sh
-        run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/init_script.sh$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No init_script.sh diff found."
-            exit 0
-          fi
-          echo "Modified init_script paths: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr '\n' '\0' | xargs -0 -n1 dirname | sed -E "s/(.*\/benchmark\/.*)\/.*/\1/" | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_init_script.py::test_modified_init_script --dirs
-          echo "Directories to be tested: $modified_dirs"
 
-      - name: Test project metadata.json
-        run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/metadata/metadata.json$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No relevant files in metadata were modified."
-            exit 0  # Exit successfully if no files are modified
-          fi
-          echo "Modified metadata.json files: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_project_metadata --dirs
-          echo "Directories to be tested: $modified_dirs"
-        
+
       - name: Test bounty metadata.json
         run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/metadata/.*/bounty_metadata.json$' || true)
+          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
           if [ -z "$modified_files" ]; then
             echo "No relevant files in bounty metadata were modified."
             exit 0  # Exit successfully if no files are modified
