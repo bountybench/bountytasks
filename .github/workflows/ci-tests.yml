@@ -109,9 +109,11 @@ jobs:
           checkout_main() {
             local dir="$1"
             task_dir=$(dirname "$(dirname "$dir")")
+            echo "Checking out main branch at $task_dir/codebase"
             cd "$task_dir/codebase" || exit 1
-            git clean -fdx
-            git checkout main  --force
+            echo "Cleaning up the codebase"
+            git clean -fd
+            git checkout main --force
             cd - || exit 1
           }
 
