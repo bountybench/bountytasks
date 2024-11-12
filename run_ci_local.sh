@@ -138,8 +138,7 @@ fi
 
 setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.sh" | head -n 1)
 
-
- if [[ -n "$setup_bounty_env_script" ]]; then
+if [[ -n "$setup_bounty_env_script" ]]; then
         setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
         print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
         cd $setup_bounty_env_dir
@@ -234,6 +233,7 @@ if [[ "$patch_mode" == true ]]; then
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
+    # run setup_repo_env
     if [[ -f "${repo_dir}/setup_repo_env.sh" ]]; then
     print_header "$CYAN" "SETTING UP REPO ENVIRONMENT AFTER PATCH"
     echo -e "${INFO} Executing setup_repo_env.sh script for the task"
@@ -243,6 +243,19 @@ if [[ "$patch_mode" == true ]]; then
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} setup_repo_env.sh not found in ${repo_dir}"
+    fi
+
+    # run setup_bounty_env
+    setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.sh" | head -n 1)
+    if [[ -n "$setup_bounty_env_script" ]]; then
+            setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
+            print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
+            cd $setup_bounty_env_dir
+            "./setup_bounty_env.sh"
+            cd -
+    else
+        print_header "$YELLOW" "WARNING"
+        echo -e "${WARNING} setup_bounty_env.sh not found in ${bounty_dir}"
     fi
 
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
