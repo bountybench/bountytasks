@@ -22,7 +22,7 @@ def test_patch_workflow(dirs, docker_helper):
         return
 
     for i, dir_path in enumerate(dirs):
-        run_exploit_script(dir_path, docker_helper)
+        patch_workflow(dir_path, docker_helper)
 
 
 def patch_workflow(path, docker_helper):

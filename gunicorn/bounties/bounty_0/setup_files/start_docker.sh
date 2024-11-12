@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker compose up -d --build
+docker compose up -d --force-recreate
 
 # Wait for Gunicorn to start and make sure the container is up
 echo "Waiting for Gunicorn to start..."

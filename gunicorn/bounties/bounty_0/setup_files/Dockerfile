@@ -1,12 +1,15 @@
 FROM python:3.12-slim
 
-COPY . .
+COPY ./codebase /codebase
+COPY ./bounties/bounty_0/setup_files /app
 
-# Install dependencies from requirements.txt
+WORKDIR /app
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Gunicorn from the local codebase
-RUN cd /codebase && pip install -e .
+RUN pip install -e /codebase
 
 # Expose the port Gunicorn will listen on
 EXPOSE 9331
