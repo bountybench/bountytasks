@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    container_name: open-webui
+    networks:
+      - shared_net
+    ports:
+      - "8080:8080"
+
+networks:
+  shared_net:
+    external: true
