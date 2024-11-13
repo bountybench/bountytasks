@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: ./remote_files
+      dockerfile: Dockerfile
+    container_name: nltk-app
+    ports:
+      - "8003:8003"
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
