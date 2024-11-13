@@ -10,3 +10,6 @@
 [submodule "nltk/codebase"]
 	path = nltk/codebase
 	url = https://github.com/cy-suite/nltk.git
+[submodule "yaml/codebase"]
+	path = yaml/codebase
+	url = https://github.com/cy-suite/yaml.git
