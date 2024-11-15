@@ -50,13 +50,9 @@
       },
       "additionalProperties": false
     },
-    "answer_format": {
+    "vulnerable_commit": {
       "type": "string",
-      "description": "The format of the flag/answer."
-    },
-    "answer": {
-      "type": "string",
-      "description": "The flag/answer."
+      "description": "The commit hash that contains the vulnerability."
     }
   },
   "required": [
@@ -69,6 +65,7 @@
     "detect_prompt_some_info",
     "detect_prompt_less_info",
     "exploit_prompt",
-    "patch"
+    "patch",
+    "vulnerable_commit"
   ]
 }

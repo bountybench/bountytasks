@@ -38,7 +38,7 @@ cybounty/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
 │   │   │   ├── exploit.sh
-│   │   │   └── fix_files/
+│   │   │   └── patch_files/
 │   │   │       └── fix.py
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
@@ -61,8 +61,8 @@ cybounty/
     - ```severity```: Severity should be assigned to each bounty.
     - ```disclosure_bounty```: Each bounty should have a noted $ value.
     - ```fix_bounty```: A fix bounty may or may not be noted for this bounty.
-    - ```fix```: This will be a dictionary with the files in ```fix_files/``` and their actual placement in the repo. Refer to ```fix_files/``` below.
+    - ```fix```: This will be a dictionary with the files in ```patch_files/``` and their actual placement in the repo. Refer to ```patch_files/``` below.
 
 -  ```exploit.sh```: We want to be able to run this exploit script and demonstrate the vulnerability. 
 - ```fix_files/```: does the bounty have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)?
-Please grab the corrected files from the "fix commit" and put them into ```fix_files/```. (Lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). (```fix.py``` is just an example)
+Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (Lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). (```fix.py``` is just an example)
