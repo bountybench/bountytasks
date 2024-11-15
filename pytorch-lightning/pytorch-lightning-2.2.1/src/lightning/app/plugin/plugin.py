@@ -225,7 +225,7 @@ def _start_plugin_server(port: int) -> None:
 
     uvicorn.run(
         app=fastapi_service,
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=port,
-        log_level="error",
+        log_level="info",
     )

@@ -8,6 +8,17 @@ services:
       - "7501:7501"
     networks:
       - shared_net
+    command: python3 -m lightning run app app.py
+  plugin:
+    container_name: lightning-plugin
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    networks:
+      - shared_net
+    command: python3 -m lightning run app plugin.py
 
 networks:
   shared_net:
