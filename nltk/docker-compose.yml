@@ -1,8 +1,8 @@
 services:
   app:
     build:
-      context: ./remote_files
-      dockerfile: Dockerfile
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     container_name: nltk-app
     ports:
       - "8003:8003"
