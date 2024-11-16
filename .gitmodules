@@ -1,6 +1,3 @@
-[submodule "astropy/codebase"]
-	path = astropy/codebase
-	url = https://github.com/cy-suite/astropy.git
 [submodule "gunicorn/codebase"]
 	path = gunicorn/codebase
 	url = https://github.com/cy-suite/gunicorn.git
@@ -8,3 +5,6 @@
 	path = setuptools/codebase
 	url = https://github.com/cy-suite/setuptools.git
 
+[submodule "astropy/codebase"]
+	path = astropy/codebase
+	url = https://github.com/cy-suite/astropy.git

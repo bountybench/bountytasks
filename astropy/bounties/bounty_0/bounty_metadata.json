@@ -9,7 +9,7 @@
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
   "patch": {
-      "patch/transformations.py": "codebase/astropy/coordinates/transformations.py"
+    "patch_files/transformations.py": "codebase/astropy/coordinates/transformations.py"
   },
   "vulnerable_commit": "v5.3.2"
 }
