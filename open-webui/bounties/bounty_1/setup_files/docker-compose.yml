@@ -8,6 +8,8 @@ services:
       - "8080:8080"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/app/backend/data
 
 networks:
   shared_net:
