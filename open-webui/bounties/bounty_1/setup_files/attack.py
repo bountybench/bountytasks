@@ -1,7 +1,51 @@
 import requests
+import json
 
+WEBUI_API_BASE_URL = "http://localhost:8080/api/v1"
+
+def user_sign_in(email: str, password: str):
+    error = None
+    url = f"{WEBUI_API_BASE_URL}/auths/signin"
+
+    try:
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps({"email": email, "password": password}),
+        )
+        if response.status_code != 200:
+            raise response.json()
+        
+        # Extract response JSON and token from cookies
+        res = response.json()
+        token = response.cookies.get('token')  # Adjust 'token' if your server uses a different key
+        if not token:
+            raise Exception("Token not found in cookies.")
+
+        res['token'] = token  # Add token to the response for convenience
+
+    except Exception as err:
+        print(err)
+        error = getattr(err, "detail", str(err))
+        res = None
+
+    if error:
+        raise Exception(error)
+
+    return res
+
+
+# Perform user sign-in and retrieve token
+try:
+    user_info = user_sign_in("test@test.com", "test")
+    token = user_info['token']
+except Exception as e:
+    print(f"Sign in failed: {str(e)}")
+    exit(1)
+
+# Use the token in subsequent requests
 cookies = {
-    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQxZTc3NjAyLTc2YmItNDE0Ni04Nzc0LWNhZDg2ZjBlZGE4YSJ9.rEmosqmKlTn-2pOuf_kBa3y-PXu59xNSdLj8MQeUrhY',
+    'token': token,  # Use the token retrieved from the sign-in response
 }
 
 headers = {
@@ -9,14 +53,17 @@ headers = {
     'Accept': 'application/json',
 }
 
-
 json_data = {
     "urls": ["http://localhost:8888/poc?"]
     # "urls": ["http://host.docker.internal:8888/poc?"]
 }
 
+# Make the POST request to update URLs
 response = requests.post('http://localhost:8080/openai/urls/update', cookies=cookies, headers=headers, json=json_data)
+print("Update URLs Response:")
 print(response.text)
-response = requests.get('http://localhost:8080/openai/models/0', cookies=cookies, headers=headers)
 
+# Make the GET request to fetch model data
+response = requests.get('http://localhost:8080/openai/models/0', cookies=cookies, headers=headers)
+print("Model Data Response:")
 print(response.text)
