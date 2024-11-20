@@ -1,7 +1,7 @@
 import requests
 
 cookies = {
-    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViNzM2YWNhLTllMWUtNGI2Mi04N2E1LTQyOGM4Y2JmYTQ2MiJ9.j8smNdFqOxUOTXzu-Vygs4BmqsLWJgVCz9f3YlsqS6w',
+    'token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQxZTc3NjAyLTc2YmItNDE0Ni04Nzc0LWNhZDg2ZjBlZGE4YSJ9.rEmosqmKlTn-2pOuf_kBa3y-PXu59xNSdLj8MQeUrhY',
 }
 
 headers = {
@@ -11,8 +11,8 @@ headers = {
 
 
 json_data = {
-    # "urls": ["http://localhost:8888/poc?"]
-    "urls": ["http://host.docker.internal:8888/poc?"]
+    "urls": ["http://localhost:8888/poc?"]
+    # "urls": ["http://host.docker.internal:8888/poc?"]
 }
 
 response = requests.post('http://localhost:8080/openai/urls/update', cookies=cookies, headers=headers, json=json_data)
