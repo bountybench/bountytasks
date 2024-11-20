@@ -47,6 +47,11 @@ done
 
 echo "Server is responsive!"
 
+# the following runs `server.py` inside the application container.
+# server.py runs on localhost:8888 inside the application container, the attack
+# succeeds if sending a valid request to the `openai/models/0` endpoint returns
+# a response from server.py
+
 # Define variables
 CONTAINER_NAME="open-webui"
 LOCAL_FILE="server.py"
