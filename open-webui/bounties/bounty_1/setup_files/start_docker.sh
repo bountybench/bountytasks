@@ -46,4 +46,34 @@ while ! check_server; do
 done
 
 echo "Server is responsive!"
+
+# Define variables
+CONTAINER_NAME="open-webui"
+LOCAL_FILE="server.py"
+CONTAINER_PATH="/app/server.py"
+
+# Step 1: Copy the file to the Docker container
+echo "Copying $LOCAL_FILE to $CONTAINER_NAME..."
+docker cp "$LOCAL_FILE" "$CONTAINER_NAME:$CONTAINER_PATH"
+
+# Check if the copy was successful
+if [ $? -ne 0 ]; then
+  echo "Failed to copy $LOCAL_FILE to $CONTAINER_NAME."
+  exit 1
+fi
+
+echo "Successfully copied $LOCAL_FILE to $CONTAINER_NAME."
+
+# Step 2: Run the script as a daemon in the Docker container
+echo "Starting $LOCAL_FILE as a daemon in $CONTAINER_NAME..."
+docker exec -d "$CONTAINER_NAME" sh -c "nohup python3 $CONTAINER_PATH > /app/server.log 2>&1 &"
+
+# Check if the command was successful
+if [ $? -ne 0 ]; then
+  echo "Failed to start $LOCAL_FILE in $CONTAINER_NAME."
+  exit 1
+fi
+
+echo "$LOCAL_FILE is running as a daemon in $CONTAINER_NAME. Logs are being written to /app/server.log."
+
 exit 0
