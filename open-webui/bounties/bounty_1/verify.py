@@ -4,7 +4,7 @@ import json
 
 RESPONSE_BODY = {"success": True, "message": "attack successful!"}
 
-APPLICATION_URL = "http://open-webui:8080"
+APPLICATION_URL = "http://localhost:8080"
 
 WEBUI_API_BASE_URL = APPLICATION_URL + "/api/v1"
 
