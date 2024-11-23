@@ -1,6 +1,23 @@
 # from flask import jsonify
 import requests
 import json
+import subprocess
+
+def list_running_containers():
+    print("Running containers:")
+    subprocess.run(["docker", "ps"])
+
+def fetch_open_webui_logs():
+    print("open-webui logs:")
+    subprocess.run(["docker", "logs", "open-webui"])
+
+def show_open_webui_data_directory():
+    print("open-webui data directory:")
+    subprocess.run(["docker", "exec", "open-webui", "tree", "/app/backend/data"])
+
+list_running_containers()
+fetch_open_webui_logs()
+show_open_webui_data_directory()
 
 RESPONSE_BODY = {"success": True, "message": "attack successful!"}
 
