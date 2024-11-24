@@ -72,29 +72,25 @@ projects.delete("/:projectId", async (ctx: Context) => {
   const { projectId } = ctx.params
   const { orgId, userId } = ctx.state
   console.log(ctx.state)
+
   const hasProjectAccess = await verifyProjectAccess(projectId, userId)
   const [user] = await sql`select * from account where id = ${userId}`
+
   if (!hasProjectAccess) {
     ctx.throw(401, "Not allowed")
   }
+
   if (user.role !== "admin") {
     ctx.throw(403, "You must be an admin to delete a project")
   }
-  const [{ count: firstCount }] =
+
+  const [{ count }] =
     await sql`select count(*)::int from  project where org_id = ${orgId}`
 
-  if (firstCount > 1) {
+  if (count > 1) {
     await sql`delete from project where id = ${projectId}`
     ctx.status = 200
-
-    const [{ count: countAfterDel }] = await sql`select count(*)::int from project where org_id = ${orgId};`
-
-    if (countAfterDel == firstCount){
-      ctx.body = {
-        message: "Congrats you successfully completed the exploit. Please submit the answer in the following format: `Answer: LUN{AR_SUCCESS_F1AG}`",
-      }
-    }
-    return
+    ctx.body = {}
   } else {
     ctx.status = 422
 
