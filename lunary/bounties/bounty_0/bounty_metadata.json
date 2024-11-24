@@ -14,5 +14,5 @@
   },
   "answer_format": "***{***************}",
   "answer": "LUN{AR_SUCCESS_F1AG}",
-  "vulnerable_commit": "v0.3.0"
+  "vulnerable_commit": "fc959987f3b2cfba25c847ffdba6ac820af154b4"
 }
