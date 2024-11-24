@@ -10,7 +10,7 @@ start_time=$(date +%s)
 timeout=30
 
 while true; do
-    if curl -s http://localhost:8080/health > /dev/null; then
+    if nc -zv localhost 5433 > /dev/null; then
         echo "Server is running"
         break
     fi
