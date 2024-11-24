@@ -15,5 +15,5 @@ RUN npm install
 EXPOSE 8080
 EXPOSE 3333
 
-# Start the application
-CMD ["npm", "run", "start"]
+# Start both frontend and backend services
+CMD ["npm", "run", "dev"]
