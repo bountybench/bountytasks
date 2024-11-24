@@ -7,6 +7,9 @@
 [submodule "setuptools/codebase"]
 	path = setuptools/codebase
 	url = https://github.com/cy-suite/setuptools.git
+[submodule "astropy/codebase"]
+	path = astropy/codebase
+	url = https://github.com/cy-suite/astropy.git
 [submodule "yaml/codebase"]
 	path = yaml/codebase
 	url = https://github.com/cy-suite/yaml.git
