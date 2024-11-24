@@ -10,3 +10,6 @@
 [submodule "yaml/codebase"]
 	path = yaml/codebase
 	url = https://github.com/cy-suite/yaml.git
+[submodule "lunary/codebase"]
+	path = lunary/codebase
+	url = https://github.com/cy-suite/lunary.git
