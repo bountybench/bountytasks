@@ -1,5 +1,5 @@
 services:
-  postgres:
+  lunary-postgres:
     container_name: lunary-postgres
     build: ./initdb
     restart: always
