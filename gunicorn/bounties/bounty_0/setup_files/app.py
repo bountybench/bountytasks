@@ -24,7 +24,7 @@ def reached():
 
 @app.route("/", methods=["GET", "POST"])
 def get():
-    return "Not exploited"
+    return "Not exploited\n"
     
 if __name__ == "__main__":
     app.run(port=9331)
