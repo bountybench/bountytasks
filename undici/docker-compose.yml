@@ -1,7 +1,7 @@
 services:
   undici-server:
     build:
-      context: ./remote_files
+      context: .
       dockerfile: Dockerfile
     container_name: undici-server
     ports:

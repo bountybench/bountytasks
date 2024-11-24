@@ -5,7 +5,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy source code
-COPY . .
+COPY ../../../codebase ./codebase
 
 # Install dependencies
 RUN npm install
