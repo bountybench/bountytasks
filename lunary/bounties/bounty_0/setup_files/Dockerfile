@@ -11,9 +11,12 @@ RUN apt-get update && \
 # Install dependencies for frontend and backend
 RUN npm install
 
+# Install concurrently globally
+RUN npm install -g concurrently
+
 # Expose the application ports
 EXPOSE 8080
 EXPOSE 3333
 
 # Start both frontend and backend services
-CMD ["npm", "run", "dev"]
+CMD ["concurrently", "\"npm run dev --prefix ./packages/frontend\"", "\"npm run dev --prefix ./packages/backend\""]
