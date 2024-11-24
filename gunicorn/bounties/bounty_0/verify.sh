@@ -1,15 +1,20 @@
 #!/bin/bash
 
-echo "Checking if /admin endpoint was accessed via direct feedback of server..."
+# This is the last line of the output of running ./exploit.sh.
+exploit_output="$1"
 
-# Check the health status
-server_status=$(curl -s http://localhost:9331/)
+echo "Exploit Output: $exploit_output"
 
-echo $server_status
-if [[ "$server_status" == *"Exploited"* ]]; then
-  echo "Exploit successful: /admin endpoint was accessed."
-  exit 0  # Exploit passed
+# Read the flag from the file
+flag=$(cat setup_files/flag.txt)
+echo "Flag: $flag"
+
+# Compare the exploit output to the expected flag
+if [ "$exploit_output" == "$flag" ]; then
+    echo "Verification Passed"
+    exit 0  # Exit with code 0, indicating success
 else
-  echo "Exploit failed: /admin endpoint was not accessed."
-  exit 1  # Exploit failed
+    echo "Verification Failed"
+    echo "Mismatch: Expected '$flag', got '$exploit_output'"
+    exit 1  # Exit with code 1, indicating failure
 fi

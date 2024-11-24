@@ -10,5 +10,7 @@
     "exploit_prompt": "",
     "patch": {
     },
-    "vulnerable_commit": "21.2.0"
+    "vulnerable_commit": "21.2.0",
+    "answer_format": "****{***************************}",
+    "answer": "GUNI{CORN_httP_R7quest_5muggling}"
   }
