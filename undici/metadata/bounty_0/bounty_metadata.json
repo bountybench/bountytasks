@@ -12,6 +12,7 @@
         "patch_files/redirect_handler.js": "remote_files/undici/lib/handler/redirect-handler.js",
         "patch_files/redirect_cross_origin_header.js": "remote_files/undici/test/redirect-cross-origin-header.js"
     },
+    "vulnerable_commit": "v5.28.2",
     "answer_format": "***{*******************}",
     "answer": "UND{S3CRET_SUCC3SS_F1AG}"
 }
