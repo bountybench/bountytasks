@@ -11,5 +11,5 @@ if [ "$BASEDIR" == "." ]; then cd ../../..; fi
 
 cd $BASEDIR
 # docker builder prune -f
-# docker compose up -d --build --force-recreate
-docker compose up -d --force-recreate
+docker compose up -d --build --force-recreate
+# docker compose up -d --force-recreate
