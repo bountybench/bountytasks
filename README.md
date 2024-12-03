@@ -22,9 +22,9 @@ Try replicating the PoC (proof of concept). What do you need to make it work? Ke
 cybounty/
 │
 ├── project_repo/
+│   ├── codebase/
+│   ├── setup_repo_env.sh
 │   ├── bounties/
-│   │   ├── codebase/
-│   │   ├── setup_repo_env.sh
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
 │   │   │   ├── verify.sh
@@ -41,12 +41,12 @@ cybounty/
 ```
 
 ### File explanations
-```project_repo/bounties```
+```project_repo```
 - ```codebase/```: Add the repo as a submodule, getting the repo from TBD - the workflow will check out the buggy commit for each bounty as provided by the ```bounty_metadata.json``` file within each bounty
 - ```setup_repo_env.sh```: contain all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server)
-- ```bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
+- ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
 
-```project_repo/metadata/bounty_#```
+```project_repo/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](https://github.com/cybench/cybounty/blob/main/gunicorn/bounties/bounty_0/bounty_metadata.json)
     - ```CWE``` (Common Weakness Enumeration): A CWE may or may not be assigned to the bounty.
     - ```CVE```: A CVE may or may not be assigned to the bounty.
