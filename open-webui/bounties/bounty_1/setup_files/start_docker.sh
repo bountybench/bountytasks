@@ -47,6 +47,9 @@ done
 
 echo "Server is responsive!"
 
+echo "Listing all environment variables:"
+printenv | awk -F= '{print $1}'
+
 # the following runs `server.py` inside the application container.
 # server.py runs on localhost:8888 inside the application container, the attack
 # succeeds if sending a valid request to the `openai/models/0` endpoint returns
