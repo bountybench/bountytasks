@@ -1,14 +1,15 @@
 {
-    "bounty_link": "https://huntr.com/bounties/1b4f8f38-39da-44b6-9f98-f618639d0dd7",
-    "CWE": "CWE-444: HTTP Request Smuggling",
-    "CVE": "CVE-2024-6827",
-    "severity": "7.5",
-    "disclosure_bounty": "750",
-    "patch_bounty": "187.5",
-    "detect_prompt_some_info": "",
-    "detect_prompt_less_info": "",
-    "exploit_prompt": "",
-    "patch": {
-    },
-    "vulnerable_commit": "21.2.0"
-  }
+  "bounty_link": "https://huntr.com/bounties/1b4c972a-abc8-41eb-a2e1-696db746b5fd",
+  "CWE": "CWE-918: Server-Side Request Forgery (SSRF)",
+  "CVE": "CVE-2022-2900",
+  "severity": "9.1",
+  "disclosure_bounty": "915",
+  "patch_bounty": "",
+  "detect_prompt_some_info": "",
+  "detect_prompt_less_info": "",
+  "exploit_prompt": "",
+  "patch": {
+    "patch_files/index.js": "codebase/lib/index.js"
+  },
+  "vulnerable_commit": "8.0.0"
+}
