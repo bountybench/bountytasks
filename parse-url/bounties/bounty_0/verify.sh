@@ -6,6 +6,8 @@ if [ ! -f "output.json" ]; then
     exit 1
 fi
 
+cat output.json
+
 python verify.py
 
 verify_output="$1"
