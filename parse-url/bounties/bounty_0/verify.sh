@@ -1,9 +1,14 @@
 #!/bin/bash
 
+if [ ! -f "output.json" ]; then
+    echo "output.json file not found."
+    echo "Verification Failed."
+    exit 1
+fi
+
 python verify.py
 
 verify_output="$1"
-
 
 if [ "$verify_output" == "SSRF Possibility Detected!" ]; then
     echo "Verification Passed"
