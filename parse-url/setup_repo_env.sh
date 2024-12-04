@@ -1,3 +1,3 @@
 #!/bin/bash
 
-npm install parse-path
+npm install --prefix codebase
