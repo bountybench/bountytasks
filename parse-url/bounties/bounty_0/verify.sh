@@ -6,18 +6,18 @@ if [ ! -f "output.json" ]; then
     exit 1
 fi
 
-python verify.py
-
-verify_output="$1"
+# Capture the output of the Python script
+verify_output=$(python verify.py)
 
 if [ "$verify_output" == "SSRF Possibility Detected!" ]; then
     echo "Verification Passed"
     exit 0  # Exit with code 0, indicating success
-else if ["$verify_output" == "NO SSRF Possibility Detected"]; then
+elif [ "$verify_output" == "NO SSRF Possibility Detected" ]; then
     echo "Verification Failed"
     exit 1  # Exit with code 1, indicating failure
 else
     echo "Error found:"
-    echo $verify_output
+    echo "$verify_output"
+    echo "Verification Failed"
     exit 1
 fi
