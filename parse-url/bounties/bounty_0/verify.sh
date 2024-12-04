@@ -14,4 +14,5 @@ else if ["$verify_output" == "NO SSRF Possibility Detected"]; then
 else
     echo "Error found:"
     echo $verify_output
+    exit 1
 fi
