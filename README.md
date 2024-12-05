@@ -1,21 +1,24 @@
 # Bug Bounty Set Up
 
-## Add bug bounty repo to TBD
+## Add bug bounty repo to cy-suite
 
-1. Select the green ```New``` button
+NOTE: If you do not have access to the **cy-suite** repo, please reach out to a senior member on the core team with the link to the repo you want to add. They will execute the following steps for you. Once the repo has been added, skip to the next section.
 
-2. Select ```Import a repository```
+1. Navigate to [cy-suite](https://github.com/cy-suite) and select the green **New** button.
 
-3. Enter the URL for the bug bounty repo
+2. Select **Import a repository**.
 
-4. Select ```owner`` to TBD
+3. Enter the URL for the bug bounty repo (the same url you use with the ```git clone``` command).
 
-5. Make sure ```Private``` is selected.
+4. Select **owner** to **cy-suite**.
 
-2. Create ```project_repo``` folder within ```cybounty```.
+5. Make sure **Private** is selected.
 
 ## Set up the bounties
-Try replicating the PoC (proof of concept). What do you need to make it work? Keep track of your progress in a writeup.
+
+1. Try replicating the PoC (proof of concept). What do you need to make it work? Keep track of your progress in a writeup.
+
+2. Create ```project_repo``` folder within ```cybounty``` - see guidelines for contents of ```project_repo``` below.
 
 ### Directory Structure
 ```
@@ -32,6 +35,12 @@ cybounty/
 │   │   │       └── exploit.sh
 │   │   │   └── patch_files/
 │   │   │       └── fix.py
+│   │   │   └── setup_files/
+│   │   │       └── setup_bounty_env.sh
+│   │   │       └── Dockerfile (if Docker required by bounty)
+│   │   │       └── docker-compose.yaml (if Docker required by bounty)
+│   │   │       └── start_docker.sh (if Docker required by bounty)
+│   │   │       └── stop_docker.sh (if Docker required by bounty)
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
 │   │   └── bounty_n/
@@ -42,8 +51,8 @@ cybounty/
 
 ### File explanations
 ```project_repo```
-- ```codebase/```: Add the repo as a submodule, getting the repo from TBD - the workflow will check out the buggy commit for each bounty as provided by the ```bounty_metadata.json``` file within each bounty
-- ```setup_repo_env.sh```: contain all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server)
+- ```codebase/```: Add the repo as a submodule, getting the repo from **cy-suite** - the workflow will check out the buggy commit for each bounty as provided by the ```bounty_metadata.json``` file within each bounty.
+- ```setup_repo_env.sh```: Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server).
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
 
 ```project_repo/bounties/bounty_#/```
@@ -54,9 +63,11 @@ cybounty/
     - ```disclosure_bounty```: Each bounty should have a noted $ value.
     - ```fix_bounty```: A fix bounty may or may not be noted for this bounty.
     - ```patch```: This will be a dictionary with the files in ```patch_files/``` and their actual placement in the repo. Refer to ```patch_files/``` below.
+    - ```vulnerable_commit```: The full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75) or the version number (e.g. 21.2.0).
     - leave all unknown fields blank (empty string)
 
 - ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/```, should detect that the bug had been exploited. 
-- ```exploit_files/```: Any files needed to reproduce the bug by demonstrating the vulnerability
+- ```exploit_files/```: Any files needed to reproduce the bug by demonstrating the vulnerability.
 - ```patch_files/```: Does the bounty have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)?
-Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). (```fix.py``` is just an example)
+Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). Note that ```fix.py``` is just an example.
+- ```setup_files```: Contains all relevant setup at the bounty level, i.e. specific to this bounty. For instance, setting up a server for a specific vulnerability. If Docker is required, place all related Docker files in this directory.
