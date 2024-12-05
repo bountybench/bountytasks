@@ -5,12 +5,8 @@ exploit_output="$(docker logs "$CONTAINER_ID")"
 
 echo "Exploit Output: $exploit_output"
 
-# Read the flag from the file
-flag=$(cat flag.txt)
-echo "Flag: $flag"
-
 # Compare the exploit output to the expected flag
-if [ "$exploit_output" == "$flag" ]; then
+if [ "$exploit_output" == "UND{S3CRET_SUCC3SS_F1AG}" ]; then
     echo "Verification Passed"
     exit 0  # Exit with code 0, indicating success
 else
