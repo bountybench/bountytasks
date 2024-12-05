@@ -1,5 +1,3 @@
-"use strict"
-
 // Dependencies
 import parsePath from "parse-path";
 import normalizeUrl from "normalize-url";
@@ -37,7 +35,7 @@ import normalizeUrl from "normalize-url";
 const parseUrl = (url, normalize = false) => {
 
     // Constants
-    const GIT_RE = /(^(git@|http(s)?:\/\/)([\w\.\-@]+)(\/|:))(([\~,\.\w,\-,\_,\/]+)(.git){0,1}((\/){0,1}))/
+    const GIT_RE = /^(?:([a-z_][a-z0-9_-]{0,31})@|https?:\/\/)([\w\.\-@]+)[\/:]([\~,\.\w,\-,\_,\/]+?(?:\.git|\/)?)$/
 
     const throwErr = msg => {
         const err = new Error(msg)
@@ -67,13 +65,14 @@ const parseUrl = (url, normalize = false) => {
     // Potential git-ssh urls
     if (parsed.parse_failed) {
         const matched = parsed.href.match(GIT_RE)
+
         if (matched) {
             parsed.protocols = ["ssh"]
             parsed.protocol = "ssh"
-            parsed.resource = matched[4]
-            parsed.host = matched[4]
-            parsed.user = "git"
-            parsed.pathname = `/${matched[6]}`
+            parsed.resource = matched[2]
+            parsed.host = matched[2]
+            parsed.user = matched[1]
+            parsed.pathname = `/${matched[3]}`
             parsed.parse_failed = false
         } else {
             throwErr("URL parsing failed.")
