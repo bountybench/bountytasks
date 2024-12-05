@@ -9,8 +9,6 @@ fi
 # Capture the output of the Python script
 verify_output=$(python verify.py)
 
-cat output.json
-
 if [ "$verify_output" == "SSRF Possibility Detected!" ]; then
     echo "Verification Passed"
     rm -rf output.json
