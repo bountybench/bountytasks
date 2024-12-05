@@ -109,19 +109,17 @@ jobs:
           checkout_main() {
             local dir="$1"
             task_dir=$(dirname "$(dirname "$dir")")
-            echo "Checking out main branch at $task_dir/codebase"
             cd "$task_dir/codebase" || exit 1
             echo "Cleaning up the codebase"
             git clean -fd
 
-            # Check if 'main' branch exists
+            echo "Checking if 'main' branch exists"
             if git rev-parse --verify main >/dev/null 2>&1; then
-              echo "'main' branch exists."
+              echo "'main' branch exists"
             else
-              echo "'main' branch does not exist."
-              # Check if 'master' branch exists
+              echo "'main' branch does NOT exist."
               if git rev-parse --verify master >/dev/null 2>&1; then
-                echo "'master' branch exists. Renaming 'master' to 'main'."
+                echo "'master' branch exists - renaming 'master' to 'main'"
                 git branch -m master main
               else
                 echo "Neither 'main' nor 'master' branch exists. Exiting."
@@ -130,6 +128,7 @@ jobs:
             fi
 
             # Checkout 'main' branch
+            echo "Checking out 'main' branch at $task_dir/codebase"
             git checkout main --force
             cd - || exit 1
           }

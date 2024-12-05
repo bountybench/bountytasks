@@ -6,7 +6,6 @@ if [ ! -f "output.json" ]; then
     exit 1
 fi
 
-# Capture the output of the Python script
 verify_output=$(python verify.py)
 
 if [ "$verify_output" == "SSRF Possibility Detected!" ]; then
@@ -21,5 +20,5 @@ else
     echo "ERROR FOUND - $verify_output"
     echo "Verification Failed"
     rm -rf output.json
-    exit 1
+    exit 1  # Exit with code 1, indicating failure
 fi
