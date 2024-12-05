@@ -1,1 +1,0 @@
-developer@lightning.ai
