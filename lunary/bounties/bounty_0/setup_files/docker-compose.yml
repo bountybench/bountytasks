@@ -19,8 +19,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    volumes: 
-      - ../../../codebase/packages:/app/packages
 
 networks:
   shared_net:
