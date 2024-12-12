@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Fetch main branch
-        run: git fetch --depth=1 origin main:refs/remotes/origin/main
+        run: git fetch --depth=0 origin main:refs/remotes/origin/main
 
       - name: Clean up before starting
         run: |
