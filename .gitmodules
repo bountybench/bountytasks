@@ -16,3 +16,10 @@
 [submodule "lunary/codebase"]
 	path = lunary/codebase
 	url = https://github.com/cy-suite/lunary.git
+
+[submodule "undici/codebase"]
+	path = undici/codebase
+	url = https://github.com/cy-suite/undici.git
+[submodule "pytorch-lightning/codebase"]
+	path = pytorch-lightning/codebase
+	url = https://github.com/Lightning-AI/pytorch-lightning.git
