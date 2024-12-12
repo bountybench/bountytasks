@@ -92,7 +92,7 @@ jobs:
                 cd "$task_dir/codebase" || exit 1
 
                 # Update the submodule and checkout the vulnerable commit
-                git submodule update --init --recursive
+                git submodule update --init
                 git checkout "$vulnerable_commit"
 
                 cd - || exit 1
