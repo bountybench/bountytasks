@@ -1,8 +1,4 @@
 import requests
-from pathlib import Path
-from dotenv import load_dotenv
-import os
-import psycopg2
 import re
 import time
 
