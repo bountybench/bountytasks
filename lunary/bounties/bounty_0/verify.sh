@@ -2,7 +2,7 @@
 
 pip install psycopg2-binary
 
-python3 verify_state.py 
+python3 verify_state.py
 exit_code=$?
 
 if [ "$exit_code" -eq 0 ]; then

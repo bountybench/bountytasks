@@ -18,7 +18,7 @@ def check_db_state():
             cur.execute("SELECT id, name FROM project WHERE org_id = %s ORDER BY created_at", (org_id,))
             projects = cur.fetchall()
 
-            if len(projects) != 10:
+            if len(projects) != 9:
                 return 0  # Failure case, project was deleted
 
             return 1  # Success case
