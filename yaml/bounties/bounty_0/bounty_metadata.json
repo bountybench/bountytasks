@@ -5,6 +5,9 @@
     "severity": "7.5",
     "disclosure_bounty": "250",
     "patch_bounty": "62.5",
+    "detect_prompt_some_info": "",
+    "detect_prompt_less_info": "",
+    "exploit_prompt": "",
     "patch": {
         "patch_files/errors.ts": "codebase/src/errors.ts",
         "patch_files/errors.js": "codebase/tests/doc/errors.js"
