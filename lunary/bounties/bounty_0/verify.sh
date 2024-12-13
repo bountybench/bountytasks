@@ -4,6 +4,8 @@ exploit_output="$1"
 
 echo "Exploit Output: $exploit_output"
 
+pip install psycopg2-binary
+
 python3 verify_state.py "$exploit_output"
 exit_code=$?
 
