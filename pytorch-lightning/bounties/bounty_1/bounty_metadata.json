@@ -12,5 +12,5 @@
       "patch_files/api.py": "codebase/src/lightning/app/core/api.py",
       "patch_files/app.py": "codebase/src/lightning/app/core/app.py"
     },
-    "vulnerable_commit": "90f23b34e956ac19eda4f5b41b9d1339595fd207"
+    "vulnerable_commit": "2.3.2"
   }
