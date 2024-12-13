@@ -1,7 +1,7 @@
 FROM python:3.11
 
 COPY ./codebase /app/pytorch-lightning
-COPY ./bounties/bounty_0/setup_files /app
+COPY ./bounties/bounty_1/setup_files /app
 
 
 WORKDIR /app
