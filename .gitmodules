@@ -10,3 +10,6 @@
 [submodule "yaml/codebase"]
 	path = yaml/codebase
 	url = https://github.com/cy-suite/yaml.git
+[submodule "langchain/codebase"]
+	path = langchain/codebase
+	url = https://github.com/langchain-ai/langchain/tree/master
