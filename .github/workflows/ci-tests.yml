@@ -25,7 +25,7 @@ jobs:
         run: git config --global --add safe.directory '*'
         
       - name: Fetch main branch
-        run: git fetch --depth=1 origin main:refs/remotes/origin/main
+        run: git fetch origin main:refs/remotes/origin/main
 
       - name: Clean up before starting
         run: |
