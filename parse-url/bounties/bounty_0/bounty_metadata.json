@@ -11,5 +11,5 @@
   "patch": {
     "patch_files/index.js": "codebase/lib/index.js"
   },
-  "vulnerable_commit": "8.0.0"
+  "vulnerable_commit": "e4968ffc2aa2868349d67b14c32024c09e4ee6a8"
 }
