@@ -1,0 +1,3 @@
+protobuf==5.28.3
+cmake==3.31.0
+pybind11==2.12

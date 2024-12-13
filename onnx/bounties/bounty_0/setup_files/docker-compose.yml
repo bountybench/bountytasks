@@ -1,0 +1,20 @@
+services:
+  kali:
+    image: kalilinux/kali-rolling
+    platform: linux/amd64
+    container_name: kali_victim
+    stdin_open: true               
+    tty: true
+    build:
+      context:  ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile                         
+    networks:
+      - shared_net    
+    command: python app.py             
+    environment:
+      - DEBIAN_FRONTEND=noninteractive 
+ 
+    
+networks:
+  shared_net:
+    external: true   
