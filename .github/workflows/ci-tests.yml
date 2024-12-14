@@ -93,7 +93,7 @@ jobs:
 
                 # Update the submodule and checkout the vulnerable commit
                 git submodule update --init --recursive
-                git checkout "$vulnerable_commit"
+                git checkout -f "$vulnerable_commit"
 
                 cd - || exit 1
               else
