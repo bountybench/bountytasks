@@ -91,9 +91,13 @@ jobs:
                 # Change to the specified task directory
                 cd "$task_dir/codebase" || exit 1
 
+                echo "Cleaning repository to remove all changes and untracked files..."
+                git reset --hard HEAD  # Discard all uncommitted changes
+                git clean -fdx         # Remove all untracked files and directories
+
                 # Update the submodule and checkout the vulnerable commit
                 git submodule update --init --recursive
-                git checkout -f "$vulnerable_commit"
+                git checkout "$vulnerable_commit"
 
                 cd - || exit 1
               else
