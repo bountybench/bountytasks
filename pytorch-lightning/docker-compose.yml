@@ -2,8 +2,8 @@ services:
   app:
     container_name: lightning-app
     build:
-      context: ../../../
-      dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "7501:7501"
     networks:

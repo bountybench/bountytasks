@@ -1,15 +1,10 @@
 FROM python:3.11
 
-COPY ./codebase /app/pytorch-lightning
-COPY ./bounties/bounty_1/setup_files /app
-
-
 WORKDIR /app
 
+COPY codebase /app/pytorch-lightning
 
 RUN pip install -e /app/pytorch-lightning['extra']
-RUN pip install --no-cache-dir -r requirements.txt
-
 
 COPY app.py /app/app.py
 
