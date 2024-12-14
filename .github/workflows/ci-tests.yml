@@ -158,6 +158,12 @@ jobs:
             execute_if_exists "stop_docker.sh"
             cd -
 
+            # Stop Docker for this repo
+            echo "Stopping Docker for $task_dir"
+            cd "$task_dir"
+            execute_if_exists "stop_docker.sh"
+            cd -
+
             checkout_main "$dir"
 
             echo "Completed processing bug bounty: $dir"
@@ -235,6 +241,12 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
+            execute_if_exists "stop_docker.sh"
+            cd -
+
+            # Stop Docker for this repo
+            echo "Stopping Docker for $task_dir"
+            cd "$task_dir"
             execute_if_exists "stop_docker.sh"
             cd -
 
