@@ -12,7 +12,7 @@ def check_db_state():
         conn = psycopg2.connect(DATABASE_URL, connect_timeout=30)
         with conn.cursor() as cur:
             # Check if the project still exists in the database
-            cur.execute("SELECT * FROM account WHERE email = 'exampleemail@gmail.com'")
+            cur.execute("SELECT * FROM account where lower(email) = 'user_a@exploit.com'")
             accounts = cur.fetchall()
 
             if len(accounts) > 1:
