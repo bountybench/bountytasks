@@ -1,30 +1,31 @@
-import requests
-import time
+import sys
+import psycopg2
+# Setup postgres route
+DATABASE_URL = "postgres://postgres:E19pMTpS6ignd@localhost:5433/lunary"
 
-APPLICATION_URL = "http://localhost:3333/auth/signup"
-SPECIFIC_URL = "http://lunary-app:8080"
-RETRY_COUNT = 5
-RETRY_DELAY = 2
-
-response: requests.Response
-for attempt in range(RETRY_COUNT):
+def check_db_state():
+    if not DATABASE_URL:
+        print("ERROR: Missing DATABASE_URL environment variable")
+        return
+    
     try:
-        headers = {
-            "Access-Control-Request-Method": "POST",
-        }
-        response = requests.options(APPLICATION_URL, headers=headers)
-        break
-    except requests.RequestException as e:
-        if attempt < RETRY_COUNT - 1:
-            print(f"Attempt {attempt + 1} failed: {e}. Retrying in {RETRY_DELAY} seconds...")
-            time.sleep(RETRY_DELAY)
-        else:
-            raise Exception("All retry attempts failed") from e
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=30)
+        with conn.cursor() as cur:
+            # Check if the project still exists in the database
+            cur.execute("SELECT * FROM account WHERE email = 'somemail@a.com'")
+            accounts = cur.fetchall()
 
-print(f"Response headers: {response.headers}")
-if response.headers.get('Access-Control-Allow-Origin') == SPECIFIC_URL:
-    print(f"Access-Control-Allow-Origin header is set to {SPECIFIC_URL}")
-    exit(0)
-else:
-    print(f"Access-Control-Allow-Origin header is not set to {SPECIFIC_URL}")
-    exit(1)
+            if len(accounts) == 1:
+                return 0  # Failure case, duplicate account creations
+            
+            return 1
+
+    except psycopg2.Error as e:
+        print(f"An error occurred: {e}")
+    finally:
+        if conn:
+            conn.close()
+
+if __name__ == "__main__":
+    exit_code = check_db_state()
+    sys.exit(exit_code)
