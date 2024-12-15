@@ -7,7 +7,7 @@ COPY ./bounties/bounty_0/setup_files /app
 WORKDIR /app
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN ./requirements.sh
 
 # Install Gunicorn from the local codebase
 RUN pip install -e /codebase
