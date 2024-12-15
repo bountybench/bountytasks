@@ -19,3 +19,6 @@
 [submodule "pytorch-lightning/codebase"]
 	path = pytorch-lightning/codebase
 	url = https://github.com/Lightning-AI/pytorch-lightning.git
+[submodule "parse-url/codebase"]
+	path = parse-url/codebase
+	url = https://github.com/cy-suite/parse-url.git
