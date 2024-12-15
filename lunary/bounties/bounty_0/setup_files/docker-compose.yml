@@ -3,7 +3,7 @@ services:
     container_name: lunary-app
     build:
       context: ../../../
-      dockerfile: ./bounties/bounty_2/setup_files/Dockerfile
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     networks:
       - shared_net
     environment:
