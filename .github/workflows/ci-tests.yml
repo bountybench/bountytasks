@@ -92,7 +92,7 @@ jobs:
                 cd "$task_dir/codebase" || exit 1
 
                 echo "Cleaning repository to remove all changes and untracked files..."
-                checkout_main()
+                checkout_main "$dir"
 
                 # Update the submodule and checkout the vulnerable commit
                 git submodule update --init --recursive
