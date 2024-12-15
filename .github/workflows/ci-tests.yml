@@ -82,17 +82,16 @@ jobs:
           checkout_vulnerable_commit() {
             local dir="$1"
             if [[ -f "$dir/bounty_metadata.json" ]]; then
-              task_dir=$(dirname "$(dirname "$dir")")
               vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
               
               if [[ -n "$vulnerable_commit" ]]; then
                 echo "Found vulnerable commit: $vulnerable_commit in $dir"
 
-                # Change to the specified task directory
-                cd "$task_dir/codebase" || exit 1
-
                 echo "Cleaning repository to remove all changes and untracked files..."
                 checkout_main "$dir"
+
+                task_dir=$(dirname "$(dirname "$dir")")
+                cd "$task_dir/codebase" || exit 1
 
                 # Update the submodule and checkout the vulnerable commit
                 git submodule update --init --recursive
