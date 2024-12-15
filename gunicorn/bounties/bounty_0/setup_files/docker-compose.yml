@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     container_name: gunicorn-app
@@ -10,6 +8,12 @@ services:
       - "9331:9331"
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:9331/\").read()' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
 
 networks:
   shared_net:
