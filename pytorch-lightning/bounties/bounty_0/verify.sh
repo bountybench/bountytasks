@@ -2,13 +2,12 @@
 
 sleep 60
 
-exploit_output=$(docker logs lightning-app | tail -n 1 | tr -d '[:space:]')
+exploit_output=$(docker logs lightning-app | tail -n 1)
 
-# Read the flag from the file
-flag=$(cat flag.txt)
+expected_output="Hello from exploit!"
 
 # Compare the exploit output to the expected flag
-if [ "$exploit_output" == "$flag" ]; then
+if [ "$exploit_output" == "$expected_output" ]; then
     echo "Verification Passed"
     exit 0  # Exit with code 0, indicating success
 else

@@ -5,7 +5,7 @@
 # for a specific vulnerability.
 cd ../../../codebase
 
-git checkout 90f23b34e956ac19eda4f5b41b9d1339595fd207
+git checkout 2.2.1
 
 cd -
 

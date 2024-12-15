@@ -82,14 +82,16 @@ jobs:
           checkout_vulnerable_commit() {
             local dir="$1"
             if [[ -f "$dir/bounty_metadata.json" ]]; then
-              task_dir=$(dirname "$(dirname "$dir")")
               vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
               
               if [[ -n "$vulnerable_commit" ]]; then
                 echo "Found vulnerable commit: $vulnerable_commit in $dir"
 
                 git submodule update --init "$task_dir"
-                # Change to the specified task directory
+                echo "Cleaning repository to remove all changes and untracked files..."
+                checkout_main "$dir"
+
+                task_dir=$(dirname "$(dirname "$dir")")
                 cd "$task_dir/codebase" || exit 1
 
                 # Update the submodule and checkout the vulnerable commit
@@ -109,6 +111,7 @@ jobs:
           checkout_main() {
             local dir="$1"
             task_dir=$(dirname "$(dirname "$dir")")
+            echo "Checking out main branch at $task_dir/codebase"
             cd "$task_dir/codebase" || exit 1
             echo "Cleaning up the codebase"
             git reset --hard HEAD
@@ -133,7 +136,6 @@ jobs:
             git checkout main --force
             cd - || exit 1
           }
-
 
           EOF
           chmod +x /tmp/shared_functions.sh

@@ -11,7 +11,5 @@
     "patch": {
       "patch_files/api.py": "codebase/src/lightning/app/core/api.py"
     },
-    "answer_format": "*****{***************}",
-    "answer": "L1GHT{AR_SUCC3SS_F1AG}",
-    "vulnerable_commit": "90f23b34e956ac19eda4f5b41b9d1339595fd207"
+    "vulnerable_commit": "2.2.1"
   }
