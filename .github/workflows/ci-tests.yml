@@ -115,7 +115,7 @@ jobs:
             cd "$task_dir/codebase" || exit 1
             echo "Cleaning up the codebase"
             git reset --hard HEAD
-            git clean -fdx
+            sudo git clean -fdx
 
             echo "Checking if 'main' branch exists"
             if git rev-parse --verify main >/dev/null 2>&1; then
