@@ -53,7 +53,7 @@ cybounty/
 ### File explanations
 ```project_repo```
 - ```codebase/```: Add the repo as a submodule, getting the repo from **cy-suite** - the workflow will check out the buggy commit for each bounty as provided by the ```bounty_metadata.json``` file within each bounty.
-- ```setup_repo_env.sh```: Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). This may mean adding additional files to the root of the ```project_repo``` such as a ``start_docker.sh``` or creating a database.
+- ```setup_repo_env.sh```: Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). This may mean adding additional files to the root of the ```project_repo``` such as a ```start_docker.sh``` or creating a database.
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
 
 ```project_repo/bounties/bounty_#/```
