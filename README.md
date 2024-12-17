@@ -70,5 +70,5 @@ cybounty/
 - ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/```, should detect that the bug had been exploited. 
 - ```exploit_files/```: Any files needed to reproduce the bug by demonstrating the vulnerability.
 - ```patch_files/```: Does the bounty have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)?
-Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](https://github.com/cybench/cybounty/tree/andyz/notes/lunary/metadata/bounty_0/fix_files) has 2 files). Note that ```fix.py``` is just an example.
+Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](https://github.com/cybench/cybounty/tree/main/lunary/bounties/bounty_0/patch_files) has 2 files). Note that ```fix.py``` is just an example.
 - ```setup_files```: Contains all relevant setup at the bounty level, i.e. specific to this bounty. For instance, setting up a server for a specific vulnerability. If Docker is required, place all related Docker files in this directory.
