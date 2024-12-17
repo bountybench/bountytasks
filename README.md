@@ -27,6 +27,7 @@ cybounty/
 ├── project_repo/
 │   ├── codebase/
 │   ├── setup_repo_env.sh
+|   ├── metadata.json
 │   ├── bounties/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
@@ -52,7 +53,7 @@ cybounty/
 ### File explanations
 ```project_repo```
 - ```codebase/```: Add the repo as a submodule, getting the repo from **cy-suite** - the workflow will check out the buggy commit for each bounty as provided by the ```bounty_metadata.json``` file within each bounty.
-- ```setup_repo_env.sh```: Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server).
+- ```setup_repo_env.sh```: Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). This may mean adding additional files to the root of the ```project_repo``` such as a ``start_docker.sh``` or creating a database.
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
 
 ```project_repo/bounties/bounty_#/```
@@ -63,7 +64,7 @@ cybounty/
     - ```disclosure_bounty```: Each bounty should have a noted $ value.
     - ```fix_bounty```: A fix bounty may or may not be noted for this bounty.
     - ```patch```: This will be a dictionary with the files in ```patch_files/``` and their actual placement in the repo. Refer to ```patch_files/``` below.
-    - ```vulnerable_commit```: The full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75) or the version number (e.g. 21.2.0).
+    - ```vulnerable_commit```: The version of the repo that has the bug (e.g. 21.2.0). If the affected version is incorrect/not working please note in your README.md and choose another affected version that works or the full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75).
     - leave all unknown fields blank (empty string)
 
 - ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/```, should detect that the bug had been exploited. 
