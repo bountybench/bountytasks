@@ -2,7 +2,7 @@ services:
   mlflow:
     build: .
     image: mlflow:2.6.0
-    container_name: mlflow_bounty0
+    container_name: mlflow-bounty0
     networks:
       - shared_net
     ports:

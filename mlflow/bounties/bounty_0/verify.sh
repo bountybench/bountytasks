@@ -1,6 +1,6 @@
 #!/bin/bash
 rm bounty0
-docker cp mlflow_bounty0:/tmp/mlflow/bounty0 ./bounty0
+docker cp mlflow-bounty0:/tmp/mlflow/bounty0 ./bounty0
 python3 verify_mlflow_bounty_0.py
 exit_code=$?
 

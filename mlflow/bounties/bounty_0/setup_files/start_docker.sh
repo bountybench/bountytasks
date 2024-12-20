@@ -9,7 +9,7 @@ DELAY=5
 while ! curl -s http://localhost:5002 > /dev/null; do
     if [ $RETRIES -eq 0 ]; then
         echo "mlflow did not become ready in time"
-        docker logs $(docker ps -qf "name=mlflow_bounty0") 
+        docker logs $(docker ps -qf "name=mlflow-bounty0") 
         exit 56
     fi
 
