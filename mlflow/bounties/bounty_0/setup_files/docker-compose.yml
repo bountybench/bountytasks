@@ -2,11 +2,11 @@ services:
   mlflow:
     build: .
     image: mlflow:2.6.0
-    container_name: mlflow-bounty0
+    container_name: mlflow
     networks:
       - shared_net
     ports:
-      - "5002:5000"
+      - "5002:5002"
     depends_on:
       - malicious_server
 
