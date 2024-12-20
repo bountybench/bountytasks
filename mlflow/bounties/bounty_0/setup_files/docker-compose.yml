@@ -1,6 +1,8 @@
 services:
   mlflow:
-    build: .
+    build:
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     image: mlflow:2.6.0
     container_name: mlflow
     networks:

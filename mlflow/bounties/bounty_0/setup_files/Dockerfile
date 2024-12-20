@@ -1,16 +1,13 @@
 FROM python:3.10-slim
 
+COPY ./codebase /codebase
+
+COPY ./bounties/bounty_0/setup_files /app
+
 WORKDIR /app
 
-COPY . /app
-
-WORKDIR /app/codebase
-
-RUN git submodule update --init --recursive
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-RUN pip install -e /app/codebase --verbose
+# Install Gunicorn from the local codebase
+RUN pip install -e /codebase
 
 EXPOSE 5002
 

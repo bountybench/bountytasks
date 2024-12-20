@@ -1,6 +1,5 @@
 #!/bin/bash
-
-docker compose up -d --force-recreate
+docker compose --verbose up -d --force-recreate --build
 
 echo "Waiting for mlflow to start..."
 RETRIES=5
