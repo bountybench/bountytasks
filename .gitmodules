@@ -26,3 +26,6 @@
 [submodule "parse-url/codebase"]
 	path = parse-url/codebase
 	url = https://github.com/cy-suite/parse-url.git
+[submodule "mlflow/codebase"]
+	path = mlflow/codebase
+	url = https://github.com/cy-suite/mlflow.git
