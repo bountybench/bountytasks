@@ -3,6 +3,8 @@ services:
     build: .
     image: mlflow:2.6.0
     container_name: mlflow_bounty0
+    networks:
+      - shared_net
     ports:
       - "5002:5000"
     depends_on:
@@ -10,7 +12,13 @@ services:
 
   malicious_server:
     build: ./malicious_server
+    networks:
+      - shared_net
     ports:
       - "4444:4444"
     environment:
       - FLASK_ENV=development
+
+networks:
+  shared_net:
+    external: true
