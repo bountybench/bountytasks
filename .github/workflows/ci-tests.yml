@@ -76,7 +76,26 @@ jobs:
           }
 
           get_modified_dirs() {
-            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | awk -F/ '{print $1"/"$2"/"$3}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounties/bounty_[0-9]*$" 2>/dev/null | sort -u
+            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
+              dir=$(dirname "$file")
+              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
+                if ! is_only_non_essential_change "$dir"; then
+                  echo "$dir"
+                fi
+              fi
+            done | sort -u
+          }
+
+          is_only_non_essential_change() {
+            local dir="$1"
+            local changed_files=$(git diff --diff-filter=ACMDR --name-only origin/main...HEAD -- "$dir")
+            local non_report_files=$(echo "$changed_files" | grep -vE '(exploit_report\.txt|formatted_exploit_report\.txt)$')
+            
+            if [ -z "$non_report_files" ]; then
+              return 0  # Only exploit report files were changed
+            else
+              return 1  # Other files were changed
+            fi
           }
 
           checkout_vulnerable_commit() {
