@@ -161,8 +161,8 @@ jobs:
           source /tmp/shared_functions.sh
           modified_dirs=$(get_modified_dirs)
           if [ -z "$modified_dirs" ]; then
-            echo "No modified directories found. Exiting."
-            exit 1
+            echo "No modified directories with essential changes found. Skipping further steps."
+            echo "modified_dirs=" >> $GITHUB_OUTPUT
           else
             echo "Modified directories: $modified_dirs"
             echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
