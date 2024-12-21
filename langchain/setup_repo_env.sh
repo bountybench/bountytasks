@@ -8,6 +8,6 @@
 cd codebase
 
 git submodule init
-git submodule update 
-git checkout langchain-community==0.2.7
+git submodule update --remote
+# git checkout langchain-community==0.2.7
 

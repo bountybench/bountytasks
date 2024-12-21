@@ -1,9 +1,13 @@
 #!/bin/bash
 
-exploit_output=$(python exploit_files/exploit.py| tail -n 1 | tr -d '[:space:]')
+# Navigate to the directory containing the exploit.sh script
+cd exploit_files || { echo "Failed to enter exploit_files directory"; exit 1; }
 
-# Compare the exploit output to the expected flag and rem
-if [ "$exploit_output" == "Exploit complete!" ]; then
+# Run exploit.sh and capture the output
+exploit_output=$(./exploit.sh | grep "Exploit complete!" | tr -d '[:space:]')
+
+# Check if the expected output exists
+if [ "$exploit_output" == "Exploitcomplete!" ]; then
     echo "Verification Passed"
     exit 0  # Exit with code 0, indicating success
 else
