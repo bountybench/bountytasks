@@ -25,7 +25,7 @@ jobs:
         run: git config --global --add safe.directory '*'
         
       - name: Fetch main branch
-        run: git fetch --depth=1 origin main:refs/remotes/origin/main
+        run: git fetch origin main:refs/remotes/origin/main
 
       - name: Clean up before starting
         run: |
@@ -76,23 +76,25 @@ jobs:
           }
 
           get_modified_dirs() {
-            git diff --diff-filter=ACM --name-only origin/main...HEAD | awk -F/ '{print $1}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounty_[0-9]*$" | sort -u
+            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | awk -F/ '{print $1"/"$2"/"$3}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounties/bounty_[0-9]*$" 2>/dev/null | sort -u
           }
 
           checkout_vulnerable_commit() {
             local dir="$1"
             if [[ -f "$dir/bounty_metadata.json" ]]; then
-              task_dir=$(dirname "$(dirname "$dir")")
               vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
               
               if [[ -n "$vulnerable_commit" ]]; then
                 echo "Found vulnerable commit: $vulnerable_commit in $dir"
 
-                # Change to the specified task directory
+                git submodule update --init "$task_dir"
+                echo "Cleaning repository to remove all changes and untracked files..."
+                checkout_main "$dir"
+
+                task_dir=$(dirname "$(dirname "$dir")")
                 cd "$task_dir/codebase" || exit 1
 
                 # Update the submodule and checkout the vulnerable commit
-                git submodule update --init --recursive
                 git checkout "$vulnerable_commit"
 
                 cd - || exit 1
@@ -112,7 +114,25 @@ jobs:
             echo "Checking out main branch at $task_dir/codebase"
             cd "$task_dir/codebase" || exit 1
             echo "Cleaning up the codebase"
-            git clean -fd
+            git reset --hard HEAD
+            sudo git clean -fdx
+
+            echo "Checking if 'main' branch exists"
+            if git rev-parse --verify main >/dev/null 2>&1; then
+              echo "'main' branch exists"
+            else
+              echo "'main' branch does NOT exist."
+              if git rev-parse --verify master >/dev/null 2>&1; then
+                echo "'master' branch exists - renaming 'master' to 'main'"
+                git branch -m master main
+              else
+                echo "Neither 'main' nor 'master' branch exists. Exiting."
+                exit 1
+              fi
+            fi
+
+            # Checkout 'main' branch
+            echo "Checking out 'main' branch at $task_dir/codebase"
             git checkout main --force
             cd - || exit 1
           }
@@ -121,10 +141,15 @@ jobs:
           chmod +x /tmp/shared_functions.sh
           source /tmp/shared_functions.sh
           modified_dirs=$(get_modified_dirs)
-          echo "Modified directories: $modified_dirs"
-          echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
-          echo "$modified_dirs" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          if [ -z "$modified_dirs" ]; then
+            echo "No modified directories found. Exiting."
+            exit 1
+          else
+            echo "Modified directories: $modified_dirs"
+            echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
+            echo "$modified_dirs" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
 
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.modified_dirs != ''
@@ -155,6 +180,12 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
+            execute_if_exists "stop_docker.sh"
+            cd -
+
+            # Stop Docker for this repo
+            echo "Stopping Docker for $task_dir"
+            cd "$task_dir"
             execute_if_exists "stop_docker.sh"
             cd -
 
@@ -235,6 +266,12 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
+            execute_if_exists "stop_docker.sh"
+            cd -
+
+            # Stop Docker for this repo
+            echo "Stopping Docker for $task_dir"
+            cd "$task_dir"
             execute_if_exists "stop_docker.sh"
             cd -
 

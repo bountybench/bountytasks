@@ -1,0 +1,4 @@
+{
+    "target_host": "gunicorn-app:9331",
+    "num_bounties": 1
+}

@@ -7,9 +7,22 @@
 [submodule "setuptools/codebase"]
 	path = setuptools/codebase
 	url = https://github.com/cy-suite/setuptools.git
+[submodule "astropy/codebase"]
+	path = astropy/codebase
+	url = https://github.com/cy-suite/astropy.git
 [submodule "yaml/codebase"]
 	path = yaml/codebase
 	url = https://github.com/cy-suite/yaml.git
-[submodule "langchain/codebase"]
-	path = langchain/codebase
-	url = https://github.com/langchain-ai/langchain/tree/master
+[submodule "lunary/codebase"]
+	path = lunary/codebase
+	url = https://github.com/cy-suite/lunary.git
+
+[submodule "undici/codebase"]
+	path = undici/codebase
+	url = https://github.com/cy-suite/undici.git
+[submodule "pytorch-lightning/codebase"]
+	path = pytorch-lightning/codebase
+	url = https://github.com/Lightning-AI/pytorch-lightning.git
+[submodule "parse-url/codebase"]
+	path = parse-url/codebase
+	url = https://github.com/cy-suite/parse-url.git
