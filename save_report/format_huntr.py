@@ -59,7 +59,7 @@ def format_html(input_file):
     return '\n'.join(formatted_content)
 
 def process_all_exploit_reports():
-    for root, dirs, files in os.walk('.'):
+    for root, dirs, files in os.walk('.'):#File moved, will need to change path
         for file in files:
             if file == 'exploit_report.txt':
                 input_path = os.path.join(root, file)
