@@ -1,4 +1,5 @@
-name: Check pytest tests
+name: Check Pytest Tests
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -8,11 +9,65 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  find-changed-dirs:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    outputs:
+      bounty_dirs_json: ${{ steps.collect-bounties.outputs.bounty_dirs_json }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Disable Git ownership check
+        run: git config --global --add safe.directory '*'
+
+      - name: Fetch main branch
+        run: git fetch origin main:refs/remotes/origin/main
+
+      - name: Determine changed bounty directories
+        id: collect-bounties
+        run: |
+          # We skip changes that only affect exploit_report.txt, formatted_exploit_report.txt, README.md (non-essential). Can extend as needed.
+          SKIP_FILES_REGEX='(exploit_report\.txt|formatted_exploit_report\.txt|README\.md)$'
+
+          get_modified_dirs() {
+            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
+              dir=$(dirname "$file")
+              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
+                local changed_files
+                changed_files=$(git diff --diff-filter=ACMDR --name-only origin/main...HEAD -- "$dir")
+                non_skippable=$(echo "$changed_files" | grep -vE "$SKIPPABLE_FILES_REGEX" || true)
+                if [[ -n "$non_skippable" ]]; then
+                  echo "$dir"
+                fi
+              fi
+            done | sort -u
+          }
+
+          modified_dirs=$(get_modified_dirs)
+          echo "Modified (essential) directories: $modified_dirs"
+
+          if [[ -z "$modified_dirs" ]]; then
+            echo "bounty_dirs_json=[]" >> $GITHUB_OUTPUT
+          else
+            # Convert to JSON array
+            json_array=$(printf '%s\n' "$modified_dirs" | jq -R . | jq -s .)
+            echo "bounty_dirs_json=$json_array" >> $GITHUB_OUTPUT
+          fi
+
+  test-bounties:
+    needs: find-changed-dirs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true # If we want to allow other bounties to run even if on fails, set to false. 
+      # Currently set to true to not waste CI compute.
+      matrix:
+        dir: ${{ fromJson(needs.find-changed-dirs.outputs.bounty_dirs_json) }}
+      max-parallel: 4 # Set to 4 to prevent overloading resources
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,7 +78,7 @@ jobs:
 
       - name: Disable Git ownership check
         run: git config --global --add safe.directory '*'
-        
+
       - name: Fetch main branch
         run: git fetch origin main:refs/remotes/origin/main
 
@@ -31,6 +86,14 @@ jobs:
         run: |
           sudo apt-get clean
           npm cache clean --force
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('.github/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Setup Python environment
         uses: actions/setup-python@v5
@@ -61,8 +124,7 @@ jobs:
       - name: Create Docker Network
         run: docker network create shared_net || true
 
-      - name: Find modified metadata/bounty directories
-        id: modified-dirs
+      - name: Setup shared functions
         run: |
           cat << 'EOF' > /tmp/shared_functions.sh
           execute_if_exists() {
@@ -75,41 +137,9 @@ jobs:
             fi
           }
 
-          get_modified_dirs() {
-            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | awk -F/ '{print $1"/"$2"/"$3}' | sort -u | xargs -I{} find {} -type d -regex ".*/bounties/bounty_[0-9]*$" 2>/dev/null | sort -u
-          }
-
-          checkout_vulnerable_commit() {
-            local dir="$1"
-            if [[ -f "$dir/bounty_metadata.json" ]]; then
-              vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
-              
-              if [[ -n "$vulnerable_commit" ]]; then
-                echo "Found vulnerable commit: $vulnerable_commit in $dir"
-
-                git submodule update --init "$task_dir"
-                echo "Cleaning repository to remove all changes and untracked files..."
-                checkout_main "$dir"
-
-                task_dir=$(dirname "$(dirname "$dir")")
-                cd "$task_dir/codebase" || exit 1
-
-                # Update the submodule and checkout the vulnerable commit
-                git checkout "$vulnerable_commit"
-
-                cd - || exit 1
-              else
-                echo "No vulnerable commit found in $dir/bounty_metadata.json"
-                exit 1
-              fi
-            else
-              echo "No bounty_metadata.json file found in $dir"
-              exit 1
-            fi
-          }
-
           checkout_main() {
             local dir="$1"
+            local task_dir
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Checking out main branch at $task_dir/codebase"
             cd "$task_dir/codebase" || exit 1
@@ -137,163 +167,156 @@ jobs:
             cd - || exit 1
           }
 
-          EOF
-          chmod +x /tmp/shared_functions.sh
-          source /tmp/shared_functions.sh
-          modified_dirs=$(get_modified_dirs)
-          if [ -z "$modified_dirs" ]; then
-            echo "No modified directories found. Exiting."
-            exit 1
-          else
-            echo "Modified directories: $modified_dirs"
-            echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
-            echo "$modified_dirs" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
+          checkout_vulnerable_commit() {
+            local dir="$1"
+            if [[ -f "$dir/bounty_metadata.json" ]]; then
+              local vulnerable_commit
+              vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
 
-      - name: Run Exploit Tests
-        if: steps.modified-dirs.outputs.modified_dirs != ''
-        run: |
-          source /tmp/shared_functions.sh
-          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
-            task_dir=$(dirname "$(dirname "$dir")")
-            echo "Processing bug bounty: $dir"
+              if [[ -n "$vulnerable_commit" && "$vulnerable_commit" != "null" ]]; then
+                echo "Found vulnerable commit: $vulnerable_commit in $dir"
+                local task_dir
+                task_dir=$(dirname "$(dirname "$dir")")
 
-            checkout_vulnerable_commit "$dir"
+                echo "Initializing submodule in $task_dir"
+                git submodule update --init "$task_dir"
 
-            # Repo-level setup
-            echo "Setting up the repo environment for $dir"
-            cd "$task_dir"
-            execute_if_exists "setup_repo_env.sh"
-            cd -
+                echo "Cleaning repository before checkout"
+                checkout_main "$dir"
 
-            # Bounty-level setup
-            echo "Setting up the bounty environment for $dir"
-            cd "$dir/setup_files"
-            execute_if_exists "setup_bounty_env.sh"
-            cd -
-
-            # Run the exploit and verification for this task
-            echo "Running exploit and verification test for $dir"
-            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
-
-            # Stop Docker for this task
-            echo "Stopping Docker for $dir"
-            cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
-            cd -
-
-            # Stop Docker for this repo
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
-            cd -
-
-            checkout_main "$dir"
-
-            echo "Completed processing bug bounty: $dir"
-            echo "-----------------------------------"
-          done
-          echo "All tasks processed."
-
-      - name: Docker Cleanup before pulling new image
-        run: |
-          docker system prune -af
-          docker image prune -af
-
-      - name: Pull Docker Container
-        run: |
-          docker pull --quiet cybench/kali-linux-ci:latest
-          docker manifest inspect cybench/kali-linux-ci:latest
-          docker image tag cybench/kali-linux-ci:latest cybench
-      
-      - name: Create Docker Network
-        run: docker network create shared_net || true
-
-      - name: Run Patch Tests
-        if: steps.modified-dirs.outputs.modified_dirs != ''
-        run: |
-          source /tmp/shared_functions.sh
-          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
-            task_dir=$(dirname "$(dirname "$dir")")
-            echo "Processing bug bounty: $dir"
-
-            checkout_vulnerable_commit "$dir"
-
-            # Patch the bug for this task
-            bounty_metadata="$dir/bounty_metadata.json"
-
-            patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
-
-            if [ -z "$patch_pairs" ]; then
-              echo "No patches defined for $dir. Skipping patch application."
-              checkout_main "$dir"
-              continue
+                cd "$task_dir/codebase" || exit 1
+                git checkout "$vulnerable_commit"
+                cd - || exit 1
+              else
+                echo "No valid vulnerable_commit found in $dir/bounty_metadata.json"
+                exit 1
+              fi
             else
-              # Apply the patches by copying local files to their target locations
-              declare -A original_files
-              echo "Applying patches for $dir"
-              while read -r source_file target_file; do
-                # Ensure the target directory exists
-                target_dir=$(dirname "$target_file")
-                if [ ! -d "$task_dir/$target_dir" ]; then
-                  echo "Creating directory $task_dir/$target_dir"
-                  mkdir -p "$task_dir/$target_dir"
-                fi
+              echo "No bounty_metadata.json file found in $dir"
+              exit 1
+            fi
+          }
 
-                # Apply the patch by copying the source file to the target location
-                echo "Copying $dir/$source_file to $task_dir/$target_file"
-                cp "$dir/$source_file" "$task_dir/$target_file"
-              done <<< "$patch_pairs"
+          apply_patches_if_any() {
+            local dir="$1"
+            local bounty_metadata="$dir/bounty_metadata.json"
+            if [[ ! -f "$bounty_metadata" ]]; then
+              echo "No bounty_metadata.json found in $dir, skipping patch."
+              return
             fi
 
-             # Repo-level setup
-            echo "Setting up the repo environment for $dir"
-            cd "$task_dir"
-            execute_if_exists "setup_repo_env.sh"
-            cd -
+            local patch_pairs
+            patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata" 2>/dev/null || true)
+            if [[ -z "$patch_pairs" ]]; then
+              echo "No patches defined for $dir. Skipping patch application."
+              return
+            fi
 
-            # Bounty-level setup
-            echo "Setting up the bounty environment for $dir"
-            cd "$dir/setup_files"
-            execute_if_exists "setup_bounty_env.sh"
-            cd -
+            local task_dir
+            task_dir=$(dirname "$(dirname "$dir")")
 
-            # Run the patch test for this task
-            echo "Running patch test for $dir"
-            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
+            echo "Applying patches for $dir"
+            while read -r source_file target_file; do
+              if [[ -z "$source_file" || -z "$target_file" ]]; then
+                continue
+              fi
+              local target_dir
+              target_dir=$(dirname "$target_file")
+              if [ ! -d "$task_dir/$target_dir" ]; then
+                echo "Creating directory $task_dir/$target_dir"
+                mkdir -p "$task_dir/$target_dir"
+              fi
+              echo "Copying $dir/$source_file to $task_dir/$target_file"
+              cp "$dir/$source_file" "$task_dir/$target_file"
+            done <<< "$patch_pairs"
+          }
+          EOF
+          chmod +x /tmp/shared_functions.sh
 
-            # Stop Docker for this task
-            echo "Stopping Docker for $dir"
-            cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
-            cd -
-
-            # Stop Docker for this repo
-            echo "Stopping Docker for $task_dir"
-            cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
-            cd -
-
-            checkout_main "$dir"
-
-            echo "Completed processing bug bounty: $dir"
-            echo "-----------------------------------"
-          done
-          echo "All tasks processed."
-
-
-      - name: Test bounty metadata.json
+      - name: Run Exploit Tests
+        if: ${{ matrix.dir != '' }}
         run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No relevant files in bounty metadata were modified."
-            exit 0  # Exit successfully if no files are modified
+          echo "Running exploit test for directory: ${{ matrix.dir }}"
+          source /tmp/shared_functions.sh
+
+          echo "Checking out vulnerable commit for ${{ matrix.dir }}"
+          checkout_vulnerable_commit "${{ matrix.dir }}"
+
+          echo "Running any repo-level setup if exists"
+          task_dir="$(dirname "$(dirname "${{ matrix.dir }}")")"
+          if [ -f "$task_dir/setup_repo_env.sh" ]; then
+            execute_if_exists "$task_dir/setup_repo_env.sh"
           fi
-          echo "Modified bounty_metadata.json files: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
-          echo "Directories to be tested: $modified_dirs"
+
+          echo "Running any bounty-level setup if exists"
+          if [ -f "${{ matrix.dir }}/setup_files/setup_bounty_env.sh" ]; then
+            execute_if_exists "${{ matrix.dir }}/setup_files/setup_bounty_env.sh"
+          fi
+
+          echo "Running exploit workflow via Pytest"
+          pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "${{ matrix.dir }}"
+
+          echo "Stopping Docker for this bounty"
+          if [ -f "${{ matrix.dir }}/setup_files/stop_docker.sh" ]; then
+            execute_if_exists "${{ matrix.dir }}/setup_files/stop_docker.sh"
+          fi
+
+          echo "Stopping Docker for this repo"
+          if [ -f "$task_dir/stop_docker.sh" ]; then
+            execute_if_exists "$task_dir/stop_docker.sh"
+          fi
+
+          echo "Checking out main branch after exploit test"
+          checkout_main "${{ matrix.dir }}"
+
+      - name: Run Patch Tests
+        if: ${{ matrix.dir != '' }}
+        run: |
+          echo "Running patch test for directory: ${{ matrix.dir }}"
+          source /tmp/shared_functions.sh
+
+          echo "Checking out vulnerable commit for ${{ matrix.dir }}"
+          checkout_vulnerable_commit "${{ matrix.dir }}"
+
+          echo "Applying patch if defined"
+          apply_patches_if_any "${{ matrix.dir }}"
+
+          task_dir="$(dirname "$(dirname "${{ matrix.dir }}")")"
+          echo "Running any repo-level setup"
+          if [ -f "$task_dir/setup_repo_env.sh" ]; then
+            execute_if_exists "$task_dir/setup_repo_env.sh"
+          fi
+
+          echo "Running any bounty-level setup"
+          if [ -f "${{ matrix.dir }}/setup_files/setup_bounty_env.sh" ]; then
+            execute_if_exists "${{ matrix.dir }}/setup_files/setup_bounty_env.sh"
+          fi
+
+          echo "Running patch test via Pytest"
+          pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "${{ matrix.dir }}"
+
+          echo "Stopping Docker for this bounty"
+          if [ -f "${{ matrix.dir }}/setup_files/stop_docker.sh" ]; then
+            execute_if_exists "${{ matrix.dir }}/setup_files/stop_docker.sh"
+          fi
+
+          echo "Stopping Docker for this repo"
+          if [ -f "$task_dir/stop_docker.sh" ]; then
+            execute_if_exists "$task_dir/stop_docker.sh"
+          fi
+
+          echo "Checking out main branch after patch test"
+          checkout_main "${{ matrix.dir }}"
+
+      - name: Test bounty metadata
+        if: ${{ matrix.dir != '' }}
+        run: |
+          if [ -f "${{ matrix.dir }}/bounty_metadata.json" ]; then
+            echo "Testing bounty_metadata for ${{ matrix.dir }}"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs "${{ matrix.dir }}"
+          else
+            echo "No bounty_metadata.json in ${{ matrix.dir }}. Skipping metadata test."
+          fi
 
       - name: Display disk space after tests
         run: df -h
@@ -301,6 +324,7 @@ jobs:
       - name: Docker Cleanup after tests
         run: |
           docker system prune -af
+          docker image prune -af
 
       - name: Display disk space after cleanup
         run: df -h
