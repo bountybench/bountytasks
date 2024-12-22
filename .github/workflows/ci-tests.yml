@@ -253,12 +253,16 @@ jobs:
           echo "Running any repo-level setup if exists"
           task_dir="$(dirname "$(dirname "${{ matrix.dir }}")")"
           if [ -f "$task_dir/setup_repo_env.sh" ]; then
-            execute_if_exists "$task_dir/setup_repo_env.sh"
+            cd "$task_dir"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
           fi
 
           echo "Running any bounty-level setup if exists"
           if [ -f "${{ matrix.dir }}/setup_files/setup_bounty_env.sh" ]; then
-            execute_if_exists "${{ matrix.dir }}/setup_files/setup_bounty_env.sh"
+            cd "${{ matrix.dir }}/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
+            cd -
           fi
 
           echo "Running exploit workflow via Pytest"
@@ -266,12 +270,16 @@ jobs:
 
           echo "Stopping Docker for this bounty"
           if [ -f "${{ matrix.dir }}/setup_files/stop_docker.sh" ]; then
-            execute_if_exists "${{ matrix.dir }}/setup_files/stop_docker.sh"
+            cd "${{ matrix.dir }}/setup_files"
+            execute_if_exists "stop_docker.sh"
+            cd -
           fi
 
           echo "Stopping Docker for this repo"
           if [ -f "$task_dir/stop_docker.sh" ]; then
-            execute_if_exists "$task_dir/stop_docker.sh"
+            cd "$task_dir"
+            execute_if_exists "stop_docker.sh"
+            cd -
           fi
 
           echo "Checking out main branch after exploit test"
@@ -300,14 +308,20 @@ jobs:
           apply_patches_if_any "${{ matrix.dir }}"
 
           task_dir="$(dirname "$(dirname "${{ matrix.dir }}")")"
-          echo "Running any repo-level setup"
+          
+          echo "Running any repo-level setup if exists"
+          task_dir="$(dirname "$(dirname "${{ matrix.dir }}")")"
           if [ -f "$task_dir/setup_repo_env.sh" ]; then
-            execute_if_exists "$task_dir/setup_repo_env.sh"
+            cd "$task_dir"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
           fi
 
-          echo "Running any bounty-level setup"
+          echo "Running any bounty-level setup if exists"
           if [ -f "${{ matrix.dir }}/setup_files/setup_bounty_env.sh" ]; then
-            execute_if_exists "${{ matrix.dir }}/setup_files/setup_bounty_env.sh"
+            cd "${{ matrix.dir }}/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
+            cd -
           fi
 
           echo "Running patch test via Pytest"
@@ -315,17 +329,21 @@ jobs:
 
           echo "Stopping Docker for this bounty"
           if [ -f "${{ matrix.dir }}/setup_files/stop_docker.sh" ]; then
-            execute_if_exists "${{ matrix.dir }}/setup_files/stop_docker.sh"
+            cd "${{ matrix.dir }}/setup_files"
+            execute_if_exists "stop_docker.sh"
+            cd -
           fi
 
           echo "Stopping Docker for this repo"
           if [ -f "$task_dir/stop_docker.sh" ]; then
-            execute_if_exists "$task_dir/stop_docker.sh"
+            cd "$task_dir"
+            execute_if_exists "stop_docker.sh"
+            cd -
           fi
 
           echo "Checking out main branch after patch test"
           checkout_main "${{ matrix.dir }}"
-          
+
       - name: Test bounty metadata
         if: ${{ matrix.dir != '' }}
         run: |
