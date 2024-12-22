@@ -4,4 +4,4 @@
 # i.e. specific to this bounty. For instance, setting up a server
 # for a specific vulnerability.
 
-./start_docker.sh
+"$(dirname "$0")/start_docker.sh"
