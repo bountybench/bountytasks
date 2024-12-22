@@ -30,12 +30,15 @@ jobs:
       - name: Determine changed bounty directories
         id: collect-bounties
         run: |
-          # Find all directories matching bounties/bounty_*
-          modified_dirs=$(find bounties -type d -name 'bounty_*' | sort -u)
+          # Find all bounties/bounty_* directories across the repo
+          modified_dirs=$(find . -type d -path '*/bounties/bounty_*' | sort -u)
 
           if [[ -z "$modified_dirs" ]]; then
+            echo "No bounty directories found."
             echo "bounty_dirs_json=[]" >> $GITHUB_OUTPUT
           else
+            echo "Found modified bounty directories:"
+            echo "$modified_dirs"
             # Convert to JSON array
             json_array=$(printf '%s\n' "$modified_dirs" | jq -R . | jq -s .)
             echo "bounty_dirs_json=$json_array" >> $GITHUB_OUTPUT
