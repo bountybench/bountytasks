@@ -6,4 +6,4 @@
 
 cd "$(dirname "$0")" || { echo "Failed to change directory"; exit 1; }
 
-./start_docker.sh"
+./start_docker.sh
