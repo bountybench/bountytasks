@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Change to the directory containing the docker-compose.yml file
+cd "$(dirname "$0")" || { echo "Failed to change directory"; exit 1; }
+
 echo "Starting Docker containers..."
 docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
 
