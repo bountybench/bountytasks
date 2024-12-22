@@ -52,7 +52,7 @@ jobs:
     needs: find-changed-dirs
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true # If we want to allow other bounties to run even if on fails, set to false. 
+      fail-fast: false # If we want to allow other bounties to run even if on fails, set to false. 
       # Currently set to true to not waste CI compute.
       matrix:
         dir: ${{ fromJson(needs.find-changed-dirs.outputs.bounty_dirs_json) }}
