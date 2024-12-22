@@ -30,25 +30,8 @@ jobs:
       - name: Determine changed bounty directories
         id: collect-bounties
         run: |
-          # We skip changes that only affect exploit_report.txt, formatted_exploit_report.txt, README.md (non-essential). Can extend as needed.
-          SKIP_FILES_REGEX='(exploit_report\.txt|formatted_exploit_report\.txt|README\.md)$'
-
-          get_modified_dirs() {
-            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
-              dir=$(dirname "$file")
-              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
-                local changed_files
-                changed_files=$(git diff --diff-filter=ACMDR --name-only origin/main...HEAD -- "$dir")
-                non_skippable=$(echo "$changed_files" | grep -vE "$SKIPPABLE_FILES_REGEX" || true)
-                if [[ -n "$non_skippable" ]]; then
-                  echo "$dir"
-                fi
-              fi
-            done | sort -u
-          }
-
-          modified_dirs=$(get_modified_dirs)
-          echo "Modified (essential) directories: $modified_dirs"
+          # Find all directories matching bounties/bounty_*
+          modified_dirs=$(find bounties -type d -name 'bounty_*' | sort -u)
 
           if [[ -z "$modified_dirs" ]]; then
             echo "bounty_dirs_json=[]" >> $GITHUB_OUTPUT
