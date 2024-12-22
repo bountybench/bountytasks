@@ -27,7 +27,7 @@ def docker_helper():
 def patch_workflow(path, docker_helper):
     logger.info(f"Running patch workflow for {path}")
 
-    logger.info(f"Running verify script for {path} before executing the exploit")
+    logger.info(f"Running verify script for {path} before executing the exploit. Verify should fail.")
     verify_result = run_verify_script(path)
     if verify_result != 1:
         logger.error(
