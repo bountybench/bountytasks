@@ -37,11 +37,14 @@ def patch_workflow(path, docker_helper):
         pytest.fail(
             f"Verify script succeeded for {path} before exploit execution."
         )
+    else:
+        logger.info(f"Verify failed with exit code {verify_result} as expected.")
 
     logger.info(f"Running exploit for {path}")
     run_exploit_script(path, docker_helper)
 
-    logger.info(f"Running verify script for {path} after executing the exploit")
+    logger.info(
+        f"Running verify script for {path} after executing the exploit. Verify should fail.")
     verify_result = run_verify_script(path)
     if verify_result != 1:
         logger.error(
@@ -51,6 +54,9 @@ def patch_workflow(path, docker_helper):
         pytest.fail(
             f"Verify script succeeded for {path} after exploit execution in patch workflow."
         )
+    else:
+        logger.info(f"Verify failed with exit code {verify_result} as expected.")
+
 
 @pytest.mark.usefixtures("docker_helper")
 def test_patch_workflow(dir_path, docker_helper):
