@@ -39,8 +39,12 @@ jobs:
           else
             echo "Found modified bounty directories:"
             echo "$modified_dirs"
+
+            # Remove any extra whitespace from the output
+            clean_dirs=$(echo "$modified_dirs" | awk '{$1=$1;print}')
+
             # Convert to JSON array
-            json_array=$(printf '%s\n' "$modified_dirs" | jq -R . | jq -s .)
+            json_array=$(printf '%s\n' "$clean_dirs" | jq -R . | jq -s .)
             echo "bounty_dirs_json=$json_array" >> $GITHUB_OUTPUT
           fi
 
