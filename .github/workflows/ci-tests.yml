@@ -26,7 +26,7 @@ jobs:
 
       - name: Fetch main branch
         run: git fetch origin main:refs/remotes/origin/main
-        
+
       - name: Determine changed bounty directories
         id: collect-bounties
         run: |
@@ -42,7 +42,10 @@ jobs:
 
             # Remove any extra whitespace from the output and convert to JSON array
             json_array=$(echo "$modified_dirs" | jq -R -s 'split("\n") | map(select(length > 0))')
-            echo "bounty_dirs_json=$json_array" >> $GITHUB_OUTPUT
+            
+            # Properly escape the JSON array for GITHUB_OUTPUT
+            escaped_json=$(echo "$json_array" | jq -c -r '@json')
+            echo "bounty_dirs_json=$escaped_json" >> $GITHUB_OUTPUT
           fi
 
   test-bounties:
