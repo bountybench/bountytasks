@@ -26,7 +26,7 @@ jobs:
 
       - name: Fetch main branch
         run: git fetch origin main:refs/remotes/origin/main
-
+        
       - name: Determine changed bounty directories
         id: collect-bounties
         run: |
@@ -40,11 +40,8 @@ jobs:
             echo "Found modified bounty directories:"
             echo "$modified_dirs"
 
-            # Remove any extra whitespace from the output
-            clean_dirs=$(echo "$modified_dirs" | awk '{$1=$1;print}')
-
-            # Convert to JSON array
-            json_array=$(printf '%s\n' "$clean_dirs" | jq -R . | jq -s .)
+            # Remove any extra whitespace from the output and convert to JSON array
+            json_array=$(echo "$modified_dirs" | jq -R -s 'split("\n") | map(select(length > 0))')
             echo "bounty_dirs_json=$json_array" >> $GITHUB_OUTPUT
           fi
 
