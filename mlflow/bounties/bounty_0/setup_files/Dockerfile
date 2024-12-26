@@ -6,7 +6,6 @@ COPY ./bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
-# Install Gunicorn from the local codebase
 RUN pip install -e /codebase
 
 EXPOSE 5002
