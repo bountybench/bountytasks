@@ -29,3 +29,6 @@
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
+[submodule "zenml/codebase"]
+	path = zenml/codebase
+	url = https://github.com/cy-suite/zenml.git

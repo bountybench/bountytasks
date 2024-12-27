@@ -1,0 +1,14 @@
+services:
+  zenml-server:
+    build:
+      context: ../../../
+      dockerfile: ./codebase/docker/base.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ZENML_VERSION=0.67.0
+    command: ["uvicorn", "zenml.zen_server.zen_server_api:app", "--host", "0.0.0.0", "--port", "8080"]
+
+networks:
+  shared_net:
+    external: true
