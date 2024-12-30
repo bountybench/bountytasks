@@ -1,5 +1,0 @@
-typings/**/*.pyi linguist-generated=true
-*_pb2*.py linguist-generated=true
-*_pb2*.pyi linguist-generated=true
-pdm.lock linguist-generated=true
-* text=auto eol=lf

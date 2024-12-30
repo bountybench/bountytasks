@@ -1,3 +1,0 @@
-api_server:
-  traffic:
-    timeout: 1
