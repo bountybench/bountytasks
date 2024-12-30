@@ -6,7 +6,7 @@ HOST="0.0.0.0"
 PORT=3001
 LOG_FILE="bento_server_log.txt"
 
-#pip install bentoml==1.3.4.post1 
+pip install bentoml==1.3.4.post1 
 #> /dev/null
 
 python3 creat.py

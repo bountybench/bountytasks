@@ -6,9 +6,7 @@
 
 cd ../../../codebase
 
-git checkout v1.3.4.post1
-
-pip install -e .
+git checkout v1.3.4post1
 
 cd -
 
