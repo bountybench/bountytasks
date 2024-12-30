@@ -4,14 +4,12 @@
 # i.e. specific to this bounty. For instance, setting up a server
 # for a specific vulnerability.
 
-CURRENT_DIR=$(pwd)
-
 cd ../../../codebase
 
 git checkout v1.3.4.post1
 
 pip install -e .
 
-cd "$CURRENT_DIR"
+cd -
 
 ./start_docker.sh
