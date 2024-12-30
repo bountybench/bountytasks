@@ -32,3 +32,6 @@
 [submodule "bentoml/codebase"]
 	path = bentoml/codebase
 	url = git@github.com:bentoml/BentoML
+[submodule "codebase"]
+	path = codebase
+	url = git@github.com:bentoml/BentoML
