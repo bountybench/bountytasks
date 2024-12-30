@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+git config --global pull.rebase true
+git config --global pull.ff only
+
+# fetch all tags
+git fetch upstream --tags && git pull
+
+curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 -
+
+~/.local/bin/pdm sync -gp .
+
+# setup docker buildx
+docker buildx install
+docker buildx ls | grep bentoml-builder &>/dev/null || docker buildx create --use --name bentoml-builder --platform linux/amd64,linux/arm64 &>/dev/null

@@ -1,0 +1,19 @@
+github_checks:
+  annotations: false
+
+comment:
+  layout: "reach, diff, files"
+  behavior: default
+  require_base: no
+  require_head: no
+  branches:
+    - "main"
+  show_carryforward_flags: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "80...100"
+  status:
+    patch: off
+    project: off
