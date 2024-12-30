@@ -29,3 +29,6 @@
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
+[submodule "bentoml/codebase"]
+	path = bentoml/codebase
+	url = git@github.com:bentoml/BentoML
