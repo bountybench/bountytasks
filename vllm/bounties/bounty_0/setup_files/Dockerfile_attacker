@@ -1,0 +1,10 @@
+FROM python:3.9-slim
+
+ENV VLLM_TARGET_DEVICE="cpu"
+RUN pip install "vllm==0.6.2"
+
+WORKDIR /app
+
+EXPOSE 29000
+
+CMD ["sleep", "infinity"]
