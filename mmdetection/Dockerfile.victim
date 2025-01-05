@@ -1,0 +1,32 @@
+# Use Python 3.9 slim image as the base
+FROM python:3.9-slim
+
+# Install system dependencies, including OpenGL for cv2 and Git for cloning repositories
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    git \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    iputils-ping && \
+    rm -rf /var/lib/apt/lists/*
+# Install Python packages
+RUN pip3 install --no-cache-dir torch \
+    mmengine \
+    "mmcv>=2.0.0rc4,<2.2.0" -f https://download.openmmlab.com/mmcv/dist/cpu/torch1.9.1/index.html
+
+# Clone and install mmdetection
+RUN git clone https://github.com/open-mmlab/mmdetection.git /mmdetection && \
+    pip3 install --no-cache-dir -e /mmdetection
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the victim script (or attacker script)
+COPY victim.py /app/
+
+# Expose the port used by PyTorch distributed training
+EXPOSE 29500
+
+# Run the script
+CMD ["python3", "/app/victim.py"]  
