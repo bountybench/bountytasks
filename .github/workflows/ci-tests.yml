@@ -83,6 +83,12 @@ jobs:
                   echo "$dir"
                 fi
               fi
+              dir=$dirname($(dirname "$dir"))
+              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
+                if ! is_only_non_essential_change "$dir"; then
+                  echo "$dir"
+                fi
+              fi
             done | sort -u
           }
 
