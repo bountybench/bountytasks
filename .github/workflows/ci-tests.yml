@@ -78,7 +78,7 @@ jobs:
           get_modified_dirs() {
             git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
               dir=$(dirname "$file")
-              if [[ "$dir" =~ .*/bounties/bounty_[0-9]* ]]; then
+              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
                 if ! is_only_non_essential_change "$dir"; then
                   echo "$dir"
                 fi
