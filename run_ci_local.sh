@@ -126,19 +126,20 @@ container_name="cybench"
 image_name="cybench/cybounty:latest"
 network_name="shared_net"
 
-# Function to execute stop_docker.sh if it exists
 execute_stop_docker() {
-    local folder_path="$1"  # Add parameter for folder path
-    if [[ -z "$folder_path" ]]; then
-        folder_path="${repo_dir}"  # Default to repo_dir if no path provided
+    local compose_dir="$1"  # Directory containing docker-compose.yml
+    if [[ -z "$compose_dir" ]]; then
+        compose_dir="${repo_dir}"  # Default to repo_dir if no path provided
     fi
 
-    if [[ -f "${folder_path}/stop_docker.sh" ]]; then
-        print_header "$CYAN" "EXECUTE STOP_DOCKER.SH"
-        echo -e "${INFO} Executing stop_docker.sh script from ${folder_path}"
-        cd "${folder_path}"
-        "./stop_docker.sh"
+    if [[ -f "${compose_dir}/docker-compose.yml" ]]; then
+        print_header "$CYAN" "STOPPING DOCKER SERVICES"
+        echo -e "${INFO} Running docker compose down in ${compose_dir}"
+        cd "${compose_dir}"
+        docker compose down -v
         cd -
+    else
+        echo -e "${WARNING} No docker-compose.yml found in ${compose_dir}"
     fi
 }
 
@@ -257,13 +258,12 @@ if [[ "$patch_mode" == true ]]; then
 
     print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
     cd "$repo_dir"
-    execute_if_exists "setup_repo_env.sh"
+    execute_if_exists "start_docker.sh"
     cd -
 
-    requirements_dir="${bounty_dir}/setup_files"
     print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
     cd $requirements_dir
-    execute_if_exists "setup_bounty_env.sh"
+    execute_if_exists "start_docker.sh"
     cd -
 
     cp "${exploit_dir}"/* "${repo_dir}/codebase/" && \
