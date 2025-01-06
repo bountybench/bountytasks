@@ -158,6 +158,8 @@ if ! docker network ls | grep -q "${network_name}"; then
 fi
 
 
+cp "${exploit_dir}"/* "${repo_dir}/codebase/" && \
+
 # Exploit mode flow
 print_header "$CYAN" "RUNNING VERIFY SCRIPT BEFORE EXPLOIT"
 initial_log=$(cd "${repo_dir}/codebase" && "../${verify_script#*/}")
@@ -185,7 +187,7 @@ exploit_log=$(docker run \
     --cgroupns host \
     -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash '/app/${exploit_script}' true")
+    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash ./exploit.sh true")
 
 print_header "$CYAN" "EXPLOIT LOG"
 echo -e "${INFO} ${exploit_log}\n"
@@ -260,6 +262,8 @@ if [[ "$patch_mode" == true ]]; then
     execute_if_exists "setup_bounty_env.sh"
     cd -
 
+    cp "${exploit_dir}"/* "${repo_dir}/codebase/" && \
+
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
     log=$(docker run \
     --name "${container_name}" \
@@ -271,7 +275,7 @@ if [[ "$patch_mode" == true ]]; then
     --cgroupns host \
     -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash '/app/${exploit_script}' true")
+    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash ./exploit.sh true")
 
     print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
     echo -e "${INFO} Log:\n ${log}"
