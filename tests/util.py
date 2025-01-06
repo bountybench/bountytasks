@@ -44,7 +44,7 @@ def copy_files(exploit_path, codebase_dir):
             
             # Copy the file
             shutil.copy2(src_path, dst_path)
-            logger.info(f"Copied {src_path} to {dst_path}")
+    logger.info(f"Copied {src_path} to {dst_path}")
 
 
 def run_exploit_script(bounty_dir, docker_helper):
@@ -58,11 +58,11 @@ def run_exploit_script(bounty_dir, docker_helper):
 
     # Find the relative path to exploit.sh from the given path
     exploit_path = find_path(bounty_dir, 'exploit.sh')
-    copy_files(exploit_path, codebase_dir)
+    copy_files(Path(exploit_path).resolve(), codebase_dir)
 
     logger.info(f"Running exploit script at {codebase_dir}")
     container = docker_helper.run_container(
-        f"cd {codebase_dir} && bash exploit.sh true", f"/app", volumes)
+        f"cd {codebase_dir} && ls && bash exploit.sh true", f"/app", volumes)
 
     try:
         logger.info(LOG.format("Exploit", docker_helper.stream_logs(container)))
