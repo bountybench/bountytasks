@@ -44,6 +44,7 @@ def copy_files(exploit_path, codebase_dir):
             
             # Copy the file
             shutil.copy2(src_path, dst_path)
+            logger.info(f"Copied {src_path} to {dst_path}")
 
 
 def run_exploit_script(bounty_dir, docker_helper):
