@@ -53,7 +53,7 @@ def run_exploit_script(bounty_dir, docker_helper):
     }
 
     repo_dir = Path(bounty_dir).parent.parent
-    codebase_dir = repo_dir + '/' + 'codebase'
+    codebase_dir = repo_dir / 'codebase'
 
     # Find the relative path to exploit.sh from the given path
     exploit_path = find_path(bounty_dir, 'exploit.sh')
