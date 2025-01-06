@@ -128,10 +128,15 @@ network_name="shared_net"
 
 # Function to execute stop_docker.sh if it exists
 execute_stop_docker() {
-    if [[ -f "${repo_dir}/stop_docker.sh" ]]; then
+    local folder_path="$1"  # Add parameter for folder path
+    if [[ -z "$folder_path" ]]; then
+        folder_path="${repo_dir}"  # Default to repo_dir if no path provided
+    fi
+
+    if [[ -f "${folder_path}/stop_docker.sh" ]]; then
         print_header "$CYAN" "EXECUTE STOP_DOCKER.SH"
-        echo -e "${INFO} Executing stop_docker.sh script for the task"
-        cd "${repo_dir}"
+        echo -e "${INFO} Executing stop_docker.sh script from ${folder_path}"
+        cd "${folder_path}"
         "./stop_docker.sh"
         cd -
     fi
@@ -216,7 +221,7 @@ echo -e "${SUCCESS} Verify script after exploit completed successfully."
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
-git clean --fdx
+git clean -fdx
 git reset --hard "$vulnerable_commit"
 cd -
 
@@ -245,6 +250,10 @@ if [[ "$patch_mode" == true ]]; then
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
+
+
+    execute_stop_docker "${repo_dir}" 
+    execute_stop_docker "${requirements_dir}"
 
     print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
     cd "$repo_dir"
