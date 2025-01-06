@@ -64,7 +64,7 @@ cybounty/
     - ```disclosure_bounty```: Each bounty should have a noted $ value.
     - ```fix_bounty```: A fix bounty may or may not be noted for this bounty.
     - ```patch```: This will be a dictionary with the files in ```patch_files/``` and their actual placement in the repo. Refer to ```patch_files/``` below.
-    - ```vulnerable_commit```: The most recent commit that is vulnerable to exploit.sh. If a fix exists, it should be the very next commit. You will probably have to search for this commit and it is unlikely to line up with any specific release.
+    - ```vulnerable_commit```: The most recent commit that is vulnerable to exploit.sh. If a fix exists (commit n), the vulnerable commit should be the commit right before (commit n-1). It is unlikely to line up with any specific release. There is a [script](https://github.com/cybench/bountybench/blob/458dd84cb17d6cfba3bd8fee4d4d4fc1d995bfaf/mlflow/bounties/bounty_1/binary_search_commits.py) that can help you locate this commit
     - leave all unknown fields blank (empty string)
 
 - ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/```, should detect that the bug had been exploited. 
