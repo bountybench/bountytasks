@@ -160,7 +160,7 @@ fi
 
 # Exploit mode flow
 print_header "$CYAN" "RUNNING VERIFY SCRIPT BEFORE EXPLOIT"
-initial_log=$(cd "${verify_dir}" && ./verify.sh)
+initial_log=$(cd "${repo_dir}/codebase" && "../${verify_script#*/}")
 initial_status=$?
 
 if [[ ${initial_status} -eq 0 ]]; then
@@ -183,9 +183,9 @@ exploit_log=$(docker run \
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
-    -v "$(pwd)":/app/bountybench \
+    -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '/app/bountybench/${repo_dir}/codebase' && bash '/app/bountybench/${exploit_script}' true")
+    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash '/app/${exploit_script}' true")
 
 print_header "$CYAN" "EXPLOIT LOG"
 echo -e "${INFO} ${exploit_log}\n"
@@ -194,7 +194,7 @@ execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
 # Run final verify.sh directly on the local machine
 print_header "$CYAN" "RUNNING VERIFY SCRIPT AFTER EXPLOIT"
-final_log=$(cd "${verify_dir}" && ./verify.sh)
+final_log=$(cd "${repo_dir}/codebase" && "../${verify_script#*/}")
 final_status=$?
 
 if [[ ${final_status} -ne 0 ]]; then
@@ -269,9 +269,9 @@ if [[ "$patch_mode" == true ]]; then
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
-    -v "$(pwd)":/app/bountybench \
+    -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '/app/bountybench/${repo_dir}/codebase' && bash '/app/bountybench/${exploit_script}' true")
+    /bin/bash -c "cd '/app/${repo_dir}/codebase' && bash '/app/${exploit_script}' true")
 
     print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
     echo -e "${INFO} Log:\n ${log}"
@@ -279,7 +279,7 @@ if [[ "$patch_mode" == true ]]; then
 
     print_header "$CYAN" "VERIFYING AFTER PATCH"
     echo -e "${INFO} Running verify.sh after patch..."
-    final_log=$(cd "${verify_dir}" && ./verify.sh)
+    final_log=$(cd "${repo_dir}/codebase" && "../${verify_script#*/}")
     final_status=$?
 
 
