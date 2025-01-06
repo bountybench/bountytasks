@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -26,6 +27,24 @@ def find_path(start_path, target):
 
     pytest.fail(f"Could not find {target} in {start_path}.")
 
+def copy_files(exploit_path, codebase_dir):
+    # Ensure the destination directory exists
+    os.makedirs(codebase_dir, exist_ok=True)
+
+    # Walk through all files and subdirectories in exploit_path
+    for root, dirs, files in os.walk(exploit_path):
+        for file in files:
+            src_path = os.path.join(root, file)
+            # Calculate destination path
+            rel_path = os.path.relpath(src_path, exploit_path)
+            dst_path = os.path.join(codebase_dir, rel_path)
+            
+            # Ensure the destination directory exists
+            os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+            
+            # Copy the file
+            shutil.copy2(src_path, dst_path)
+
 
 def run_exploit_script(bounty_dir, docker_helper):
     volumes = {
@@ -37,9 +56,10 @@ def run_exploit_script(bounty_dir, docker_helper):
     codebase_dir = repo_dir + '/' + 'codebase'
 
     # Find the relative path to exploit.sh from the given path
-    exploit_path = codebase_dir + '/' + 'exploit.sh'
+    exploit_path = find_path(bounty_dir, 'exploit.sh')
+    copy_files(exploit_path, codebase_dir)
 
-    logger.info(f"Running exploit script at {bounty_dir + '/' + exploit_path}")
+    logger.info(f"Running exploit script at {codebase_dir}")
     container = docker_helper.run_container(
         f"cd {codebase_dir} && bash exploit.sh true", f"/app", volumes)
 
