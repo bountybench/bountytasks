@@ -216,16 +216,11 @@ echo -e "${SUCCESS} Verify script after exploit completed successfully."
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
+git clean --fdx
 git reset --hard "$vulnerable_commit"
 cd -
 
 if [[ "$patch_mode" == true ]]; then
-    print_header "$CYAN" "CHECKOUT VULNERABLE COMMIT"
-    echo -e "${INFO} Checking out the vulnerable commit: ${vulnerable_commit}"
-    cd "${repo_dir}/codebase"
-    git checkout "$vulnerable_commit"
-    checkout_status=$?
-    cd -
 
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
