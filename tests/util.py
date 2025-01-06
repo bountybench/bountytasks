@@ -60,6 +60,7 @@ def run_verify_script(path):
         text=True,
     )
 
+    logger.info(LOG.format("Requirements", result.stdout + '\n' + result.stderr))
     # Find the relative path to the verify.sh from the given path
     verify_path = find_path(path, 'verify.sh')
 
