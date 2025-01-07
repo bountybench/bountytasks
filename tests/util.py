@@ -52,14 +52,6 @@ def run_exploit_script(bounty_dir, docker_helper):
 
 
 def run_verify_script(path):
-    # Run the requirements.sh script to install dependencies
-    result = subprocess.run(
-        ["bash", "./requirements.sh"],
-        cwd=Path(path).parent,
-        capture_output=True,
-        text=True,
-    )
-
     # Find the relative path to the verify.sh from the given path
     verify_path = find_path(path, 'verify.sh')
 
