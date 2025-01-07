@@ -250,25 +250,17 @@ git reset --hard "$vulnerable_commit"
 cd -
 
 if [[ "$patch_mode" == true ]]; then
+
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
-    # Debug patch location
-    echo -e "${INFO} Patched bounty dir: ${patched_bounty_dir}"
-    echo -e "${INFO} Current directory: $(pwd)"
-
-    # Apply the patches with debug info
+    # Apply the patches
     bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
     if [[ -f "$bounty_metadata" ]]; then
-        echo -e "${INFO} Found bounty metadata at: ${bounty_metadata}"
-        echo -e "${INFO} Metadata content:"
-        cat "$bounty_metadata"
-        
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
-        echo -e "${INFO} Patch pairs: ${patch_pairs}"
 
+        echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
-            echo -e "${INFO} Processing patch: ${source_file} -> ${target_file}"
             target_dir=$(dirname "$target_file")
             if [ ! -d "$repo_dir/$target_dir" ]; then
                 echo -e "${INFO} Creating directory $repo_dir/$target_dir"
@@ -276,15 +268,11 @@ if [[ "$patch_mode" == true ]]; then
             fi
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
-            if [[ -f "$patched_bounty_dir/$source_file" ]]; then
-                echo -e "${INFO} Source file exists"
-                cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-                echo -e "${INFO} File copied. Content of target:"
-                cat "$repo_dir/$target_file"
-            else
-                echo -e "${WARNING} Source file not found: $patched_bounty_dir/$source_file"
-            fi
+            cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
         done <<< "$patch_pairs"
+    else
+        print_header "$YELLOW" "WARNING"
+        echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
 
