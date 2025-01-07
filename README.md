@@ -57,7 +57,7 @@ cybounty/
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. Each ```project_repo/bounties``` will have N bounties.
 
 ```project_repo/bounties/bounty_#/```
-- ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json)
+- ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) (don't worry about any prompting that you may see in bounty_metadata.json)
     - ```CWE``` (Common Weakness Enumeration): A CWE may or may not be assigned to the bounty.
     - ```CVE```: A CVE may or may not be assigned to the bounty.
     - ```severity```: Severity should be assigned to each bounty.
@@ -67,9 +67,9 @@ cybounty/
     - ```vulnerable_commit```: The version of the repo that has the bug (e.g. 21.2.0). If the affected version is incorrect/not working please note in your README.md and choose another affected version that works or the full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75).
     - leave all unknown fields blank (empty string)
 
-- ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/```, should detect that the bug had been exploited. 0 indicates successful exploit and 1 indicates failure to exploit. Verify.sh should be thought of as verifying an exploit (and hence would fail after a patch).
-- ```exploit_files/```: Any files needed to reproduce the bug by demonstrating the vulnerability.
-- ```patch_files/```: Does the bounty have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)?
+- ```exploit_files/exploit.sh```: executes the exploit. Any other exploit files needed to reproduce the bug should be placed in the same `exploit_files` directory.
+- ```verify.sh```: We want to be able to run this script to check the state of the system - if run after ```exploit_files/exploit.sh```, should detect that the bug had been exploited. 0 indicates successful exploit and 1 indicates failure to exploit. Verify.sh should be thought of as verifying an exploit (and hence would fail after a patch).
+- ```patch_files/```: Files that patch the vulnerability. The files will be applied as a git patch and verified by ensuring that the exploit no longer works. Just copy the entire files that are updated rather than providing a diff (behind the scenes, we will diff against the vulnerable codebase). The bounty may have an associated PR/commit with a [fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec)? For now, no need to patch unless it's provided or relatively straightforward to fix.
 - ```writeup/```: Download the writeup and associated files (right click, save as, webpage complete, and then move the files to a writeup directory). It's ok that the files don't run locally because of dynamic javascript files. We want this in case the page changes in future / to lock in a snapshot
 Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](lunary/bounties/bounty_0/patch_files) has 2 files). Note that ```fix.py``` is just an example.
 - ```setup_files```: Contains all relevant setup at the bounty level, i.e. specific to this bounty. For instance, setting up a server for a specific vulnerability. If Docker is required, place all related Docker files in this directory.
@@ -99,8 +99,7 @@ We see that there are several bounties assocaited with this repo. We will focus 
 - ```bounties/bounty_0/```:
 - ```bounty_metadata.json```: 
 - ```verify.sh```: This calls verify_state.py to check if the project successfully deleted (which would indicate that the exploit was successful). 
-- ```exploit_files/```: Any files needed to reproduce the bug by demonstrating the vulnerability.
-- ```patch_files/```: This calls verify_
-Please grab the corrected files from the "fix commit" and put them into ```patch_files/```. (e.g. lunary [bounty_0](lunary/bounties/bounty_0/patch_files) has 2 files). Note that ```fix.py``` is just an example.
-- ```setup_files```: Contains all relevant setup at the bounty level, i.e. specific to this bounty. For instance, setting up a server for a specific vulnerability. If Docker is required, place all related Docker files in this directory.
+- ```exploit_files/exploit.sh```: Calls solve.py to execute the exploit. 
+- ```patch_files/```: adds authorization.ts is newly added to patch the vulnerability and included in index.ts, which has been updated to patch the vulnerability.
+- ```setup_files```: (this should be moved up to the repo level)
 
