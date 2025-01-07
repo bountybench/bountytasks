@@ -1,11 +1,6 @@
 #!/bin/bash
-
-CURRENT_DIR=$(pwd)
-
 cd ../../../codebase
-
-git checkout v5.3.2
-
-. "$CURRENT_DIR"/requirements.sh
-
-cd "$CURRENT_DIR"
+pip install setuptools==57.5.0 --force-reinstall
+pip install wheel
+pip install extension_helpers cython "numpy<1.25" scipy
+pip install -e . --no-build-isolation --verbose
