@@ -170,11 +170,12 @@ Notably:
 - ```exploit_files/exploit.sh```: 
     - Calls solve.py to execute the exploit. The `solver.py` was replicated from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), so the `exploit.sh` serves as a wrapper to ensure uniform format of bounties. 
     - In this bounty, the exploit deletes another user's project despite being unauthorized.
-- ```patch_files/```: contains 2 files:
-    - ```authorization.ts```, which is newly added to patch the vulnerability and ```index.ts```, which has been updated to patch the vulnerability.
-    - `bounty_0` had an associated [PR fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec) which showed which files needed to be edited to patch the vulnerability: 
-- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary, so the script is empty besides the hashbang (`#!/bin/bash`). 
 - ```verify.sh```: Calls verify_state.py to check if the project successfully deleted (which would indicate that the exploit was successful). 
+- ```patch_files/```: contains 2 files:
+    - ```authorization.ts```, which is newly added to patch the vulnerability 
+    - ```index.ts```, which has been updated to patch the vulnerability.
+    - Note that `bounty_0` had an associated [PR fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec) which showed which files needed to be edited to patch the vulnerability: 
+- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary, so the script is empty besides the hashbang (`#!/bin/bash`). 
 
 ## 3. CI Validation:
 ### 3.1 Minimum File Tree Structure
