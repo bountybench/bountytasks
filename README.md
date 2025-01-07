@@ -76,15 +76,15 @@ bountybench/
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
-    - Must exist to pass schema. If no setup is required, leave the file empty except for the hashbang (`#!/bin/bash`).
+    - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
 ```task_dir/bounties/bounty_#/```
-- ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (don't worry about any prompt fields that you may see in bounty_metadata.json). Fields include:
-    - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty.
-    - ```CVE```: May or may not be assigned to the bounty.
-    - ```severity```: Should be assigned to each bounty.
-    - ```disclosure_bounty```: Each bounty should have a noted $ value.
-    - ```fix_bounty```: May or may not be noted for the bounty.
+- ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
+    - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```CVE```: May or may not be assigned to the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```severity```: Should be assigned to each bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```disclosure_bounty```: Each bounty should have a noted $ value. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```fix_bounty```: May or may not be noted for the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
     - ```patch```: A dictionary mapping files in ```patch_files/``` to their actual placement in the repo. Refer to ```patch_files/``` below.
     - ```vulnerable_commit```: The version of the repo with the bug (e.g. `21.2.0`). Used for `git checkout <vulnerable_commit>`. 
         - NOTE: Verify that the version exists as a tag in the `codebase`. It may be represented differently (e.g. ```v21.2.0``` vs ```21.2.0```). 
@@ -183,7 +183,7 @@ Notably:
     - ```authorization.ts```, which is newly added to patch the vulnerability 
     - ```index.ts```, which has been updated to patch the vulnerability.
     - Note that `bounty_0` had an associated [PR fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec) which showed which files needed to be edited to patch the vulnerability: 
-- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary, so the script is empty besides the hashbang (`#!/bin/bash`). 
+- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary bounty 0, so the script is empty besides the hashbang (`#!/bin/bash`). 
 
 ## 3. CI Validation:
 ### 3.1 Minimum File Tree Structure
@@ -212,7 +212,7 @@ bountybench/
 ```
 ./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch]
 ```
-Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding.
+Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding. If you do not had the flag, only the exploit will be tested.
 
 ### 3.3 CI Test Process
 Both the GitHub CI and local CI perform the following tests:
@@ -225,7 +225,8 @@ Additional setup also occurs for the test environment, including checking out th
     - Runs `exploit.sh`, followed by `verify.sh` (expected to pass if the exploit is successful).
 3. Patch:
     - Copies patch files from `patch_files/` into the `codebase`.
-    - Executes `setup_repo_env.sh` and `setup_bounty_env.sh`.
+    - Cleans previous environment setup.
+    - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
@@ -234,13 +235,13 @@ If you are able to locally reproduce the exploit, but are failing CI (GitHub and
 
 ### 4.1 CI Setup
 `setup_repo_env.sh` and `setup_bounty_env.sh` are run in a host environment. For CI local, this is the host machine, for CI github, this is a task docker container. This container acts as a target environment, hosting any necessary servers or services.   
-To test exploitation, we create a separate exploit Docker container to run `exploit.sh`. This container will be able to access a copy of the codebase so e.g. can still do any necessary package installations, however this separation is crucial as it prevents the exploit from directly modifying the task environment, which could lead to "gaming" the system and succeeding by altering the source code. 
+To test exploit, we create a separate exploit Docker container to run `exploit.sh`. This container will be able to access a copy of the codebase so e.g. can still do any necessary package installations, however this separation is crucial as it prevents the exploit from directly modifying the task environment, which could lead to "gaming" the system and succeeding by altering the source code. 
 After running the exploit, we execute `verify.sh` in the host environment (either your local machine or the task container in CI). This script is run on the host environment to act as an *overseer* with broader access, allowing it to perform checks that the exploit can't, such as examining Docker logs of the task container for some verification condition (see [pytorch](/pytorch-lightning/bounties/bounty_0/verify.sh) for an example of this).
 
 ### 4.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
-To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
+To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name is in the `docker-compose.yml`). 
 You might, however, still want to use `localhost` for local testing. To help with this, we've provided a boolean parameter `IS_CI_RUN` that we pass in when running `exploit.sh` to help differentiate contexts. You may or may not want to use it, but can, e.g., via:
 ```
 IS_CI_RUN=$1
