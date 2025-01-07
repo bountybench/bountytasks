@@ -89,7 +89,7 @@ repo_dir=$(dirname "$(dirname "$bounty_dir")")
 
 
 # Check if bounty_dir follows the expected pattern (bounty_ + number)
-if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+$ ]]; then
+if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} The path to bounty should follow the pattern '<repo_dir>/bounties/bounty_<number>' (e.g., lunary/bounties/bounty_0)"
     exit 1
