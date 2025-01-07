@@ -1,14 +1,17 @@
 # Bug Bounty Setup Guide
 
 ## Table of Contents
-[Adding Target Bug Bounty Repo](#adding-target-bug-bounty-repo)
-[Adding Bug Bounty Task to bountybench](#adding-bug-bounty-task-to-bountybench)
-1. [Directory Structure and File Explanations](#directory-structure-and-file-explanations)
-2. [CI Description and Local Testing](#ci-description-and-local-testing)
-3. [Troubleshooting](#troubleshooting)
-4. [Example: Lunary Project](#example-lunary-project)
+1. [Adding Target Bug Bounty Repo](#1-adding-target-bug-bounty-repo)
+2. [Adding Bug Bounty Task to bountybench](#2-adding-bug-bounty-task-to-bountybench)
 
-## Adding Target Bug Bounty Repo
+    2.1 [Directory Structure](#21-directory-structure)
+
+    2.2 [File explanations](#22-file-explanations)
+3. [CI Validation](#3-ci-validation)
+4. [Understanding CI Environment vs Local Testing](#4-understanding-ci-environment-vs-local-testing)
+4. [Detailed example: Lunary](#5-detailed-example-lunary)
+
+## 1. Adding Target Bug Bounty Repo
 
 We maintain isolated copies of target repositories in the **cy-suite** organization. 
 
@@ -20,7 +23,7 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
 4. Select **owner** to **cy-suite**.
 5. Make sure **Private** is selected.
 
-## Adding Bug Bounty Task to bountybench
+## 2. Adding Bug Bounty Task to bountybench
 
 1. Replicate the Proof of Concept (PoC) from the bug bounty report:
     - Start by following the steps in the report, however additional setup to configure the environment may be required (e.g. starting a server).
@@ -30,7 +33,7 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
     - Name it after the bug bounty repo.    
     - Follow the guidelines for the directory structure and contents of `task_dir` outlined in the next section.
 
-### Directory Structure
+### 2.1 Directory Structure
 ```
 bountybench/
 │
@@ -57,7 +60,7 @@ bountybench/
 ├── lunary/...
 ```
 
-### File explanations
+### 2.2 File explanations
 ```task_dir```
 - ```codebase/```: 
     - Add the repo as a submodule, getting the repo from **cy-suite**.
@@ -105,8 +108,8 @@ bountybench/
     - For instance, if Docker is required, place all related Docker files in this directory. 
     - Must exist to pass schema, however if no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
 
-## CI Validation:
-### Minimum File Tree Structure
+## 3. CI Validation:
+### 3.1 Minimum File Tree Structure
 We expect the following minimum file tree structure:
 ```
 bountybench/
@@ -126,7 +129,7 @@ bountybench/
 │   │   │   └── setup_files/
 │   │   │       └── setup_bounty_env.sh
 ```
-### CI Trigger and Local Testing
+### 3.2 CI Trigger and Local Testing
 - CI is triggered when you open a PR and for each subsequent push to the origin/branch. 
 - To test and validate that your code will pass CI locally, use the provided `run_ci_local.sh` script:
 ```
@@ -134,7 +137,7 @@ bountybench/
 ```
 Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding.
 
-### CI Test Process
+### 3.3 CI Test Process
 Both the GitHub CI and local CI perform the following tests:
 1. File Tree Schema:
     - Confirms that the directory structure includes at least the minimum required file tree.
@@ -149,15 +152,15 @@ Additional setup also occurs for the test environment, including checking out th
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
-## Understanding CI Environment vs Local Testing
+## 4. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
 
-### CI Setup
+### 4.1 CI Setup
 `setup_repo_env.sh` and `setup_bounty_env.sh` are run in a host environment. For CI local, this is the host machine, for CI github, this is a task docker container. This container acts as a target environment, hosting any necessary servers or services.   
 To test exploitation, we create a separate exploit Docker container to run `exploit.sh`. This container will be able to access a copy of the codebase so e.g. can still do any necessary package installations, however this separation is crucial as it prevents the exploit from directly modifying the task environment, which could lead to "gaming" the system and succeeding by altering the source code. 
 After running the exploit, we execute `verify.sh` in the host environment (either your local machine or the task container in CI). This script is run on the host environment to act as an *overseer* with broader access, allowing it to perform checks that the exploit can't, such as examining Docker logs of the task container for some verification condition (see [pytorch](/pytorch-lightning/bounties/bounty_0/verify.sh) for an example of this).
 
-### Hostname Challenges
+### 4.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
 To address this, you'll likely need to replace `localhost` with the actual container name when running in CI. 
@@ -172,7 +175,7 @@ fi
 ```
 This setup allows your script to automatically switch between `localhost` and the container name based on the environment. Look at [gunicorn exploit.sh](/gunicorn/bounties/bounty_0/exploit_files/exploit.sh) for a full example of this.
 
-### Network Setup
+### 4.3 Network Setup
 To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. We always use `shared_net` as the network for the exploit Docker container.
 
 See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of getting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
@@ -186,9 +189,9 @@ networks:
     external: true
 ```
 
-## Detailed example: lunary
+## 5. Detailed example: Lunary
 
-### Repo-level files
+### 5.1 Repo-level files
 ```lunary```
 - ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the original repo (https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with 410 files, 58508 lines, and 169042 words.
 - ```setup_repo_env.sh```: calls another script ./start_docker.sh. Afterwards, it checks if the server is running.
@@ -204,7 +207,7 @@ In particular, we set up a database which contains users, organizations, api obj
 
 We set this up at the repo level since across bounties, we will often need the database set up associated with this codebase.
 
-### Bounty-level files
+### 5.2 Bounty-level files
 
 We see that there are several bounties associated with this repo. We will focus on the first bounty, bounty_0.
 
