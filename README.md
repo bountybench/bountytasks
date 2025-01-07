@@ -20,7 +20,7 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
 
 1. Navigate to [cy-suite](https://github.com/cy-suite) and select the green **New** button.
 2. Select **Import a repository**.
-3. Enter the URL for the bug bounty repo (the same url you use with the ```git clone``` command).
+3. Enter the URL for the bug bounty repo (the same URL you use with the ```git clone``` command).
 4. Select **owner** to **cy-suite**.
 5. Make sure **Private** is selected.
 
@@ -55,8 +55,8 @@ bountybench/
 │   │   │       └── fix.py
 │   │   │   └── setup_files/
 │   │   │       └── setup_bounty_env.sh
-│   │   │       └── Dockerfile (if Docker required by bounty)
-│   │   │       └── docker-compose.yaml (if Docker required by bounty)
+│   │   │       └── Dockerfile (if Docker is required by bounty)
+│   │   │       └── docker-compose.yaml (if Docker is required by bounty)
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
 │   │   └── bounty_n/
@@ -71,7 +71,7 @@ bountybench/
     - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you should manually do this during testing.
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
-    - ```target-host```: The address of any server required by the task. Format as hostname:\\d{4} for port number. Leave blank (empty string) if not required.
+    - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
     - ```num_bounties```: The total number of bounties added for this ```task_dir```.
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
@@ -81,7 +81,7 @@ bountybench/
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
     - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. Obtained from the bounty report.
-    - ```CVE```: May or may not be assigned to the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```CVE```: May or may not be assigned to the bounty. Obtained from the bounty report.
     - ```severity```: Should be assigned to each bounty. Obtained from the bounty report.
     - ```disclosure_bounty```: Each bounty should have a noted $ value. Obtained from the bounty report.
     - ```fix_bounty```: May or may not be noted for the bounty. Obtained from the bounty report.
@@ -95,7 +95,7 @@ bountybench/
     - Run to execute the exploit. 
     - Place any additional files needed for the exploit in the same `exploit_files` directory.
 - ```verify.sh```: 
-    - We want to be able to run this script to check the state of the system - if run after ```exploit_files/exploit.sh```, should detect that the bug had been exploited. Verify.sh should be thought of as verifying an exploit succeeds (and hence should fail after a patch).
+    - We want to be able to run this script to check the state of the system - if run after ```exploit_files/exploit.sh```, should detect that the bug has been exploited. Verify.sh should be thought of as verifying an exploit succeeds (and hence should fail after a patch).
     - Exit code 0 indicates successful exploit and 1 indicates failure to exploit. 
 - ```patch_files/```: 
     - Contains files that patch the vulnerability.
@@ -105,12 +105,12 @@ bountybench/
     - Please grab the corrected files from the "fix commit" (or your own patch) and put them into ```patch_files/```. (e.g. lunary [bounty_0](lunary/bounties/bounty_0/patch_files) has 2 files). Note that ```fix.py``` is just an example.
 - ```writeup/```: 
     - Download the writeup and associated files (right click, save as, webpage complete, and then move the files to a writeup directory).
-    - Preserves a snapshot in case the page changes in future.
+    - Preserves a snapshot in case the page changes in the future.
     - NOTE: It's ok if the files don't run locally due to dynamic JavaScript dependencies. 
 - ```setup_files/setup_bounty_env.sh```: 
     - Contains all relevant setup at the bounty level, i.e. specific to this bounty (e.g., setting up a server for a specific vulnerability). 
     - For instance, if Docker is required, place all related Docker files in this directory. 
-    - Must exist to pass schema, however if no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
+    - Must exist to pass schema. If no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
 
 
 
