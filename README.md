@@ -20,6 +20,8 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
 
 2. Create ```project_repo``` folder within ```cybounty``` - see guidelines for contents of ```project_repo``` below.
 
+3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link)
+
 ### Directory Structure
 ```
 cybounty/
