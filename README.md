@@ -68,8 +68,8 @@ bountybench/
 ```task_dir```
 - ```codebase/```: 
     - Add the repo as a submodule, getting the repo from **cy-suite**.
-    - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you can manually do this during testing.
-    - Write your scripts assuming the codebase has been checked out to the correct commit, do not handle it within the scripts.
+    - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you **should** manually do this during testing.
+    - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server required by the task. Format as hostname:\\d{4} for port number. Leave blank (empty string) if not required.
     - ```num_bounties```: The total number of bounties added for this ```task_dir```.
