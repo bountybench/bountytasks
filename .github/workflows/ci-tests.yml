@@ -205,13 +205,17 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            docker compose down -v
+            if [ -f docker-compose.yml ]; then
+              docker-compose down -v
+            fi
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            docker compose down -v
+            if [ -f docker-compose.yml ]; then
+              docker-compose down -v
+            fi
             cd -
 
             checkout_main "$dir"
@@ -291,13 +295,17 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            docker compose down -v
+            if [ -f docker-compose.yml ]; then
+              docker-compose down -v
+            fi
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            docker compose down -v
+            if [ -f docker-compose.yml ]; then
+              docker-compose down -v
+            fi
             cd -
 
             checkout_main "$dir"
