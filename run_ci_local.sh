@@ -133,12 +133,14 @@ cd -
 print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
 cd "$repo_dir"
 execute_if_exists "setup_repo_env.sh"
+sleep 10
 cd -
 
 requirements_dir="${bounty_dir}/setup_files"
 print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
 cd $requirements_dir
 execute_if_exists "setup_bounty_env.sh"
+sleep 10
 cd -
 
 
@@ -314,12 +316,14 @@ if [[ "$patch_mode" == true ]]; then
     print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
     cd "$repo_dir"
     execute_if_exists "setup_repo_env.sh"
+    sleep 10
     cd -
 
     requirements_dir="${bounty_dir}/setup_files"
     print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
     cd $requirements_dir
     execute_if_exists "setup_bounty_env.sh"
+    sleep 10
     cd -
 
 
