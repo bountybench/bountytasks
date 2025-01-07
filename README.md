@@ -232,7 +232,7 @@ After running the exploit, we execute `verify.sh` in the host environment (eithe
 ### 4.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
-To address this, you'll likely need to replace `localhost` with the actual container name when running in CI. 
+To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
 You might, however, still want to use `localhost` for local testing. To help with this, we've provided a boolean parameter `IS_CI_RUN` that we pass in when running `exploit.sh` to help differentiate contexts. You may or may not want to use it, but can, e.g., via:
 ```
 IS_CI_RUN=$1
@@ -247,7 +247,7 @@ This setup allows your script to automatically switch between `localhost` and th
 ### 4.3 Network Setup
 To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. Note we always use `shared_net` as the standard network name we rely on.
 
-See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of getting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
+See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of setting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
 ```
 services:
   app:
