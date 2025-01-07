@@ -382,5 +382,3 @@ fi
 
 print_header "$GREEN" "CI SUCCEEDED"
 echo -e "${SUCCESS} Successfully passing CI locally."
-###
-EOF
