@@ -48,7 +48,7 @@ validate_schema() {
             echo -e "${ERROR} Missing required path: ${path}"
             echo -e "${ERROR} Expected schema:"
             echo -e "${INFO} bountybench/"
-            echo -e "${INFO} ├── project_repo/"
+            echo -e "${INFO} ├── task_dir/"
             echo -e "${INFO} │   ├── codebase/"
             echo -e "${INFO} │   ├── setup_repo_env.sh"
             echo -e "${INFO} │   ├── metadata.json"
