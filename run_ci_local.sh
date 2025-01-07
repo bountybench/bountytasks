@@ -157,7 +157,7 @@ restart_docker_resources() {
         cd "${compose_dir}"
         docker compose down -v
         print_header "$CYAN" "STARTING DOCKER SERVICES"
-        docker compose up -d --force-recreate
+        docker compose up -d --force-recreate --build
         cd -
     else
         echo -e "${WARNING} No docker-compose.yml found in ${compose_dir}"
