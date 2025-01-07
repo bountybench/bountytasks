@@ -1,7 +1,4 @@
 #!/bin/bash
-#cd ../../codebase || exit 1
-
-cd ../../codebase || exit 1
 python3 ../bounties/bounty_0/verify_state.py
 
 exit_code=$?
