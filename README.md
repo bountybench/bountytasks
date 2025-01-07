@@ -7,9 +7,10 @@
     2.1 [Directory Structure](#21-directory-structure)
 
     2.2 [File explanations](#22-file-explanations)
+
+    2.3 [Detailed example: Lunary](#23-detailed-example-lunary)
 3. [CI Validation](#3-ci-validation)
 4. [Understanding CI Environment vs Local Testing](#4-understanding-ci-environment-vs-local-testing)
-4. [Detailed example: Lunary](#5-detailed-example-lunary)
 
 ## 1. Adding Target Bug Bounty Repo
 
@@ -36,7 +37,6 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
 3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link)
 
 ### 2.1 Directory Structure
-### Directory Structure
 ```
 bountybench/
 │
@@ -47,9 +47,9 @@ bountybench/
 │   ├── bounties/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
-│   │   │   ├── verify.sh
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
+│   │   │   ├── verify.sh
 │   │   │   └── patch_files/
 │   │   │       └── fix.py
 │   │   │   └── setup_files/
@@ -111,6 +111,71 @@ bountybench/
     - For instance, if Docker is required, place all related Docker files in this directory. 
     - Must exist to pass schema, however if no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
 
+
+
+### 2.3. Detailed example: Lunary
+See [lunary](/lunary/):
+```
+├── lunary
+│   ├── codebase
+│   ├── setup_repo_env.sh
+│   ├── docker-compose.yml
+│   ├── metadata.json
+│   ├── initdb
+│   │   ├── Dockerfile
+│   │   ├── schema.sql
+│   │   └── seed.sql
+│   └── bounties
+│       ├── bounty_0/...
+│       ├── bounty_1/...
+│       └── ...
+```
+#### Repo-level files:
+```lunary```
+- ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the [original repo](https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with **410** files, **58508** lines, and **169042** words.
+- ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
+- ```docker-compose.yml```: This defines the definition of the lunary-postgres docker service. We see that the build context is the init_db directory, and is part of `shared_net` (which is the standard network name we rely on).
+- ```init_db/Dockerfile```: Contains a Dockerfile to set up a postgres server. Note that this image will automatically run .sql scripts found in the /docker-entrypoint-initdb.d/ folder (see [documentation](https://hub.docker.com/_/postgres/)). "These initialization files will be executed in sorted name order as defined by the current locale", which means that schema.sql will run before seed.sql.
+- ```init_db/schema.sql```: Contains a sql file to set up the schema for the database. We see that the schema defines users, organizations, and api...
+- ```init_db/seed.sql```: Creates concrete objects based on the schema including organizations, accounts, and projects.
+
+Let's take a step back and think about what we've seen. We have 1. a pointer to the codebase, 2. various files to set up the repo level task environment.
+
+In particular, we set up a database which contains users, organizations, api objects. These will then be necessary for tasks, e.g. use User A to delete User B's account. This is not possible without the database and the users.
+
+We set this up at the repo level since across bounties, we will often need the database set up associated with this codebase.
+
+#### Bounty-level files
+
+We see that there are several bounties associated with this repo. We will focus on the first bounty, [bounty_0](/lunary/bounties/bounty_0/).
+```
+├── bounty_0
+│   ├── bounty_metadata.json
+│   ├── exploit_files
+│   │   ├── exploit.sh
+│   │   └── solve.py
+│   ├── verify.sh
+│   ├── verify_state.py
+│   ├── patch_files
+│   │   ├── authorization.ts
+│   │   └── index.ts
+│   ├── setup_files
+│   │   ├── setup_bounty_env.sh
+│   │   └── users.txt
+│   └── writeup/...
+```
+Notably:
+```bounties/bounty_0/```:
+- ```bounty_metadata.json```: Contains the metadata from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), along with the report link.
+- ```exploit_files/exploit.sh```: 
+    - Calls solve.py to execute the exploit. The `solver.py` was replicated from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), so the `exploit.sh` serves as a wrapper to ensure uniform format of bounties. 
+    - In this bounty, the exploit deletes another user's project despite being unauthorized.
+- ```patch_files/```: contains 2 files:
+    - ```authorization.ts```, which is newly added to patch the vulnerability and ```index.ts```, which has been updated to patch the vulnerability.
+    - `bounty_0` had an associated [PR fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec) which showed which files needed to be edited to patch the vulnerability: 
+- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary, so the script is empty besides the hashbang (`#!/bin/bash`). 
+- ```verify.sh```: Calls verify_state.py to check if the project successfully deleted (which would indicate that the exploit was successful). 
+
 ## 3. CI Validation:
 ### 3.1 Minimum File Tree Structure
 We expect the following minimum file tree structure:
@@ -124,9 +189,9 @@ bountybench/
 │   ├── bounties/
 │   │   ├── bounty_#/
 │   │   │   ├── bounty_metadata.json
-│   │   │   ├── verify.sh
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
+│   │   │   ├── verify.sh
 │   │   │   └── patch_files/
 │   │   │       └── (1+ patch files)
 │   │   │   └── setup_files/
@@ -179,7 +244,7 @@ fi
 This setup allows your script to automatically switch between `localhost` and the container name based on the environment. Look at [gunicorn exploit.sh](/gunicorn/bounties/bounty_0/exploit_files/exploit.sh) for a full example of this.
 
 ### 4.3 Network Setup
-To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. We always use `shared_net` as the network for the exploit Docker container.
+To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. Note we always use `shared_net` as the standard network name we rely on.
 
 See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of getting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
 ```
@@ -191,32 +256,3 @@ networks:
   shared_net:
     external: true
 ```
-
-## 5. Detailed example: Lunary
-
-### 5.1 Repo-level files
-```lunary```
-- ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the original repo (https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with 410 files, 58508 lines, and 169042 words.
-- ```setup_repo_env.sh```: calls another script ./start_docker.sh. Afterwards, it checks if the server is running.
-- ```start_docker.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment.
-- ```docker-compose.yml```: This defines the definition of the lunary-postgres docker service. We see that the build context is the init_db directory, and is part of shared_net (which is the standard network name we rely on).
-- ```init_db/Dockerfile```: Contains a Dockerfile to set up a postgres server. Note that this image will automatically run .sql scripts found in the /docker-entrypoint-initdb.d/ folder (see [documentation](https://hub.docker.com/_/postgres/)). "These initialization files will be executed in sorted name order as defined by the current locale", which means that schema.sql will run before seed.sql.
-- ```init_db/schema.sql```: Contains a sql file to set up the schema for the database. We see that the schema defines users, organizations, and api...
-- ```init_db/seed.sql```: Creates concrete objects based on the schema including organizations, accounts, and projects.
-
-Let's take a step back and think about what we've seen. We have 1. a pointer to the codebase, 2. various files to set up the repo level task environment.
-
-In particular, we set up a database which contains users, organizations, api objects. These will then be necessary for tasks, e.g. use User A to delete User B's account. This is not possible without the database and the users.
-
-We set this up at the repo level since across bounties, we will often need the database set up associated with this codebase.
-
-### 5.2 Bounty-level files
-
-We see that there are several bounties associated with this repo. We will focus on the first bounty, bounty_0.
-
-```bounties/bounty_0/```:
-- ```bounty_metadata.json```: 
-- ```verify.sh```: This calls verify_state.py to check if the project successfully deleted (which would indicate that the exploit was successful). 
-- ```exploit_files/exploit.sh```: Calls solve.py to execute the exploit. 
-- ```patch_files/```: contains 2 files: ```authorization.ts```, which is newly added to patch the vulnerability and ```index.ts```, which has been updated to patch the vulnerability.
-- ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary, so the script is empty besides the hashbang (`#!/bin/bash`). 
