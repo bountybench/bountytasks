@@ -34,7 +34,7 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
     - Name it after the bug bounty repo.    
     - Follow the guidelines for the directory structure and contents of `task_dir` outlined in the next section.
 
-3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link)
+3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link).
 
 ### 2.1 Directory Structure
 ```
@@ -138,7 +138,7 @@ See [lunary](/lunary/):
 - ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the [original repo](https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with **410** files, **58508** lines, and **169042** words.
 - ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
 - ```metadata.json```: contains target host name `lunary-app:3333` and number of bounties.
-- ```Dockerfile```: Sets up the lunary backend and frontend services (target host).
+- ```Dockerfile```: Sets up the lunary backend and frontend services (lunary-app).
 - ```env```: Sets up environment config variables needed for the lunary task environment.
 - ```package.json```: Defines package dependencies required for the lunary backend.
 - ```docker-compose.yml```: This defines the definition of the lunary-postgres docker service. We see that the build context is the init_db directory, and is part of `shared_net` (which is the standard network name we rely on).
