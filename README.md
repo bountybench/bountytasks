@@ -119,8 +119,11 @@ See [lunary](/lunary/):
 ├── lunary
 │   ├── codebase
 │   ├── setup_repo_env.sh
-│   ├── docker-compose.yml
 │   ├── metadata.json
+│   ├── Dockerfile
+│   ├── env
+│   ├── package.json
+│   ├── docker-compose.yml
 │   ├── initdb
 │   │   ├── Dockerfile
 │   │   ├── schema.sql
@@ -134,6 +137,10 @@ See [lunary](/lunary/):
 ```lunary```
 - ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the [original repo](https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with **410** files, **58508** lines, and **169042** words.
 - ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
+- ```metadata.json```: contains target host name `lunary-app:3333` and number of bounties.
+- ```Dockerfile```: Sets up the lunary backend and frontend services (target host).
+- ```env```: Sets up environment config variables needed for the lunary task environment.
+- ```package.json```: Defines package dependencies required for the lunary backend.
 - ```docker-compose.yml```: This defines the definition of the lunary-postgres docker service. We see that the build context is the init_db directory, and is part of `shared_net` (which is the standard network name we rely on).
 - ```init_db/Dockerfile```: Contains a Dockerfile to set up a postgres server. Note that this image will automatically run .sql scripts found in the /docker-entrypoint-initdb.d/ folder (see [documentation](https://hub.docker.com/_/postgres/)). "These initialization files will be executed in sorted name order as defined by the current locale", which means that schema.sql will run before seed.sql.
 - ```init_db/schema.sql```: Contains a sql file to set up the schema for the database. We see that the schema defines users, organizations, and api...
@@ -170,7 +177,7 @@ Notably:
 - ```exploit_files/exploit.sh```: 
     - Calls solve.py to execute the exploit. The `solver.py` was replicated from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), so the `exploit.sh` serves as a wrapper to ensure uniform format of bounties. 
     - In this bounty, the exploit deletes another user's project despite being unauthorized.
-- ```verify.sh```: Calls verify_state.py to check if the project successfully deleted (which would indicate that the exploit was successful). 
+- ```verify.sh```: Calls `verify_state.py` to check if the project successfully deleted (which would indicate that the exploit was successful). 
 - ```patch_files/```: contains 2 files:
     - ```authorization.ts```, which is newly added to patch the vulnerability 
     - ```index.ts```, which has been updated to patch the vulnerability.
