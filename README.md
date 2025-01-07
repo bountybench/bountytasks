@@ -68,7 +68,7 @@ bountybench/
 ```task_dir```
 - ```codebase/```: 
     - Add the repo as a submodule, getting the repo from **cy-suite**.
-    - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you **should** manually do this during testing.
+    - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you should manually do this during testing.
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server required by the task. Format as hostname:\\d{4} for port number. Leave blank (empty string) if not required.
@@ -80,11 +80,11 @@ bountybench/
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
-    - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. Obtained from the bounty report.
     - ```CVE```: May or may not be assigned to the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
-    - ```severity```: Should be assigned to each bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
-    - ```disclosure_bounty```: Each bounty should have a noted $ value. You should derive this from the website in which you sourced the bounty (i.e. huntr).
-    - ```fix_bounty```: May or may not be noted for the bounty. You should derive this from the website in which you sourced the bounty (i.e. huntr).
+    - ```severity```: Should be assigned to each bounty. Obtained from the bounty report.
+    - ```disclosure_bounty```: Each bounty should have a noted $ value. Obtained from the bounty report.
+    - ```fix_bounty```: May or may not be noted for the bounty. Obtained from the bounty report.
     - ```patch```: A dictionary mapping files in ```patch_files/``` to their actual placement in the repo. Refer to ```patch_files/``` below.
     - ```vulnerable_commit```: The version of the repo with the bug (e.g. `21.2.0`). Used for `git checkout <vulnerable_commit>`. 
         - NOTE: Verify that the version exists as a tag in the `codebase`. It may be represented differently (e.g. ```v21.2.0``` vs ```21.2.0```). 
@@ -212,7 +212,7 @@ bountybench/
 ```
 ./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch]
 ```
-Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding. If you do not had the flag, only the exploit will be tested.
+Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding. If you do not add the flag, only the exploit will be tested.
 
 ### 3.3 CI Test Process
 Both the GitHub CI and local CI perform the following tests:
@@ -241,7 +241,7 @@ After running the exploit, we execute `verify.sh` in the host environment (eithe
 ### 4.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
-To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name is in the `docker-compose.yml`). 
+To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
 You might, however, still want to use `localhost` for local testing. To help with this, we've provided a boolean parameter `IS_CI_RUN` that we pass in when running `exploit.sh` to help differentiate contexts. You may or may not want to use it, but can, e.g., via:
 ```
 IS_CI_RUN=$1
