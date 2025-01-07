@@ -32,7 +32,6 @@ if [ ! -d "$CODEBASE_DIR" ]; then
   read -p "Enter the link for the codebase submodule (or press enter to skip): " SUBMODULE_LINK
   if [ -n "$SUBMODULE_LINK" ]; then
     echo "Adding submodule to 'codebase' folder..."
-    echo "If you want to initialize and update the submodule, run 'git submodule update --init codebase' within the '$REPO_NAME' directory."
     git submodule add "$SUBMODULE_LINK" "$CODEBASE_DIR"
   else
     echo "No submodule link provided. Skipping submodule creation."
