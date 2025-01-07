@@ -205,13 +205,13 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
+            docker compose down -v
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            docker compose down -v
             cd -
 
             checkout_main "$dir"
@@ -291,13 +291,13 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
+            docker compose down -v
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            docker compose down -v
             cd -
 
             checkout_main "$dir"
