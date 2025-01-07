@@ -83,12 +83,14 @@ cd -
 print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
 cd "$repo_dir"
 execute_if_exists "setup_repo_env.sh"
+sleep 10
 cd -
 
 requirements_dir="${bounty_dir}/setup_files"
 print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
 cd $requirements_dir
 execute_if_exists "setup_bounty_env.sh"
+sleep 10
 cd -
 
 
@@ -143,6 +145,26 @@ execute_stop_docker() {
     fi
 }
 
+restart_docker_resources() {
+    local compose_dir="$1"  # Directory containing docker-compose.yml
+    if [[ -z "$compose_dir" ]]; then
+        compose_dir="${repo_dir}"  # Default to repo_dir if no path provided
+    fi
+
+    if [[ -f "${compose_dir}/docker-compose.yml" ]]; then
+        print_header "$CYAN" "STOPPING DOCKER SERVICES"
+        echo -e "${INFO} Running docker compose down in ${compose_dir}"
+        cd "${compose_dir}"
+        docker compose down -v
+        print_header "$CYAN" "STARTING DOCKER SERVICES"
+        docker compose up -d --force-recreate
+        cd -
+    else
+        echo -e "${WARNING} No docker-compose.yml found in ${compose_dir}"
+    fi
+}
+
+
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
     echo -e "${INFO} Running cleanup process..."
@@ -150,7 +172,8 @@ cleanup() {
     git clean -fdx
     git checkout main  --force
     cd -
-    execute_stop_docker
+    execute_stop_docker "${repo_dir}" 
+    execute_stop_docker "${requirements_dir}"
 }
 
 # Set trap to ensure cleanup runs on exit or error
@@ -227,17 +250,25 @@ git reset --hard "$vulnerable_commit"
 cd -
 
 if [[ "$patch_mode" == true ]]; then
-
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
-    # Apply the patches
+    # Debug patch location
+    echo -e "${INFO} Patched bounty dir: ${patched_bounty_dir}"
+    echo -e "${INFO} Current directory: $(pwd)"
+
+    # Apply the patches with debug info
     bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
     if [[ -f "$bounty_metadata" ]]; then
+        echo -e "${INFO} Found bounty metadata at: ${bounty_metadata}"
+        echo -e "${INFO} Metadata content:"
+        cat "$bounty_metadata"
+        
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+        echo -e "${INFO} Patch pairs: ${patch_pairs}"
 
-        echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
+            echo -e "${INFO} Processing patch: ${source_file} -> ${target_file}"
             target_dir=$(dirname "$target_file")
             if [ ! -d "$repo_dir/$target_dir" ]; then
                 echo -e "${INFO} Creating directory $repo_dir/$target_dir"
@@ -245,28 +276,23 @@ if [[ "$patch_mode" == true ]]; then
             fi
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
-            cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
+            if [[ -f "$patched_bounty_dir/$source_file" ]]; then
+                echo -e "${INFO} Source file exists"
+                cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
+                echo -e "${INFO} File copied. Content of target:"
+                cat "$repo_dir/$target_file"
+            else
+                echo -e "${WARNING} Source file not found: $patched_bounty_dir/$source_file"
+            fi
         done <<< "$patch_pairs"
-    else
-        print_header "$YELLOW" "WARNING"
-        echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
 
-    execute_stop_docker "${repo_dir}" 
-    execute_stop_docker "${requirements_dir}"
-
-    print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
-    cd "$repo_dir"
-    execute_if_exists "start_docker.sh"
-    cd -
-
-    print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
-    cd $requirements_dir
-    execute_if_exists "start_docker.sh"
-    cd -
+    restart_docker_resources "${repo_dir}" 
+    restart_docker_resources "${requirements_dir}"
 
     cp "${exploit_dir}"/* "${repo_dir}/codebase/" && \
+
 
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
     log=$(docker run \
@@ -287,8 +313,11 @@ if [[ "$patch_mode" == true ]]; then
 
     print_header "$CYAN" "VERIFYING AFTER PATCH"
     echo -e "${INFO} Running verify.sh after patch..."
+    echo -e "${INFO} Current directory: $(pwd)"
+    echo -e "${INFO} Verify script path: ${verify_script}"
     final_log=$(cd "${repo_dir}/codebase" && "../${verify_script#*/}")
     final_status=$?
+    echo -e "${INFO} Verify script exit status: ${final_status}"
 
 
 
