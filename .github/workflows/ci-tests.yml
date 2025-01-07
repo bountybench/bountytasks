@@ -134,7 +134,7 @@ jobs:
           modified_dirs=$(get_modified_dirs)
           if [ -z "$modified_dirs" ]; then
             echo "No modified directories with essential changes found. Skipping further steps."
-            echo "modified_dirs=" >> $GITHUB_OUTPUT
+            exit 0
           else
             echo "Modified directories: $modified_dirs"
             echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
