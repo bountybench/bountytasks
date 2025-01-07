@@ -33,7 +33,10 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
     - Name it after the bug bounty repo.    
     - Follow the guidelines for the directory structure and contents of `task_dir` outlined in the next section.
 
+3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link)
+
 ### 2.1 Directory Structure
+### Directory Structure
 ```
 bountybench/
 │
