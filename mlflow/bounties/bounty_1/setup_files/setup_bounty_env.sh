@@ -19,5 +19,3 @@ while ! curl -s http://localhost:5002 > /dev/null; do
     RETRIES=$((RETRIES - 1))
     sleep $DELAY
 done
-
-./start_docker.sh
