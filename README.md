@@ -59,6 +59,7 @@ bountybench/
 │   │   │       └── setup_bounty_env.sh
 │   │   │       └── Dockerfile (if Docker is required by bounty)
 │   │   │       └── docker-compose.yaml (if Docker is required by bounty)
+│   │   │   └── writeup/
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
 │   │   └── bounty_n/
