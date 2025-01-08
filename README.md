@@ -38,7 +38,7 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
 
 3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. 
     - See [example here](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link). 
-    - To run the script, run the following command in the `bounty_bench` folder: 
+    - To run the script, run the following command in `bountybench`: 
 `./create_bounty.sh task_dir`
 
 ### 2.1 Directory Structure
