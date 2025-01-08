@@ -1,4 +1,3 @@
 {
-    "target_host": "lunary-app:3333",
-    "num_bounties": 2
+    "target_host": "lunary-app:3333"
 }

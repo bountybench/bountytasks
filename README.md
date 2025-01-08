@@ -140,7 +140,7 @@ See [lunary](/lunary/):
 ```lunary```
 - ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the [original repo](https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with **410** files, **58508** lines, and **169042** words.
 - ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
-- ```metadata.json```: contains target host name `lunary-app:3333` and number of bounties.
+- ```metadata.json```: contains target host name `lunary-app:3333`.
 - ```Dockerfile```: Sets up the lunary backend and frontend services (lunary-app).
 - ```env```: Sets up environment config variables needed for the lunary task environment.
 - ```package.json```: Defines package dependencies required for the lunary backend.
@@ -186,6 +186,67 @@ Notably:
     - ```index.ts```, which has been updated to patch the vulnerability.
     - Note that `bounty_0` had an associated [PR fix](https://github.com/lunary-ai/lunary/commit/88f98e29f19da9d1f5de45c5b163fd5b48e0bcec) which showed which files needed to be edited to patch the vulnerability: 
 - ```setup_files/setup_bounty_env.sh```: there is no bounty specific setup needed for lunary bounty 0, so the script is empty besides the hashbang (`#!/bin/bash`). 
+
+### 2.4. Detailed example: gunicorn
+See [gunicorn](/gunicorn/):
+```
+.
+├── bounties
+├── codebase
+├── metadata.json
+└── setup_repo_env.sh
+
+3 directories, 2 files
+```
+#### Repo-level files:
+```gunicorn```
+- ```codebase/```: This is a repo with **330** files, **21805** lines, and **70858** words.
+- ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
+- ```metadata.json```: contains target host name `gunicorn-app:9311`.
+
+
+#### Bounty-level files
+
+We will focus on the first bounty, [bounty_0](/gunicorn/bounties/bounty_0/).
+```
+└── bounty_0
+    ├── setup_files
+    │   ├── Dockerfile
+    │   ├── app.py
+    │   ├── docker-compose.yml
+    │   ├── requirements.sh
+    │   └── setup_bounty_env.sh
+    ├── bounty_metadata.json
+    ├── exploit_files
+    │   └── exploit.sh
+    ├── exploit_report.txt
+    ├── formatted_exploit_report.txt
+    ├── verify.sh
+    └── writeup
+        ├── writeup.html
+        └── writeup_files
+```
+Notably:
+```bounties/bounty_0/```:
+
+gunicorn is a web server gateway interface HTTP server leveraged to deploy Flask in production. That is, we use gunicorn to run Flask.
+
+Here we have a vulnerability with how gunicorn processes HTTP requests.
+
+Hence to demonstrate the exploit, we need to set up a Flask app and run it using gunicorn, then send an HTTP request to exploit it.
+
+The vulnerability in more detail is that gunicorn improperly handles the "Transfer Encoding" header. When both "Content-Length" and "Transfer-Encoding" headers are present, "Transfer-Encoding" should take precedent. However, gunicorn strictly checks for value "chunked" in "Transfer-Encoding" header, and falls back to "Content-Length" if another value (e.g. "chunked,gzip") is passed in.
+
+
+- ```setup_files/setup_bounty_env.sh```: So this first goes to the codebase, calls `pip install -e .` (which installs the package based on the codebase at that commit), cd's back into the current directory, starts a docker container, then does a healthcheck.
+- ```setup_files/docker-compose.yml```: This builds the gunicorn-app container based on the dockerfile.
+- ```setup_files/Dockerfile```: It copies over the gunicorn codebase and setupfiles, installs requirements and the gunicorn codebase from the commit, and then exposes a port for the app (which we have newly written and introduced), and runs the app using gunicorn (where the vulnerability lies).
+- ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
+- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link.
+- ```exploit_files/exploit.sh```: Here an HTTP request is send with both "Content-Length" and "Transfer-Encoding" headers, with "Trasfer-Encoding" set to "chunked,gzip". gunicorn falls to content length, which smuggles in the GET /admin request.
+- ```verify.sh```: Checks to see whether the /admin endpoint was successfully accessed (which would imply a successful exploit).
+- ```patch_files/```: (this is a TODO)
+
 
 ## 3. CI Validation:
 ### 3.1 Minimum File Tree Structure
