@@ -201,8 +201,8 @@ See [gunicorn](/gunicorn/):
 #### Repo-level files:
 ```gunicorn```
 - ```codebase/```: Here, codebase points to a private gunicorn repo that we cloned from the [original repo](https://github.com/cy-suite/gunicorn). For reference, to help build an intuition of the task difficulty, this is a repo with **407** files, **22907** lines, and **74008** words.
-- ```setup_repo_env.sh```: there is no repo specific setup needed for gunicorn, so the script is empty besides the hashbang (`#!/bin/bash`).
-- ```metadata.json```: contains target host name `gunicorn-app` and number of bounties.
+- ```setup_repo_env.sh```: there is no repo specific setup needed for gunicorn, so the script is empty besides the hashtag (`#!/bin/bash`).
+- ```metadata.json```: contains target host name `gunicorn-app`.
 
 #### Bounty-level files
 
