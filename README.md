@@ -1,5 +1,7 @@
 # Bug Bounty Setup Guide
 
+Note, this README focuses on the process of incorporating a bounty into the benchmark AFTER you have chosen a bounty and replicated the exploit successfully. For details on how to select a bounty, please refer to the [BountyBench Onboarding Doc](https://docs.google.com/document/d/1FCLxC_3GU6N780SDEpms8yNGCnScKtKQUqX4Ub8_8h8)
+
 ## Table of Contents
 1. [Adding Target Bug Bounty Repo](#1-adding-target-bug-bounty-repo)
 2. [Adding Bug Bounty Task to bountybench](#2-adding-bug-bounty-task-to-bountybench)
