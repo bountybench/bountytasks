@@ -19,23 +19,83 @@ print_header() {
     echo -e "${color}========== ${message} ==========${RESET}"
 }
 
+validate_schema() {
+    local project_root="$1"
+    local bounty_path="$2"
+    local bounty_number=$(basename "$bounty_path" | sed 's/bounty_//')
+
+    print_header "$CYAN" "VALIDATING PROJECT SCHEMA"
+
+    # Check project root structure
+    local required_paths=(
+        "codebase"
+        "setup_repo_env.sh"
+        "metadata.json"
+        "bounties"
+        "bounties/bounty_${bounty_number}"
+        "bounties/bounty_${bounty_number}/bounty_metadata.json"
+        "bounties/bounty_${bounty_number}/verify.sh"
+        "bounties/bounty_${bounty_number}/exploit_files"
+        "bounties/bounty_${bounty_number}/exploit_files/exploit.sh"
+        "bounties/bounty_${bounty_number}/patch_files"
+        "bounties/bounty_${bounty_number}/setup_files"
+        "bounties/bounty_${bounty_number}/setup_files/setup_bounty_env.sh"
+    )
+
+    for path in "${required_paths[@]}"; do
+        if [[ ! -e "${project_root}/${path}" ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} Missing required path: ${path}"
+            echo -e "${ERROR} Expected schema:"
+            echo -e "${INFO} ├── task_dir/"
+            echo -e "${INFO} │   ├── codebase/"
+            echo -e "${INFO} │   ├── setup_repo_env.sh"
+            echo -e "${INFO} │   ├── metadata.json"
+            echo -e "${INFO} │   ├── bounties/"
+            echo -e "${INFO} │   │   ├── bounty_${bounty_number}/"
+            echo -e "${INFO} │   │   │   ├── bounty_metadata.json"
+            echo -e "${INFO} │   │   │   ├── verify.sh"
+            echo -e "${INFO} │   │   │   └── exploit_files/"
+            echo -e "${INFO} │   │   │       └── exploit.sh"
+            echo -e "${INFO} │   │   │   └── patch_files/"
+            echo -e "${INFO} │   │   │   └── setup_files/"
+            echo -e "${INFO} │   │   │       └── setup_bounty_env.sh"
+            exit 1
+        fi
+    done
+
+    echo -e "${SUCCESS} Project schema validation passed"
+}
+
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch]"
     exit 1
 fi
 
-current_dir=$(pwd)
-bounty_dir="${current_dir}/${1#./}"
-# bounty_dir="${1%/}"
+
+execute_if_exists() {
+  local script_path="$1"
+  if [ -f "$script_path" ]; then
+    echo "Executing $script_path"
+    bash "$script_path"
+  else
+    echo "$script_path not found, skipping."
+  fi
+}
+
+bounty_dir="$1"
 repo_dir=$(dirname "$(dirname "$bounty_dir")")
 
+
 # Check if bounty_dir follows the expected pattern (bounty_ + number)
-if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+$ ]]; then
+if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} The path to bounty should follow the pattern '<repo_dir>/bounties/bounty_<number>' (e.g., lunary/bounties/bounty_0)"
     exit 1
 fi
+
+validate_schema "$repo_dir" "$bounty_dir"
 
 patch_mode=false
 
@@ -45,24 +105,11 @@ if [[ "$2" == "--patch" ]]; then
     echo -e "${INFO} Patch mode enabled."
 fi
 
-
-if [[ -f "${repo_dir}/setup_repo_env.sh" ]]; then
-    print_header "$CYAN" "SETTING UP REPO ENVIRONMENT"
-    echo -e "${INFO} Executing setup_repo_env.sh script for the task"
-    setup_repo_env_log=$(cd "${repo_dir}" && ./setup_repo_env.sh)
-    echo -e "${INFO} ${setup_repo_env_log}\n"
-    cd -
-else
-    print_header "$YELLOW" "WARNING"
-    echo -e "${WARNING} setup_repo_env.sh not found in ${repo_dir}"
-fi
-
-
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
 if [[ ! -f "$bounty_metadata_file" ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} bounty_metadata.json not found in ${bounty_dir}"
+    echo -e "${ERROR} bounty_metadata.json not found at ${bounty_metadata_file}"
     exit 1
 fi
 
@@ -81,44 +128,75 @@ git checkout "$vulnerable_commit"
 checkout_status=$?
 cd -
 
+
+print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
+cd "$repo_dir"
+execute_if_exists "setup_repo_env.sh"
+sleep 10
+cd -
+
+requirements_dir="${bounty_dir}/setup_files"
+print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
+cd $requirements_dir
+execute_if_exists "setup_bounty_env.sh"
+sleep 10
+cd -
+
+
 if [[ $checkout_status -ne 0 ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Failed to checkout vulnerable commit ${vulnerable_commit}"
     exit 1
 fi
 
-# Find exploit.sh and verify.sh recursively
-exploit_script=$(find "${bounty_dir}" -type f -name "exploit.sh" | head -n 1)
+exploit_dir="${bounty_dir}/exploit_files"
+exploit_script="${exploit_dir}/exploit.sh" 
 verify_script=$(find "${bounty_dir}" -type f -name "verify.sh" | head -n 1)
 
-print_header "$CYAN" "CHECKING IF EXPLOIT AND VERIFY SCRIPTS EXIST"
 
 if [[ -z "$exploit_script" ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Could not find exploit.sh in ${bounty_dir}"
     exit 1
-else
-    echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
 fi
 
 if [[ -z "$verify_script" ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}"
     exit 1
-else
-    echo -e "${SUCCESS} Found verify script at: ${verify_script}"
 fi
 
-# Store the directories for later use
-exploit_dir=$(dirname "$exploit_script")
 verify_dir=$(dirname "$verify_script")
 
-exploit_dir_in_container="${exploit_dir/$repo_dir//app}"
-verify_dir_in_container="${verify_dir/$repo_dir//app}"
+
+
+
+print_header "$CYAN" "CHECKING IF EXPLOIT AND VERIFY SCRIPTS EXIST"
+echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
+echo -e "${SUCCESS} Found verify script at: ${verify_script}"
 
 container_name="cybench"
 image_name="cybench/cybounty:latest"
 network_name="shared_net"
+
+stop_docker() {
+    local compose_dir="$1"  # Directory containing docker-compose.yml
+    if [[ -z "$compose_dir" ]]; then
+        compose_dir="${repo_dir}"  # Default to repo_dir if no path provided
+    fi
+
+    if [[ -f "${compose_dir}/docker-compose.yml" ]]; then
+        print_header "$CYAN" "STOPPING DOCKER in ${compose_dir}"
+        echo -e "${INFO} Running docker compose down in ${compose_dir}"
+        cd "${compose_dir}"
+        docker compose down -v
+        cd -
+    else
+        echo -e "${INFO} No docker-compose.yml found in ${compose_dir}"
+    fi
+}
+
+
 
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
@@ -127,6 +205,8 @@ cleanup() {
     git clean -fdx
     git checkout main  --force
     cd -
+    stop_docker "${repo_dir}" 
+    stop_docker "${requirements_dir}"
 }
 
 # Set trap to ensure cleanup runs on exit or error
@@ -137,21 +217,6 @@ if ! docker network ls | grep -q "${network_name}"; then
     print_header "$CYAN" "DOCKER NETWORK CREATION"
     echo -e "${INFO} Creating Docker network: ${network_name}"
     docker network create "${network_name}"
-fi
-
-
-
-setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.sh" | head -n 1)
-
-if [[ -n "$setup_bounty_env_script" ]]; then
-        setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
-        print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
-        cd $setup_bounty_env_dir
-        "./setup_bounty_env.sh"
-        cd -
-else
-    print_header "$YELLOW" "WARNING"
-    echo -e "${WARNING} setup_bounty_env.sh not found in ${bounty_dir}"
 fi
 
 
@@ -168,14 +233,12 @@ if [[ ${initial_status} -eq 0 ]]; then
 fi
 
 echo -e "${INFO} ${initial_log}\n"
+echo -e "${INFO} ${exploit_dir}\n"
 
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
-
-# Run exploit.sh inside the Docker container (with IS_CI_RUN set to true)
-exploit_log=$(
-  docker run \
+exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
     -it \
@@ -183,19 +246,21 @@ exploit_log=$(
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
-    -v "${repo_dir}":/app \
+    -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '${exploit_dir_in_container}' && bash exploit.sh true"
-)
+    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
 
 print_header "$CYAN" "EXPLOIT LOG"
 echo -e "${INFO} ${exploit_log}\n"
 execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
+
 # Run final verify.sh directly on the local machine
 print_header "$CYAN" "RUNNING VERIFY SCRIPT AFTER EXPLOIT"
 final_log=$(cd "${verify_dir}" && ./verify.sh)
 final_status=$?
+
+
 
 if [[ ${final_status} -ne 0 ]]; then
     print_header "$RED" "ERROR"
@@ -211,11 +276,14 @@ print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
 echo -e "${SUCCESS} Verify script after exploit completed successfully."
 
 # Clean untracked files in codebase before patch test
+print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
+git clean -fdx
 git reset --hard "$vulnerable_commit"
 cd -
 
 if [[ "$patch_mode" == true ]]; then
+
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
@@ -240,52 +308,61 @@ if [[ "$patch_mode" == true ]]; then
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
-    # run setup_repo_env
-    if [[ -f "${repo_dir}/setup_repo_env.sh" ]]; then
-    print_header "$CYAN" "SETTING UP REPO ENVIRONMENT AFTER PATCH"
-    echo -e "${INFO} Executing setup_repo_env.sh script for the task"
-    setup_repo_env_log=$(cd "${repo_dir}" && ./setup_repo_env.sh)
-    echo -e "${INFO} ${setup_repo_env_log}\n"
+
+    stop_docker "${repo_dir}" 
+    stop_docker "${requirements_dir}"
+
+    print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
+    cd "$repo_dir"
+    execute_if_exists "setup_repo_env.sh"
+    sleep 10
     cd -
-    else
-        print_header "$YELLOW" "WARNING"
-        echo -e "${WARNING} setup_repo_env.sh not found in ${repo_dir}"
+
+    requirements_dir="${bounty_dir}/setup_files"
+    print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
+    cd $requirements_dir
+    execute_if_exists "setup_bounty_env.sh"
+    sleep 10
+    cd -
+
+
+
+    print_header "$CYAN" "VERIFYING BEFORE EXPLOIT"
+    final_log=$(cd "${verify_dir}" && ./verify.sh)
+    final_status=$?
+    echo -e "${INFO} Verify script exit status: ${final_status}"
+
+
+
+    if [[ ${final_status} -eq 0 ]]; then
+        print_header "$RED" "ERROR"
+        echo -e "${ERROR} Verify script should fail (return 1) after patch, but it returned ${final_status}"
+        echo -e "${ERROR} ========= Error log ========= \n\n ${final_log}"
+        exit 1
     fi
 
-    # run setup_bounty_env
-    setup_bounty_env_script=$(find "${bounty_dir}" -type f -name "setup_bounty_env.sh" | head -n 1)
-    if [[ -n "$setup_bounty_env_script" ]]; then
-            setup_bounty_env_dir=$(dirname "$setup_bounty_env_script")
-            print_header "$CYAN" "SETUP BOUNTY ENVIORNMENT"
-            cd $setup_bounty_env_dir
-            "./setup_bounty_env.sh"
-            cd -
-    else
-        print_header "$YELLOW" "WARNING"
-        echo -e "${WARNING} setup_bounty_env.sh not found in ${bounty_dir}"
-    fi
 
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
     log=$(docker run \
-        --name "${container_name}" \
-        --rm \
-        -it \
-        --pull always \
-        --privileged \
-        --network "${network_name}" \
-        --cgroupns host \
-        -v "$(pwd)":/app \
-        "${image_name}" \
-        /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
+    --name "${container_name}" \
+    --rm \
+    -it \
+    --pull always \
+    --privileged \
+    --network "${network_name}" \
+    --cgroupns host \
+    -v "$(pwd)":/app \
+    "${image_name}" \
+    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
 
     print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
     echo -e "${INFO} Log:\n ${log}"
     execution_output=$(echo "${log}" | tail -n 1 | tr -d '[:space:]')
 
-    print_header "$CYAN" "VERIFYING AFTER PATCH"
-    echo -e "${INFO} Running verify.sh after patch..."
+    print_header "$CYAN" "VERIFYING AFTER EXPLOIT"
     final_log=$(cd "${verify_dir}" && ./verify.sh)
     final_status=$?
+    echo -e "${INFO} Verify script exit status: ${final_status}"
 
 
 

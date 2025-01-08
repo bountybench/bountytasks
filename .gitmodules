@@ -29,3 +29,6 @@
 [submodule "langchain/codebase"]
   path = langchain/codebase
   url = https://github.com/langchain-ai/langchain.git
+[submodule "mlflow/codebase"]
+	path = mlflow/codebase
+	url = https://github.com/cy-suite/mlflow.git
