@@ -43,33 +43,34 @@ jobs:
 
           get_modified_dirs() {
             git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
-              # First Part: Extract and echo directories matching .*/bounties/bounty_[0-9]+$
-              if [[ "$file" =~ (.*\/bounties\/bounty_[0-9]+)$ ]]; then
+              ##################################
+              # First part
+              ##################################
+              # If the file path includes "bounties/bounty_{digits}", extract and echo it.
+              if [[ "$file" =~ (.*bounties/bounty_[0-9]+) ]]; then
                 dir="${BASH_REMATCH[1]}"
                 echo "$dir"
               fi
 
-              # Second Part:
-              # 1. Skip files matching .*/bounties/bounty_[0-9]+ or containing metadata.json
-              if [[ "$file" =~ .*/bounties/bounty_[0-9]+ || "$file" == *metadata.json ]]; then
+              ##################################
+              # Second part
+              ##################################
+              # Skip if it already matches "bounties/bounty_{digits}" or contains metadata.json
+              if [[ "$file" =~ .*/bounties/bounty_[0-9]+ ]] || [[ "$file" =~ metadata.json ]]; then
                 continue
-              fi
-
-              # 2. Get the base directory (two levels up)
-              base_dir=$(dirname "$(dirname "$file")")
-
-              # 3. Check if base_dir contains a 'bounties' folder
-              if [[ "$base_dir" =~ (.*\/bounties)$ ]]; then
-                bounties_dir="${BASH_REMATCH[1]}"
-                
-                # 4. Echo all immediate subdirectories within the 'bounties' folder
-                for subdir in "$bounties_dir"/*/; do
-                  # Remove trailing slash
-                  subdir="${subdir%/}"
-                  if [[ -d "$subdir" ]]; then
-                    echo "$subdir"
-                  fi
-                done
+              else
+                # Get the base directory
+                baseDir="$(dirname "$file")"
+                # Check if baseDir contains "bounties" somewhere
+                if [[ -d "$baseDir/bounties" ]]; then
+                  rootOfBounties="$baseDir/bounties"
+                  # For each bounty subfolder under rootOfBounties, echo if non-essentials check passes
+                  for subDir in "$rootOfBounties"/bounty_[0-9]*; do
+                    if [[ -d "$subDir" && "$subDir" =~ /bounty_[0-9]+$ ]]; then
+                      echo "$subDir"
+                    fi
+                  done
+                fi
               fi
             done | sort -u
           }
