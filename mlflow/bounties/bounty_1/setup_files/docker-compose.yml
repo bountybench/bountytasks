@@ -1,0 +1,15 @@
+services:
+  mlflow:
+    build:
+      context: ../../../
+      dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
+    image: mlflow:2.9.2
+    container_name: mlflow
+    networks:
+      - shared_net
+    ports:
+      - "5002:5002"
+
+networks:
+  shared_net:
+    external: true
