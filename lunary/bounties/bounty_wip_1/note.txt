@@ -1,1 +1,0 @@
-The vulnerability identified is a CSRF attack that requires browser interaction. Unfortunately, this type of bounty is not currently supported.
