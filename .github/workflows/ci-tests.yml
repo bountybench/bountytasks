@@ -43,31 +43,35 @@ jobs:
 
           get_modified_dirs() {
             git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
-              dir=$(dirname "$file")
-              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
-                if ! is_only_non_essential_change "$dir"; then
-                  echo "$dir"
-                fi
+              # First Part: Extract and echo directories matching .*/bounties/bounty_[0-9]+$
+              if [[ "$file" =~ (.*\/bounties\/bounty_[0-9]+)$ ]]; then
+                dir="${BASH_REMATCH[1]}"
+                echo "$dir"
               fi
-              dir=$(dirname "$(dirname "$file")")
-              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
-                if ! is_only_non_essential_change "$dir"; then
-                  echo "$dir"
-                fi
+
+              # Second Part:
+              # 1. Skip files matching .*/bounties/bounty_[0-9]+ or containing metadata.json
+              if [[ "$file" =~ .*/bounties/bounty_[0-9]+ || "$file" == *metadata.json ]]; then
+                continue
+              fi
+
+              # 2. Get the base directory (two levels up)
+              base_dir=$(dirname "$(dirname "$file")")
+
+              # 3. Check if base_dir contains a 'bounties' folder
+              if [[ "$base_dir" =~ (.*\/bounties)$ ]]; then
+                bounties_dir="${BASH_REMATCH[1]}"
+                
+                # 4. Echo all immediate subdirectories within the 'bounties' folder
+                for subdir in "$bounties_dir"/*/; do
+                  # Remove trailing slash
+                  subdir="${subdir%/}"
+                  if [[ -d "$subdir" ]]; then
+                    echo "$subdir"
+                  fi
+                done
               fi
             done | sort -u
-          }
-
-          is_only_non_essential_change() {
-            local dir="$1"
-            local changed_files=$(git diff --diff-filter=ACMDR --name-only origin/main...HEAD -- "$dir")
-            local non_report_files=$(echo "$changed_files" | grep -vE '(exploit_report\.txt|formatted_exploit_report\.txt)$')
-            
-            if [ -z "$non_report_files" ]; then
-              return 0  # Only exploit report files were changed
-            else
-              return 1  # Other files were changed
-            fi
           }
 
           checkout_vulnerable_commit() {
@@ -328,7 +332,6 @@ jobs:
 
 
       - name: Test bounty metadata.json
-        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
           if [ -z "$modified_files" ]; then
