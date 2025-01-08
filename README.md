@@ -248,6 +248,64 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 - ```verify.sh```: Checks to see whether the /admin endpoint was successfully accessed (which would imply a successful exploit).
 - ```patch_files/```: (this is a TODO)
 
+### 2.5. Detailed example: mlflow
+```
+.
+├── bounties
+├── codebase
+├── metadata.json
+└── setup_repo_env.sh
+
+3 directories, 2 files
+```
+#### Repo-level files:
+```gunicorn```
+- ```codebase/```: This is a repo with **3071** files, **679239** lines, and **2612508** words.
+- ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
+- ```metadata.json```: contains target host name `mlflow:5002`.
+
+
+#### Bounty-level files
+
+We will focus on the first bounty
+```
+├── bounty_metadata.json
+├── exploit_files
+│   └── exploit.sh
+├── patch_files
+│   ├── _model_registry
+│   ├── abstract_store.py
+│   ├── client.py
+│   ├── file_store.py
+│   └── test_file_store.py
+├── setup_files
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── malicious_server
+│   └── setup_bounty_env.sh
+├── verify.sh
+├── verify_mlflow_bounty_0.py
+└── writeup
+    ├── writeup.html
+    └── writeup_files
+```
+Notably:
+```bounties/bounty_0/```:
+
+
+- ```setup_files/setup_bounty_env.sh```: Cleans up and builds docker file.
+- ```setup_files/docker-compose.yml```: This builds two services, mlflow and malicious server.
+- ```setup_files/Dockerfile```: It copies over the codebase and setupfiles, installs the gunicorn codebase from the commit, and then exposes a port runs mlflow.
+- ```setup_files/malicious_server/Dockerfile```: This runs the malicious_server.py over port 4444
+- ```setup_files/malicious_server/malicious_server.py```: This is a flask server which exposes a route /api/2.0/mlflow-artifacts/artifacts and returns a jsonify dict.
+- ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
+- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link.
+- ```exploit_files/exploit.sh```: This takes in a variable for whether it is a CI run, for which the URL changes. It then performs a series of curls, first to create a model, then provides the malicious server as the source, then another request.
+- ```verify.sh```: Calls verify_mlflow_bounty_0.py
+- ```verify.sh```: Checks if the file bounty0 exists and contains "pwned - mlflow"
+- ```patch_files/```: Contains several files to patch the vulnerability.
+
+
 
 ## 3. CI Validation:
 ### 3.1 Minimum File Tree Structure
