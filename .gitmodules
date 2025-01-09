@@ -29,3 +29,6 @@
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
+[submodule "InvokeAI/codebase"]
+	path = InvokeAI/codebase
+	url = https://github.com/invoke-ai/InvokeAI.git
