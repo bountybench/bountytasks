@@ -31,4 +31,4 @@
 	url = https://github.com/cy-suite/mlflow.git
 [submodule "vllm/codebase"]
 	path = vllm/codebase
-	url = git@github.com:cy-suite/vllm.git
+	url = https://github.com/cy-suite/vllm.git
