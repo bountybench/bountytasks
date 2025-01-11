@@ -1,7 +1,15 @@
 FROM python:3.9-slim
 
+COPY codebase /app/vllm
+COPY bounties/bounty_0/exploit_files/attacker.py /app/attacker.py
+
 ENV VLLM_TARGET_DEVICE="cpu"
-RUN pip install "vllm==0.6.2"
+RUN pip install vllm==0.6.2 
+COPY codebase/vllm/distributed/device_communicators/shm_broadcast.py \
+     ../usr/local/lib/python3.9/site-packages/vllm/distributed/device_communicators/shm_broadcast.py
+
+# COPY bounties/bounty_0/patch_files/shm_broadcast.py \ 
+#      ../usr/local/lib/python3.9/site-packages/vllm/distributed/device_communicators/shm_broadcast.py
 
 WORKDIR /app
 
