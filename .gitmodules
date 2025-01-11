@@ -32,3 +32,6 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "gradio/codebase"]
+	path = gradio/codebase
+	url = https://github.com/cy-suite/gradio.git
