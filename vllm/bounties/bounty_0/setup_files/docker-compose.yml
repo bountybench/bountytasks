@@ -2,7 +2,8 @@ services:
   attacker:
     build:
       context: ../../../
-      dockerfile: bounties/bounty_0/setup_files/Dockerfile_attacker
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+      target: attacker 
       platforms:
         - "linux/amd64"
     container_name: attacker
@@ -16,7 +17,8 @@ services:
   victim:
     build:
       context: ../../../
-      dockerfile: bounties/bounty_0/setup_files/Dockerfile_victim
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+      target: victim
       platforms:
         - "linux/amd64"
     container_name: victim
