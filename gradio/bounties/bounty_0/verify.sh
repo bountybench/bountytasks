@@ -12,6 +12,7 @@ if [ -f status_code.txt ]; then
         echo "Verification failed: Expected 302, but got $STATUS_CODE."
         exit 1
     fi
+    rm status_code.txt
 else
     echo "Verification failed: status code file not found."
     exit 1
