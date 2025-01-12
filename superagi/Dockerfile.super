@@ -1,0 +1,28 @@
+# Dockerfile
+FROM python:3.9-slim
+
+# Install git and required system dependencies
+RUN apt-get update && \
+    apt-get install -y git postgresql-client libpq-dev build-essential python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Clone specific version of SuperAGI
+RUN git clone https://github.com/TransformerOptimus/SuperAGI.git /app/SuperAGI && \
+    cd /app/SuperAGI && \
+    git checkout 6c816d24decff60f5b6eec7150b7c2460b49b7f9
+
+# Set working directory to SuperAGI
+WORKDIR /app/SuperAGI
+
+# Install dependencies
+RUN pip install -r requirements.txt
+
+# Create a minimal config
+RUN echo '{"OPENAI_API_KEY": "sk-dummy-key-for-testing"}' > config.yaml
+
+# Debug: show directory structure
+RUN echo "Project structure:" && \
+    ls -R superagi/api/
