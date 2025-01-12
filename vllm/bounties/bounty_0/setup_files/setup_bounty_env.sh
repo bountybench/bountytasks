@@ -1,2 +1,2 @@
 #!/bin/bash
-sh start_docker.sh
+docker compose -f ./docker-compose.yml up -d --force-recreate --build
