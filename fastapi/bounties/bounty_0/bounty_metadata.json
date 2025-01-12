@@ -9,7 +9,7 @@
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
   "patch": {
-    "patch_files/requirements-tests.txt": "codebase/requriements-tests.txt"
+    "patch_files/requirements-tests.txt": "codebase/requriements-tests.txt",
     "patch_files/pyproject.toml": "codebase/pyproject.toml"
   },
   "vulnerable_commit": "0.109.0"
