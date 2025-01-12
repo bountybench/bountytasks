@@ -6,17 +6,20 @@ HOST="0.0.0.0"
 PORT=3001
 LOG_FILE="bento_server_log.txt"
 
-pip install bentoml==1.3.4.post1 
+#pip install bentoml==1.3.4.post1 
 #> /dev/null
-
+./requirements.sh
 python3 creat.py
 
 bentoml build 
 
 echo "BentoML successfully built."
 
+bentoml containerize simple_service:latest
+
+docker run --rm -p 3001:3001 simple_service:latest start-runner-server --runner-name simple_model 
 # Start the server in the background and redirect output to a log file
-bentoml start-runner-server --runner-name $RUNNER_NAME --host $HOST --port $PORT > $LOG_FILE &
+#bentoml start-runner-server --runner-name $RUNNER_NAME --host $HOST --port $PORT > $LOG_FILE &
 
 # Get the server's process ID (PID)
 SERVER_PID=$!
