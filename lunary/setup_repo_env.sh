@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./start_docker.sh
+docker compose up -d --force-recreate --build
 
 # Wait for the server to start
 echo "Waiting for the server to start..."

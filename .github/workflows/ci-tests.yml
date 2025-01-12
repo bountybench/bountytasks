@@ -27,40 +27,6 @@ jobs:
       - name: Fetch main branch
         run: git fetch origin main:refs/remotes/origin/main
 
-      - name: Clean up before starting
-        run: |
-          sudo apt-get clean
-          npm cache clean --force
-
-      - name: Setup Python environment
-        uses: actions/setup-python@v5
-
-      - name: Create .env file
-        run: |
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip -q
-          pip install -r .github/requirements.txt -q
-
-      - name: Docker Cleanup before pulling new image
-        run: |
-          docker system prune -af
-          docker image prune -af
-
-      - name: Pull Docker Container
-        run: |
-          docker pull --quiet cybench/kali-linux-ci:latest
-          docker manifest inspect cybench/kali-linux-ci:latest
-          docker image tag cybench/kali-linux-ci:latest cybench
-
-      - name: Display disk space after pulling image
-        run: df -H
-
-      - name: Create Docker Network
-        run: docker network create shared_net || true
-
       - name: Find modified metadata/bounty directories
         id: modified-dirs
         run: |
@@ -77,25 +43,36 @@ jobs:
 
           get_modified_dirs() {
             git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
-              dir=$(dirname "$file")
-              if [[ "$dir" =~ .*/bounties/bounty_[0-9]*$ ]]; then
-                if ! is_only_non_essential_change "$dir"; then
-                  echo "$dir"
+              ##################################
+              # First part
+              ##################################
+              # If the file path includes "bounties/bounty_{digits}", extract and echo it.
+              if [[ "$file" =~ (.*bounties/bounty_[0-9]+) ]]; then
+                dir="${BASH_REMATCH[1]}"
+                echo "$dir"
+              fi
+
+              ##################################
+              # Second part
+              ##################################
+              # Skip if it already matches "bounties/bounty_{digits}" or contains metadata.json
+              if [[ "$file" =~ .*/bounties/bounty_[0-9]+ ]] || [[ "$file" =~ metadata.json ]]; then
+                continue
+              else
+                # Get the base directory
+                baseDir="$(dirname "$file")"
+                # Check if baseDir contains "bounties" somewhere
+                if [[ -d "$baseDir/bounties" ]]; then
+                  rootOfBounties="$baseDir/bounties"
+                  # For each bounty subfolder under rootOfBounties, echo if non-essentials check passes
+                  for subDir in "$rootOfBounties"/bounty_[0-9]*; do
+                    if [[ -d "$subDir" && "$subDir" =~ /bounty_[0-9]+$ ]]; then
+                      echo "$subDir"
+                    fi
+                  done
                 fi
               fi
             done | sort -u
-          }
-
-          is_only_non_essential_change() {
-            local dir="$1"
-            local changed_files=$(git diff --diff-filter=ACMDR --name-only origin/main...HEAD -- "$dir")
-            local non_report_files=$(echo "$changed_files" | grep -vE '(exploit_report\.txt|formatted_exploit_report\.txt)$')
-            
-            if [ -z "$non_report_files" ]; then
-              return 0  # Only exploit report files were changed
-            else
-              return 1  # Other files were changed
-            fi
           }
 
           checkout_vulnerable_commit() {
@@ -162,7 +139,7 @@ jobs:
           modified_dirs=$(get_modified_dirs)
           if [ -z "$modified_dirs" ]; then
             echo "No modified directories with essential changes found. Skipping further steps."
-            echo "modified_dirs=" >> $GITHUB_OUTPUT
+            echo "should_exit=true" >> $GITHUB_OUTPUT
           else
             echo "Modified directories: $modified_dirs"
             echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
@@ -170,8 +147,50 @@ jobs:
             echo "EOF" >> $GITHUB_OUTPUT
           fi
 
+      - name: Clean up before starting
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          sudo apt-get clean
+          npm cache clean --force
+
+      - name: Setup Python environment
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        uses: actions/setup-python@v5
+
+      - name: Create .env file
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+
+      - name: Install dependencies
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          python -m pip install --upgrade pip -q
+          pip install -r .github/requirements.txt -q
+
+      - name: Docker Cleanup before pulling new image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+          docker image prune -af
+
+      - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+
+      - name: Display disk space after pulling image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -H
+
+      - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: docker network create shared_net || true
+
       - name: Run Exploit Tests
-        if: steps.modified-dirs.outputs.modified_dirs != ''
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
@@ -199,13 +218,17 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
             cd -
 
             checkout_main "$dir"
@@ -216,21 +239,24 @@ jobs:
           echo "All tasks processed."
 
       - name: Docker Cleanup before pulling new image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           docker system prune -af
           docker image prune -af
 
       - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
       
       - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
       - name: Run Patch Tests
-        if: steps.modified-dirs.outputs.modified_dirs != ''
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
@@ -285,13 +311,17 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
-            execute_if_exists "stop_docker.sh"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
             cd -
 
             # Stop Docker for this repo
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
-            execute_if_exists "stop_docker.sh"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
             cd -
 
             checkout_main "$dir"
@@ -315,11 +345,14 @@ jobs:
           echo "Directories to be tested: $modified_dirs"
 
       - name: Display disk space after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: df -h
 
       - name: Docker Cleanup after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           docker system prune -af
 
       - name: Display disk space after cleanup
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: df -h

@@ -1,4 +1,3 @@
 {
-    "target_host": "mlflow:5002",
-    "num_bounties": 1
+    "target_host": "mlflow:5002"
 }
