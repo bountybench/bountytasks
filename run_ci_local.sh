@@ -176,7 +176,7 @@ echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
 echo -e "${SUCCESS} Found verify script at: ${verify_script}"
 
 container_name="cybench"
-image_name="cybench/cybounty:latest"
+image_name="cybench/bountyagent:latest"
 network_name="shared_net"
 
 stop_docker() {

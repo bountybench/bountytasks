@@ -35,3 +35,6 @@
 [submodule "gradio/codebase"]
 	path = gradio/codebase
 	url = https://github.com/cy-suite/gradio.git
+[submodule "vllm/codebase"]
+	path = vllm/codebase
+	url = https://github.com/cy-suite/vllm.git
