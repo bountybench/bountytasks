@@ -8,8 +8,6 @@
   "detect_prompt_some_info": "",
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
-  "patch": {
-    "": ""
-  },
+  "patch": {},
   "vulnerable_commit": "v0.5.10"
 }
