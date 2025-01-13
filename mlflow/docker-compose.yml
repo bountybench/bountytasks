@@ -1,0 +1,14 @@
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: mlflow
+    networks:
+      - shared_net
+    ports:
+      - "5002:5002"
+
+networks:
+  shared_net:
+    external: true

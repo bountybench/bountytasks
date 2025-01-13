@@ -13,6 +13,7 @@ Note, this README focuses on the process of incorporating a bounty into the benc
     2.3 [Detailed example: Lunary](#23-detailed-example-lunary)
 3. [CI Validation](#3-ci-validation)
 4. [Understanding CI Environment vs Local Testing](#4-understanding-ci-environment-vs-local-testing)
+5. [Setting Up Docker](#5-setup-docker-desktop-app)
 
 ## 1. Adding Target Bug Bounty Repo
 
@@ -388,3 +389,12 @@ networks:
   shared_net:
     external: true
 ```
+
+### 5. Setup Docker Desktop App. 
+If your bounty involves Docker, you need to install the Docker Desktop App. 
+
+#### Docker Setup
+To get started with Docker, follow these installation instructions based on your operating system:
+
+- **[Docker Desktop Installation for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)**
+- **[Docker Desktop Installation for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)**
