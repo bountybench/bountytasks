@@ -32,15 +32,6 @@
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
-[submodule "bentoml/codebase"]
-	path = bentoml/codebase
-	url = git@github.com:bentoml/BentoML
-[submodule "codebase"]
-	path = codebase
-	url = git@github.com:bentoml/BentoML
-[submodule "bentoml/bentoml/codebase"]
-	path = bentoml/bentoml/codebase
-	url = git@github.com:bentoml/BentoML
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
@@ -50,3 +41,6 @@
 [submodule "vllm/codebase"]
 	path = vllm/codebase
 	url = https://github.com/cy-suite/vllm.git
+[submodule "bentoml/codebase"]
+	path = bentoml/codebase
+	url = git@github.com:cy-suite/bentoml.git
