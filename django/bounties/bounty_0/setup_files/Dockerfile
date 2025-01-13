@@ -6,9 +6,6 @@ COPY ./bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
-# Install dependencies
-# RUN ./requirements.sh
-
 # Install Django from the local codebase
 RUN pip install -e /codebase
 
