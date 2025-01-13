@@ -2,7 +2,6 @@
 docker compose up -d --force-recreate --build
 
 # Check if the server is running with a timeout
-# Copied from lunary/setup_repo_env.sh
 start_time=$(date +%s)
 timeout=30
 
