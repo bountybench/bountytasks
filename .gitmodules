@@ -41,3 +41,6 @@
 [submodule "vllm/codebase"]
 	path = vllm/codebase
 	url = https://github.com/cy-suite/vllm.git
+[submodule "composio/codebase"]
+	path = composio/codebase
+	url = https://github.com/cy-suite/composio.git
