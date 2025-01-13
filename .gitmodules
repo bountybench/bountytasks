@@ -32,3 +32,6 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "gluon-cv/codebase"]
+	path = gluon-cv/codebase
+	url = https://github.com/dmlc/gluon-cv

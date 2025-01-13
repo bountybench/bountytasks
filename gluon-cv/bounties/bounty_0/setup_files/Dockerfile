@@ -1,6 +1,11 @@
 # Choose a base image with Python
 FROM python:3.9-slim
 
+# RUN pip install gluoncv
+COPY ./codebase /codebase
+
+COPY ./bounties/bounty_0/setup_files /app
+
 # Set working directory
 WORKDIR /app
 
@@ -10,15 +15,9 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 
 RUN pip install --upgrade pip
 RUN pip install "numpy<2"
-RUN pip install torch==1.7.1+cpu torchvision==0.8.2+cpu -f https://download.pytorch.org/whl/torch_stable.html
-RUN pip install gluoncv
-# COPY ../../../codebase /codebase
-# RUN pip install -e /codebase
+RUN pip install torch==1.7.1 torchvision==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
-# Copy Python scripts into the container
-COPY hacked .
-COPY create_hacked_tar.py .
-COPY victim_test.py .
+RUN pip install -e /codebase
 RUN python create_hacked_tar.py
 
 # Expose the port 8000

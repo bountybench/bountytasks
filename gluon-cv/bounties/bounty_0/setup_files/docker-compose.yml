@@ -3,8 +3,8 @@ version: '3.8'
 services:
   server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     container_name: server
     ports:
       - "8000:8000"
