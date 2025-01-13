@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)https://www.djangoproject.com/weblog/2024/aug/06/security-releases/ -->
+<html lang="en" data-theme="auto"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="ROBOTS" content="ALL">
+    <meta name="MSSmartTagsPreventParsing" content="true">
+    <meta name="Copyright" content="Django Software Foundation">
+    <meta name="keywords" content="Python, Django, framework, open-source">
+    <meta name="description" content="">
+
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" href="https://static.djangoproject.com/img/icon-touch.e4872c4da341.png">
+    <link rel="icon" sizes="192x192" href="https://static.djangoproject.com/img/icon-touch.e4872c4da341.png">
+    <link rel="shortcut icon" href="https://static.djangoproject.com/img/favicon.6dbf28c0650e.ico">
+    <meta name="msapplication-TileColor" content="#113228">
+    <meta name="msapplication-TileImage" content="https://static.djangoproject.com/img/icon-tile.b01ac0ef9f67.png">
+    <meta name="theme-color" content="#0C4B33">
+
+    
+      <meta property="og:title" content="Django security releases issued: 5.0.8 and 4.2.15">
+      <meta property="og:description" content="Posted by Sarah Boyce on Aug. 6, 2024">
+      <meta property="og:image" content="https://static.djangoproject.com/img/logos/django-logo-negative.1d528e2cb5fb.png">
+      <meta property="og:image:alt" content="Django logo">
+      <meta property="og:image:width" content="1200">
+      <meta property="og:image:height" content="546">
+      <meta property="og:image:type" content="image/png">
+      <meta property="og:url" content="https://www.djangoproject.com/weblog/2024/aug/06/security-releases/">
+      <meta property="og:site_name" content="Django Project">
+
+      <meta property="twitter:creator" content="djangoproject">
+      <meta property="twitter:site" content="djangoproject">
+      <meta property="twitter:card" content="summary">
+    
+
+    <title>Django security releases issued: 5.0.8 and 4.2.15 | Weblog | Django</title>
+
+    <link href="https://static.djangoproject.com/fonts/FiraMono-Regular.690950e8d89c.woff" as="font" type="font/woff" crossorigin="anonymous">
+    <link href="https://static.djangoproject.com/fonts/FiraMono-Bold.b6ef510e2306.woff" as="font" type="font/woff" crossorigin="anonymous">
+
+    <link href="https://static.djangoproject.com/fonts/fontawesome-webfont.d95d6f5d5ab7.woff" as="font" type="font/woff" crossorigin="anonymous">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/css2" rel="stylesheet">
+
+    <link rel="stylesheet" href="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/output.9b26b1261cc0.css">
+
+    <script src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/switch-dark-mode.bd4be131d69b.js"></script>
+    
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="https://www.djangoproject.com/rss/weblog/">
+
+  <script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="main.a635e89e17f3" src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/main.a635e89e17f3.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="mod/mobile-menu" src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/mobile-menu.de89f4e5565a.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="mod/list-collapsing" src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/list-collapsing.2d844151b2ec.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="jquery" src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/jquery.min.5790ead7ad3b.js"></script></head>
+
+  <body id="generic" class="vsc-initialized">
+
+    <div role="banner" id="top">
+  <div class="container container--flex--wrap--mobile">
+    <a class="logo" href="https://www.djangoproject.com/">Django</a>
+    <p class="meta">The web framework for perfectionists with deadlines.</p>
+    <div class="mobile-toggle">
+      
+
+<button class="theme-toggle">
+  <div class="visually-hidden theme-label-when-auto">Toggle theme (current theme: auto)</div>
+  <div class="visually-hidden theme-label-when-light">Toggle theme (current theme: light)</div>
+  <div class="visually-hidden theme-label-when-dark">Toggle theme (current theme: dark)</div>
+
+  <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+  <svg aria-hidden="true" class="theme-icon-when-auto">
+    <use xlink:href="#icon-auto"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-dark">
+    <use xlink:href="#icon-moon"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-light">
+    <use xlink:href="#icon-sun"></use>
+  </svg>
+</button>
+
+    </div>
+    <button class="menu-button">
+      <i class="icon icon-reorder"></i>
+      <span class="visuallyhidden">Menu</span>
+    </button>
+    <div role="navigation">
+      <ul>
+        <li>
+          <a href="https://www.djangoproject.com/start/overview/">Overview</a>
+        </li>
+        <li>
+          <a href="https://www.djangoproject.com/download/">Download</a>
+        </li>
+        <li>
+          <a href="https://docs.djangoproject.com/">Documentation</a>
+        </li>
+        <li class="active">
+          <a href="https://www.djangoproject.com/weblog/">News</a>
+        </li>
+        <li>
+          <a href="https://www.djangoproject.com/community/">Community</a>
+        </li>
+        <li>
+          <a href="https://github.com/django/django" target="_blank" rel="noopener">Code</a>
+        </li>
+        <li>
+          <a href="https://code.djangoproject.com/">Issues</a>
+        </li>
+        <li>
+          <a href="https://www.djangoproject.com/foundation/">About</a>
+        </li>
+        <li>
+          <a href="https://www.djangoproject.com/fundraising/">♥ Donate</a>
+        </li>
+        <li>
+          
+
+<button class="theme-toggle">
+  <div class="visually-hidden theme-label-when-auto">Toggle theme (current theme: auto)</div>
+  <div class="visually-hidden theme-label-when-light">Toggle theme (current theme: light)</div>
+  <div class="visually-hidden theme-label-when-dark">Toggle theme (current theme: dark)</div>
+
+  <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+  <svg aria-hidden="true" class="theme-icon-when-auto">
+    <use xlink:href="#icon-auto"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-dark">
+    <use xlink:href="#icon-moon"></use>
+  </svg>
+  <svg aria-hidden="true" class="theme-icon-when-light">
+    <use xlink:href="#icon-sun"></use>
+  </svg>
+</button>
+
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+    <div class="copy-banner">
+      <div class="container ">
+        
+  <h1><a href="https://www.djangoproject.com/weblog/">News &amp; Events</a></h1>
+
+      </div>
+    </div>
+
+    
+
+    <div id="billboard">
+      
+        <div class="banner">
+          <p>
+            Please take a few minutes to complete the
+            <a href="https://jb.gg/asjljo">2024 Django Developers Survey</a>.<br>
+            Your feedback will help guide future efforts.
+          </p>
+        </div>
+      
+    </div>
+
+    <div class="container sidebar-right">
+      <div role="main">
+
+        
+          
+        
+
+        
+    <h2>Django security releases issued: 5.0.8 and 4.2.15</h2>
+
+    <span class="meta">Posted by <strong>Sarah Boyce</strong> on Aug. 6, 2024 </span>
+        <p>In accordance with <a class="reference external" href="https://docs.djangoproject.com/en/dev/internals/security/">our security release policy</a>, the Django team
+is issuing releases for
+<a class="reference external" href="https://docs.djangoproject.com/en/dev/releases/5.0.8/">Django 5.0.8</a> and
+<a class="reference external" href="https://docs.djangoproject.com/en/dev/releases/4.2.15/">Django 4.2.15</a>.
+These releases address the security issues detailed below. We encourage all
+users of Django to upgrade as soon as possible.</p>
+<div class="section" id="s-cve-2024-41989-memory-exhaustion-in-django-utils-numberformat-floatformat">
+<h3>CVE-2024-41989: Memory exhaustion in <tt class="docutils literal">django.utils.numberformat.floatformat()</tt></h3>
+<p>The <tt class="docutils literal">floatformat</tt> template filter is subject to significant memory consumption
+when given a string representation of a number in scientific notation with a
+large exponent.</p>
+<p>Thanks to Elias Myllymäki for the report.</p>
+<p>This issue has severity "moderate" according to the Django security policy.</p>
+</div>
+<div class="section" id="s-cve-2024-41990-potential-denial-of-service-in-django-utils-html-urlize">
+<h3>CVE-2024-41990: Potential denial-of-service in <tt class="docutils literal">django.utils.html.urlize()</tt></h3>
+<p>The <tt class="docutils literal">urlize()</tt> and <tt class="docutils literal">urlizetrunc()</tt> template filters are subject to a potential
+denial-of-service attack via very large inputs with a specific sequence of
+characters.</p>
+<p>Thanks to <a class="reference external" href="https://hackerone.com/mprogrammer">MProgrammer</a> for the report.</p>
+<p>This issue has severity "moderate" according to the Django security policy.</p>
+</div>
+<div class="section" id="s-cve-2024-41991-potential-denial-of-service-vulnerability-in-django-utils-html-urlize-and-adminurlfieldwidget">
+<h3>CVE-2024-41991: Potential denial-of-service vulnerability in <tt class="docutils literal">django.utils.html.urlize()</tt> and <tt class="docutils literal">AdminURLFieldWidget</tt></h3>
+<p>The <tt class="docutils literal">urlize</tt> and <tt class="docutils literal">urlizetrunc</tt> template filters, and the <tt class="docutils literal">AdminURLFieldWidget</tt>
+widget, are subject to a potential denial-of-service attack via certain inputs
+with a very large number of Unicode characters.</p>
+<p>Thanks to Seokchan Yoon for the report.</p>
+<p>This issue has severity "moderate" according to the Django security policy.</p>
+</div>
+<div class="section" id="s-cve-2024-42005-potential-sql-injection-in-queryset-values-and-values-list">
+<h3>CVE-2024-42005: Potential SQL injection in <tt class="docutils literal">QuerySet.values()</tt> and <tt class="docutils literal">values_list()</tt></h3>
+<p><tt class="docutils literal">QuerySet.values()</tt> and <tt class="docutils literal">values_list()</tt> methods on models with a <tt class="docutils literal">JSONField</tt> are
+subject to SQL injection in column aliases via a crafted JSON object key as a
+passed <tt class="docutils literal">*arg</tt>.</p>
+<p>Thanks to Eyal Gabay of EyalSec for the report.</p>
+<p>This issue has severity "high" according to the Django security policy.</p>
+</div>
+<div class="section" id="s-affected-supported-versions">
+<h3>Affected supported versions</h3>
+<ul class="simple">
+<li>Django main branch</li>
+<li>Django 5.1 (currently at release candidate status)</li>
+<li>Django 5.0</li>
+<li>Django 4.2</li>
+</ul>
+</div>
+<div class="section" id="s-resolution">
+<h3>Resolution</h3>
+<p>Patches to resolve the issue have been applied to Django's
+main, 5.1, 5.0, and 4.2 branches.
+The patches may be obtained from the following changesets.</p>
+<div class="section" id="s-id1">
+<h4>CVE-2024-41989: Memory exhaustion in <tt class="docutils literal">django.utils.numberformat.floatformat()</tt></h4>
+<ul class="simple">
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/c19465ad87e33b6122c886b97a202ad54cd43672/">main branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/0504af64292071e1a9565193ea8265c60600f7d7/">5.1 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/27900fe56f3d3cabb4aeb6ccb82f92bab29073a8/">5.0 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/fc76660f589ac07e45e9cd34ccb8087aeb11904b/">4.2 branch</a></li>
+</ul>
+</div>
+<div class="section" id="s-id2">
+<h4>CVE-2024-41990: Potential denial-of-service in <tt class="docutils literal">django.utils.html.urlize()</tt></h4>
+<ul class="simple">
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/ecf1f8fb900f94de08c945164633e9a28a2edadb/">main branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/0c1a8909164d8f2846322efb1143b72ad1616bd8/">5.1 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/7b7b909579c8311c140c89b8a9431bf537febf93/">5.0 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/d0a82e26a74940bf0c78204933c3bdd6a283eb88/">4.2 branch</a></li>
+</ul>
+</div>
+<div class="section" id="s-id3">
+<h4>CVE-2024-41991: Potential denial-of-service vulnerability in <tt class="docutils literal">django.utils.html.urlize()</tt> and <tt class="docutils literal">AdminURLFieldWidget</tt></h4>
+<ul class="simple">
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/5f1757142febd95994caa1c0f64c1a0c161982c3/">main branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/bd807c0c25ab69361a4c08edcc1cf04d4652aa0a/">5.1 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/523da8771bce321023f490f70d71a9e973ddc927/">5.0 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/efea1ef7e2190e3f77ca0651b5458297bc0f6a9f/">4.2 branch</a></li>
+</ul>
+</div>
+<div class="section" id="s-id4">
+<h4>CVE-2024-42005: Potential SQL injection in <tt class="docutils literal">QuerySet.values()</tt> and <tt class="docutils literal">values_list()</tt></h4>
+<ul class="simple">
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/c87bfaacf8fb84984243b5055dc70f97996cb115/">main branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/e2583fbc2ebffce11b4444a7cec6336513e81f8b/">5.1 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/32ebcbf2e1fe3e5ba79a6554a167efce81f7422d/">5.0 branch</a></li>
+<li>On the <a class="reference external" href="https://github.com/django/django/commit/f4af67b9b41e0f4c117a8741da3abbd1c869ab28/">4.2 branch</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="s-the-following-releases-have-been-issued">
+<h3>The following releases have been issued</h3>
+<ul class="simple">
+<li>Django 5.0.8 (<a class="reference external" href="https://www.djangoproject.com/m/releases/5.0/Django-5.0.8.tar.gz">download Django 5.0.8</a> |
+<a class="reference external" href="https://www.djangoproject.com/m/pgp/Django-5.0.8.checksum.txt">5.0.8 checksums</a>)</li>
+<li>Django 4.2.15 (<a class="reference external" href="https://www.djangoproject.com/m/releases/4.2/Django-4.2.15.tar.gz">download Django 4.2.15</a> |
+<a class="reference external" href="https://www.djangoproject.com/m/pgp/Django-4.2.15.checksum.txt">4.2.15 checksums</a>)</li>
+</ul>
+<p>The PGP key ID used for this release is Sarah Boyce: <a class="reference external" href="https://github.com/sarahboyce.gpg">3955B19851EA96EF</a></p>
+</div>
+<div class="section" id="s-general-notes-regarding-security-reporting">
+<h3>General notes regarding security reporting</h3>
+<p>As always, we ask that potential security issues be reported via private email
+to <tt class="docutils literal">security@djangoproject.com</tt>, and not via Django's Trac instance, nor via
+the Django Forum, nor via the django-developers list. Please see <a class="reference external" href="https://www.djangoproject.com/security/">our security
+policies</a> for further information.</p>
+</div>
+
+
+        <a href="https://www.djangoproject.com/weblog/2024/aug/06/security-releases/#top" class="backtotop"><i class="icon icon-chevron-up"></i> Back to Top</a>
+      </div>
+
+      
+  <h1 class="visuallyhidden">Additional Information</h1>
+  <div role="complementary">
+    
+
+
+  <div class="fundraising-sidebar">
+    <h2>Support Django!</h2>
+
+    <div class="small-heart">
+      <img src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/fundraising-heart.cd6bb84ffd33.svg" alt="Support Django!">
+    </div>
+
+    <div class="small-cta">
+      <ul class="list-links-small">
+        <li><a href="https://www.djangoproject.com/fundraising/">
+          Laďa Tesařík donated to the Django Software Foundation to support Django development. Donate today!
+        </a></li>
+      </ul>
+    </div>
+  </div>
+
+
+
+    
+      <h2>Upcoming Events</h2>
+      <ul class="list-events">
+        
+          <li>
+            <a href="https://djangocongress.jp/" target="_blank">DjangoCongress JP 2025</a>
+            <span class="meta"><span>Feb. 22, 2025</span>  |  Online - オンライン</span>
+            <i class="icon icon-calendar"></i>
+          </li>
+        
+          <li>
+            <a href="https://2025.djangocon.eu/" target="_blank">DjangoCon Europe 2025</a>
+            <span class="meta"><span>April 23, 2025</span>  |  Dublin, Ireland 🇮🇪</span>
+            <i class="icon icon-calendar"></i>
+          </li>
+        
+          <li>
+            <a href="https://www.defna.org/announcements/2024/12/31/djangoconus-2025-announced/" target="_blank">DjangoCon US 2025</a>
+            <span class="meta"><span>Sept. 8, 2025</span>  |  Chicago, Illinois, USA 🇺🇸</span>
+            <i class="icon icon-calendar"></i>
+          </li>
+        
+      </ul>
+    
+    <p><a href="https://www.djangoproject.com/foundation/conferences/">Want your event listed here?</a></p>
+
+    
+
+    <h2><span>Archives</span></h2>
+    
+
+
+<span class="form-controls label"><span class="expandall">Expand All</span> / <span class="collapseall">Collapse All</span></span><ul class="list-collapsing active">
+  
+    <li id="year2025" class="active">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2025/">2025</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2025/jan/">January 2025</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2024">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2024/">2024</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/dec/">December 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/nov/">November 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/oct/">October 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/sep/">September 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/aug/">August 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/jul/">July 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/jun/">June 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/may/">May 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/apr/">April 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/mar/">March 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/feb/">February 2024</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2024/jan/">January 2024</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2023">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2023/">2023</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/dec/">December 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/nov/">November 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/oct/">October 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/sep/">September 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/aug/">August 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/jul/">July 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/jun/">June 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/may/">May 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/apr/">April 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/mar/">March 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/feb/">February 2023</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2023/jan/">January 2023</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2022">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2022/">2022</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/dec/">December 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/nov/">November 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/oct/">October 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/sep/">September 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/aug/">August 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/jul/">July 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/jun/">June 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/may/">May 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/apr/">April 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/mar/">March 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/feb/">February 2022</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2022/jan/">January 2022</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2021">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2021/">2021</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/dec/">December 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/nov/">November 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/oct/">October 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/sep/">September 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/aug/">August 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/jul/">July 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/jun/">June 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/may/">May 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/apr/">April 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/mar/">March 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/feb/">February 2021</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2021/jan/">January 2021</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2020">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2020/">2020</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/dec/">December 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/nov/">November 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/oct/">October 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/sep/">September 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/aug/">August 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/jul/">July 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/jun/">June 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/may/">May 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/apr/">April 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/mar/">March 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/feb/">February 2020</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2020/jan/">January 2020</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2019">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2019/">2019</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/dec/">December 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/nov/">November 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/oct/">October 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/sep/">September 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/aug/">August 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/jul/">July 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/jun/">June 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/may/">May 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/apr/">April 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/mar/">March 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/feb/">February 2019</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2019/jan/">January 2019</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2018">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2018/">2018</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/dec/">December 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/nov/">November 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/oct/">October 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/aug/">August 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/jul/">July 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/jun/">June 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/may/">May 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/apr/">April 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/mar/">March 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/feb/">February 2018</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2018/jan/">January 2018</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2017">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2017/">2017</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/dec/">December 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/nov/">November 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/oct/">October 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/sep/">September 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/aug/">August 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/jul/">July 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/jun/">June 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/may/">May 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/apr/">April 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/mar/">March 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/feb/">February 2017</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2017/jan/">January 2017</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2016">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2016/">2016</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/dec/">December 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/nov/">November 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/oct/">October 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/sep/">September 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/aug/">August 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/jul/">July 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/jun/">June 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/may/">May 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/apr/">April 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/mar/">March 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/feb/">February 2016</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2016/jan/">January 2016</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2015">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2015/">2015</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/dec/">December 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/nov/">November 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/oct/">October 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/sep/">September 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/aug/">August 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/jul/">July 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/jun/">June 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/may/">May 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/apr/">April 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/mar/">March 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/feb/">February 2015</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2015/jan/">January 2015</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2014">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2014/">2014</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/dec/">December 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/nov/">November 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/oct/">October 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/sep/">September 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/aug/">August 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/jul/">July 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/jun/">June 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/may/">May 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/apr/">April 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/mar/">March 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/feb/">February 2014</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2014/jan/">January 2014</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2013">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2013/">2013</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/dec/">December 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/nov/">November 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/oct/">October 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/sep/">September 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/aug/">August 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/jul/">July 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/jun/">June 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/may/">May 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/apr/">April 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/mar/">March 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/feb/">February 2013</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2013/jan/">January 2013</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2012">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2012/">2012</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/dec/">December 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/nov/">November 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/oct/">October 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/sep/">September 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/aug/">August 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/jul/">July 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/jun/">June 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/may/">May 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/apr/">April 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/mar/">March 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/feb/">February 2012</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2012/jan/">January 2012</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2011">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2011/">2011</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/dec/">December 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/nov/">November 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/sep/">September 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/aug/">August 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/jun/">June 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/apr/">April 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/mar/">March 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/feb/">February 2011</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2011/jan/">January 2011</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2010">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2010/">2010</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/dec/">December 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/nov/">November 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/oct/">October 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/sep/">September 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/may/">May 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/apr/">April 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/mar/">March 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/feb/">February 2010</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2010/jan/">January 2010</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2009">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2009/">2009</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/dec/">December 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/oct/">October 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/aug/">August 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/jul/">July 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/may/">May 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/mar/">March 2009</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2009/feb/">February 2009</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2008">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2008/">2008</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/nov/">November 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/oct/">October 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/sep/">September 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/aug/">August 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/jul/">July 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/jun/">June 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/may/">May 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/apr/">April 2008</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2008/jan/">January 2008</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2007">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2007/">2007</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/dec/">December 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/nov/">November 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/oct/">October 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/sep/">September 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/aug/">August 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/jul/">July 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/jun/">June 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/may/">May 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/apr/">April 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/mar/">March 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/feb/">February 2007</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2007/jan/">January 2007</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2006">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2006/">2006</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/dec/">December 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/nov/">November 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/oct/">October 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/sep/">September 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/aug/">August 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/jul/">July 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/jun/">June 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/may/">May 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/apr/">April 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/mar/">March 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/feb/">February 2006</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2006/jan/">January 2006</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+    <li id="year2005">
+      <h2 tabindex="0"><a href="https://www.djangoproject.com/weblog/2005/">2005</a> <i class="collapsing-icon icon icon-plus"></i> <i class="collapsing-icon icon icon-plus"></i></h2>
+      <div class="collapsing-content">
+        <ul class="list-links-small">
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/dec/">December 2005</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/nov/">November 2005</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/oct/">October 2005</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/sep/">September 2005</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/aug/">August 2005</a></li>
+          
+            <li><a href="https://www.djangoproject.com/weblog/2005/jul/">July 2005</a></li>
+          
+        </ul>
+        <p></p>
+      </div>
+    </li>
+  
+</ul>
+
+
+    <h2><span>RSS Feeds</span></h2>
+    <ul class="list-links-small rss-list">
+      <li><a href="https://www.djangoproject.com/rss/weblog/">Latest news entries</a></li>
+      <li><a href="https://code.djangoproject.com/timeline?daysback=90&amp;max=50&amp;wiki=on&amp;ticket=on&amp;changeset=on&amp;milestone=on&amp;format=rss">Recent code changes</a></li>
+    </ul>
+  </div>
+
+      
+
+    </div>
+
+     
+     
+
+    
+    
+    
+
+    <!-- SVGs -->
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <symbol viewBox="0 0 24 24" id="icon-auto"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2V4a8 8 0 1 0 0 16z"></path></symbol>
+      <symbol viewBox="0 0 24 24" id="icon-moon"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M10 7a7 7 0 0 0 12 4.9v.1c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2h.1A6.979 6.979 0 0 0 10 7zm-6 5a8 8 0 0 0 15.062 3.762A9 9 0 0 1 8.238 4.938 7.999 7.999 0 0 0 4 12z"></path></symbol>
+      <symbol viewBox="0 0 24 24" id="icon-sun"><path d="M0 0h24v24H0z" fill="currentColor"></path><path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"></path></symbol>
+    </svg>
+    <!-- END SVGs -->
+
+    
+      <div role="contentinfo">
+  <div class="subfooter">
+    <div class="container">
+      <h1 class="visuallyhidden">Django Links</h1>
+      <div class="column-container">
+        <div class="col-learn-more">
+          <h2>Learn More</h2>
+          <ul>
+            <li><a href="https://www.djangoproject.com/start/overview/">About Django</a></li>
+            
+            <li><a href="https://www.djangoproject.com/start/">Getting Started with Django</a></li>
+            <li><a href="https://docs.djangoproject.com/en/dev/internals/organization/">Team
+              Organization</a></li>
+            <li><a href="https://www.djangoproject.com/foundation/">Django Software Foundation</a></li>
+            <li><a href="https://www.djangoproject.com/conduct/">Code of Conduct</a></li>
+            <li><a href="https://www.djangoproject.com/diversity/">Diversity Statement</a></li>
+          </ul>
+        </div>
+
+        <div class="col-get-involved">
+          <h2>Get Involved</h2>
+          <ul>
+            <li><a href="https://www.djangoproject.com/community/">Join a Group</a></li>
+            <li><a href="https://docs.djangoproject.com/en/dev/internals/contributing/">Contribute
+              to Django</a></li>
+            <li><a href="https://docs.djangoproject.com/en/dev/internals/contributing/bugs-and-features/">Submit
+              a Bug</a></li>
+            <li><a href="https://docs.djangoproject.com/en/dev/internals/security/#reporting-security-issues">Report
+              a Security Issue</a></li>
+            <li><a href="https://www.djangoproject.com/foundation/individual-members/">Individual membership</a></li>
+          </ul>
+        </div>
+
+        <div class="col-get-help">
+          <h2>Get Help</h2>
+          <ul>
+            <li><a href="https://docs.djangoproject.com/en/stable/faq/">Getting Help FAQ</a>
+            </li>
+            <li><a href="irc://irc.libera.chat/django">#django IRC channel</a></li>
+            <li><a href="https://discord.gg/xcRH6mN4fa" target="_blank">Django Discord</a></li>
+            <li><a href="https://forum.djangoproject.com/" target="_blank">Official Django Forum</a></li>
+          </ul>
+        </div>
+
+        <div class="col-follow-us">
+          <h2>Follow Us</h2>
+          <ul>
+            <li><a href="https://github.com/django">GitHub</a></li>
+            <li><a href="https://twitter.com/djangoproject">Twitter</a></li>
+            <li><a href="https://fosstodon.org/@django" rel="me">Fediverse (Mastodon)</a></li>
+            <li><a href="https://www.djangoproject.com/rss/weblog/">News RSS</a></li>
+          </ul>
+        </div>
+
+        <div class="col-support-us">
+          <h2>Support Us</h2>
+          <ul>
+            <li><a href="https://www.djangoproject.com/fundraising/">Sponsor Django</a></li>
+            <li><a href="https://www.djangoproject.com/foundation/corporate-membership/">Corporate membership</a></li>
+            <li><a href="https://django.threadless.com/" target="_blank">Official merchandise store</a></li>
+            <li><a href="https://www.djangoproject.com/foundation/donate/#benevity-giving">Benevity Workplace Giving Program</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="container">
+      <div class="footer-logo">
+        <a class="logo" href="https://www.djangoproject.com/">Django</a>
+      </div>
+      <ul class="thanks">
+        <li>
+          <span>Hosting by</span> <a class="in-kind-donors" href="https://www.djangoproject.com/fundraising/#in-kind-donors">In-kind
+            donors</a>
+        </li>
+        <li class="design"><span>Design by</span> <a class="threespot" href="https://www.threespot.com/">Threespot</a>
+          <span class="ampersand">&amp;</span> <a class="andrevv" href="http://andrevv.com/">andrevv</a></li>
+      </ul>
+      <p class="copyright">© 2005-2025
+        <a href="https://www.djangoproject.com/foundation/"> Django Software
+          Foundation</a> and individual contributors. Django is a
+        <a href="https://www.djangoproject.com/trademarks/">registered
+          trademark</a> of the Django Software Foundation.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+    
+
+    
+    <script>
+      function extless(input) {
+        return input.replace(/(.*)\.[^.]+$/, '$1');
+      }
+      var require = {
+        shim: {
+          'jquery': [],
+          'jquery.flot': ["jquery"],
+          'stripe': {
+            exports: 'Stripe'
+          }
+        },
+        paths: {
+          "jquery": extless("https://static.djangoproject.com/js/lib/jquery.min.5790ead7ad3b.js"),
+          "jquery.flot": extless("https://static.djangoproject.com/js/lib/jquery.flot.min.9964206e9d7f.js"),
+          "mod/floating-warning": extless("https://static.djangoproject.com/js/mod/floating-warning.582d02dcf0d7.js"),
+          "mod/list-collapsing": extless("https://static.djangoproject.com/js/mod/list-collapsing.2d844151b2ec.js"),
+          "mod/list-feature": extless("https://static.djangoproject.com/js/mod/list-feature.e60c144f4cd1.js"),
+          "mod/mobile-menu": extless("https://static.djangoproject.com/js/mod/mobile-menu.de89f4e5565a.js"),
+          "mod/search-key": extless("https://static.djangoproject.com/js/mod/search-key.313dfd2cafb2.js"),
+          "mod/stripe-change-card": extless("https://static.djangoproject.com/js/mod/stripe-change-card.eaa0afc324e9.js"),
+          "mod/switch-dark-mode": extless("https://static.djangoproject.com/js/mod/switch-dark-mode.bd4be131d69b.js"),
+          "mod/console-tabs": extless("https://static.djangoproject.com/js/mod/console-tabs.2382c21edf12.js"),
+          "stripe-checkout": "https://checkout.stripe.com/checkout",
+          "stripe": "https://js.stripe.com/v3/?" // ? needed due to require.js
+        }
+      };
+    </script>
+    <script data-main="https://static.djangoproject.com/js/main.a635e89e17f3.js" src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/require.177879fbe7dd.js"></script>
+    <script src="./Django security releases issued_ 5.0.8 and 4.2.15 _ Weblog _ Django_files/djangoproject.c9b4f44eaa24.js"></script>
+    
+  
+
+</body></html>
