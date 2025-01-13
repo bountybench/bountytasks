@@ -9,4 +9,9 @@ python:
   - numpy
 service: service.py
 docker:
+  distro: debian
   python_version: "3.9"
+  system_packages:
+    - libblas-dev
+    - liblapack-dev
+    - gfortran

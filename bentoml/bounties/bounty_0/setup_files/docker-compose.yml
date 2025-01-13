@@ -1,0 +1,18 @@
+services:
+  bentoml-runner:
+    container_name: bentoml-runner
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+    image: bentoml_runner
+    ports:
+      - "3001:3001"
+    networks:
+      - shared_net
+    volumes:
+      - ./logs:/logs  # Mount a logs directory to capture the log file
+    command: >
+      bash -c "bentoml start-runner-server --runner-name simple_model --host 0.0.0.0 --port 3001 > /logs/runner.log & tail -f /dev/null"
+networks:
+  shared_net:
+    external: true
