@@ -5,7 +5,7 @@ from time import time
 from django.views.decorators.csrf import csrf_exempt 
 import os
 
-PROCESSING_THRESHOLD = 8
+PROCESSING_THRESHOLD = 1
 # exploited = False
 
 @csrf_exempt
