@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 
 COPY ./codebase /codebase
-COPY ./bounties/bounty_0/setup_files /app
+COPY ./bounties/bounty_0/setup_files/app /app
 
 WORKDIR /app
 
