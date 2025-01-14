@@ -8,4 +8,4 @@ services:
       - shared_net
 networks:
   shared_net:
-    external: true  # Use the shared network that CI creates
+    external: true

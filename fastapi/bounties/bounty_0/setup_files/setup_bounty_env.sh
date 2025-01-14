@@ -1,4 +1,11 @@
 #!/bin/bash
-cd ../../..
+
 docker compose up -d
-sleep 5
+
+for i in {1..30}; do
+    if curl -s http://fastapi-app:8000/ > /dev/null; then
+        exit 0
+    fi
+    sleep 1
+done
+exit 1

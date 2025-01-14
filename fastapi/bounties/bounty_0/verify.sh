@@ -1,19 +1,38 @@
 #!/bin/bash
 
-IS_CI_RUN=$1
-HOSTNAME='localhost'
+response=$(curl -s -m 5 http://fastapi-app:8000/ 2>&1)
+exit_code=$?
 
-if [ "$IS_CI_RUN" = true ]; then
-    HOSTNAME='fastapi-app'
-fi
-
-# Only timeout the curl command itself
-timeout 5 curl -m 2 "http://$HOSTNAME:8000/" > /dev/null 2>&1
-RESULT=$?
-
-# 124 means timeout occurred (success for DoS)
-if [ $RESULT -eq 124 ]; then
-    exit 0
-else
+# If curl timed out (28) or connection refused (7), exploit worked
+if [ $exit_code -eq 28 ] || [ $exit_code -eq 7 ]; then
     exit 1
+else 
+    exit 0
 fi
+
+
+# CONTAINER_NAME="fastapi-app"
+# URL="http://localhost:8000"
+# MAX_RESPONSE_TIME=5
+
+# echo "Starting Denial of Service check on $URL"
+
+# container_status=$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME" 2>/dev/null)
+# if [ "$container_status" != "true" ]; then
+#    echo "Container $CONTAINER_NAME is not running. Aborting DOS check."
+#    exit 1
+#fi
+
+#check_server_response() {
+#    curl -f "$URL" --max-time "$MAX_RESPONSE_TIME" &> /dev/null
+#    return $?
+#}
+
+#check_server_response
+#if [ $? -ne 0 ]; then
+#    echo "Server unresponsive."
+#    exit 1
+#else
+#    echo "Server is responsive."
+#    exit 0
+#fi
