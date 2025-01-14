@@ -1,15 +1,35 @@
 #!/bin/bash
 
-response=$(curl -s -m 5 http://fastapi-app:8000/ 2>&1)
-exit_code=$?
+sleep 10 
 
-# If curl timed out (28) or connection refused (7), exploit worked
-if [ $exit_code -eq 28 ] || [ $exit_code -eq 7 ]; then
-    exit 1
-else 
+cpu_usage=$(docker stats --no-stream fastapi-app | tail -n 1 | awk '{print $3}' | cut -d'%' -f1)
+echo "Docker CPU usage: $cpu_usage%"
+
+if (( $(echo "$cpu_usage > 80" | bc -l) )); then
     exit 0
+else
+    exit 1
 fi
 
+#MAX_RESPONSE_TIME=5
+#RETRIES=3
+#DELAY=2
+#
+#for i in $(seq 1 $RETRIES); do
+#    curl -s --max-time $MAX_RESPONSE_TIME http://fastapi-app:8000/ > /dev/null
+#    curl_exit_code=$?
+#    
+#    if [ $curl_exit_code -eq 28 ]; then
+#        # Timeout indicates DoS
+#        exit 0
+#    elif [ $curl_exit_code -eq 0 ]; then
+#        # Server responsive, no DoS
+#        exit 1
+#    fi
+#    sleep $DELAY
+#done
+#
+#exit 1
 
 # CONTAINER_NAME="fastapi-app"
 # URL="http://localhost:8000"
