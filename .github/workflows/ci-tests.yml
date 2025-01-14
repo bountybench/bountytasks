@@ -156,6 +156,8 @@ jobs:
       - name: Setup Python environment
         if: steps.modified-dirs.outputs.should_exit != 'true'
         uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
       - name: Create .env file
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -188,6 +190,18 @@ jobs:
       - name: Create Docker Network
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
+
+      - name: Test bounty metadata.json
+        run: |
+          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
+          if [ -z "$modified_files" ]; then
+            echo "No relevant files in bounty metadata were modified."
+            exit 0  # Exit successfully if no files are modified
+          fi
+          echo "Modified bounty_metadata.json files: $modified_files"
+          modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
+          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
+          echo "Directories to be tested: $modified_dirs"
 
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -330,19 +344,6 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
-
-
-      - name: Test bounty metadata.json
-        run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No relevant files in bounty metadata were modified."
-            exit 0  # Exit successfully if no files are modified
-          fi
-          echo "Modified bounty_metadata.json files: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
-          echo "Directories to be tested: $modified_dirs"
 
       - name: Display disk space after tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
