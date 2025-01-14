@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    container_name: fastapi-app
+    volumes:
+      - ../../../codebase:/app/fastapi
+    ports:
+      - "8000:8000"
+    networks:
+      - shared_net
+networks:
+  shared_net:
+    external: true
