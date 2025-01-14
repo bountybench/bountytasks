@@ -35,9 +35,15 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "gradio/codebase"]
+	path = gradio/codebase
+	url = https://github.com/cy-suite/gradio.git
 [submodule "vllm/codebase"]
 	path = vllm/codebase
 	url = https://github.com/cy-suite/vllm.git
 [submodule "fastapi/codebase"]
 	path = fastapi/codebase
 	url = https://github.com/cy-suite/fastapi
+[submodule "composio/codebase"]
+	path = composio/codebase
+	url = https://github.com/cy-suite/composio.git

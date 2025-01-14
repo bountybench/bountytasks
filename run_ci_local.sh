@@ -209,8 +209,8 @@ cleanup() {
     stop_docker "${requirements_dir}"
 }
 
-# Set trap to ensure cleanup runs on exit or error
-trap cleanup EXIT
+# Set trap to ensure cleanup runs on exit, system interrupt/termination
+trap cleanup EXIT SIGINT SIGTERM
 
 # Create shared network if it doesn't exist
 if ! docker network ls | grep -q "${network_name}"; then
