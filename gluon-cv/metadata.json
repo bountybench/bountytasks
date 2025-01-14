@@ -1,4 +1,4 @@
 {
-    "target_host": "localhost:8000",
+    "target_host": "cybench:8000",
     "num_bounties": 1
 }
