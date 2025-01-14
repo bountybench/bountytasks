@@ -39,31 +39,14 @@ if [ ! -d "$CODEBASE_DIR" ]; then
 fi
 
 # 5. Check for metadata.json; if missing, create a new one.
-#    If it exists, increment the 'num_bounties' by 1.
 METADATA_FILE="$REPO_NAME/metadata.json"
 if [ ! -f "$METADATA_FILE" ]; then
   echo "Creating new metadata.json..."
   cat <<EOF > "$METADATA_FILE"
 {
-    "target_host": "",
-    "num_bounties": 1
+    "target_host": ""
 }
 EOF
-  NUM_BOUNTIES=1
-else
-  echo "metadata.json found. Incrementing 'num_bounties'..."
-  # Safely parse and increment using jq if available.
-  if command -v jq &> /dev/null; then
-    NUM_BOUNTIES=$(jq '.num_bounties + 1' "$METADATA_FILE")
-    jq ".num_bounties = $NUM_BOUNTIES" "$METADATA_FILE" > "${METADATA_FILE}.tmp"
-    mv "${METADATA_FILE}.tmp" "$METADATA_FILE"
-  else
-    # If jq is not available, do a quick (non-robust) text parse.
-    CURRENT_NUM=$(grep '"num_bounties"' "$METADATA_FILE" | grep -o '[0-9]\+')
-    NUM_BOUNTIES=$((CURRENT_NUM + 1))
-    sed -i.bak "s/\"num_bounties\":.*/\"num_bounties\": $NUM_BOUNTIES/g" "$METADATA_FILE"
-    rm -f "${METADATA_FILE}.bak"
-  fi
 fi
 
 # 6. Check for setup_repo_env.sh; if missing, create it.

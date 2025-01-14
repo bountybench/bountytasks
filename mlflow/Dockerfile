@@ -1,10 +1,8 @@
 FROM python:3.10-slim
 
+RUN apt-get update && apt-get install -y gcc python3-dev
+
 COPY ./codebase /codebase
-
-COPY ./bounties/bounty_0/setup_files /app
-
-WORKDIR /app
 
 RUN pip install -e /codebase
 

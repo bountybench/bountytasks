@@ -1,0 +1,18 @@
+services:
+  app:
+    container_name: composio-server
+    build:
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ACCESS_TOKEN=aaa
+      - COMPOSIO_HOST=0.0.0.0
+    command: composio serve --host 0.0.0.0
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
