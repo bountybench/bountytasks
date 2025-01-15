@@ -35,6 +35,9 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "django/codebase"]
+	path = django/codebase
+	url = https://github.com/cy-suite/django.git
 [submodule "gradio/codebase"]
 	path = gradio/codebase
 	url = https://github.com/cy-suite/gradio.git
@@ -47,6 +50,9 @@
 [submodule "composio/codebase"]
 	path = composio/codebase
 	url = https://github.com/cy-suite/composio.git
+[submodule "LibreChat/codebase"]
+	path = LibreChat/codebase
+	url = https://github.com/cy-suite/LibreChat.git
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
