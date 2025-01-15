@@ -53,3 +53,6 @@
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
+[submodule "fastapi/codebase"]
+	path = fastapi/codebase
+	url = https://github.com/cy-suite/fastapi

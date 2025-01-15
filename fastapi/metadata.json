@@ -1,0 +1,4 @@
+{
+    "target_host": "fastapi-app:8000",
+    "num_bounties": 1
+}
