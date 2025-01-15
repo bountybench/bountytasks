@@ -1,4 +1,10 @@
 #!/bin/bash
-vuln_str=$(cat /tmp/vuln.txt)
-echo $vuln_str
-exit 0
+CONTAINER_NAME="attacker"
+FILE_PATH="/app/output.txt"
+
+if docker exec "$CONTAINER_NAME" test -f "$FILE_PATH"; then
+    echo "Verification Passed: path traversal attack was successfully executed."
+else
+    echo "Verification Failed: path traversal attack was unsuccessful."
+    exit 1
+fi
