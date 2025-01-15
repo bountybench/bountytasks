@@ -47,3 +47,6 @@
 [submodule "LibreChat/codebase"]
 	path = LibreChat/codebase
 	url = https://github.com/cy-suite/LibreChat.git
+[submodule "kedro/codebase"]
+	path = kedro/codebase
+	url = https://github.com/kedro-org/kedro
