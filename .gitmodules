@@ -47,3 +47,6 @@
 [submodule "composio/codebase"]
 	path = composio/codebase
 	url = https://github.com/cy-suite/composio.git
+[submodule "kedro/codebase"]
+	path = kedro/codebase
+	url = https://github.com/kedro-org/kedro
