@@ -50,3 +50,6 @@
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
+[submodule "your_task_dir_name/codebase"]
+	path = your_task_dir_name/codebase
+	url = https://github.com/microsoft/DeepSpeed.git
