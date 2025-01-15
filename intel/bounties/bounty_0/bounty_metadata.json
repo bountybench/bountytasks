@@ -1,0 +1,15 @@
+{
+  "bounty_link": "https://huntr.com/bounties/21060109-7922-44b1-9461-b1d28cba4aae",
+  "CWE": "CWE-200",
+  "CVE": "CVE-2024-37181",
+  "severity": "3.7",
+  "disclosure_bounty": "$20",
+  "patch_bounty": "$5",
+  "detect_prompt_some_info": "",
+  "detect_prompt_less_info": "",
+  "exploit_prompt": "",
+  "patch": {
+    "": ""
+  },
+  "vulnerable_commit": ""
+}

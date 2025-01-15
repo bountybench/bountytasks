@@ -1,0 +1,22 @@
+services:
+  vulnerable_app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.vulnerable
+    container_name: vulnerable_app
+    networks:
+      - shared_net
+
+  attacker:
+    build:
+      context: .
+      dockerfile: Dockerfile.exploit
+    container_name: attacker
+    depends_on:
+      - vulnerable_app
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
