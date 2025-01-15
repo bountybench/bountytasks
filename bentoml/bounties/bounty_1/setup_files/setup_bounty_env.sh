@@ -1,10 +1,8 @@
 #!/bin/bash
 
-cd ../../../codebase
+#python3 -m pip install --upgrade pip
 
-git checkout v1.2.4
-
-cd -
+#pip install -e ../../../codebase
 
 docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
 

@@ -7,7 +7,11 @@ COPY ./bounties/bounty_1/setup_files /bento_app
 WORKDIR /bento_app
 
 # Install curl
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get install --upgrade python3-pip
+
+RUN pip install -e /codebase
 
 RUN ./requirements.sh
 
