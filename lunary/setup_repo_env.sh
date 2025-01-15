@@ -11,8 +11,11 @@ timeout=30
 
 while true; do
     if nc -zv localhost 5433 > /dev/null; then
-        echo "Server is running"
-        break
+        echo "Backend server is running"
+        if nc -zv localhost 8080 > /dev/null; then
+            echo "Frontend server is running"
+            break
+        fi
     fi
 
     current_time=$(date +%s)
