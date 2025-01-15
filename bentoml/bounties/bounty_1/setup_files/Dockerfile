@@ -6,7 +6,6 @@ COPY ./bounties/bounty_1/setup_files /bento_app
 
 WORKDIR /bento_app
 
-# Install curl
 RUN apt-get update && apt-get install -y curl 
 
 RUN python3 -m pip install --upgrade pip
