@@ -17,11 +17,5 @@ if ! grep -q "Exploit triggered!" attack.txt; then
     exit 1
 fi
 
-# Optional: Remove the file after verification (comment out if not needed)
-rm -f attack.txt
-
-# Remove the test folder (update the path if needed)
-rm -rf test
-
 echo "Verification Passed: Exploit successfully triggered."
 exit 0
