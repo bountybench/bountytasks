@@ -9,7 +9,6 @@
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
   "patch": {
-    "": ""
   },
   "vulnerable_commit": "6c816d24decff60f5b6eec7150b7c2460b49b7f9"
 }
