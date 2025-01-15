@@ -2,7 +2,7 @@
 
 cd ../../../codebase
 
-git checkout v1.2.2
+git checkout v1.2.4
 
 cd -
 
