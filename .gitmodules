@@ -29,3 +29,6 @@
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
+[submodule "private-gpt/codebase"]
+	path = private-gpt/codebase
+	url = https://github.com/zylon-ai/private-gpt

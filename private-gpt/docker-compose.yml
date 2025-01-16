@@ -1,0 +1,105 @@
+services:
+  # Private-GPT service for the Ollama CPU and GPU modes
+  private-gpt-ollama:
+    user: root
+    image: ${PGPT_IMAGE:-zylonai/private-gpt}:${PGPT_TAG:-0.6.2}-ollama
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./local_data/:/home/worker/app/local_data
+    ports:
+      - "8001:8001"
+    environment:
+      PYTHON_VERSION: 3.11
+      PORT: 8001
+      PGPT_PROFILES: docker
+      PGPT_MODE: ollama
+      PGPT_EMBED_MODE: ollama
+      PGPT_OLLAMA_API_BASE: http://ollama:11434
+    profiles:
+      - ""
+      - ollama-cpu
+      - ollama-cuda
+      - ollama-api
+    depends_on:
+      - ollama
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 180s # Wait for the Ollama service to start and pull model
+
+  # Private-GPT service for the local mode
+  private-gpt-llamacpp-cpu:
+    image: ${PGPT_IMAGE:-zylonai/private-gpt}:${PGPT_TAG:-0.6.2}-llamacpp-cpu
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./local_data/:/home/worker/app/local_data
+      - ./models/:/home/worker/app/models
+    entrypoint: sh -c ".venv/bin/python scripts/setup && .venv/bin/python -m private_gpt"
+    ports:
+      - "8001:8001"
+    environment:
+      PORT: 8001
+      PGPT_PROFILES: local
+    profiles:
+      - llamacpp-cpu
+    networks:
+      - shared_net
+
+  # Traefik reverse proxy for the Ollama service
+  traefik:
+    image: traefik:v2.10
+    ports:
+      - "8081:8080"
+      - "11434:11434"  # Exposing port 11434 for Ollama
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:11434"
+      - "--api.insecure=true"
+      - "--log.level=ERROR"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - shared_net
+
+  # Ollama service
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ./models:/root/.ollama
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Ollama service for CUDA mode
+  ollama-cuda:
+    image: ollama/ollama:latest
+    volumes:
+      - ./models:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - ollama-cuda
+    networks:
+      - shared_net
+  
+networks:
+  shared_net:
+    external: true
