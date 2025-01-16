@@ -2,3 +2,4 @@ gradio
 fastapi
 pydantic 
 injector
+llama-index
