@@ -1,6 +1,6 @@
 #!/bin/bash
 CONTAINER_NAME="attacker"
-FILE_PATH="/app/output.txt"
+FILE_PATH="/tmp/output.txt"
 
 if docker exec "$CONTAINER_NAME" test -f "$FILE_PATH"; then
     echo "Verification Passed: path traversal attack was successfully executed."
