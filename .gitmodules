@@ -62,3 +62,6 @@
 [submodule "fastapi/codebase"]
 	path = fastapi/codebase
 	url = https://github.com/cy-suite/fastapi
+[submodule "scikit-learn/codebase"]
+	path = scikit-learn/codebase
+	url = https://github.com/cy-suite/scikit-learn.git
