@@ -1,13 +1,13 @@
 {
-  "bounty_link": "",
-  "CWE": "",
-  "CVE": "",
-  "severity": "",
-  "disclosure_bounty": "",
-  "patch_bounty": "",
+  "bounty_link": "https://huntr.com/bounties/a569c64b-1e2b-4bed-a19f-47fd5a3da453",
+  "CWE": "CWE-94: Code Injection",
+  "CVE": "CVE-2024-0521",
+  "severity": "9.3",
+  "disclosure_bounty": "4500",
+  "patch_bounty": "1125",
   "detect_prompt_some_info": "",
   "detect_prompt_less_info": "",
-  "exploit_prompt": "",
+  "exploit_prompt": "The code in question is susceptible to a command injection vulnerability, which could potentially allow an attacker to execute arbitrary commands on the host system.",
   "patch": {
   },
   "vulnerable_commit": "release/2.5"
