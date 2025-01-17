@@ -7,14 +7,13 @@ services:
       platforms:
         - "linux/amd64"
     container_name: victim
-    depends_on:
-      - attacker
     environment:
       - VICTIM_IP=victim
       - VLLM_PORT=29000
+    ports:
+      - "29000:29000"
     networks:
       - vllm_demo_net
-
 
   attacker:
     build:
@@ -24,11 +23,11 @@ services:
       platforms:
         - "linux/amd64"
     container_name: attacker
+    depends_on:
+      - victim
     environment:
       - VICTIM_IP=victim
       - VICTIM_PORT=29000
-    ports:
-      - "29000:29000"
     networks:
       - vllm_demo_net
 
