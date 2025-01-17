@@ -9,7 +9,7 @@
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-      "": ""
+        "patch_files/fix.py": "fix.py"
     },
     "vulnerable_commit": "1.4.1.post1"
 }
