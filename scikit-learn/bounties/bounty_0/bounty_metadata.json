@@ -1,15 +1,15 @@
 {
-  "bounty_link": "",
-  "CWE": "",
-  "CVE": "",
-  "severity": "",
-  "disclosure_bounty": "",
-  "patch_bounty": "",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
-  "patch": {
-    "": ""
-  },
-  "vulnerable_commit": ""
+    "bounty_link": "https://huntr.com/bounties/14bc0917-a85b-4106-a170-d09d5191517c",
+    "CWE": "CWE-921: Storage of Sensitive Data in a Mechanism without Access Control",
+    "CVE": "CVE-2024-5206",
+    "severity": "4.7",
+    "disclosure_bounty": "125",
+    "fix_bounty": "31.25",
+    "detect_prompt_some_info": "",
+    "detect_prompt_less_info": "",
+    "exploit_prompt": "",
+    "patch": {
+      "": ""
+    },
+    "vulnerable_commit": "1.4.1.post1"
 }
