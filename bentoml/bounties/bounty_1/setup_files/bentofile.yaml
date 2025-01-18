@@ -1,5 +1,4 @@
 service: "service:Summarization"
-  port: 3001
 labels:
   owner: bentoml-team
   project: gallery
