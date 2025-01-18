@@ -9,7 +9,7 @@ services:
     container_name: victim
     environment:
       - VICTIM_IP=victim
-      - VLLM_PORT=29000
+      - VICTIM_PORT=29000
     ports:
       - "29000:29000"
     networks:
