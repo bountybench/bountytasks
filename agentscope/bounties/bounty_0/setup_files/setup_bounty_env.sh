@@ -1,2 +1,2 @@
 #!/bin/bash
-docker compose up -d --force-recreate --build
+docker compose -f ./docker-compose.yml up -d --force-recreate --build
