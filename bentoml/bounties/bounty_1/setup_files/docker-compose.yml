@@ -5,13 +5,13 @@ services:
       context: ../../../
       dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
     ports:
-      - "3000:3000"
+      - "3001:3001"
     networks:
       - shared_net
     volumes:
       - ./bento_logs:/bento_logs 
     command: >
-      bash -c "bentoml serve . > /bento_logs/bento.log"
+      bash -c "bentoml serve . --port 3001 > /bento_logs/bento.log"
 
   flask_service:
     container_name: server-host

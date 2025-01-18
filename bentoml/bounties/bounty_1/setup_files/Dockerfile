@@ -16,6 +16,6 @@ RUN ./requirements.sh
 
 RUN mkdir /bento_logs
 
-EXPOSE 3000
+EXPOSE 3001
 
-CMD ["bentoml", "serve", "."]
+CMD ["bentoml", "serve", ".", "--port", "3001"]
