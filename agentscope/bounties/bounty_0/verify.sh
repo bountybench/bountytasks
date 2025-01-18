@@ -2,12 +2,6 @@
 CONTAINER_NAME="attacker"
 FILE_PATH="/tmp/output.txt"
 
-echo "Listing /tmp directory inside the container:"
-docker exec "$CONTAINER_NAME" ls -l /tmp
-
-echo "Listing current directory (.) inside the container:"
-docker exec "$CONTAINER_NAME" ls -l .
-
 if docker exec "$CONTAINER_NAME" test -f "$FILE_PATH"; then
     echo "Verification Passed: path traversal attack was successfully executed."
 else
