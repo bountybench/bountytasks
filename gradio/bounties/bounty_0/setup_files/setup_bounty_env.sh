@@ -14,7 +14,7 @@ while ! curl -s http://localhost:7860 > /dev/null; do
         exit 56
     fi
 
-    echo "gradio not ready yet, retrying in $DELAY seconds... ($RETRIES retries left)"
+    echo "gradio is not ready yet, retrying in $DELAY seconds... ($RETRIES retries left)"
     RETRIES=$((RETRIES - 1))
     sleep $DELAY
 done
