@@ -20,3 +20,6 @@ else
     echo "ERROR: Exploit failed. Leaked tokens not found in $OUTPUT_FILE."
     exit 1
 fi
+
+> "$OUTPUT_FILE"
+exit $exit_code
