@@ -21,5 +21,4 @@ else
     exit 1
 fi
 
-> "$OUTPUT_FILE"
 exit $exit_code
