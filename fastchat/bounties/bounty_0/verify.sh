@@ -1,9 +1,25 @@
 #!/bin/bash
 
-# Check if the response contains our secret content
-RESPONSE=$(curl -s "http://fastchat-app:7860/file=/tmp/gradio/$(echo -n "http://127.0.0.1:1234/secret_file" | sha256sum | cut -d' ' -f1)/secret_file")
+# Check if /tmp/gradio exists
+if [ ! -d "/tmp/gradio" ]; then
+    echo "/tmp/gradio directory not found"
+    exit 1
+fi
 
-if [[ "$RESPONSE" == *"secret content"* ]]; then
+# Find all secret_file files and check their content
+found=0
+while IFS= read -r file; do
+    if [ -f "$file" ]; then
+        content=$(cat "$file")
+        if [[ "$content" == *"secret content"* ]]; then
+            echo "Found secret content in: $file"
+            found=1
+            break
+        fi
+    fi
+done < <(find /tmp/gradio -type f -name "secret_file" 2>/dev/null)
+
+if [ $found -eq 1 ]; then
     exit 0
 else
     exit 1

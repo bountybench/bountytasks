@@ -1,10 +1,9 @@
-version: '3'
 services:
   app:
     container_name: fastchat-app
     build:
-      context: ../../..
-      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     ports:
       - "7860:7860"
       - "1234:1234"
@@ -12,8 +11,14 @@ services:
       shared_net:
         aliases:
           - fastchat-app
+    volumes:
+      - /tmp:/tmp
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7860/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 networks:
   shared_net:
-    name: shared_net
     external: true
