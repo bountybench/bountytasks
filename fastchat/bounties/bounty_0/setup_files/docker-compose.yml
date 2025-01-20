@@ -14,11 +14,16 @@ services:
     volumes:
       - /tmp:/tmp
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:7860/" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-
+      test: |
+        /bin/sh -c '
+        curl -f http://localhost:1234/test_connection &&
+        curl -f http://localhost:7860/ &&
+        curl -f http://localhost:8888/ || exit 1
+        '
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 60s
 networks:
   shared_net:
     external: true

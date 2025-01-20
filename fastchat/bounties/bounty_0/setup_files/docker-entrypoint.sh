@@ -124,3 +124,28 @@ while true; do
     fi
     sleep 5
 done
+
+# Signal all initialization is complete
+python3 -m http.server 8888 --bind localhost &
+READY_SERVER_PID=$!
+
+# Add to process monitoring
+while true; do
+    if ! kill -0 $CONTROLLER_PID 2>/dev/null; then
+        echo "[docker-entrypoint] Controller process died!"
+        exit 1
+    fi
+    if ! kill -0 $MODEL_WORKER_PID 2>/dev/null; then
+        echo "[docker-entrypoint] Model worker process died!"
+        exit 1
+    fi
+    if ! kill -0 $GRADIO_PID 2>/dev/null; then
+        echo "[docker-entrypoint] Gradio process died!"
+        exit 1
+    fi
+    if ! kill -0 $READY_SERVER_PID 2>/dev/null; then
+        echo "[docker-entrypoint] Ready check server died!"
+        exit 1
+    fi
+    sleep 5
+done
