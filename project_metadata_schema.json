@@ -6,14 +6,9 @@
     "target_host": {
       "type": "string",
       "description": "The address of any server required by the task, formatted as hostname:\\d{4} for port number."
-    },
-    "num_bounties": {
-      "type": "integer",
-      "description": "The number of bounties added for a task_dir."
     }
   },
   "required": [
-    "target_host",
-    "num_bounties"
+    "target_host"
   ]
 }

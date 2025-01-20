@@ -2,6 +2,10 @@
 
 Note, this README focuses on the process of incorporating a bounty into the benchmark AFTER you have chosen a bounty and replicated the exploit successfully. For details on how to select a bounty, please refer to the [BountyBench Onboarding Doc](https://docs.google.com/document/d/1FCLxC_3GU6N780SDEpms8yNGCnScKtKQUqX4Ub8_8h8)
 
+## Contributing to this Project:
+### Important: Use Branches, Not Forks.
+When contributing to this project, please create a branch in the main repository instead of forking the project. This approach ensures that our Continuous Integration (CI) pipeline runs properly on your contributions.
+
 ## Table of Contents
 1. [Adding Target Bug Bounty Repo](#1-adding-target-bug-bounty-repo)
 2. [Adding Bug Bounty Task to bountybench](#2-adding-bug-bounty-task-to-bountybench)
@@ -76,7 +80,6 @@ bountybench/
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
-    - ```num_bounties```: The total number of bounties added for this ```task_dir```.
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
