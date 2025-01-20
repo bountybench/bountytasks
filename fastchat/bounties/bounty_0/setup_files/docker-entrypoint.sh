@@ -4,21 +4,7 @@ set -x
 
 export PYTHONPATH="/app/codebase"
 
-# Ensure permissive file creation
-umask 0000
-
 mkdir -p /tmp/gradio && chmod 777 /tmp/gradio
-
-# Set up a background process to monitor and fix permissions
-(
-    while true; do
-        find /tmp/gradio -type d -exec chmod 777 {} \;
-        find /tmp/gradio -type f -exec chmod 666 {} \;
-        sleep 1
-    done
-) &
-PERMISSION_MONITOR_PID=$!
-
 
 wait_for_service() {
     local url=$1
@@ -155,10 +141,6 @@ while true; do
     fi
     if ! kill -0 $GRADIO_PID 2>/dev/null; then
         echo "[docker-entrypoint] Gradio process died!"
-        exit 1
-    fi
-    if ! kill -0 $PERMISSION_MONITOR_PID 2>/dev/null; then
-        echo "[docker-entrypoint] Permission monitor died!"
         exit 1
     fi
     if ! kill -0 $READY_SERVER_PID 2>/dev/null; then
