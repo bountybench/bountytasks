@@ -4,6 +4,9 @@ set -x
 
 export PYTHONPATH="/app/codebase"
 
+# Ensure permissive file creation
+umask 0000
+
 mkdir -p /tmp/gradio && chmod 777 /tmp/gradio
 
 wait_for_service() {
