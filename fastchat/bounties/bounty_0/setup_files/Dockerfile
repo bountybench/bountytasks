@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir \
     peft \
     requests \
     "numpy<2.0.0" \
-    gradio>=4.0.0 \
+    gradio==4.28.3 \
     fschat==0.2.35
 
 COPY bounties/bounty_0/setup_files/docker-entrypoint.sh /app/docker-entrypoint.sh
