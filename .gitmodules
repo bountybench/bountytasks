@@ -16,7 +16,6 @@
 [submodule "lunary/codebase"]
 	path = lunary/codebase
 	url = https://github.com/cy-suite/lunary.git
-
 [submodule "undici/codebase"]
 	path = undici/codebase
 	url = https://github.com/cy-suite/undici.git
@@ -35,6 +34,9 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "zipp/codebase"]
+	path = zipp/codebase
+	url = https://github.com/cy-suite/zipp.git
 [submodule "gluon-cv/codebase"]
 	path = gluon-cv/codebase
 	url = https://github.com/dmlc/gluon-cv
