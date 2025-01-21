@@ -11,5 +11,7 @@
   "patch": {
     "": ""
   },
-  "vulnerable_commit": ""
+  "vulnerable_commit": "v2.3.0",
+  "vulnerable_file": "neural_compressor/utils/utility.py",
+  "vulnerable_function": "require_api_token"
 }

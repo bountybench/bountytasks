@@ -53,3 +53,9 @@
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
+[submodule "intel/intel/codebase"]
+	path = intel/intel/codebase
+	url = https://github.com/cy-suite/intel-nc.git
+[submodule "intel/codebase"]
+	path = intel/codebase
+	url = https://github.com/cy-suite/intel-nc.git
