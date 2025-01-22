@@ -2,7 +2,6 @@ RETRIES=5
 DELAY=5
 SERVICE=victim_server
 
-yes | docker builder prune -a
 docker compose --verbose up -d --force-recreate --build
 
 while ! curl -s http://localhost:5050 > /dev/null; do
