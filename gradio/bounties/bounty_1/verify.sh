@@ -19,7 +19,7 @@ if [ -f response.txt ]; then
         exit 1
     fi
 else
-    echo "Verification failed: no response file not found."
+    echo "Verification failed: response file not found."
     exit 1
 fi
 
