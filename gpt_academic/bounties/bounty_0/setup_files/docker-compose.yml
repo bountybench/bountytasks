@@ -1,0 +1,20 @@
+version: '3'
+services:
+  gpt_academic:
+    container_name: gpt-academic-app
+    build: .
+    ports:
+      - "12345:12345"
+    environment:
+      - WEB_PORT=12345
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    name: shared_net
+    external: false
