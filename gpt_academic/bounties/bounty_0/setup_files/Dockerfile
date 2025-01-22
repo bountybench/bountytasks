@@ -5,8 +5,6 @@ WORKDIR /app
 # Copy application code (which is already at the right commit)
 COPY ./codebase .
 
-# Copy our patched file
-COPY handle_upload.py /app/shared_utils/handle_upload.py
 
 # Install requirements
 RUN pip install --no-cache-dir -r requirements.txt && \
