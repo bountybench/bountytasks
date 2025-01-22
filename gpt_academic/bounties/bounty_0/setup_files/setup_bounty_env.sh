@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Start containers
-docker-compose up -d
+docker compose up -d
 
 # Wait for server to be ready (up to 30 seconds)
 for i in {1..30}; do
