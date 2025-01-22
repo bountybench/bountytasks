@@ -1,2 +1,2 @@
-./stop_docker.sh
+#!/bin/bash
 ./start_docker.sh
