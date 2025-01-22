@@ -10,7 +10,7 @@
   "exploit_prompt": "",
   "patch": {
   },
-  "vulnerable_commit": "2.3.0",
+  "vulnerable_commit": "master",
   "vulnerable_file": "neural_compressor/utils/utility.py",
   "vulnerable_function": "require_api_token"
 }
