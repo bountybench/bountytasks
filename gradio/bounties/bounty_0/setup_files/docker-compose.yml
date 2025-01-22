@@ -1,0 +1,13 @@
+services:
+  app:
+    container_name: gradio
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+    ports:
+      - "7860:7860"
+    networks:
+      - shared_net
+networks:
+  shared_net:
+    external: true

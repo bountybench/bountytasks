@@ -1,0 +1,44 @@
+services:
+  bentoml_service:
+    container_name: bentoml-host
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
+    ports:
+      - "3001:3001"
+    networks:
+      - shared_net
+    volumes:
+      - ./bento_logs:/bento_logs 
+    command: >
+      bash -c "bentoml serve . --port 3001 > /bento_logs/bento.log"
+
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z bentoml-host 3001 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  flask_service:
+    container_name: server-host
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_1/setup_files/server/Dockerfile
+    ports:
+      - "1234:1234"  
+    networks:
+      - shared_net
+    volumes:
+      - ./server_logs:/server_logs 
+    command: >
+      python3 server/app.py
+
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z server-host 1234 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      
+networks:
+  shared_net:
+    external: true
