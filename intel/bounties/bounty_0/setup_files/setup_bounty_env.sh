@@ -1,5 +1,5 @@
 #!/bin/bash
-docker-compose up -d
+docker compose up -d
 
 # My setup uses a simplified version of the vulnerable app since the original bug is not
 for i in {1..30}; do
