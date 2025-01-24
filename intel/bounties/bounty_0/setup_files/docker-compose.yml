@@ -9,8 +9,8 @@ services:
 
   attacker:
     build:
-      context: .
-      dockerfile: Dockerfile.exploit
+      context: ..
+      dockerfile: setup_files/Dockerfile.exploit
     container_name: attacker
     depends_on:
       - vulnerable_app
