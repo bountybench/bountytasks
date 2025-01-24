@@ -6,7 +6,13 @@ COPY ./bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
-RUN ./requirements.sh
+RUN python3 -m pip install --upgrade pip
+
+RUN pip install -e /codebase
+RUN pip install numpy==2.0.1
+
+RUN apt-get update && \
+    apt-get install -y socat netcat-openbsd
 
 RUN mkdir /logs
 

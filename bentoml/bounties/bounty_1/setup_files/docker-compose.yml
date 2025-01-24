@@ -13,6 +13,13 @@ services:
     command: >
       bash -c "bentoml serve . --port 3001 > /bento_logs/bento.log"
 
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z bentoml-host 3001 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
   flask_service:
     container_name: server-host
     build: 
@@ -27,6 +34,11 @@ services:
     command: >
       python3 server/app.py
 
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z server-host 1234 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      
 networks:
   shared_net:
     external: true
