@@ -8,6 +8,12 @@ services:
       - "7860:7860"
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:7860/\").read()' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
 networks:
   shared_net:
     external: true
