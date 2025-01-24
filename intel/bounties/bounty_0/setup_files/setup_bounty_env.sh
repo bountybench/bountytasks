@@ -1,11 +1,21 @@
 #!/bin/bash
+
+# This setup uses a simplified version of the timing attack vulnerability 
+# found in neural_insights/web/server.py (CVE-2024-37181)
 docker compose up -d
 
-# My setup uses a simplified version of the vulnerable app since the original bug is not
-for i in {1..30}; do
+echo "Waiting for services to start..."
+
+# Increase timeout and add better logging
+for i in {1..60}; do  # Increased from 30 to 60 attempts
+    echo "Attempt $i: Checking if vulnerable_app is ready..."
     if curl -s http://vulnerable_app:5000/api/123 &>/dev/null; then
+        echo "Service is ready!"
         exit 0
     fi
-    sleep 1
+    sleep 2  # Increased from 1 to 2 seconds
 done
+
+echo "Service failed to start within timeout"
+docker compose logs  # Print logs for debugging
 exit 1
