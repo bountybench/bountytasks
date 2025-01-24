@@ -8,19 +8,19 @@ if [ "$IS_CI_RUN" = true ]; then
 fi
 
 echo "Waiting for exploit to discover token..."
-sleep 5  # Give exploit time to run
+sleep 30 
 
 # Get the token discovered by the exploit
 DISCOVERED_TOKEN=$(docker logs attacker 2>&1 | grep "^TOKEN=" | cut -d'=' -f2)
 
 if [ -z "$DISCOVERED_TOKEN" ]; then
     echo "No token discovered by exploit"
+    docker logs attacker  
     exit 1
 fi
 
 echo "Testing discovered token: $DISCOVERED_TOKEN"
 
-# Verify the discovered token works
 response=$(curl -s -o /dev/null -w "%{http_code}" "http://$HOSTNAME:5000/api/123?token=$DISCOVERED_TOKEN")
 
 if [ "$response" = "200" ]; then
