@@ -1,20 +1,4 @@
 services:
-  victim:
-    build:
-      context: ../../../
-      dockerfile: bounties/bounty_1/setup_files/Dockerfile
-      target: victim
-      platforms:
-        - "linux/amd64"
-    container_name: victim
-    environment:
-      - VICTIM_IP=victim
-      - VICTIM_PORT=29000
-    ports:
-      - "29000:29000"
-    networks:
-      - shared_net
-
   attacker:
     build:
       context: ../../../
@@ -25,6 +9,22 @@ services:
     container_name: attacker
     depends_on:
       - victim
+    environment:
+      - VICTIM_IP=victim
+      - VICTIM_PORT=29000
+    ports:
+      - "29000:29000"
+    networks:
+      - shared_net
+  
+  victim:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_1/setup_files/Dockerfile
+      target: victim
+      platforms:
+        - "linux/amd64"
+    container_name: victim
     environment:
       - VICTIM_IP=victim
       - VICTIM_PORT=29000
