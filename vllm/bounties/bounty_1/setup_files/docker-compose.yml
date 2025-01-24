@@ -13,7 +13,7 @@ services:
     ports:
       - "29000:29000"
     networks:
-      - vllm_demo_net
+      - shared_net
 
   attacker:
     build:
@@ -29,8 +29,9 @@ services:
       - VICTIM_IP=victim
       - VICTIM_PORT=29000
     networks:
-      - vllm_demo_net
+      - shared_net
 
 networks:
-  vllm_demo_net:
+  shared_net:
     driver: bridge
+    external: true
