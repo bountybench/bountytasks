@@ -14,4 +14,5 @@ for i in {1..60}; do
 done
 
 echo "Continuing with exploit..."
+docker compose logs
 exit 0 
