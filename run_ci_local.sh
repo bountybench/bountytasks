@@ -290,7 +290,9 @@ if [[ "$patch_mode" == true ]]; then
     # Apply the patches
     bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
     if [[ -f "$bounty_metadata" ]]; then
-        patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+        # patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+        patch_pairs=$(jq -r '.patch + .unit_test_patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+
 
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
@@ -342,22 +344,48 @@ if [[ "$patch_mode" == true ]]; then
     fi
 
 
+    # print_header "$CYAN" "RUNNING EXPLOIT.SH"
+    # log=$(docker run \
+    # --name "${container_name}" \
+    # --rm \
+    # -it \
+    # --pull always \
+    # --privileged \
+    # --network "${network_name}" \
+    # --cgroupns host \
+    # -v "$(pwd)":/app \
+    # "${image_name}" \
+    # /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
+
+    # print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
+    # echo -e "${INFO} Log:\n ${log}"
+    # execution_output=$(echo "${log}" | tail -n 1 | tr -d '[:space:]')
+
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
-    log=$(docker run \
-    --name "${container_name}" \
-    --rm \
-    -it \
-    --pull always \
-    --privileged \
-    --network "${network_name}" \
-    --cgroupns host \
-    -v "$(pwd)":/app \
-    "${image_name}" \
-    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
+    
+    docker run \
+        --name "${container_name}" \
+        -d \
+        --pull always \
+        --privileged \
+        --network "${network_name}" \
+        --cgroupns host \
+        -v "$(pwd)":/app \
+        "${image_name}" \
+        tail -f /dev/null
+
+    exploit_log=$(
+        docker exec -it "${container_name}" \
+            /bin/bash -c "
+                echo 'Changing directory to exploit_files...' &&
+                cd '${bounty_dir}/exploit_files' &&
+                echo \"Running exploit script: \$(bash exploit.sh true || echo 'Unexpected errors thrown')\"
+                "
+    )
 
     print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
-    echo -e "${INFO} Log:\n ${log}"
-    execution_output=$(echo "${log}" | tail -n 1 | tr -d '[:space:]')
+    echo -e "${INFO} Log:\n ${exploit_log}"
+    execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
     print_header "$CYAN" "VERIFYING AFTER EXPLOIT"
     final_log=$(cd "${verify_dir}" && ./verify.sh)
@@ -374,6 +402,43 @@ if [[ "$patch_mode" == true ]]; then
     fi
 
     echo -e "${INFO} ${final_log}\n"
+
+
+    print_header "$CYAN" "RUNNING UNIT TESTS"
+
+    test_log=$(
+        docker exec -it "${container_name}" \
+            /bin/bash -c "
+                set -e
+                echo 'Changing directory to unit_test_files...' && \
+                cd \"/app/${bounty_dir}/unit_test_files\" && \
+
+                echo 'Running setup for unit test environment...' && \
+                bash setup_unit_test_env.sh && \
+                echo 'Setup script completed.' && \
+                
+                echo 'Running unit tests...' && \
+                bash run_unit_tests.sh
+            "
+    )
+
+    test_status=$?
+
+    echo "Unit tests exit code: ${test_status}"
+
+    # Stop & remove container
+    docker stop "${container_name}" >/dev/null 2>&1
+    docker rm "${container_name}" >/dev/null 2>&1
+
+    if [[ ${test_status} -ne 0 ]]; then
+        print_header "$RED" "ERROR"
+        echo -e "${ERROR} Unit tests should pass (return 0) after patch, but it returned ${test_status}"
+        echo -e "${ERROR} ========= Error log ========= \n\n ${test_log}"
+        exit 1
+    fi
+
+    echo -e "${INFO} Unit test logs:\n${test_log}"
+
 
     print_header "$GREEN" "PATCH MODE SUCCEEDED"
     echo -e "${SUCCESS} Patch completed successfully."
