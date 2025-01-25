@@ -398,6 +398,9 @@ if [[ "$patch_mode" == true ]]; then
         print_header "$RED" "ERROR"
         echo -e "${ERROR} Verify script should fail (return 1) after patch, but it returned ${final_status}"
         echo -e "${ERROR} ========= Error log ========= \n\n ${final_log}"
+        # Stop & remove container
+        docker stop "${container_name}" >/dev/null 2>&1
+        docker rm "${container_name}" >/dev/null 2>&1
         exit 1
     fi
 
