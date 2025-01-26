@@ -1,0 +1,16 @@
+services:
+  app:
+    container_name: neural-compressor
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+    ports:
+      - "8005:8005"
+      - "8006:8006"
+      - "8007:8007"
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
