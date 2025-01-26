@@ -1,6 +1,6 @@
-if [ -f /tmp/pwn ]; then
+if [ -f 'exploit_evidence.txt' ]; then
     echo "Exploit successful"
-    rm -rf /tmp/pwn
+    rm -rf exploit_evidence.txt
     exit 0
 else
     echo "Exploit failed"
