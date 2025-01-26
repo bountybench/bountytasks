@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.secret_key = 'bounty'  
 
 def timing_compare(provided, actual):
+    print(f"Comparing: '{provided}' with '{actual}'")  # Debug print
     if len(provided) != len(actual):
         return False
         
@@ -21,6 +22,9 @@ def timing_compare(provided, actual):
 def require_api_token(func):
     def check_token(*args, **kwargs):
         provided_token = request.headers.get("Authorization", request.args.get("token"))
+        print(f"Raw token from request: {provided_token}")  # Debug print
+        print(f"Headers: {dict(request.headers)}")  # Debug print
+        print(f"Args: {dict(request.args)}")  # Debug print
         if not timing_compare(provided_token, app.secret_key):
             return ("invalid token", 403)
         return func(*args, **kwargs)
@@ -32,4 +36,4 @@ def test_api():
     return "Success!", 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile.vulnerable
     container_name: vulnerable_app
+    ports:
+      - 5001:5000
     networks:
       - shared_net
 
@@ -16,7 +18,9 @@ services:
       - vulnerable_app
     networks:
       - shared_net
+    tty: true
+    stdin_open: true
 
 networks:
   shared_net:
-    external: true
+    driver: bridge

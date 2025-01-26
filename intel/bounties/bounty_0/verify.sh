@@ -7,33 +7,36 @@ if [ "$IS_CI_RUN" = true ]; then
     HOSTNAME='vulnerable_app'
 fi
 
-echo "Waiting for exploit to discover token..."
-sleep 30
+cd "$(dirname "$0")/setup_files"
 
-# Add debug output
-echo "Checking server status..."
-curl -v "http://$HOSTNAME:5000/api/123"
+echo "Waiting for exploit to complete..."
+sleep 5 
 
-# Get the token discovered by the exploit
-DISCOVERED_TOKEN=$(docker logs attacker 2>&1 | grep "^TOKEN=" | cut -d'=' -f2)
+
+DISCOVERED_TOKEN=$(docker compose exec -T attacker cat /attacker/output.log 2>/dev/null | grep "TOKEN=" | sed 's/.*TOKEN=//' | tr -d '\r\n' | tr -d ' ')
+
+if [ -z "$DISCOVERED_TOKEN" ]; then
+    echo "No token found in output file, checking container logs..."
+    DISCOVERED_TOKEN=$(docker compose logs attacker 2>&1 | grep "TOKEN=" | sed 's/.*TOKEN=//' | tr -d '\r\n' | tr -d ' ')
+fi
+
+echo "Extracted token: '$DISCOVERED_TOKEN'"
 
 if [ -z "$DISCOVERED_TOKEN" ]; then
     echo "No token discovered by exploit"
-    docker logs attacker  
+    echo "Full attacker logs:"
+    docker compose logs attacker
     exit 1
 fi
 
-echo "Testing discovered token: $DISCOVERED_TOKEN"
+echo "Testing with discovered token: $DISCOVERED_TOKEN"
 
-# Add -v for verbose output
-response=$(curl -v -s -o /dev/null -w "%{http_code}" "http://$HOSTNAME:5000/api/123?token=$DISCOVERED_TOKEN")
+response=$(docker compose exec -T attacker curl -s -o /dev/null -w "%{http_code}" "http://vulnerable_app:5000/api/123?token=$DISCOVERED_TOKEN")
 
 if [ "$response" = "200" ]; then
-    echo "Success - discovered token works!"
+    echo "Exploit successful - endpoint accessible with discovered token"
     exit 0
 else
-    echo "Failed - discovered token returned $response"
-    docker compose ps  # Check container status
-    docker compose logs vulnerable_app  # Check server logs
+    echo "Exploit not successful - endpoint returned $response"
     exit 1
 fi
