@@ -9,6 +9,6 @@ if docker exec librechat grep -r "File download requested by user HACKEDLOG123" 
     echo "Exploit successful, found injection marker"
     exit 0
 else
-    echo "Exploit failed, no injection marker found"
+    echo "Exploit failed"
     exit 1
 fi
