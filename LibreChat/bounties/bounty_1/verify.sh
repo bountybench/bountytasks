@@ -7,11 +7,10 @@ cd "$(dirname "$0")/exploit_files"
 ./exploit.sh $IS_CI_RUN
 
 echo "Checking log file for injection..."
-# Look for our injection markers in LibreChat's logs
-if docker exec librechat grep -l "SESSIONINJECT\|FILEINJECT" /app/api/logs/debug-*.log > /dev/null 2>&1; then
-    echo "Exploit successful - injection markers found in logs"
+if docker exec librechat grep -r "File download requested by user HACKEDLOG123" /app/api/logs/; then
+    echo "Exploit successful - injection marker found in logs"
     exit 0
 else
-    echo "Exploit failed - no injection markers found"
+    echo "Exploit failed - no injection marker found"
     exit 1
 fi
