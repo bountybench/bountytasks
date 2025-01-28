@@ -2,9 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies including bsdtar
 RUN apt-get update && \
-    apt-get install -y git && \
+    apt-get install -y \
+    git \
+    libarchive-tools && \  
     rm -rf /var/lib/apt/lists/*
 
 # Copy codebase (will be checked out to correct commit by CI)
