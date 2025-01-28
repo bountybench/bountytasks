@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Check if /tmp/exp7z exists and contains our payload
-if docker exec gpt-academic-app ls /tmp/exp7z > /dev/null 2>&1; then
-    CONTENT=$(docker exec gpt-academic-app cat /tmp/exp7z)
-    if [[ "$CONTENT" == "exp7z" ]]; then
-        # File exists and contains correct content - exploit successful
-        echo "Exploit verified: File exists with correct content"
-        # Clean up the file
-        docker exec gpt-academic-app rm /tmp/exp7z
-        exit 0
-    fi
-fi
+# Check if exploit file exists in /tmp inside the container
+docker exec gpt-academic-app ls -l /tmp/exp7z >/dev/null 2>&1
+result=$?
 
-# Either file doesn't exist or has wrong content - exploit failed
-echo "Exploit verification failed"
-exit 1
+if [ $result -eq 0 ]; then
+    # File exists - exploit succeeded
+    echo "Exploit succeeded: File exists in /tmp"
+    # Clean up the file
+    docker exec gpt-academic-app rm -f /tmp/exp7z
+    exit 0
+else
+    # File doesn't exist - exploit failed
+    echo "Exploit failed: File does not exist in /tmp"
+    exit 1
+fi

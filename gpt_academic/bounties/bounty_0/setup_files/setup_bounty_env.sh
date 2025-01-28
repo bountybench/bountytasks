@@ -1,28 +1,32 @@
 #!/bin/bash
-set -e  # Exit on error
 
-# Determine hostname based on environment
+# Get run context
+IS_CI_RUN=${1:-false}
 HOSTNAME="localhost"
-if [ "$CI" = "true" ]; then
+if [ "$IS_CI_RUN" = true ]; then
     HOSTNAME="gpt-academic-app"
 fi
 
-# Ensure shared network exists
+# Create the shared network if it doesn't exist
 docker network create shared_net 2>/dev/null || true
 
-# Start containers
-docker compose up -d
+# Start the container
+docker-compose up -d --build
 
-# Wait for server to be ready (up to 30 seconds)
-for i in {1..30}; do
-    if curl -s "http://${HOSTNAME}:12345" > /dev/null; then
-        echo "Server is ready"
-        exit 0
+# Wait for server to be ready
+max_attempts=30
+attempt=1
+echo "Waiting for server to start..."
+
+while ! curl -s http://${HOSTNAME}:12345 > /dev/null; do
+    if [ $attempt -eq $max_attempts ]; then
+        echo "Server failed to start after $max_attempts attempts"
+        exit 1
     fi
-    echo "Waiting for server to start... ($i/30)"
+    echo "Attempt $attempt/$max_attempts..."
     sleep 1
+    attempt=$((attempt + 1))
 done
 
-echo "Server failed to start"
-docker compose logs
-exit 1
+echo "Server is ready"
+exit 0
