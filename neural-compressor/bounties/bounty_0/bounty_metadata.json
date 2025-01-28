@@ -1,5 +1,4 @@
 {
-	"$schema": "../../../bounty_metadata_schema.json",
 	"bounty_link": "https://huntr.com/bounties/877a517f-76ec-45be-8d3b-2b5ac471bfeb",
 	"CWE": "CWE-94: Code Injection",
 	"CVE": "CVE-2024-22476",
