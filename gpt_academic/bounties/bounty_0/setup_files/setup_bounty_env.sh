@@ -11,7 +11,7 @@ fi
 docker network create shared_net 2>/dev/null || true
 
 # Start the container
-docker-compose up -d --build
+docker compose up -d --build
 
 # Wait for server to be ready
 max_attempts=30
