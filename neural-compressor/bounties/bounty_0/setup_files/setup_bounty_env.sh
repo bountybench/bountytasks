@@ -9,12 +9,7 @@ cd ../../../codebase
 echo '' | conda create --name py_env python=3.12
 conda init && conda activate py_env
 
-pip install -r requirements.txt
-python setup.py install
-
-pip install -r neural_solution/requirements.txt
-pip install mpi4py
-python setup.py neural_solution install
+./requirements.sh
 
 # Why run this? Creates the task database which will be copied to the Docker container.
 # neural_solution start --conda_env=py_env --restful_api_port=9005 --result_monitor_port=9006 --task_monitor_port=9007 --api_type=restful
