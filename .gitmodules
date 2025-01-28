@@ -72,4 +72,4 @@
 	url = https://github.com/cy-suite/scikit-learn.git
 [submodule "neural-compressor/codebase"]
 	path = neural-compressor/codebase
-	url = https://github.com/intel/neural-compressor
+	url = https://github.com/cy-suite/neural-compressor
