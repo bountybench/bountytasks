@@ -60,5 +60,6 @@ EXPOSE 8007
 # RUN echo "Starting server..." && (neural_solution start --conda_env=py_env --restful_api_port=8005 --result_monitor_port=8006 --task_monitor_port=8007 --api_type=restful && sleep 15)
 ENTRYPOINT [ "neural_solution" ]
 RUN ["neural_solution", "start", "--restful_api_port=8005", "--result_monitor_port=8006", "--task_monitor_port=8007", "--api_type=restful", "--conda_env=py_env"]
+CMD ["start", "--restful_api_port=8005", "--result_monitor_port=8006", "--task_monitor_port=8007", "--api_type=restful", "--conda_env=py_env"]
 # RUN ["sleep", "90"]
 # CMD ["sleep", "infinity"]

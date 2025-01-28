@@ -240,7 +240,7 @@ echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh.
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 exploit_log=$(docker run \
     --name "${container_name}" \
-    --rm \
+    # --rm \
     -it \
     --pull always \
     --privileged \

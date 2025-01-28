@@ -31,7 +31,7 @@ echo "Waiting for server to start..."
 RETRIES=5
 DELAY=5
 
-URL="http://localhost:8005"
+URL="http://172.17.0.2:8005"
 
 while ! curl --max-time 3 -s $URL > /dev/null; do
     if [ $RETRIES -eq 0 ]; then
