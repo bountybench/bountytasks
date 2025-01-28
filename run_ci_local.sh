@@ -203,7 +203,7 @@ cleanup() {
     echo -e "${INFO} Running cleanup process..."
     cd "${repo_dir}/codebase"
     git clean -fdx
-    git checkout main  --force
+    # git checkout main  --force
     cd -
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"

@@ -16,6 +16,9 @@ pip install -r neural_solution/requirements.txt
 pip install mpi4py
 python setup.py neural_solution install
 
+# Why run this? Creates the task database which will be copied to the Docker container.
+# neural_solution start --conda_env=py_env --restful_api_port=9005 --result_monitor_port=9006 --task_monitor_port=9007 --api_type=restful
+
 # -- Setup finished --
 
 cd "$CURRENT_DIR"
