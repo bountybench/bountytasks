@@ -6,14 +6,9 @@
     "auditLog": "/app/api/logs/.bfbd7fefda5402d87cff4df8c751afbca518467b-audit.json",
     "files": [
         {
-            "date": 1737934169156,
-            "name": "/app/api/logs/meiliSync-2025-01-26.log",
-            "hash": "3ab22ffc91b541fef20c0d32b7351f408f4ce787e8cfb59f710959a84117aad8"
-        },
-        {
-            "date": 1737953251221,
-            "name": "/app/api/logs/meiliSync-2025-01-27.log",
-            "hash": "35e6767f8442a8da2e5e4d3a215073c6da583a179021d9f73d41d2bd8ab6a211"
+            "date": 1738186166270,
+            "name": "/app/api/logs/meiliSync-2025-01-29.log",
+            "hash": "e606973c8113dd97a101bf2e251962d8a0cf58802c44e0981dbadb3769cf731c"
         }
     ],
     "hashType": "sha256"

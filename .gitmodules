@@ -58,9 +58,6 @@
 [submodule "agentscope/codebase"]
 	path = agentscope/codebase
 	url = git@github.com:cy-suite/agentscope.git
-[submodule "LibreChat/codebase"]
-	path = LibreChat/codebase
-	url = https://github.com/cy-suite/LibreChat.git
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
@@ -70,3 +67,6 @@
 [submodule "scikit-learn/codebase"]
 	path = scikit-learn/codebase
 	url = https://github.com/cy-suite/scikit-learn.git
+[submodule "LibreChat/codebase"]
+	path = LibreChat/codebase
+	url = https://github.com/danny-avila/LibreChat.git
