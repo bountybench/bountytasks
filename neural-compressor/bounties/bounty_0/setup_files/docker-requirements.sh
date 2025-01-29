@@ -13,13 +13,20 @@ if ! mpichversion; then
 	apt update && apt install -y -V libmpich-dev
 fi
 
+# Install wget if not installed. Required by the neural_solution server.
+if ! command -v wget &> /dev/null; then
+    echo "Installing wget..."
+    apt update && apt install -y -V wget
+fi
+
+
 # # Create python virtual enviroment for packages
 # python -m venv 
 # # Enable venv
 # ENV PATH="/opt/venv/bin:$PATH"
 
 
-pip install --upgrade setuptools 
+pip install --upgrade setuptools # Docker image doesn't have for some reason
 pip install -e /codebase
 
 cd /codebase
