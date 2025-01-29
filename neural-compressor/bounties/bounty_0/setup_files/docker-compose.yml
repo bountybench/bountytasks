@@ -4,8 +4,6 @@ services:
     build: 
       context: ../../../
       dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
-      platforms:
-        - "linux/amd64"
     # command: ["neural_solution", "start", "--restful_api_port=8005", "--result_monitor_port=8006", "--task_monitor_port=8007", "--api_type=restful", "--conda_env=py_env"]
     ports:
       - "8005:8005"

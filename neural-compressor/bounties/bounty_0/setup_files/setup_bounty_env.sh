@@ -6,6 +6,10 @@ CURRENT_DIR=$(pwd)
 # Setup
 cd ../../../codebase
 
+awk -v n=260 -v s="    while True: time.sleep(10);logger.info('Server still running...')" 'NR == n {print s} {print}' neural_solution/launcher.py > neural_solution/launcher.py.TEMP
+mv -f neural_solution/launcher.py.TEMP neural_solution/launcher.py
+echo "Patched codebase neural_solution/launcher.py to keep server running"
+
 echo '' | conda create --name py_env python=3.12
 conda init && conda activate py_env
 
@@ -31,12 +35,12 @@ echo "Waiting for server to start..."
 RETRIES=5
 DELAY=5
 
-URL="http://172.17.0.2:8005"
+URL="http://localhost:8005"
 
 while ! curl --max-time 3 -s $URL > /dev/null; do
     if [ $RETRIES -eq 0 ]; then
         echo "Server did not become ready in time"
-        docker logs $(docker ps -qf "name=neural-compressor")  # Log container output for debugging
+        docker logs $(docker ps -aqf "name=neural-compressor")  # Log container output for debugging
         exit 56
     fi
 
