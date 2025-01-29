@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ -f 'exploit_evidence.txt' ]; then
     echo "Exploit successful"
     rm -rf exploit_evidence.txt
