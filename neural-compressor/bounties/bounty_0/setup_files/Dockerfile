@@ -1,10 +1,13 @@
-FROM python:3.12-slim
+FROM continuumio/miniconda3
 COPY ./codebase /codebase
 COPY ./bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
+SHELL ["/bin/bash", "--login", "-c"]
+
 RUN ./docker-requirements.sh
+
 
 # Install neural-compressor from the local codebase
 # RUN python -m venv /opt/venv

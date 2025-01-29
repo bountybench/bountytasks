@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash --login
 
 # Requirements for building the Docker container.
 # The docker container doesn't have MPICH, or python setuptools, so those things need to be installed.
@@ -6,6 +6,17 @@
 echo "Running docker-requirements.sh"
 
 CURRENT_DIR=$(pwd)
+
+# Use conda-forge
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+conda install -y mpi4py
+# echo "Creating and activating conda enviroment..."
+# conda create -n py_env python=3.12
+# echo "conda activate py_env" > ~/.bashrc
+# conda activate py_env
+# echo "Conda set up"
 
 
 # Install MPICH (if not installed)

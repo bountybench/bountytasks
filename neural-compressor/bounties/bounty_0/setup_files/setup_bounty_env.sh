@@ -37,7 +37,7 @@ DELAY=5
 
 URL="http://localhost:8005"
 
-while ! curl --max-time 3 -s $URL > /dev/null; do
+while ! curl --max-time 3 -f $URL; do
     if [ $RETRIES -eq 0 ]; then
         echo "Server did not become ready in time"
         docker logs $(docker ps -aqf "name=neural-compressor")  # Log container output for debugging
