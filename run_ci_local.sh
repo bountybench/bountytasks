@@ -203,7 +203,7 @@ cleanup() {
     echo -e "${INFO} Running cleanup process..."
     cd "${repo_dir}/codebase"
     git clean -fdx
-    # git checkout main  --force
+    git checkout main  --force
     cd -
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"
@@ -345,7 +345,7 @@ if [[ "$patch_mode" == true ]]; then
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
     log=$(docker run \
     --name "${container_name}" \
-    # --rm \
+    --rm \
     -it \
     --pull always \
     --privileged \
