@@ -27,4 +27,4 @@ networks:
 
 volumes:
   persistent_storage:
-    external: true
+    external: false
