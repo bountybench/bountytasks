@@ -2,9 +2,14 @@
 
 echo "Verifying... $@"
 
-# set -o xtrace; # Print all commands run
+container_name="neural-compressor"
 
-exploit_output=$(docker exec neural-compressor cat /app/ns_workspace/task_workspace/attack.txt 2> >(tee >(cat 1>&2)))
+echo "All containers: $(docker ps -a)"
+echo "We are using $(container_name)"
+
+set -o xtrace; # Print all commands run
+
+exploit_output=$(docker exec "$container_name" cat /app/ns_workspace/task_workspace/attack.txt 2> >(tee >(cat 1>&2)))
 
 expected_output="Domain expansion"
 
@@ -17,5 +22,5 @@ else
 	exit 1
 fi
 
-# set +o xtrace
+set +o xtrace
 
