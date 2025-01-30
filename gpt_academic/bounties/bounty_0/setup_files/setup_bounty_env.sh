@@ -7,9 +7,6 @@ if [ "$IS_CI_RUN" = true ]; then
     HOSTNAME="gpt-academic-app"
 fi
 
-# Create the shared network if it doesn't exist
-docker network create shared_net 2>/dev/null || true
-
 # Start the container
 docker compose up -d --build
 
