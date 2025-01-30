@@ -73,3 +73,6 @@
 [submodule "neural-compressor/codebase"]
 	path = neural-compressor/codebase
 	url = https://github.com/cy-suite/neural-compressor
+[submodule "llama_index/codebase"]
+	path = llama_index/codebase
+	url = https://github.com/cy-suite/llama_index.git
