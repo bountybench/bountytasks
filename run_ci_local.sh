@@ -13,6 +13,8 @@ SUCCESS="${GREEN}[SUCCESS]${RESET}"
 ERROR="${RED}[ERROR]${RESET}"
 WARNING="${YELLOW}[WARNING]${RESET}"
 
+root_dir=$(pwd)
+
 print_header() {
     local color="$1"
     local message="$2"
@@ -196,10 +198,14 @@ stop_docker() {
     fi
 }
 
-
+VENV_DIR=".unit_test_venv"
 
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
+
+    # guard against exits in other dirs
+    cd "$root_dir"
+
     echo -e "${INFO} Running cleanup process..."
     cd "${repo_dir}/codebase"
     git clean -fdx
@@ -207,6 +213,14 @@ cleanup() {
     cd -
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"
+
+    TARGET_VENV_DIR="${bounty_dir}/unit_test_files/${VENV_DIR}"
+
+    if [[ -d "$TARGET_VENV_DIR" ]]; then
+        echo "Removing virtual environment at $TARGET_VENV_DIR"
+        rm -rf "$TARGET_VENV_DIR"
+    fi
+
 }
 
 # Set trap to ensure cleanup runs on exit, system interrupt/termination
@@ -361,31 +375,7 @@ if [[ "$patch_mode" == true ]]; then
     echo -e "${INFO} Log:\n ${log}"
     execution_output=$(echo "${log}" | tail -n 1 | tr -d '[:space:]')
 
-    # print_header "$CYAN" "RUNNING EXPLOIT.SH"
-    
-    # docker run \
-    #     --name "${container_name}" \
-    #     -d \
-    #     --pull always \
-    #     --privileged \
-    #     --network "${network_name}" \
-    #     --cgroupns host \
-    #     -v "$(pwd)":/app \
-    #     "${image_name}" \
-    #     tail -f /dev/null
 
-    # exploit_log=$(
-    #     docker exec -it "${container_name}" \
-    #         /bin/bash -c "
-    #             echo 'Changing directory to exploit_files...' &&
-    #             cd '${bounty_dir}/exploit_files' &&
-    #             echo \"Running exploit script: \$(bash exploit.sh true || echo 'Unexpected errors thrown')\"
-    #             "
-    # )
-
-    # print_header "$CYAN" "EXPLOIT LOG AFTER PATCH"
-    # echo -e "${INFO} Log:\n ${exploit_log}"
-    # execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
     print_header "$CYAN" "VERIFYING AFTER EXPLOIT"
     final_log=$(cd "${verify_dir}" && ./verify.sh)
@@ -407,32 +397,34 @@ if [[ "$patch_mode" == true ]]; then
     echo -e "${INFO} ${final_log}\n"
 
 
+    print_header "$CYAN" "EXECUTING UNIT TEST ENVIRONMENT SETUP"
+    
+    echo "Changing directory to unit_test_files..."
+    cd "${bounty_dir}/unit_test_files"
+
+    # Remove any stale venv if it exists
+    rm -rf "${VENV_DIR}"
+
+    echo "Create and activating Python virtual environment"
+
+    # Create a virtual environment
+    python -m venv "${VENV_DIR}"
+
+    source "${VENV_DIR}/bin/activate"
+
+    echo "Running setup for unit test environment..."
+    execute_if_exists "setup_unit_test_env.sh"
+    sleep 10
+
+
     print_header "$CYAN" "RUNNING UNIT TESTS"
 
-    test_log=$(docker run \
-        --name "${container_name}" \
-        --rm \
-        -it \
-        --pull always \
-        --privileged \
-        --network "${network_name}" \
-        --cgroupns host \
-        -v "$(pwd)":/app \
-        "${image_name}" \
-        /bin/bash -c "
-            set -e
-            echo 'Changing directory to unit_test_files...' && \
-            cd \"${bounty_dir}/unit_test_files\" && \
+    # Subshell to capture all output into a variable test_log
+    test_log="$(
+        bash run_unit_tests.sh
+    )"
 
-            echo 'Running setup for unit test environment...' && \
-            bash setup_unit_test_env.sh && \
-            echo 'Setup script completed.' && \
-            
-            echo 'Running unit tests...' && \
-            bash run_unit_tests.sh
-        "
-    )
-
+    # Capture exit code from the subshell
     test_status=$?
 
     echo -e "${INFO} Unit test exit status: ${test_status}"
