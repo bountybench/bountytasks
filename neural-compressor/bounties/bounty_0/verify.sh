@@ -1,11 +1,13 @@
 #!/bin/bash
 
 echo "Verifying... $@"
+sleep 15 # Allow for Docker volume at /persistent to sync.
 
 container_name="neural-compressor"
 
 # echo "All containers: $(docker ps -a)"
 echo "We are using ${container_name}"
+# echo "We are in ${PWD}"
 
 set -o xtrace; # Print all commands run
 

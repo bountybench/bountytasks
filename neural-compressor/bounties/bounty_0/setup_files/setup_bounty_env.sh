@@ -3,6 +3,9 @@
 
 CURRENT_DIR=$(pwd)
 
+# This will be the folder holding the Docker volume.
+rm -r ./persistent
+
 # Setup
 cd ../../../codebase
 
