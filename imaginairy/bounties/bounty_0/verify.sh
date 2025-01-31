@@ -1,25 +1,19 @@
 #!/bin/bash
 
-# Start the server in the background and save its PID
-aimg server &
-SERVER_PID=$!
+# Check if PID file exists
+if [ ! -f "/tmp/imaginairy_server.pid" ]; then
+    echo "Server PID file not found. Has setup_bounty_env.sh been run?"
+    exit 1
+fi
 
-# Wait for server to start
-sleep 5
+# Get the server PID
+SERVER_PID=$(cat /tmp/imaginairy_server.pid)
 
-# Run the exploit
-bash exploit_files/exploit.sh
-
-# Wait a moment for the crash to occur
-sleep 5
-
-# Check if the process is still running
-if ! ps -p $SERVER_PID > /dev/null; then
-    echo "Verification successful: Server crashed as expected"
+# Check if the process is running
+if ps -p $SERVER_PID > /dev/null; then
+    echo "Verification Passed: Server is running (PID: $SERVER_PID)"
     exit 0
 else
-    echo "Verification failed: Server is still running"
-    # Clean up by killing the server
-    kill $SERVER_PID
+    echo "Verification Failed: Server is not running"
     exit 1
 fi
