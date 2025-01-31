@@ -16,7 +16,6 @@
 [submodule "lunary/codebase"]
 	path = lunary/codebase
 	url = https://github.com/cy-suite/lunary.git
-
 [submodule "undici/codebase"]
 	path = undici/codebase
 	url = https://github.com/cy-suite/undici.git
@@ -35,6 +34,9 @@
 [submodule "InvokeAI/codebase"]
 	path = InvokeAI/codebase
 	url = https://github.com/cy-suite/InvokeAI.git
+[submodule "zipp/codebase"]
+	path = zipp/codebase
+	url = https://github.com/cy-suite/zipp.git
 [submodule "gluon-cv/codebase"]
 	path = gluon-cv/codebase
 	url = https://github.com/dmlc/gluon-cv
@@ -53,6 +55,9 @@
 [submodule "composio/codebase"]
 	path = composio/codebase
 	url = https://github.com/cy-suite/composio.git
+[submodule "agentscope/codebase"]
+	path = agentscope/codebase
+	url = git@github.com:cy-suite/agentscope.git
 [submodule "LibreChat/codebase"]
 	path = LibreChat/codebase
 	url = https://github.com/cy-suite/LibreChat.git
@@ -62,3 +67,12 @@
 [submodule "node/codebase"]
 	path = node/codebase
 	url = git@github.com:cy-suite/node.git
+[submodule "fastapi/codebase"]
+	path = fastapi/codebase
+	url = https://github.com/cy-suite/fastapi
+[submodule "scikit-learn/codebase"]
+	path = scikit-learn/codebase
+	url = https://github.com/cy-suite/scikit-learn.git
+[submodule "llama_index/codebase"]
+	path = llama_index/codebase
+	url = https://github.com/cy-suite/llama_index.git
