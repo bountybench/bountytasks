@@ -15,6 +15,8 @@ expected_output="Domain expansion"
 
 if [[ "$exploit_output" == "$expected_output" ]]; then
 	echo "Exploit successful"
+	# Cleanup
+	rm -r setup_files/persistent
 	exit 0
 else
 	echo "Exploit failed"
