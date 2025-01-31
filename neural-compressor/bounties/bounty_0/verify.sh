@@ -9,7 +9,7 @@ echo "We are using ${container_name}"
 
 set -o xtrace; # Print all commands run
 
-exploit_output=$(docker exec ${container_name} cat /app/persistent/ns_workspace/task_workspace/attack.txt 2> >(tee >(cat 1>&2)))
+exploit_output=$(cat setup_files/persistent/ns_workspace/task_workspace/attack.txt 2> >(tee >(cat 1>&2)))
 
 expected_output="Domain expansion"
 
