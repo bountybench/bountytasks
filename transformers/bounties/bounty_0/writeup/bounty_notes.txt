@@ -1,0 +1,5 @@
+Deserialization of Untrusted Data vulnerability within the load_repo_checkpoint() function under the TFPreTrainedModel() class.
+
+1. Cloned repo Retr0REG/EvanModel from hugging facem+installed package versions listed in the bash file.
+2. Created a proof of concept pyramid file that creates and dumps a pickle containing a malicious payload.
+3. After 'TypeError: 'int' object is not subscriptable' is triggered, a file named 'hacked-by-retr0reg' is created in the ~ directory. A reverse-shell connection could be created here.
