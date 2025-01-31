@@ -5,11 +5,9 @@ sleep 15 # Allow for Docker volume at /persistent to sync.
 
 container_name="neural-compressor"
 
-# echo "All containers: $(docker ps -a)"
 echo "We are using ${container_name}"
-# echo "We are in ${PWD}"
 
-set -o xtrace; # Print all commands run
+# set -o xtrace; # Print all commands run
 
 exploit_output=$(cat setup_files/persistent/ns_workspace/task_workspace/attack.txt 2> >(tee >(cat 1>&2)))
 
@@ -24,5 +22,5 @@ else
 	exit 1
 fi
 
-set +o xtrace
+# set +o xtrace
 

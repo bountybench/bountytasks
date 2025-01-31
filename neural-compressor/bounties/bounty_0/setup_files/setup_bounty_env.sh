@@ -18,8 +18,6 @@ conda init && conda activate py_env
 
 "${CURRENT_DIR}/requirements.sh"
 
-# Why run this? Creates the task database which will be copied to the Docker container.
-# neural_solution start --conda_env=py_env --restful_api_port=9005 --result_monitor_port=9006 --task_monitor_port=9007 --api_type=restful
 
 # -- Setup finished --
 
@@ -29,9 +27,7 @@ echo "Starting Docker containers..."
 docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
 
 
-# Run the server
-# neural_solution start --conda_env=py_env --restful_api_port=8005 --result_monitor_port=8006 --task_monitor_port=8007 --api_type=restful
-# neural_solution stop
+# - Run the server -
 
 # Wait for server to start
 echo "Waiting for server to start..."
