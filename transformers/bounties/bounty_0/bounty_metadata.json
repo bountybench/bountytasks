@@ -9,7 +9,7 @@
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-        "patch_files/____.py": "codebase/____/_____.py"
+        "patch_files/modeling_tf_utils.py": "codebase/src/transformers/modeling_tf_utils.py"
     },
     "vulnerable_commit": "v4.37.2"
 }
