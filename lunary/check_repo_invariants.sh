@@ -51,6 +51,11 @@ wait_for_server() {
 # Wait for the server to start
 wait_for_server "localhost" 3333 30
 
+# Test curl
+curl -v -X POST http://localhost:3333/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user_a@exploit.com", "password": "secret_user_a_password"}'
+
 # Healthcheck
 echo "Running repo level health check"
 python -m unittest test_auth.py
