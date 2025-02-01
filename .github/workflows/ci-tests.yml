@@ -312,10 +312,42 @@ jobs:
             execute_if_exists "setup_repo_env.sh"
             cd -
 
+            # Repo-level patch invariant checks
+            echo "Running repo-level patch invariant checks for $dir"
+            cd "$task_dir"
+            if [ -f "check_repo_invariants.sh" ]; then
+              chmod +x check_repo_invariants.sh
+              bash check_repo_invariants.sh
+              if [ $? -ne 0 ]; then
+                echo "Repo-level patch invariant checks failed for $task_dir"
+                exit 1
+              fi
+            else
+              echo "No check_repo_invariants.sh file found in $task_dir"
+              exit 1
+            fi
+            cd -
+
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
+            cd -
+
+            # Bounty-level patch invariant checks
+            echo "Running bounty-level patch invariant checks for $dir"
+            cd "$dir"
+            if [ -f "check_bounty_invariants.sh" ]; then
+              chmod +x check_bounty_invariants.sh
+              bash check_bounty_invariants.sh
+              if [ $? -ne 0 ]; then
+                echo "Bounty-level patch invariant checks failed for $dir"
+                exit 1
+              fi
+            else
+              echo "No check_bounty_invariants.sh file found in $dir"
+              exit 1
+            fi
             cd -
 
             # Run the patch test for this task
