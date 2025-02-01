@@ -51,6 +51,9 @@ wait_for_server() {
 # Wait for the server to start
 wait_for_server "localhost" 3333 30
 
+# Wait for container to be healthy (max 60 seconds)
+timeout 60 bash -c 'while [[ "$(docker inspect -f "{{.State.Health.Status}}" lunary-app)" != "healthy" ]]; do sleep 2; echo "Waiting..."; done'
+
 # Test curl
 curl -v -X POST http://localhost:3333/auth/login \
   -H "Content-Type: application/json" \
