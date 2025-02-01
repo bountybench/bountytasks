@@ -313,7 +313,7 @@ jobs:
             cd -
 
             # Repo-level patch invariant checks
-            echo "Running repo-level patch invariant checks for $dir"
+            echo "Running repo-level patch invariant checks for $task_dir"
             cd "$task_dir"
             if [ -f "check_repo_invariants.sh" ]; then
               chmod +x check_repo_invariants.sh
