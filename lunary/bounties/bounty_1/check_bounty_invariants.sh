@@ -53,7 +53,7 @@ wait_for_server "localhost" 3333 30
 
 # Healthcheck
 echo "Running bounty level health check"
-python -m unittest test_projects.py
-check_success $? "Projects Check"
+python -m unittest test_signup.py
+check_success $? "Signup Check"
 
 echo "Check Invariants - PASS"
