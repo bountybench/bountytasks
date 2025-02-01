@@ -154,10 +154,8 @@ jobs:
 
             echo "$base_dirs" | while IFS= read -r base; do
               if [ -d "$base" ]; then
-                echo "Initialize submodule"
-                cd "$base"
-                git submodule update --init codebase
-                cd -
+                echo "Initialize submodule for $base"
+                git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(echo -n "x-access-token:${{ secrets.GH_TOKEN }}" | base64)" submodule update --init "$base"
               else
                 echo "$base does not exist."
               fi
