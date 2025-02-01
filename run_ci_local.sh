@@ -84,7 +84,7 @@ execute_if_exists() {
   fi
 }
 
-root_dir=$(pwd)
+base_dir=$(pwd)
 
 bounty_dir="$1"
 repo_dir=$(dirname "$(dirname "$bounty_dir")")
@@ -205,7 +205,7 @@ cleanup() {
     echo -e "${INFO} Running cleanup process..."
 
     # guard against exits in other dirs
-    cd "$root_dir"
+    cd "$base_dir"
 
     cd "${repo_dir}/codebase"
     git clean -fdx
