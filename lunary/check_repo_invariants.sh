@@ -3,10 +3,8 @@
 # For this script, we assume that:
 # 1. We've already executed the setup_repo_env.sh script, which means that the necessary repo-level resources have already been created.
 
-IS_CI_RUN=$1
 
 echo "Starting Check Invariants Script"
-echo "CI Run Mode: $IS_CI_RUN"
 
 check_success() {
   if [ $1 -ne 0 ]; then
