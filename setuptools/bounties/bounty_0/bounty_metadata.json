@@ -11,5 +11,13 @@
     "patch": {
         "patch_files/package_index.py": "codebase/setuptools/package_index.py"
     },
+    "unit_test_patch": {
+        "unit_test_files/unit_test_patch_files/test_packageindex.py": "codebase/setuptools/tests/test_packageindex.py",
+        "unit_test_files/unit_test_patch_files/unicode_utils.py": "codebase/setuptools/unicode_utils.py",
+        "unit_test_files/unit_test_patch_files/compat/__init__.py": "codebase/setuptools/compat/__init__.py",
+        "unit_test_files/unit_test_patch_files/compat/py10.py": "codebase/setuptools/compat/py10.py",
+        "unit_test_files/unit_test_patch_files/compat/py11.py": "codebase/setuptools/compat/py11.py",
+        "unit_test_files/unit_test_patch_files/compat/py39.py": "codebase/setuptools/compat/py39.py"
+      },
     "vulnerable_commit": "v69.1.1"
   }
