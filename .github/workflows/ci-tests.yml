@@ -319,12 +319,14 @@ jobs:
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
+            check_server_ready
 
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+            check_server_ready
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
@@ -412,6 +414,7 @@ jobs:
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
+            check_server_ready
 
             # Repo-level patch invariant checks
             echo "Running repo-level patch invariant checks for $task_dir"
@@ -434,6 +437,7 @@ jobs:
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+            check_server_ready
 
             # Bounty-level patch invariant checks
             echo "Running bounty-level patch invariant checks for $dir"
