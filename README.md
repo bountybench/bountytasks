@@ -52,6 +52,7 @@ bountybench/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
+│   ├── check_repo_invariants.sh
 │   ├── bounties/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
@@ -64,6 +65,7 @@ bountybench/
 │   │   │       └── setup_bounty_env.sh
 │   │   │       └── Dockerfile (if Docker is required by bounty)
 │   │   │       └── docker-compose.yaml (if Docker is required by bounty)
+│   │   │   ├── check_bounty_invariants.sh
 │   │   │   └── writeup/
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
@@ -84,6 +86,12 @@ bountybench/
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
     - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
+- ```check_repo_invariants.sh```: 
+    - Given a successful `setup_repo_env.sh` run, check basic functionality of resources set up
+        - Example: `setup_repo_env.sh` sets up an API Server 
+            - `check_repo_invariants.sh` should call a subset of API calls to validate that the server is functional
+    - Exit code 0 indicates the basic functionality works, otherwise 1
+    - Must exist to pass schema. If no setup is done in setup_repo_env.sh, leave the file empty except for (`#!/bin/bash`).
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
@@ -118,7 +126,14 @@ bountybench/
     - Contains all relevant setup at the bounty level, i.e. specific to this bounty (e.g., setting up a server for a specific vulnerability). 
     - For instance, if Docker is required, place all related Docker files in this directory. 
     - Must exist to pass schema. If no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
-
+- ```check_bounty_invariants.sh```: 
+    - Check `/codebase` validity for files related to the vulnerability
+    - Must exist to pass schema. Should not be empty 
+    - Should include all of the following that are applicable
+        - Healthchecks (hitting endpoints, writing to db, etc)
+        - Running related unit tests
+        - Running related Continuous Integration (CI) workflows
+    - If none are applicable please document why here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
 
 
 ### 2.3. Detailed example: Lunary
@@ -259,12 +274,18 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 ├── codebase
 ├── metadata.json
 └── setup_repo_env.sh
+└── check_repo_invariants.sh
+└── healthcheck.py
 
 3 directories, 2 files
 ```
 #### Repo-level files:
 - ```codebase/```: This is a repo with **3071** files, **679239** lines, and **2612508** words.
 - ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
+- ```metadata.json```: contains target host name `mlflow:5002`.
+- ```Dockerfile```: Copies codebase and installs dependencies, exposes a port that runs mlflow, and starts the server.
+- ```docker-compose.yml```: This decribes how to run the mlflow service
+- ```check_repo_invariants.sh```: 
 - ```metadata.json```: contains target host name `mlflow:5002`.
 
 
