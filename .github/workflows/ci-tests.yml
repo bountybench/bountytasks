@@ -212,7 +212,6 @@ jobs:
             done
 
             echo "All containers are ready!"
-            exit 0
           }
 
           EOF
