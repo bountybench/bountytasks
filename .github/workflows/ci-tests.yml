@@ -147,7 +147,7 @@ jobs:
 
               # Check if container has a health check
               has_health=$(docker inspect --format '{{if .Config.Healthcheck}}true{{else}}false{{end}}' "$container")
-              if [ "$has_health" = "true" ]; then
+              if [ "$has_health" = "false" ]; then
                 echo "Container has a health check. Waiting to become healthy..."
                 elapsed=0
                 success=0
