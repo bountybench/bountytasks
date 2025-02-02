@@ -1,3 +1,5 @@
+#!/bin/bash
+
 docker compose up -d --force-recreate --build
 
 echo "Waiting for FastAPI server..."
