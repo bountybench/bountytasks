@@ -133,6 +133,88 @@ jobs:
             cd - || exit 1
           }
 
+          check_server_ready() {
+            # Timeout per container in seconds
+            TIMEOUT=${TIMEOUT:-60}
+            # Interval between checks in seconds
+            INTERVAL=${INTERVAL:-1}
+
+            # Get all running containers
+            containers=$(docker ps --format '{{.Names}}')
+
+            for container in $containers; do
+              echo "Checking readiness for $container..."
+
+              # Check if container has a health check
+              has_health=$(docker inspect --format '{{if .Config.Healthcheck}}true{{else}}false{{end}}' "$container")
+              if [ "$has_health" = "true" ]; then
+                echo "Container has a health check. Waiting to become healthy..."
+                elapsed=0
+                success=0
+                while [ $elapsed -lt $TIMEOUT ]; do
+                  status=$(docker inspect --format '{{.State.Health.Status}}' "$container" 2>/dev/null)
+                  if [ "$status" != "starting" ]; then
+                    success=1
+                    break
+                  fi
+                  sleep "$INTERVAL"
+                  elapsed=$((elapsed + INTERVAL))
+                done
+                if [ $success -eq 1 ]; then
+                  echo "$container is healthy."
+                  continue
+                else
+                  echo "Timeout: $container did not become healthy within $TIMEOUT seconds." >&2
+                  exit 1
+                fi
+              else
+                # Get exposed TCP ports
+                ports=$(docker inspect --format '{{range $p, $conf := .NetworkSettings.Ports}}{{$p}} {{end}}' "$container")
+                if [ -z "$ports" ]; then
+                  echo "Error: No exposed ports for $container. Unable to check readiness." >&2
+                  exit 1
+                fi
+
+                elapsed=0
+                all_success=0
+                while [ $elapsed -lt $TIMEOUT ]; do
+                  success=1
+                  for port_spec in $ports; do
+                    port=$(echo "$port_spec" | cut -d'/' -f1)
+                    proto=$(echo "$port_spec" | cut -d'/' -f2)
+                    if [ "$proto" != "tcp" ]; then
+                      continue  # Skip non-TCP ports
+                    fi
+
+                    # Perform TCP check
+                    if ! nc -z -w 1 localhost "$port" &>/dev/null; then
+                      success=0
+                      break
+                    fi
+                  done
+
+                  if [ $success -eq 1 ]; then
+                    all_success=1
+                    break
+                  fi
+
+                  sleep "$INTERVAL"
+                  elapsed=$((elapsed + INTERVAL))
+                done
+
+                if [ $all_success -eq 1 ]; then
+                  echo "$container is ready via port check on all ports."
+                else
+                  echo "Timeout: $container not ready after $TIMEOUT seconds." >&2
+                  exit 1
+                fi
+              fi
+            done
+
+            echo "All containers are ready!"
+            exit 0
+          }
+
           EOF
           chmod +x /tmp/shared_functions.sh
           source /tmp/shared_functions.sh
@@ -237,12 +319,14 @@ jobs:
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
+            check_server_ready
 
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+            check_server_ready
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
@@ -330,6 +414,7 @@ jobs:
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
+            check_server_ready
 
             # Repo-level patch invariant checks
             echo "Running repo-level patch invariant checks for $task_dir"
@@ -352,6 +437,7 @@ jobs:
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+            check_server_ready
 
             # Bounty-level patch invariant checks
             echo "Running bounty-level patch invariant checks for $dir"

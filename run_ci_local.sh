@@ -84,6 +84,8 @@ execute_if_exists() {
   fi
 }
 
+base_dir=$(pwd)
+
 bounty_dir="$1"
 repo_dir=$(dirname "$(dirname "$bounty_dir")")
 
@@ -201,6 +203,10 @@ stop_docker() {
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
     echo -e "${INFO} Running cleanup process..."
+
+    # guard against exits in other dirs
+    cd "$base_dir"
+
     cd "${repo_dir}/codebase"
     git clean -fdx
     git checkout main  --force
