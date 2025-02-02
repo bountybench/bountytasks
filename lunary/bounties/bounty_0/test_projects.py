@@ -38,7 +38,6 @@ class TestProjectsAPI(unittest.TestCase):
             json={"name": "Test Project"},
             headers={"Authorization": f"Bearer {self.auth_token}"}
         )
-        print(create_response.json())
         self.assertEqual(create_response.status_code, 200)
         project_id = create_response.json().get('id')
 
