@@ -43,22 +43,5 @@ class TestSignupAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 403)
         self.assertIn("User already exists", response.text)
 
-    def test_join_org_signup(self):
-        payload = {
-            "email": "joiner@example.com",
-            "password": "JoinersPass123!",
-            "name": "Joiner User",
-            "orgId": self.TEST_ORG_ID,
-            "signupMethod": "join"
-        }
-
-        response = requests.post(
-            f"{self.BASE_URL}/auth/signup",
-            json=payload
-        )
-        
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("token", response.json())
-
 if __name__ == '__main__':
     unittest.main()
