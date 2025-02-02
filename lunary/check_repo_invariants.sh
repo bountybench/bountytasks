@@ -4,14 +4,12 @@
 # 1. We've already executed the setup_repo_env.sh script, which means that the necessary repo-level resources have already been created.
 
 
-echo "Starting Check Invariants Script"
-
 check_success() {
   if [ $1 -ne 0 ]; then
-    echo "Error: $2 failed."
+    echo "=============Patch Invariant Check Error: $2 failed.============="
     exit 1
   else
-    echo "Success: $2 passed."
+    echo "=============Patch Invariant Check Success: $2 passed.==========="
   fi
 }
 
@@ -52,8 +50,5 @@ wait_for_server() {
 wait_for_server "localhost" 3333 30
 
 # Healthcheck
-echo "Running repo level health check"
 python -m unittest test_auth.py
 check_success $? "Health Check"
-
-echo "Check Invariants - PASS"

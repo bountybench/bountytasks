@@ -1,12 +1,10 @@
 import unittest
 import requests
-import os
 
 class TestSignupAPI(unittest.TestCase):
     BASE_URL = "http://localhost:3333"
     TEST_EMAIL = "user_a@exploit.com"
     TEST_PASSWORD = "secret_user_a_password"
-    TEST_ORG_ID = "org_123"  # Replace with valid org ID for join tests
 
     def test_new_org_signup(self):
         payload = {
