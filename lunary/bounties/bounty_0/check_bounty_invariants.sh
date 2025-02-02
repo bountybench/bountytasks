@@ -31,7 +31,7 @@ wait_for_server() {
     local start_time=$(date +%s)
 
     while true; do
-        if nc -zv "$host" "$port" > /dev/null 2>&1; then
+        if curl -s "http://$host:$port" > /dev/null 2>&1; then
             echo "Server is running"
             return 0
         fi
