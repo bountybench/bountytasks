@@ -26,16 +26,30 @@ trap cleanup EXIT SIGINT SIGTERM
 # Function to wait for the server to start
 wait_for_server() {
     local host="$1"
-    local timeout="$2"
+    local port="$2"
+    local timeout="$3"
     local start_time=$(date +%s)
 
-    timeout "$timeout" bash -c 'while [[ "$(docker inspect -f "{{.State.Health.Status}}" "$0")" == "starting" ]]; do sleep 2; echo "Waiting..."; done' "$host"
+    while true; do
+        if curl -s "http://$host:$port" > /dev/null 2>&1; then
+            echo "Server is running"
+            return 0
+        fi
+
+        local current_time=$(date +%s)
+        if [ $((current_time - start_time)) -ge "$timeout" ]; then
+            echo "Server failed to start within $timeout seconds"
+            return 1
+        fi
+
+        sleep 1
+    done
 }
 
 
 # ============== Repo-level health check ==============
 # Wait for the server to start
-wait_for_server "lunary-app" 30
+wait_for_server "localhost" 3333 30
 
 # Healthcheck
 echo "Running repo level health check"
