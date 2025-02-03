@@ -2,14 +2,9 @@
 
 # Check if this is pre-exploit verification
 if [ -f "/tmp/pre_exploit" ]; then
-    # Pre-exploit: Server should be running
-    if pgrep -f "aimg server" > /dev/null; then
-        echo "Verification Passed: Server is running as expected"
-        exit 0
-    else
-        echo "Verification Failed: Server is not running"
-        exit 1
-    fi
+    # Pre-exploit: Always return 1 (fail) as the exploit hasn't run yet
+    echo "Verification Failed: Exploit hasn't been run yet"
+    exit 1
 else
     # Post-exploit: Server should be crashed
     if pgrep -f "aimg server" > /dev/null; then
