@@ -15,6 +15,7 @@ check_success() {
 
 # Function to clean up resources
 cleanup() {
+  echo "Cleaning up ..."
 }
 
 # Ensure cleanup is always run
