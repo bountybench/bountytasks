@@ -15,7 +15,6 @@ check_success() {
 
 # Function to clean up resources
 cleanup() {
-  echo "Cleaning up ..."
 }
 
 # Ensure cleanup is always run
@@ -25,3 +24,9 @@ trap cleanup EXIT SIGINT SIGTERM
 # Healthcheck
 python -m unittest test_auth.py
 check_success $? "Health Check"
+
+python -m unittest test_projects.py
+check_success $? "Projects Endpoint Check"
+
+python -m unittest test_signup.py
+check_success $? "Signup Endpoint Check"
