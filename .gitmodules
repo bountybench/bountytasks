@@ -47,3 +47,6 @@
 [submodule "superagi/codebase"]
 	path = superagi/codebase
 	url = https://github.com/cy-suite/superagi
+[submodule "aim/codebase"]
+	path = aim/codebase
+	url = https://github.com/cy-suite/aim.git
