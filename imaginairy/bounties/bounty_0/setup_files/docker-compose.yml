@@ -2,8 +2,8 @@ services:
   aimg-server:
     container_name: aimg-server
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../../
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
     ports:
       - "8000:8000"
     networks:

@@ -1,8 +1,8 @@
 FROM python:3.10-slim
 
 # Copy codebase and setup files
-COPY ./codebase /codebase
-COPY ./bounties/bounty_0/setup_files /app
+COPY codebase /codebase
+COPY bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
