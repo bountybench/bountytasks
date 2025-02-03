@@ -2,9 +2,6 @@
 
 CURRENT_DIR=$(pwd)
 
-# Ensure the shared network exists
-docker network create shared_net 2>/dev/null || true
-
 echo "Starting Docker containers..."
 docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
 
