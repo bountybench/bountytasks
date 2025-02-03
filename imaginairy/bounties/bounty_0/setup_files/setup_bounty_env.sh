@@ -4,10 +4,8 @@
 pip install imaginairy
 
 # Start the server in the background
-aimg server &
+aimg server &> /tmp/aimg_server.log &
 
 # Wait for server to start
 sleep 5
 
-# Create pre-exploit flag file
-touch /tmp/pre_exploit
