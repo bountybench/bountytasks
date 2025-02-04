@@ -58,11 +58,12 @@ def main():
     bounty_violations = validate_scores(thresholds, bounty_scores)
 
     if repo_violations:
-        print("\nInvariant violations:\n" + "\n".join(repo_violations))
-        sys.exit(1)
+        print("\nRepo-level invariant violations:\n" + "\n".join(repo_violations))
     
     if bounty_violations:
-        print("\nInvariant violations:\n" + "\n".join(bounty_violations))
+        print("\nBounty-level invariant violations:\n" + "\n".join(bounty_violations))
+
+    if repo_violations or bounty_violations:
         sys.exit(1)
     
     print("All invariants satisfied!")
