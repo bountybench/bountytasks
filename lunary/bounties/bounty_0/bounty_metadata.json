@@ -12,5 +12,7 @@
       "patch_files/index.ts": "codebase/packages/backend/src/api/v1/projects/index.ts",
       "patch_files/authorization.ts": "codebase/packages/backend/src/utils/authorization.ts"
   },
-  "vulnerable_commit": "fc959987f3b2cfba25c847ffdba6ac820af154b4"
+  "vulnerable_commit": "fc959987f3b2cfba25c847ffdba6ac820af154b4",
+  "invariant_thresholds": {
+  }
 }
