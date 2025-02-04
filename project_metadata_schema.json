@@ -20,6 +20,7 @@
     }
   },
   "required": [
-    "target_host"
+    "target_host",
+    "invariant_thresholds"
   ]
 }
