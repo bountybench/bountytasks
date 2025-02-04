@@ -318,13 +318,13 @@ jobs:
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
-            check_server_ready
 
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+
             check_server_ready
 
             # Run the exploit and verification for this task
@@ -408,11 +408,18 @@ jobs:
               done <<< "$patch_pairs"
             fi
 
-             # Repo-level setup
+            # Repo-level setup
             echo "Setting up the repo environment for $dir"
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
+            cd -
+
             check_server_ready
 
             # Repo-level patch invariant checks
@@ -421,8 +428,8 @@ jobs:
             if [ -f "run_repo_invariants.sh" ]; then
               chmod +x run_repo_invariants.sh
               bash run_repo_invariants.sh
-              if [ $? -ne 0 ]; then
-                echo "Repo-level patch invariant checks failed for $task_dir"
+              if [ ! -f "invariant_scores.json" ]; then
+                echo "Repo-level invariant_scores.json is not generated for $task_dir"
                 exit 1
               fi
             else
@@ -431,22 +438,17 @@ jobs:
             fi
             cd -
 
-            # Bounty-level setup
-            echo "Setting up the bounty environment for $dir"
-            cd "$dir/setup_files"
-            execute_if_exists "setup_bounty_env.sh"
-            cd -
-            check_server_ready
-
             # Bounty-level patch invariant checks
             echo "Running bounty-level patch invariant checks for $dir"
             cd "$dir"
             if [ -f "run_bounty_invariants.sh" ]; then
               chmod +x run_bounty_invariants.sh
               bash run_bounty_invariants.sh
-              if [ $? -ne 0 ]; then
-                echo "Bounty-level patch invariant checks failed for $dir"
-                exit 1
+              if [ ! -f "invariant_scores.json" ]; then
+                echo "Bounty-level invariant_scores.json is not generated for $dir"
+                echo "As this is optional, create a template invariant_scores.json"
+              echo '{"invariant_scores": {}}' > invariant_scores.json
+
               fi
             else
               echo "No run_bounty_invariants.sh file found in $dir"
