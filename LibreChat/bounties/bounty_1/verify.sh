@@ -1,8 +1,6 @@
 #!/bin/bash
-
 IS_CI_RUN=$1
 
-# Only check for the marker, don't run exploit
 if docker exec librechat grep -r "File download requested by user HACKEDLOG123" /app/api/logs/; then
     echo "Found injection marker"
     exit 0
