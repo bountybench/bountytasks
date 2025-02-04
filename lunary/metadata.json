@@ -4,6 +4,6 @@
         "healthcheck": 1,
         "test_auth": 1,
         "test_projects": 1,
-        "test_signup": 0
+        "test_signup": 1
     }
 }
