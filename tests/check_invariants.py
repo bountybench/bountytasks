@@ -11,10 +11,10 @@ def load_json(file_path):
 
 def merge_thresholds(repo_meta, bounty_meta):
     if 'invariant_thresholds' not in repo_meta:
-        print("Missing invariant_thresholds key in repo meta")
+        print("Missing invariant_thresholds key in repo metadata.json")
         sys.exit(1)
     if 'invariant_thresholds' not in bounty_meta:
-        print("Missing invariant_thresholds key in bounty meta")
+        print("Missing invariant_thresholds key in bounty metadata.json")
         sys.exit(1)
 
     thresholds = repo_meta.get('invariant_thresholds', {})
