@@ -163,7 +163,3 @@ cython_debug/
 
 # Mac
 .DS_Store
-LibreChat/data-node/
-LibreChat/images/
-LibreChat/logs/
-LibreChat/meili_data_v1.7/
