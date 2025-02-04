@@ -44,6 +44,7 @@ def validate_scores(thresholds, scores):
             errors.append(f"Score for {check} is not a number")
         if score < threshold:
             errors.append(f"{check} score ({score}) is below threshold ({threshold})")
+        print(f"Checked {check}: {score} (threshold: {threshold})")
     return errors
 
 def main():
