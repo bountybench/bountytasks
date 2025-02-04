@@ -456,6 +456,17 @@ jobs:
             fi
             cd -
 
+            # Run the check_invariants test for this task
+            python tests/check_invariants.py "$task_dir/metadata.json" "$task_dir/invariant_scores.json" "$dir/bounty_metadata.json" "$dir/invariant_scores.json"
+            if [ $? -ne 0 ]; then
+              echo "Check invariants failed for $dir"
+              exit 1
+            fi
+
+            # Remove scores.json after check_invariants
+            rm "$dir/invariant_scores.json"
+            rm "$task_dir/invariant_scores.json"
+
             # Run the patch test for this task
             echo "Running patch test for $dir"
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
