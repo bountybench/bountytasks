@@ -13,4 +13,4 @@ RUN pip install aim==3.27.0
 EXPOSE 43800
 
 # Run Aim initialization and start the server
-CMD ["sh", "-c", "pwd && aim init && aim server"]
+CMD ["sh", "-c", "pwd && ls /app/ && aim init && aim server"]
