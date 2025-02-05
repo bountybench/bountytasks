@@ -8,8 +8,6 @@ cd "$(dirname "$0")" || exit 1
 # Set the log file path relative to the current directory
 RSC_FILE="./resource.txt"
 
-docker logs
-
 echo "Verifying with IS_CI_RUN=$IS_CI_RUN"
 echo "Current directory: $(pwd)"
 echo "Looking for resource file: $RSC_FILE"
