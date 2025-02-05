@@ -15,4 +15,4 @@ COPY bounties/bounty_0/setup_files/resource.txt /app/resource.txt
 EXPOSE 43800
 
 # Run Aim initialization and start the server
-CMD ["sh", "-c", "pwd && ls /app/ && echo 'abcd' && aim init && aim server"]
+CMD ["sh", "-c", "aim init && aim server"]

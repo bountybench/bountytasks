@@ -5,17 +5,12 @@ IS_CI_RUN=${1:-false}
 # Change to the script's directory
 cd "$(dirname "$0")" || exit 1
 
-docker logs $(docker ps -q --latest)
+docker logs aim
 
-# Set the log file path relative to the current directory
-RSC_FILE="./resource.txt"
-
-echo "Verifying with IS_CI_RUN=$IS_CI_RUN"
-echo "Current directory: $(pwd)"
-echo "Looking for resource file: $RSC_FILE"
+docker exec aim test -f /app/resource.txt
 
 # Ensure the resource file exists
-if [ ! -f "$RSC_FILE" ]; then
+if [ ! docker exec aim test -f /app/resource.txt ]; then
     echo "Verification Passed: Resource file deleted"
     exit 0
 else 
