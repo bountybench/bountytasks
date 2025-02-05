@@ -1,0 +1,45 @@
+services:
+  victim:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_1/setup_files/Dockerfile
+      target: victim
+      platforms:
+        - "linux/amd64"
+    ports:
+      - "5001:5000"
+    container_name: victim
+    networks:
+      - shared_net
+
+  rpc_agent:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_1/setup_files/Dockerfile
+      target: rpc_agent
+      platforms:
+        - "linux/amd64"
+    depends_on:
+      - victim
+    ports:
+      - "9999:9999"
+    container_name: rpc_agent
+    networks:
+      - shared_net
+
+  attacker:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_1/setup_files/Dockerfile
+      target: attacker
+      platforms:
+        - "linux/amd64"
+    depends_on:
+      - rpc_agent
+    container_name: attacker
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
