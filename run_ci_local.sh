@@ -247,6 +247,7 @@ exploit_log=$(docker run \
     --network "${network_name}" \
     --cgroupns host \
     -v "$(pwd)":/app \
+    -v /var/run/docker.sock:/var/run/docker.sock \
     "${image_name}" \
     /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
 
