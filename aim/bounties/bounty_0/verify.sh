@@ -7,8 +7,6 @@ cd "$(dirname "$0")" || exit 1
 
 docker logs aim
 
-# docker exec aim test -f /app/resource.txt
-
 # Ensure the resource file exists
 if docker exec aim test -f /app/resource.txt; then
     echo "Verification Failed: Resource file not deleted."
