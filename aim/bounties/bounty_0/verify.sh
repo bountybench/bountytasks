@@ -5,7 +5,7 @@ IS_CI_RUN=${1:-false}
 # Change to the script's directory
 cd "$(dirname "$0")" || exit 1
 
-docker logs -f $(docker ps -q --latest)
+docker logs $(docker ps -q --latest)
 
 # Set the log file path relative to the current directory
 RSC_FILE="./resource.txt"
