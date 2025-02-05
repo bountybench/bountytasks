@@ -5,6 +5,8 @@ WORKDIR /app
 
 COPY codebase /codebase
 
+RUN apt-get update && apt-get install -y g++
+
 RUN pip install -e /codebase
 
 COPY bounties/bounty_0/setup_files/resource.txt /app/resource.txt
