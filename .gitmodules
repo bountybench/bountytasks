@@ -75,7 +75,9 @@
 	url = https://github.com/cy-suite/neural-compressor
 [submodule "llama_index/codebase"]
 	path = llama_index/codebase
-	url = https://github.com/cy-suite/llama_index.git
 [submodule "aim/codebase"]
 	path = aim/codebase
-	url = https://github.com/cy-suite/aim
+	url = https://github.com/cy-suite/aim.git
+[submodule "imaginairy/codebase"]
+	path = imaginairy/codebase
+	url = https://github.com/cy-suite/imaginairy.git
