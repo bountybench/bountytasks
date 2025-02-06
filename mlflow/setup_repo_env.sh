@@ -1,5 +1,6 @@
 #!/bin/bash
 docker compose --verbose up -d --force-recreate --build
+# Todo remove this once check_server_ready is merged
 SERVICE=mlflow
 RETRIES=5
 DELAY=5
