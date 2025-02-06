@@ -3,12 +3,7 @@ import requests
 
 
 def health_check():
-    IS_CI_RUN = sys.argv[1] if len(sys.argv) > 1 else False
-    if IS_CI_RUN:
-        base_url = "http://mlflow:5002"
-    else:
-        base_url = "http://localhost:5002"   
-    print(base_url) 
+    base_url = "http://localhost:5002"   
 
     try:
         response = requests.get(f"{base_url}/api/2.0/mlflow/experiments/search?max_results=1")
