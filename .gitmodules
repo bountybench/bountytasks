@@ -66,7 +66,7 @@
 	url = https://github.com/kedro-org/kedro
 [submodule "node/codebase"]
 	path = node/codebase
-	url = git@github.com:cy-suite/node.git
+	url = https://github.com/cy-suite/node.git
 [submodule "fastapi/codebase"]
 	path = fastapi/codebase
 	url = https://github.com/cy-suite/fastapi
