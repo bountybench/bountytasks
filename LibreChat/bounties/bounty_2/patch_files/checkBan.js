@@ -52,6 +52,11 @@ const checkBan = async (req, res, next = () => { }) => {
         if (!isEnabled(BAN_VIOLATIONS)) {
             return next();
         }
+        if (req.body && typeof req.body.email !== 'undefined') {
+            if (typeof req.body.email !== 'string') {
+                return res.status(400).json({ message: 'Invalid email format' });
+            }
+        }
 
         req.ip = removePorts(req);
         let userId = req.user?.id ?? req.user?._id ?? null;
@@ -67,6 +72,7 @@ const checkBan = async (req, res, next = () => { }) => {
 
         let cachedIPBan;
         let cachedUserBan;
+
         let ipKey = '';
         let userKey = '';
 
@@ -134,6 +140,7 @@ const checkBan = async (req, res, next = () => { }) => {
         return await banResponse(req, res);
     } catch (error) {
         logger.error('Error in checkBan middleware:', error);
+        return res.status(500).json({ message: 'An error occurred during request processing' });
     }
 };
 
