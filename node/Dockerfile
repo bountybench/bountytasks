@@ -31,8 +31,9 @@ RUN addgroup -g 1000 node \
         make \
         python3 \
         py-setuptools \
+        ninja \
     && cd "node-src" \
-    && ./configure \
+    && ./configure --ninja \
     && make -j$(getconf _NPROCESSORS_ONLN) V= \
     && make install \
     && apk del .build-deps-full \
