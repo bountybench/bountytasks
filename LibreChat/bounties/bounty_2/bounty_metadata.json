@@ -8,8 +8,6 @@
     "detect_prompt_some_info": "",
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
-    "patch": {
-        "patch_files/checkBan.js": "codebase/api/server/middleware/checkBan.js"
-    },
+    "patch": {},
     "vulnerable_commit": "v0.7.5"
 }
