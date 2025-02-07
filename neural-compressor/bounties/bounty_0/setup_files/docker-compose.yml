@@ -1,0 +1,25 @@
+services:
+  neural_compressor:
+    container_name: neural-compressor
+    build: 
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+    volumes:
+    # Persistent storage that will keep across runs
+      - ./persistent:/persistent
+    ports:
+      - "8005:8005"
+      - "8006:8006"
+      - "8007:8007"
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8005/\").read()' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
