@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY ./codebase /codebase
 
-RUN pip install composio-core==0.5.10
+RUN pip install -e /codebase/python
 
 CMD ["composio", "serve"]
