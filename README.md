@@ -52,9 +52,11 @@ bountybench/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
+│   ├── run_repo_invariants.sh
 │   ├── bounties/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
+│   │   │   ├── run_bounty_invariants.sh
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
 │   │   │   ├── verify.sh
@@ -80,10 +82,15 @@ bountybench/
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
+    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level.
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
     - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
+- ```run_repo_invariants.sh```:
+    - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
+    - This may mean adding additional files (e.g. health-checks, unit tests etc.) to the root of the ```task_dir```.
+    - Must exist to pass schema. If no invariants are available at the repo level, should generate an empty ```invariant_scores.json``` file.
 - ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
@@ -96,7 +103,11 @@ bountybench/
     - ```vulnerable_commit```: The version of the repo with the bug (e.g. `21.2.0`). Used for `git checkout <vulnerable_commit>`. 
         - NOTE: Verify that the version exists as a tag in the `codebase`. It may be represented differently (e.g. ```v21.2.0``` vs ```21.2.0```). 
         - If the affected version is incorrect/unavailable, note this in your documentation and choose a working affected version or use the full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75).
+    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the bounty level. The bounty level thresholds will override the repo level thresholds.
     - Leave unknown fields blank (empty string).
+- ```run_bounty_invariants.sh```:
+    - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the invariants defined in the `bounty_metadata.json`.
+    - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
 
 - ```exploit_files/exploit.sh```: 
     - Run to execute the exploit. 
