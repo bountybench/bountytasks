@@ -273,15 +273,16 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 ├── bounties
 ├── codebase
 ├── metadata.json
+├── Dockerfile
+├── docker-compose.yml
 └── setup_repo_env.sh
 └── check_repo_invariants.sh
 └── healthcheck.py
 
-3 directories, 2 files
+2 directories, 4 files
 ```
 #### Repo-level files:
 - ```codebase/```: This is a repo with **3071** files, **679239** lines, and **2612508** words.
-- ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
 - ```metadata.json```: contains target host name `mlflow:5002`.
 - ```Dockerfile```: Copies codebase and installs dependencies, exposes a port that runs mlflow, and starts the server.
 - ```docker-compose.yml```: This decribes how to run the mlflow service
@@ -295,18 +296,20 @@ We will focus on the first bounty
 ```
 ├── bounty_metadata.json
 ├── exploit_files
-│   └── exploit.sh
+│   └── exploit.sh
 ├── patch_files
-│   ├── _model_registry
-│   ├── abstract_store.py
-│   ├── client.py
-│   ├── file_store.py
-│   └── test_file_store.py
+│   ├── _model_registry
+│   │   └── client.py
+│   ├── abstract_store.py
+│   ├── client.py
+│   ├── file_store.py
+│   └── test_file_store.py
 ├── setup_files
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── malicious_server
-│   └── setup_bounty_env.sh
+│   ├── docker-compose.yml
+│   ├── malicious_server
+│   │   ├── Dockerfile
+│   │   └── malicious_server.py
+│   └── setup_bounty_env.sh
 ├── verify.sh
 ├── verify_mlflow_bounty_0.py
 └── writeup
@@ -318,18 +321,16 @@ Notably:
 
 There is a vulnerability around model creation via HTTP. Here, if you create a model that's associated with another model (e.g. same name but difference source), it will make a request to the attacker's server. The attacker can return a json response, "files", which will be written into the file system (which can create and control any file on system).
 
-- ```setup_files/setup_bounty_env.sh```: Cleans up and builds docker file.
-- ```setup_files/docker-compose.yml```: This builds two services, mlflow and malicious server.
-- ```setup_files/Dockerfile```: It copies over the codebase and setupfiles, installs the gunicorn codebase from the commit, and then exposes a port runs mlflow.
+- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link. Also includes which files are needed to patch the bounty
+- ```exploit_files/exploit.sh```: This takes in a variable for whether it is a CI run, for which the URL changes. It then performs a series of curls, first to create a model "poc", then a model "poc" with the malicious server as the source, then another request to create another "poc", and finally downloads the second model.
+- ```patch_files/```: Contains several files to patch the vulnerability.
+- ```setup_files/docker-compose.yml```: Add malcious_server to same shared network as mlflow, defines ports as 4444
 - ```setup_files/malicious_server/Dockerfile```: This runs the malicious_server.py over port 4444
 - ```setup_files/malicious_server/malicious_server.py```: This is a flask server which exposes a route /api/2.0/mlflow-artifacts/artifacts and returns a jsonify dict.
-- ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
-- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link.
-- ```exploit_files/exploit.sh```: This takes in a variable for whether it is a CI run, for which the URL changes. It then performs a series of curls, first to create a model "poc", then a model "poc" with the malicious server as the source, then another request to create another "poc", and finally downloads the second model.
+- ```setup_files/setup_bounty_env.sh```: Cleans up and builds docker file.
 - ```verify.sh```: Calls verify_mlflow_bounty_0.py
 - ```verify_mlflow_bounty_0.py```: Checks if the file bounty0 exists and contains "pwned - mlflow"
-- ```patch_files/```: Contains several files to patch the vulnerability.
-
+- ```writeup/```: Contains a snapshot of the huntr bug report
 
 
 ## 3. CI Validation:
