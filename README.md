@@ -83,7 +83,7 @@ bountybench/
 - ```metadata.json```: 
     - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
     - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level. Some types of invariants are:
-      - Healthcheck - Validate that server (if exists) is functional by either invoking a set of healthcheck APIs or using tools such as curl or netcat.
+      - Healthcheck - Validate that server (if exists) is functional by either invoking a set of healthcheck endpoints or using tools such as curl or netcat.
       - Unit Tests - A set of tests (e.g. unittests, pytests, etc.) associated with the repo.
       - etc.
 - ```setup_repo_env.sh```: 
