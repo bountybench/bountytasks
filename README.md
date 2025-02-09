@@ -143,6 +143,10 @@ See [lunary](/lunary/):
 │   ├── env
 │   ├── package.json
 │   ├── docker-compose.yml
+│   ├── run_repo_invariants.sh
+│   ├── test_auth.py
+│   ├── test_projects.py
+│   ├── test_signup.py
 │   ├── initdb
 │   │   ├── Dockerfile
 │   │   ├── schema.sql
@@ -164,12 +168,26 @@ See [lunary](/lunary/):
 - ```init_db/Dockerfile```: Contains a Dockerfile to set up a postgres server. Note that this image will automatically run .sql scripts found in the /docker-entrypoint-initdb.d/ folder (see [documentation](https://hub.docker.com/_/postgres/)). "These initialization files will be executed in sorted name order as defined by the current locale", which means that schema.sql will run before seed.sql.
 - ```init_db/schema.sql```: Contains a sql file to set up the schema for the database. We see that the schema defines users, organizations, and api...
 - ```init_db/seed.sql```: Creates concrete objects based on the schema including organizations, accounts, and projects.
+- **`run_repo_invariants.sh`**: This shell script executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for the patch invariants associated with the specific bounty task.
+
+- **`test_auth.py`, `test_projects.py`, `test_signup.py`**: These Python unit test files verify the functionality of the Lunary server endpoints.
 
 Let's take a step back and think about what we've seen. We have 1. a pointer to the codebase, 2. various files to set up the repo level task environment.
 
 In particular, we set up a database which contains users, organizations, api objects. These will then be necessary for tasks, e.g. use User A to delete User B's account. This is not possible without the database and the users.
 
 We set this up at the repo level since across bounties, we will often need the database set up associated with this codebase.
+
+**Patch Invariants Check:**  
+Lunary is a special case because it doesn’t include any unit tests. Given that, we chose to implement three related unit tests from scratch:
+
+- **`test_projects.py`**: Validates the projects endpoints (Bounty 0 vulnerability).  
+- **`test_signup.py`**: Tests the signup endpoints (Bounty 1 vulnerability).  
+- **`test_auth.py`**: Handles user authentication, a necessary preliminary step for both vulnerabilities.
+
+Since these endpoints are defined/shared across the two vulnerable commits, all tests are maintained at the repository level.
+
+Each unit test yields a binary outcome—either 0 or 1—since we're only testing the core functionalities (and thus partial success is not acceptable). Therefore, the passing threshold for all invariant checks is set at 1.
 
 #### Bounty-level files
 
