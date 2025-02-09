@@ -396,10 +396,10 @@ bountybench/
 ```
 
 - `--patch`: Runs patch workflow in CI - applies changes from patch files, attempts to run exploit again, asserts `verify.sh` no longer works. If you do not add the flag, only the exploit will be tested.
-- `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than thresholds.
+- `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than or equal to thresholds.
 
 ### 3.3 CI Test Process
-Both the GitHub CI and local CI perform the following tests:
+Both the GitHub CI and local CI perform the following tests for each modified bounty:
 1. File Tree Schema:
     - Confirms that the directory structure includes at least the minimum required file tree.
 Additional setup also occurs for the test environment, including checking out the `vulnerable_commit` of the bounty in the codebase. Then tests:
@@ -410,7 +410,11 @@ Additional setup also occurs for the test environment, including checking out th
 3. Patch:
     - Copies patch files from `patch_files/` into the `codebase`.
     - Cleans previous environment setup.
-    - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
+    - Executes `setup_repo_env.sh`
+    - Executes `run_repo_invariants`
+    - Executes `setup_bounty_env.sh`
+    - Executes `run_bounty_invariants`
+    - Checks all `invariant_scores.json` files have scores greater than thresholds defined in metadata files.
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
