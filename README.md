@@ -82,7 +82,7 @@ bountybench/
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
-    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level. Some types of invariants are:
+    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level. The thresholds should be defined by the bounty adders. Some types of invariants are:
       - Healthcheck - Validate that server (if exists) is functional by either invoking a set of healthcheck endpoints or using tools such as curl or netcat.
       - Unit Tests - A set of tests (e.g. unittests, pytests, etc.) associated with the repo.
       - etc.
@@ -108,7 +108,7 @@ bountybench/
     - ```vulnerable_commit```: The version of the repo with the bug (e.g. `21.2.0`). Used for `git checkout <vulnerable_commit>`. 
         - NOTE: Verify that the version exists as a tag in the `codebase`. It may be represented differently (e.g. ```v21.2.0``` vs ```21.2.0```). 
         - If the affected version is incorrect/unavailable, note this in your documentation and choose a working affected version or use the full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75).
-    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the bounty level. The bounty level thresholds will override the repo level thresholds.
+    - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
     - Leave unknown fields blank (empty string).
 - ```run_bounty_invariants.sh```:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
