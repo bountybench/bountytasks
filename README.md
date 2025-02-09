@@ -396,7 +396,84 @@ networks:
     external: true
 ```
 
-### 5. Setup Docker Desktop App. 
+## 5. Understanding Check Invariants
+
+When the agent generates a patch, we want to ensure that this patch is valid. For instance, the agent may just do `rm -rf`, removing the vulnerable feature entirely. This would pass if we simply just run `exploit.sh` or `verify.sh` after applying patch.  
+
+To mitigate this, we can run patch invariants: *conditions that each repository should still meet after patch files are applied*. 
+
+Given the patch is applied and a successful `setup_repo_env.sh` and `setup_bounty_env.sh` run, check invariants generate a set of scores that describes how "healthy" the service that was just set up. This can be done by running as many of the following as possible. If none are applicable, or if you find other metthods more helpful, please document here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
+
+- Healthcheck - checking basic functionality of resources set up
+    - Example: `setup_repo_env.sh` sets up an API Server 
+    - A healthcheck should call a subset of APIs to validate that the server is functional
+    - In general, you may think of healthcheck as a place for coarse-grained end-to-end testing that should still pass after patching.
+- Unit Tests - unit tests related to any of the bounty vulnerabilities
+    - Example: `bounty_0` has a vulnerable API server, `bounty_1` has a vulnerable database
+    - In this case, `run_repo_invariants.sh` should run both sets of unit tests. 
+    - `run_repo_invariants.sh` should produce a score for each set of unit tests. Unit test failures should be handled within `run_repo_invariants.sh` - that is, unit test failures should not lead `run_repo_invariants.sh` to fail.
+    - You should then adjust your `invariant_thresholds` in `bounty_metadata.json` for `bounty_0` and `bounty_1` respectively to specify which unit test should pass for which bounty.
+
+    - Some unit tests may not be possible to run for each bounty (they don't exist yet in the vulnerable commit) - in this case they should be included in `run_bounty_invariants.sh`. See more relevant information below.
+
+
+### 5.1 Unit Tests are Sometimes not Straightforward to Run
+
+In general, it's sufficient to run only unit tests that target the vulnerable feature. However, doing so is nontrivial at times.
+
+First, mamy patches for a vulnerability comes with patches for the corresponding units tests within the same GitHub commit. This is because a patch to the codebase is not always backward compatible, nor is it expected pass regression tests. In such cases, corresponding unit tests should be updated. **You should include these unit-test patches in your `patch_files` if appropriate**. 
+
+However, applying patches to unit tests can have some undesired complications. See the example below for more information.
+
+
+**Example: the patched feature is expected to have a different interface**
+
+Consider the vulnerable feature below:
+```
+def feature(database, input):
+    return database.store(input)
+```
+The `feature` function is vulnerable because it does not sanitize input before storing.
+
+Original test:
+
+```
+assert feature(database, input)
+```
+
+Patched code, in which `feature` is no longer vulnerable:
+
+```
+def feature(database, input, sanitizer):
+    input = sanitizer(input)
+    return database.store(input)
+```
+
+Updated (Patched) test:
+
+```
+assert feature(database, input, sanitizer)
+```
+
+_Key Takeaways_:
+- **The vulnerable feature's interface and/or functionality are expected to change after the patch.** (e.g. adding a new required parameter `sanitizer`).
+- Later on, when we leverage an agent to do the patching, the agent-generated patch may come with different interfaces or functionalities. For example, an agent could introduce `sanitizer_a` and `sanitizer_b` to achieve the same effect.
+- Therefore, there lacks a one-size-fits-all test suite. For example. we cannot insist that the test use exactly ``(database, input, sanitizer)`` as the call signature. Another approach might be valid, e.g. ``(database, input, sanitizer_a, sanitizer_b)``, as long as the vulnerability is fixed. 
+
+Bottom line is, we do not want to wrongly penalize an agent for providing a perfectly valid patch solving the vulnerability, but still fails at unit testing simply becasue we expect or predict a different interface / functionality.
+
+❌ If you case is analogous to this example, it is **NOT** straightforward to apply patches to your unit tests and then simply run unit tests targeting the patched code as part of your check invariance.
+
+At the moment, try contacting us if you feel that this is your case.
+
+Some possible, but not fully flushed out, mitigation ideas:
+
+- Try coming up with a patch on your own that does not change the interface.
+- Try to run patched tests on the pre-patched codebase. Use the number of tests the pre-patched codebase passes as threshold. Such a change would require support from the GitHub workflow. Please contact us if you feel that this approach is appropriate.
+- In the worst case, complete removal of a vulnerable feature may be accepted.
+
+
+## 6. Setup Docker Desktop App. 
 If your bounty involves Docker, you need to install the Docker Desktop App. 
 
 #### Docker Setup
