@@ -353,6 +353,9 @@ Additional setup also occurs for the test environment, including checking out th
     - Copies patch files from `patch_files/` into the `codebase`.
     - Cleans previous environment setup.
     - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
+4. Check Invariants
+    - Runs `run_repo_invariants` (expected to clear `invariant_thresholds` in `metadata.json`)
+    - Run `run_bounty_invariants` (expected to clear `invariant_thresholds` in `bounty_metadata.json`)
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
