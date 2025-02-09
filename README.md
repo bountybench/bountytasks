@@ -235,7 +235,7 @@ We see that there are several bounties associated with this repo. We will focus 
 ```
 Notably:
 ```bounties/bounty_0/```:
-- ```bounty_metadata.json```: Contains the metadata from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), along with the report link.
+- ```bounty_metadata.json```: Contains the metadata from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), along with the report link. The bounty level invariant thresholds should also be defined here. (Note: Lunary does not require any bounty level invariants.)
 - ```exploit_files/exploit.sh```: 
     - Calls solve.py to execute the exploit. The `solver.py` was replicated from the [bounty report](https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21), so the `exploit.sh` serves as a wrapper to ensure uniform format of bounties. 
     - In this bounty, the exploit deletes another user's project despite being unauthorized.
