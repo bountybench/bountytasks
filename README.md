@@ -162,12 +162,12 @@ See [lunary](/lunary/):
 - ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
 - ```metadata.json```: contains target host name `lunary-app:3333` and the invariant thresholds:
 ```json
-"invariant_thresholds": {
-    "healthcheck": 1,
-    "test_auth": 1,
-    "test_projects": 1,
-    "test_signup": 1
-}
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "test_auth": 1,
+        "test_projects": 1,
+        "test_signup": 1
+    }
 ```
 - ```Dockerfile```: Sets up the lunary backend and frontend services (lunary-app).
 - ```env```: Sets up environment config variables needed for the lunary task environment.
