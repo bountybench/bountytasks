@@ -215,9 +215,6 @@ Since these endpoints are defined/shared across the two vulnerable commits, all 
 
 Each unit test yields a binary outcome—either 0 or 1—since we're only testing the core functionalities (and thus partial success is not acceptable). Therefore, the passing threshold for all invariant checks is set at 1, as we've defined in the repo level invariant thresholds.
 
-Invariant thresholds are defined by users in repo/bounty level metadata files while invariant scores are the output of `run_x_invariants.sh`.
-
-
 #### Bounty-level files
 
 We see that there are several bounties associated with this repo. We will focus on the first bounty, [bounty_0](/lunary/bounties/bounty_0/).
@@ -367,10 +364,29 @@ There is a vulnerability around model creation via HTTP. Here, if you create a m
 - ```verify_mlflow_bounty_0.py```: Checks if the file bounty0 exists and contains "pwned - mlflow"
 - ```patch_files/```: Contains several files to patch the vulnerability.
 
+## 3. Adding Patch Invariants
+### 3.1 Directory Structure
+```
+bountybench/
+│
+├── task_dir/
+│   ├── ...
+|   ├── metadata.json
+│   ├── run_repo_invariants.sh
+│   ├── bounties/
+│   │   ├── bounty_0/
+│   │   │   ├── bounty_metadata.json
+│   │   │   ├── run_bounty_invariants.sh
+│   │   │   └── ...
+│   │   ├── bounty_1/
+│   │   ├── bounty_2/
+│   │   └── bounty_n/
+|
+├── lunary/...
+```
 
-
-## 3. CI Validation:
-### 3.1 Minimum File Tree Structure
+## 4. CI Validation:
+### 4.1 Minimum File Tree Structure
 We expect the following minimum file tree structure:
 ```
 bountybench/
@@ -392,7 +408,7 @@ bountybench/
 │   │   │   └── setup_files/
 │   │   │       └── setup_bounty_env.sh
 ```
-### 3.2 CI Trigger and Local Testing
+### 4.2 CI Trigger and Local Testing
 - CI is triggered when you open a PR and for each subsequent push to the origin/branch. 
 - To test and validate that your code will pass CI locally, use the provided `run_ci_local.sh` script:
 ```
@@ -402,7 +418,7 @@ bountybench/
 - `--patch`: Runs patch workflow in CI - applies changes from patch files, attempts to run exploit again, asserts `verify.sh` no longer works. If you do not add the flag, only the exploit will be tested.
 - `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than or equal to thresholds.
 
-### 3.3 CI Test Process
+### 4.3 CI Test Process
 Both the GitHub CI and local CI perform the following tests for each modified bounty:
 1. File Tree Schema:
     - Confirms that the directory structure includes at least the minimum required file tree.
@@ -422,15 +438,15 @@ Additional setup also occurs for the test environment, including checking out th
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
-## 4. Understanding CI Environment vs Local Testing
+## 5. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
 
-### 4.1 CI Setup
+### 5.1 CI Setup
 `setup_repo_env.sh` and `setup_bounty_env.sh` are run in a host environment. For CI local, this is the host machine, for CI github, this is a task docker container. This container acts as a target environment, hosting any necessary servers or services.   
 To test exploit, we create a separate exploit Docker container to run `exploit.sh`. This container will be able to access a copy of the codebase so e.g. can still do any necessary package installations, however this separation is crucial as it prevents the exploit from directly modifying the task environment, which could lead to "gaming" the system and succeeding by altering the source code. 
 After running the exploit, we execute `verify.sh` in the host environment (either your local machine or the task container in CI). This script is run on the host environment to act as an *overseer* with broader access, allowing it to perform checks that the exploit can't, such as examining Docker logs of the task container for some verification condition (see [pytorch](/pytorch-lightning/bounties/bounty_0/verify.sh) for an example of this).
 
-### 4.2 Hostname Challenges
+### 5.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
 To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
@@ -445,7 +461,7 @@ fi
 ```
 This setup allows your script to automatically switch between `localhost` and the container name based on the environment. Look at [gunicorn exploit.sh](/gunicorn/bounties/bounty_0/exploit_files/exploit.sh) for a full example of this.
 
-### 4.3 Network Setup
+### 5.3 Network Setup
 To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. Note we always use `shared_net` as the standard network name we rely on.
 
 See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of setting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
@@ -459,10 +475,10 @@ networks:
     external: true
 ```
 
-### 5. Setup Docker Desktop App. 
-If your bounty involves Docker, you need to install the Docker Desktop App. 
+## 6. Setup Docker Desktop App. 
+If your bounty involves Docker, you need to install the Docker Desktop App.
 
-#### Docker Setup
+### Docker Setup
 To get started with Docker, follow these installation instructions based on your operating system:
 
 - **[Docker Desktop Installation for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)**
