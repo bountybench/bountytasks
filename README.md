@@ -17,7 +17,8 @@ When contributing to this project, please create a branch in the main repository
     2.3 [Detailed example: Lunary](#23-detailed-example-lunary)
 3. [CI Validation](#3-ci-validation)
 4. [Understanding CI Environment vs Local Testing](#4-understanding-ci-environment-vs-local-testing)
-5. [Setting Up Docker](#5-setup-docker-desktop-app)
+5. [Understanding Check Invariants](#5-understanding-check-invariants)
+6. [Setting Up Docker](#5-setup-docker-desktop-app)
 
 ## 1. Adding Target Bug Bounty Repo
 
@@ -353,7 +354,6 @@ Additional setup also occurs for the test environment, including checking out th
     - Copies patch files from `patch_files/` into the `codebase`.
     - Cleans previous environment setup.
     - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
-4. Check Invariants
     - Runs `run_repo_invariants` (expected to clear `invariant_thresholds` in `metadata.json`)
     - Run `run_bounty_invariants` (expected to clear `invariant_thresholds` in `bounty_metadata.json`)
     - Runs `verify.sh` (expected to **fail** trivially).
@@ -402,7 +402,7 @@ When the agent generates a patch, we want to ensure that this patch is valid. Fo
 
 To mitigate this, we can run patch invariants: *conditions that each repository should still meet after patch files are applied*. 
 
-Given the patch is applied and a successful `setup_repo_env.sh` and `setup_bounty_env.sh` run, check invariants generate a set of scores that describes how "healthy" the service that was just set up. This can be done by running as many of the following as possible. If none are applicable, or if you find other metthods more helpful, please document here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
+Given the patch is applied and a successful `setup_repo_env.sh` and `setup_bounty_env.sh` run, check invariants generate a set of scores that describes how "healthy" the service that was just set up. This can be done by running as many of the following as possible. If none are applicable, or if you find other methods more helpful, please document here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
 
 - Healthcheck - checking basic functionality of resources set up
     - Example: `setup_repo_env.sh` sets up an API Server 
@@ -412,7 +412,7 @@ Given the patch is applied and a successful `setup_repo_env.sh` and `setup_bount
     - Example: `bounty_0` has a vulnerable API server, `bounty_1` has a vulnerable database
     - In this case, `run_repo_invariants.sh` should run both sets of unit tests. 
     - `run_repo_invariants.sh` should produce a score for each set of unit tests. Unit test failures should be handled within `run_repo_invariants.sh` - that is, unit test failures should not lead `run_repo_invariants.sh` to fail.
-    - You should then adjust your `invariant_thresholds` in `bounty_metadata.json` for `bounty_0` and `bounty_1` respectively to specify which unit test should pass for which bounty.
+    - You should then adjust your `invariant_thresholds` in `bounty_metadata.json` for `bounty_0` and `bounty_1` respectively to specify which unit test(s) for each bounty.
 
     - Some unit tests may not be possible to run for each bounty (they don't exist yet in the vulnerable commit) - in this case they should be included in `run_bounty_invariants.sh`. See more relevant information below.
 
@@ -421,7 +421,7 @@ Given the patch is applied and a successful `setup_repo_env.sh` and `setup_bount
 
 In general, it's sufficient to run only unit tests that target the vulnerable feature. However, doing so is nontrivial at times.
 
-First, mamy patches for a vulnerability comes with patches for the corresponding units tests within the same GitHub commit. This is because a patch to the codebase is not always backward compatible, nor is it expected pass regression tests. In such cases, corresponding unit tests should be updated. **You should include these unit-test patches in your `patch_files` if appropriate**. 
+First, many patches for a vulnerability come with patches for the corresponding units tests within the same GitHub commit. This is because a patch to the codebase is not always backward compatible, nor is it expected pass regression tests. In such cases, corresponding unit tests should be updated. **You should include these unit-test patches in your `patch_files` if appropriate**. 
 
 However, applying patches to unit tests can have some undesired complications. See the example below for more information.
 
@@ -462,7 +462,7 @@ _Key Takeaways_:
 
 Bottom line is, we do not want to wrongly penalize an agent for providing a perfectly valid patch solving the vulnerability, but still fails at unit testing simply becasue we expect or predict a different interface / functionality.
 
-❌ If you case is analogous to this example, it is **NOT** straightforward to apply patches to your unit tests and then simply run unit tests targeting the patched code as part of your check invariance.
+❌ If you case is analogous to this example, it is **NOT** straightforward to apply patches to your unit tests and then simply run unit tests targeting the patched code as part of your check invariants.
 
 At the moment, try contacting us if you feel that this is your case.
 
