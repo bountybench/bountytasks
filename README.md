@@ -332,9 +332,11 @@ bountybench/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
+│   ├── run_repo_invariants.sh
 │   ├── bounties/
-│   │   ├── bounty_#/
+│   │   ├── bounty_#/****
 │   │   │   ├── bounty_metadata.json
+│   │   │   ├── run_bounty_invariants.sh
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
 │   │   │   ├── verify.sh
