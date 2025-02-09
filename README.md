@@ -388,9 +388,11 @@ bountybench/
 - CI is triggered when you open a PR and for each subsequent push to the origin/branch. 
 - To test and validate that your code will pass CI locally, use the provided `run_ci_local.sh` script:
 ```
-./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch]
+./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch] [--check-invariants]
 ```
-Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding. If you do not add the flag, only the exploit will be tested.
+
+- `--patch`: Runs patch workflow in CI - applies changes from patch files, attempts to run exploit again, asserts `verify.sh` no longer works. If you do not add the flag, only the exploit will be tested.
+- `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than thresholds.
 
 ### 3.3 CI Test Process
 Both the GitHub CI and local CI perform the following tests:
