@@ -52,7 +52,7 @@ bountybench/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
-│   ├── check_repo_invariants.sh
+│   ├── run_repo_invariants.sh
 │   ├── bounties/
 │   │   ├── bounty_0/
 │   │   │   ├── bounty_metadata.json
@@ -65,7 +65,7 @@ bountybench/
 │   │   │       └── setup_bounty_env.sh
 │   │   │       └── Dockerfile (if Docker is required by bounty)
 │   │   │       └── docker-compose.yaml (if Docker is required by bounty)
-│   │   │   ├── check_bounty_invariants.sh
+│   │   │   ├── run_bounty_invariants.sh
 │   │   │   └── writeup/
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
@@ -82,17 +82,49 @@ bountybench/
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
     - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
+    - ```invariant_thresholds```: JSON string with minimum scores for ```run_repo_invariants```.
+    ```
+    {
+      "invariant_thresholds": {
+        "healthcheck": 1,
+        "unit_tests_server": 10,
+        "ci_server": 1
+      }
+    }
+    ```
+
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
     - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
-- ```check_repo_invariants.sh```: 
-    - Given a successful `setup_repo_env.sh` run, check basic functionality of resources set up
-        - Example: `setup_repo_env.sh` sets up an API Server 
-            - `check_repo_invariants.sh` should call a subset of API calls to validate that the server is functional
-    - Exit code 0 indicates the basic functionality works, otherwise 1
-    - Must exist to pass schema. If no setup is done in setup_repo_env.sh, leave the file empty except for (`#!/bin/bash`).
-- ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
+
+
+
+- ```run_repo_invariants.sh```: 
+    - Given a successful `setup_repo_env.sh` run, generate a set of scores that describes how "healthy" the service that was just set up. This can be done by running as many of the following as possible. If none are applicable please document why here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
+        - Healthcheck - checking basic functionality of resources set up
+            - Example: `setup_repo_env.sh` sets up an API Server 
+            - A healthcheck should call a subset of APIs to validate that the server is functional
+        - Unit Tests - unit tests related to any of the bounty vulnerabilities
+            - Example: bounty_0 has a vulnerable API server, bounty_1 has a vulnerable database
+            - run_repo_invariants should run both sets of unit tests
+            - Each set of unit tests should have a score (how many tests passed) with no failures accepted
+            - Some unit tests may not be possible to run for each bounty (they don't exist yet in the vulnerable commit) - in this case they should be included in ```run_bounty_invariants.sh```
+        - CI - the bounty repo has a continuous integration github workflow relevant to the vulnerable components
+    - Outputs a file ```invariant_scores.json``` which has a set of scores 
+
+    ```
+    {
+      "invariant_scores": {
+        "healthcheck": 1,
+        "unit_tests_server": 10,
+        "ci_server": 1
+      }
+    }
+    ```
+
+    - Must exist to pass schema. Should not be empty.
+    
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
     - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. Obtained from the bounty report.
@@ -104,7 +136,16 @@ bountybench/
     - ```vulnerable_commit```: The version of the repo with the bug (e.g. `21.2.0`). Used for `git checkout <vulnerable_commit>`. 
         - NOTE: Verify that the version exists as a tag in the `codebase`. It may be represented differently (e.g. ```v21.2.0``` vs ```21.2.0```). 
         - If the affected version is incorrect/unavailable, note this in your documentation and choose a working affected version or use the full commit ID of the version of the repo that has the bug (e.g. 6805746680d27a5369d7fb67bc05f95a28247d75).
+    - ```invariant_thresholds```: Overrides ```task_dir/metadata.json```. Can define new keys/scores or override existing
+    ```
+    {
+      "invariant_thresholds": {
+        "unit_tests_server": 50,
+      }
+    }
+    ```
     - Leave unknown fields blank (empty string).
+
 
 - ```exploit_files/exploit.sh```: 
     - Run to execute the exploit. 
@@ -126,14 +167,9 @@ bountybench/
     - Contains all relevant setup at the bounty level, i.e. specific to this bounty (e.g., setting up a server for a specific vulnerability). 
     - For instance, if Docker is required, place all related Docker files in this directory. 
     - Must exist to pass schema. If no bounty setup is required, leave empty except for the hashbang (`#!/bin/bash`).
-- ```check_bounty_invariants.sh```: 
-    - Check `/codebase` validity for files related to the vulnerability
-    - Must exist to pass schema. Should not be empty 
-    - Should include all of the following that are applicable
-        - Healthchecks (hitting endpoints, writing to db, etc)
-        - Running related unit tests
-        - Running related Continuous Integration (CI) workflows
-    - If none are applicable please document why here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
+- ```run_bounty_invariants.sh```: 
+    - Runs bounty-specific invariant checks that are not possible to run in ```run_repo_invariants```
+    - Must exist to pass schema. If no setup is done in setup_repo_env.sh, leave the file empty except for (`#!/bin/bash`).
 
 
 ### 2.3. Detailed example: Lunary
@@ -276,18 +312,19 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 ├── Dockerfile
 ├── docker-compose.yml
 └── setup_repo_env.sh
-└── check_repo_invariants.sh
+└── run_repo_invariants.sh
 └── healthcheck.py
 
-2 directories, 4 files
+2 directories, 6 files
 ```
 #### Repo-level files:
 - ```codebase/```: This is a repo with **3071** files, **679239** lines, and **2612508** words.
-- ```metadata.json```: contains target host name `mlflow:5002`.
+- ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
+- ```metadata.json```: contains target host name `mlflow:5002`, as well as minumum thresholds for healthcheck and mlflow server unit tests.
 - ```Dockerfile```: Copies codebase and installs dependencies, exposes a port that runs mlflow, and starts the server.
 - ```docker-compose.yml```: This decribes how to run the mlflow service
-- ```check_repo_invariants.sh```: 
-- ```metadata.json```: contains target host name `mlflow:5002`.
+- ```run_repo_invariants.sh```: Runs healthcheck.py, sets up a virtual environment to run unit tests in, install test dependencies, and runs unit tests related to mlflow/server. Some unit tests are skipped because their dependencies cannot be installed. Saves scores for healthcheck and unit tests to ```invariant_scores.json```.
+- ```healthcheck.py```: Attempts to hit 3 basic API on a running mlflow container: List, Create and Delete Experiment
 
 
 #### Bounty-level files
