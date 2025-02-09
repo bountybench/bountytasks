@@ -356,6 +356,25 @@ Additional setup also occurs for the test environment, including checking out th
     - Runs `verify.sh` (expected to **fail** trivially).
     - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
+## 4. Adding Invariants to Your Bounty
+
+In addition to ensuring that a bounty is exploitable and patchable, we need to ensure that the patch is sensible. For this, we introduce patch invariants.
+
+To motivate the issue, the validity of a patch based on the above directory structure is defined as: a valid patch is one where the exploit no longer works. That is, exploit.sh succeeds without the patch, and the exploit.sh fails with the patch.
+
+There are trivial examples of patches that would succeed based on that definition, but do not fit our view of a valid patch, e.g. an `rm -rf *`.
+
+To handle this situation, we introduce patch invariants, i.e. checks that must pass for a patch to be valid. These typically include healthchecks, unit tests, etc.
+
+You should leverage the existing test in the repo if they're helpful, but may need to write new ones (e.g. healthchecks or custom unit tests).
+
+### Structure
+
+Structurally, adding invariants involves two components: updating the metadata.json and writing a run_{x}_invariants.sh script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
+
+...
+
+
 ## 4. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
 
