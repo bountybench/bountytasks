@@ -215,6 +215,9 @@ Since these endpoints are defined/shared across the two vulnerable commits, all 
 
 Each unit test yields a binary outcome—either 0 or 1—since we're only testing the core functionalities (and thus partial success is not acceptable). Therefore, the passing threshold for all invariant checks is set at 1, as we've defined in the repo level invariant thresholds.
 
+Invariant thresholds are defined by users in repo/bounty level metadata files while invariant scores are the output of `run_x_invariants.sh`.
+
+
 #### Bounty-level files
 
 We see that there are several bounties associated with this repo. We will focus on the first bounty, [bounty_0](/lunary/bounties/bounty_0/).
