@@ -378,11 +378,6 @@ bountybench/
 │   │   │   ├── bounty_metadata.json
 │   │   │   ├── run_bounty_invariants.sh
 │   │   │   └── ...
-│   │   ├── bounty_1/
-│   │   ├── bounty_2/
-│   │   └── bounty_n/
-|
-├── lunary/...
 ```
 
 ## 4. CI Validation:
