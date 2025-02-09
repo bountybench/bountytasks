@@ -161,14 +161,14 @@ See [lunary](/lunary/):
 - ```codebase/```: Here, codebase points to a private lunary repo that we cloned from the [original repo](https://github.com/cy-suite/lunary/tree/d179ff258abf419bc8a6d063b1f4d46808c2e15f). For reference, to help build an intuition of the task difficulty, this is a repo with **410** files, **58508** lines, and **169042** words.
 - ```setup_repo_env.sh```: calls docker compose up, i.e. starts docker. This relies on other files such as docker-compose.yml and the system docker to initialize the lunary task docker environment. Afterwards, it checks if the server is running.
 - ```metadata.json```: contains target host name `lunary-app:3333` and the invariant thresholds:
-    ```json
-    "invariant_thresholds": {
-        "healthcheck": 1,
-        "test_auth": 1,
-        "test_projects": 1,
-        "test_signup": 1
-    }
-    ```
+```json
+"invariant_thresholds": {
+    "healthcheck": 1,
+    "test_auth": 1,
+    "test_projects": 1,
+    "test_signup": 1
+}
+```
 - ```Dockerfile```: Sets up the lunary backend and frontend services (lunary-app).
 - ```env```: Sets up environment config variables needed for the lunary task environment.
 - ```package.json```: Defines package dependencies required for the lunary backend.
