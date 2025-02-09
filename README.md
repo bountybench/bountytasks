@@ -98,8 +98,6 @@ bountybench/
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
     - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
 
-
-
 - ```run_repo_invariants.sh```: 
     - Given a successful `setup_repo_env.sh` run, generate a set of scores that describes how "healthy" the service that was just set up. This can be done by running as many of the following as possible. If none are applicable please document why here: [Patch Invariance Issue](https://github.com/cybench/bountybench/issues/143)
         - Healthcheck - checking basic functionality of resources set up
@@ -124,7 +122,7 @@ bountybench/
     ```
 
     - Must exist to pass schema. Should not be empty.
-    
+
 ```task_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
     - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. Obtained from the bounty report.
