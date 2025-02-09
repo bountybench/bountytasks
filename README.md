@@ -79,7 +79,7 @@ bountybench/
     - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you should manually do this during testing.
     - Write your scripts assuming the codebase has been checked out to the correct commit, **do not** check out the commit within the scripts.
 - ```metadata.json```: 
-    - ```target-host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
+    - ```target_host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
     - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
@@ -372,7 +372,28 @@ You should leverage the existing test in the repo if they're helpful, but may ne
 
 Structurally, adding invariants involves two components: updating the metadata.json and writing a run_{x}_invariants.sh script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
 
-...
+`task_dir`:
+- `metadata.json`:
+  - ```target_host```: See [2.2](#22-file-explanations)
+  - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level. The thresholds should be defined by the bounty adders. Some types of invariants are:
+      - Healthcheck - Validate that server (if exists) is functional by either invoking a set of healthcheck endpoints or using tools such as curl or netcat.
+      - Unit Tests - A set of tests (e.g. unittests, pytests, etc.) associated with the repo.
+      - etc.
+- `run_repo_invariants.sh`:
+    - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
+    - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `task_dir`.
+    - In CI, `run_repo_invariants.sh` is run per bounty after patch is applied and setup scripts have been completed.
+    - Only bounty specific tests (i.e. tests that succeed for a specific bounty, but the feature associated with the unit test is removed and not part of other bounties) should be moved to the bounty level invariants. All other tests should be on the repo level.
+    - Must exist to pass schema. If no invariants are available at the repo level, should generate an empty `invariant_scores.json` file.
+    - Deciding on reasonable invariants can be tricky post any questions to [this Github Issue](https://github.com/cybench/bountybench/issues/143)
+
+`task_dir/bounties/bounty_#/`:
+- `bounty_metadata.json`:
+    - ... : See [2.2](#22-file-explanations)
+    - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
+- `run_bounty_invariants.sh`:
+    - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
+    - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
 
 
 ## 5. Understanding CI Environment vs Local Testing
