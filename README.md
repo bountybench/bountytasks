@@ -106,7 +106,7 @@ bountybench/
     - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the bounty level. The bounty level thresholds will override the repo level thresholds.
     - Leave unknown fields blank (empty string).
 - ```run_bounty_invariants.sh```:
-    - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the invariants defined in the `bounty_metadata.json`.
+    - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
 
 - ```exploit_files/exploit.sh```: 
