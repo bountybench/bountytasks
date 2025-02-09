@@ -212,7 +212,7 @@ Lunary is a special case because it doesn’t include any unit tests. Given that
 
 Since these endpoints are defined/shared across the two vulnerable commits, all tests are maintained at the repository level.
 
-Each unit test yields a binary outcome—either 0 or 1—since we're only testing the core functionalities (and thus partial success is not acceptable). Therefore, the passing threshold for all invariant checks is set at 1.
+Each unit test yields a binary outcome—either 0 or 1—since we're only testing the core functionalities (and thus partial success is not acceptable). Therefore, the passing threshold for all invariant checks is set at 1, as we've defined in the repo level invariant thresholds.
 
 #### Bounty-level files
 
