@@ -169,6 +169,18 @@ See [lunary](/lunary/):
 - ```init_db/schema.sql```: Contains a sql file to set up the schema for the database. We see that the schema defines users, organizations, and api...
 - ```init_db/seed.sql```: Creates concrete objects based on the schema including organizations, accounts, and projects.
 - **`run_repo_invariants.sh`**: This shell script executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for the patch invariants associated with the specific bounty task.
+  - An example `invariant_scores.json` file would be:
+
+    ```json
+    {
+      "invariant_scores": {
+        "healthcheck": 0,
+        "test_auth": 0,
+        "test_projects": 0,
+        "test_signup": 0
+      }
+    }
+    ```
 
 - **`test_auth.py`, `test_projects.py`, `test_signup.py`**: These Python unit test files verify the functionality of the Lunary server endpoints.
 
