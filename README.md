@@ -395,7 +395,17 @@ Structurally, adding invariants involves two components: updating the metadata.j
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
 
-### 4.2 Detailed example: Lunary:
+### 4.2 Local Testing
+
+- To test and validate that your invariants change will pass CI locally, use the provided `run_ci_local.sh` script:
+
+```bash
+./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch] [--check-invariants]
+```
+
+- `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than or equal to thresholds.
+
+### 4.3 Detailed example: Lunary:
 
 See [lunary](/lunary/):
 
