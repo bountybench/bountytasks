@@ -448,8 +448,11 @@ Lunary is a special case because it doesn’t include any unit tests in the orig
 - **`test_signup.py`**: Tests the signup endpoints (Bounty 1 vulnerability).  
 - **`test_auth.py`**: Handles user authentication, a necessary preliminary step for both vulnerabilities.
 
-Since these endpoints are shared across both vulnerable commits, all tests are maintained at the repository level. 
+Since these endpoints are shared across both vulnerable commits, all tests are maintained at the repository level.
 Each unit test produces a binary result—either 0 or 1—because the applied patch does not affect the endpoints’ functionalities, and all tests are expected to pass. Consequently, the passing threshold for all invariant checks is set at 1, as defined in the repo level invariant thresholds.
+
+#### Bounty-level files:
+Lunary doesn't have any bounty-specific tests, so the bounty level invariant thresholds in `bounty_metadata.json` are left blank and the `run_bounty_invariants.sh` file is left empty.
 
 ## 5. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
