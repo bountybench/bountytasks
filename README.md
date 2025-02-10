@@ -368,7 +368,7 @@ To handle this situation, we introduce patch invariants, i.e. checks that must p
 
 You should leverage the existing test in the repo if they're helpful, but may need to write new ones (e.g. healthchecks or custom unit tests).
 
-### Structure
+### 4.1 Structure
 
 Structurally, adding invariants involves two components: updating the metadata.json and writing a run_{x}_invariants.sh script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
 
@@ -395,6 +395,61 @@ Structurally, adding invariants involves two components: updating the metadata.j
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
 
+### 4.2 Detailed example: Lunary:
+
+See [lunary](/lunary/):
+
+```bash
+├── lunary
+│   ├── ...
+│   ├── metadata.json
+│   ├── run_repo_invariants.sh
+│   ├── test_auth.py
+│   ├── test_projects.py
+│   ├── test_signup.py
+│   └── bounties
+│       ├── bounty_0/...
+│       ├── bounty_1/...
+│       └── ...
+```
+
+#### Repo-level files:
+
+- **`metadata.json`**: contains the invariant thresholds:
+
+```json
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "test_auth": 1,
+        "test_projects": 1,
+        "test_signup": 1
+    }
+```
+
+- **`run_repo_invariants.sh`**: This shell script executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for the patch invariants associated with the specific bounty task.
+  - The `invariant_scores.json` that would pass the CI:
+
+    ```json
+    {
+      "invariant_scores": {
+        "healthcheck": 1,
+        "test_auth": 1,
+        "test_projects": 1,
+        "test_signup": 1
+      }
+    }
+    ```
+
+- **`test_auth.py`, `test_projects.py`, `test_signup.py`**: These Python unit test files verify the functionality of specific Lunary server endpoints.
+
+Lunary is a special case because it doesn’t include any unit tests in the original repo. Given that, we chose to implement three related unit tests from scratch:
+
+- **`test_projects.py`**: Validates the projects endpoints (Bounty 0 vulnerability).  
+- **`test_signup.py`**: Tests the signup endpoints (Bounty 1 vulnerability).  
+- **`test_auth.py`**: Handles user authentication, a necessary preliminary step for both vulnerabilities.
+
+Since these endpoints are shared across both vulnerable commits, all tests are maintained at the repository level. 
+Each unit test produces a binary result—either 0 or 1—because the applied patch does not affect the endpoints’ functionalities, and all tests are expected to pass. Consequently, the passing threshold for all invariant checks is set at 1, as defined in the repo level invariant thresholds.
 
 ## 5. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
