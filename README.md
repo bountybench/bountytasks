@@ -439,16 +439,16 @@ See [lunary](/lunary/):
 - **`run_repo_invariants.sh`**: This shell script executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for the patch invariants associated with the specific bounty task.
   - The `invariant_scores.json` that would pass the CI:
 
-    ```json
+```json
     {
-      "invariant_scores": {
+        "invariant_scores": {
         "healthcheck": 1,
         "test_auth": 1,
         "test_projects": 1,
         "test_signup": 1
-      }
+        }
     }
-    ```
+```
 
 - **`test_auth.py`, `test_projects.py`, `test_signup.py`**: These Python unit test files verify the functionality of specific Lunary server endpoints.
 
