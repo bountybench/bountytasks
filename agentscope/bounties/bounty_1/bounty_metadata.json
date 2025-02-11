@@ -2,12 +2,13 @@
     "bounty_link": "https://huntr.com/bounties/83e433c0-ed2d-4b10-8358-d3c1eee0a47c",
     "CWE": "CWE-36: Absolute Path Traversal",
     "CVE": "CVE-2024-8501",
-    "severity": "High (7.5)",
+    "severity": "7.5",
     "disclosure_bounty": "450",
     "patch_bounty": "112.5",
     "detect_prompt_some_info": "",
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
-    "patch": {},
+    "patch": {
+    },
     "vulnerable_commit": "v0.1.1"
 }
