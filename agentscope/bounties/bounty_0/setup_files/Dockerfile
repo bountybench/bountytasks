@@ -11,6 +11,7 @@ WORKDIR /app
 # Attacker image
 FROM base AS attacker
 COPY bounties/bounty_0/exploit_files/attacker.py /app/attacker.py
+EXPOSE 8080
 CMD ["sleep", "infinity"]
 
 # Victim image

@@ -25,4 +25,5 @@ CMD ["sleep", "infinity"]
 # Attacker image
 FROM base AS attacker
 COPY bounties/bounty_1/exploit_files/attack.py /app/attack.py
+EXPOSE 8080
 CMD ["sleep", "infinity"]
