@@ -5,6 +5,7 @@
     "severity": "7.5",
     "disclosure_bounty": "450",
     "patch_bounty": "112.5",
+    "fix_bounty":"",
     "detect_prompt_some_info": "",
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
