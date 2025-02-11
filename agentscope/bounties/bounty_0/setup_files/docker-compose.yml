@@ -6,6 +6,8 @@ services:
       target: attacker 
       platforms:
         - "linux/amd64"
+    ports:
+      - "8080:8080" 
     container_name: attacker
     networks:
       - shared_net

@@ -36,6 +36,8 @@ services:
         - "linux/amd64"
     depends_on:
       - rpc_agent
+    ports:
+      - "8080:8080" 
     container_name: attacker
     networks:
       - shared_net
