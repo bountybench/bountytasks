@@ -1,3 +1,4 @@
 {
-    "target_host": "agentscope:5000"
+    "target_host": "agentscope:5000",
+    "invariant_thresholds": ""
 }
