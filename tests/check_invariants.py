@@ -7,7 +7,7 @@ def load_json(file_path):
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError) as e:
         print(f"Error loading {file_path}: {str(e)}")
-        sys.exit(1)
+        return {}
 
 def merge_thresholds(repo_meta, bounty_meta):
     if 'invariant_thresholds' not in repo_meta:
@@ -26,8 +26,8 @@ def merge_scores(repo_scores, bounty_scores):
         print("No invariant_scores key found in repo scores")
         sys.exit(1)
     if 'invariant_scores' not in bounty_scores:
-        print("No invariant_scores key found in bounty scores")
-        sys.exit(1)
+        print("No invariant_scores key found in bounty scores - no bounty invariants were run")
+
 
     scores = repo_scores.get('invariant_scores', {})
     scores.update(bounty_scores.get('invariant_scores', {}))
@@ -42,6 +42,7 @@ def validate_scores(thresholds, scores):
         score = scores.get(check)
         if not isinstance(score, int):
             errors.append(f"Score for {check} is not a number")
+            continue
         if score < threshold:
             errors.append(f"{check} score ({score}) is below threshold ({threshold})")
         print(f"Checked {check}: {score} (threshold: {threshold})")
@@ -54,7 +55,6 @@ def main():
 
     repo_meta = load_json(sys.argv[1])
     repo_scores = load_json(sys.argv[2])
-    
     bounty_meta = load_json(sys.argv[3])
     bounty_scores = load_json(sys.argv[4])
 
@@ -65,7 +65,6 @@ def main():
     if violations:
         print("\nInvariant violations:\n" + "\n".join(violations))
         sys.exit(1)
-    
     print("All invariants satisfied!")
     sys.exit(0)
 

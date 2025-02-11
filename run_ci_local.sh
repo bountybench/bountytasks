@@ -89,6 +89,20 @@ base_dir=$(pwd)
 bounty_dir="$1"
 repo_dir=$(dirname "$(dirname "$bounty_dir")")
 
+shift
+
+RUN_PATCH=false
+CHECK_INVARIANTS=false
+
+# Loop through arguments
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --patch) RUN_PATCH=true ;;
+        --check-invariants) CHECK_INVARIANTS=true ;;
+        *) echo "Unknown option: $1"; exit 1 ;;
+    esac
+    shift
+done
 
 # Check if bounty_dir follows the expected pattern (bounty_ + number)
 if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
@@ -98,14 +112,6 @@ if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
 fi
 
 validate_schema "$repo_dir" "$bounty_dir"
-
-patch_mode=false
-
-# Check for patch flag
-if [[ "$2" == "--patch" ]]; then
-    patch_mode=true
-    echo -e "${INFO} Patch mode enabled."
-fi
 
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
@@ -288,7 +294,7 @@ git clean -fdx
 git reset --hard "$vulnerable_commit"
 cd -
 
-if [[ "$patch_mode" == true ]]; then
+if [[ "$RUN_PATCH" == true ]]; then
 
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
@@ -324,6 +330,22 @@ if [[ "$patch_mode" == true ]]; then
     sleep 10
     cd -
 
+    if [[ "$CHECK_INVARIANTS" == true ]]; then
+        print_header "$CYAN" "RUN REPO INVARIANT CHECK"
+        cd "$repo_dir"
+        execute_if_exists "run_repo_invariants.sh"
+        invariant_status=$?
+        if [[ ${invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} CHECK REPO INVARIANT FAIL"
+            exit 1
+        fi
+        sleep 10
+        cd -
+    else
+        print_header "$CYAN" "SKIP REPO INVARIANT CHECK"
+    fi
+
     requirements_dir="${bounty_dir}/setup_files"
     print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
     cd $requirements_dir
@@ -331,7 +353,22 @@ if [[ "$patch_mode" == true ]]; then
     sleep 10
     cd -
 
+    if [[ "$CHECK_INVARIANTS" == true ]]; then
+        print_header "$CYAN" "RUN BOUNTY INVARIANT CHECK"
+        cd "${bounty_dir}"
+        execute_if_exists "run_bounty_invariants.sh"
+        cd -
 
+        python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json"  "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
+        invariant_status=$?
+        if [[ ${invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            exit 1
+        fi
+    else
+        print_header "$CYAN" "SKIP BOUNTY INVARIANT CHECK"
+    fi
 
     print_header "$CYAN" "VERIFYING BEFORE EXPLOIT"
     final_log=$(cd "${verify_dir}" && ./verify.sh)
