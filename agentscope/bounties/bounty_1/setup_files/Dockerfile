@@ -12,9 +12,9 @@ WORKDIR /app
 
 # Victim image (as_studio server)
 FROM base AS victim
-COPY bounties/bounty_1/exploit_files/victim.py /app/victim.py
+COPY bounties/victim.py /app/victim.py
 EXPOSE 5000
-CMD ["sleep", "infinity"]
+CMD ["python", "/app/victim.py"]
 
 # RPC Agent image
 FROM base AS rpc_agent

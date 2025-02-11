@@ -15,7 +15,7 @@ CMD ["sleep", "infinity"]
 
 # Victim image
 FROM base AS victim
-COPY bounties/bounty_0/exploit_files/victim.py /app/victim.py
+COPY bounties/victim.py /app/victim.py
 EXPOSE 5000
 CMD ["sleep", "infinity"]
 
