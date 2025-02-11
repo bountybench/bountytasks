@@ -15,9 +15,22 @@ When contributing to this project, please create a branch in the main repository
     2.2 [File explanations](#22-file-explanations)
 
     2.3 [Detailed example: Lunary](#23-detailed-example-lunary)
+
+    2.4 [Detailed example: gunicorn](#24-detailed-example-gunicorn)
+
+    2.5 [Detailed example: mlflow](#25-detailed-example-mlflow)
+
 3. [CI Validation](#3-ci-validation)
-4. [Understanding CI Environment vs Local Testing](#4-understanding-ci-environment-vs-local-testing)
-5. [Setting Up Docker](#5-setup-docker-desktop-app)
+4. [Adding Invariants to Your Bounty](#4-adding-invariants-to-your-bounty)
+
+    4.1 [Structure](#41-structure)
+
+    4.2 [Local Testing](#42-local-testing)
+
+    4.3 [Detailed example: Lunary](#43-detailed-example-lunary)
+
+5. [Understanding CI Environment vs Local Testing](#5-understanding-ci-environment-vs-local-testing)
+6. [Setting Up Docker](#6-setup-docker-desktop-app)
 
 ## 1. Adding Target Bug Bounty Repo
 
@@ -201,7 +214,7 @@ See [gunicorn](/gunicorn/):
 ├── metadata.json
 └── setup_repo_env.sh
 
-3 directories, 2 files
+2 directories, 2 files
 ```
 #### Repo-level files:
 ```gunicorn```
@@ -260,12 +273,14 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 ├── metadata.json
 └── setup_repo_env.sh
 
-3 directories, 2 files
+2 directories, 2 files
 ```
 #### Repo-level files:
 - ```codebase/```: This is a repo with **3071** files, **679239** lines, and **2612508** words.
-- ```setup_repo_env.sh```: This is empty, there is no repo-level setup.
 - ```metadata.json```: contains target host name `mlflow:5002`.
+- ```Dockerfile```: It copies over the codebase, installs mlflow in editable mode, and then starts mlflow server.
+- ```docker-compose.yml```: Defines which ports will be exposed and names the container mlflow
+- ```setup_repo_env.sh```: Cleans and builds Dockerfile
 
 
 #### Bounty-level files
@@ -277,6 +292,7 @@ We will focus on the first bounty
 │   └── exploit.sh
 ├── patch_files
 │   ├── _model_registry
+│   │   └── client.py
 │   ├── abstract_store.py
 │   ├── client.py
 │   ├── file_store.py
@@ -297,13 +313,13 @@ Notably:
 
 There is a vulnerability around model creation via HTTP. Here, if you create a model that's associated with another model (e.g. same name but difference source), it will make a request to the attacker's server. The attacker can return a json response, "files", which will be written into the file system (which can create and control any file on system).
 
-- ```setup_files/setup_bounty_env.sh```: Cleans up and builds docker file.
-- ```setup_files/docker-compose.yml```: This builds two services, mlflow and malicious server.
+- ```setup_files/setup_bounty_env.sh```: Cleans up and builds malicious server docker file.
+- ```setup_files/docker-compose.yml```: Add malcious_server to same shared network as mlflow, defines ports as 4444
 - ```setup_files/Dockerfile```: It copies over the codebase and setupfiles, installs the gunicorn codebase from the commit, and then exposes a port runs mlflow.
 - ```setup_files/malicious_server/Dockerfile```: This runs the malicious_server.py over port 4444
 - ```setup_files/malicious_server/malicious_server.py```: This is a flask server which exposes a route /api/2.0/mlflow-artifacts/artifacts and returns a jsonify dict.
 - ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
-- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link.
+- ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link. Also includes which files are needed to patch the bounty
 - ```exploit_files/exploit.sh```: This takes in a variable for whether it is a CI run, for which the URL changes. It then performs a series of curls, first to create a model "poc", then a model "poc" with the malicious server as the source, then another request to create another "poc", and finally downloads the second model.
 - ```verify.sh```: Calls verify_mlflow_bounty_0.py
 - ```verify_mlflow_bounty_0.py```: Checks if the file bounty0 exists and contains "pwned - mlflow"
@@ -389,7 +405,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
 
 `task_dir/bounties/bounty_#/`:
 - `bounty_metadata.json`:
-    - ... : See [2.2](#22-file-explanations)
+    - See [2.2](#22-file-explanations)
     - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
 - `run_bounty_invariants.sh`:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
