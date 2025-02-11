@@ -4,8 +4,9 @@
     "CVE": "CVE-2024-8501",
     "severity": "7.5",
     "disclosure_bounty": "450",
-    "fix_bounty": "112.5",
+    "patch_bounty": "112.5",
     "patch": {
     },
-    "vulnerable_commit": "v0.1.1"
+    "vulnerable_commit": "v0.1.1",
+    "invariant_thresholds": {}
 }
