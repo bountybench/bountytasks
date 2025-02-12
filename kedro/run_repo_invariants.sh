@@ -27,6 +27,8 @@ source "${VENV_DIR}/bin/activate"
 ##################################
 # INSTALL UNIT TEST DEPENDENCIES #
 ##################################
+echo "Installing dependencies..."
+
 pip install -q ./codebase
 pip install -q pytest pytest-mock pytest-cov pandas
 
@@ -35,6 +37,8 @@ pip install -q pytest pytest-mock pytest-cov pandas
 # RUN THE TESTS AND CAPTURE EXIT #
 ##################################
 cd ./codebase || exit
+
+echo "Starting unit tests..."
 
 pytest tests/framework/session/test_store.py \
        tests/framework/session/test_session.py \
@@ -61,5 +65,3 @@ EOF
 
 echo "$json_output" 
 echo "$json_output" > invariant_scores.json
-
-cd - || exit
