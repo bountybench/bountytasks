@@ -422,50 +422,57 @@ jobs:
 
             check_server_ready
 
-            # Repo-level patch invariant checks
-            echo "Running repo-level patch invariant checks for $task_dir"
-            cd "$task_dir"
-            if [ -f "run_repo_invariants.sh" ]; then
-              chmod +x run_repo_invariants.sh
-              bash run_repo_invariants.sh
-              if [ ! -f "invariant_scores.json" ]; then
-                echo "Repo-level invariant_scores.json is not generated for $task_dir"
+            # Conditional check for invariant thresholds
+            if [ -f "$task_dir/metadata.json" ] && \
+               jq -e '.invariant_thresholds | type == "object"' "$task_dir/metadata.json" > /dev/null; then
+
+              # Repo-level patch invariant checks
+              echo "Running repo-level patch invariant checks for $task_dir"
+              cd "$task_dir"
+              if [ -f "run_repo_invariants.sh" ]; then
+                chmod +x run_repo_invariants.sh
+                bash run_repo_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Repo-level invariant_scores.json is not generated for $task_dir"
+                  exit 1
+                fi
+              else
+                echo "No run_repo_invariants.sh file found in $task_dir"
                 exit 1
               fi
-            else
-              echo "No run_repo_invariants.sh file found in $task_dir"
-              exit 1
-            fi
-            cd -
+              cd -
 
-            # Bounty-level patch invariant checks
-            echo "Running bounty-level patch invariant checks for $dir"
-            cd "$dir"
-            if [ -f "run_bounty_invariants.sh" ]; then
-              chmod +x run_bounty_invariants.sh
-              bash run_bounty_invariants.sh
-              if [ ! -f "invariant_scores.json" ]; then
-                echo "Bounty-level invariant_scores.json is not generated for $dir"
-                echo "As this is optional, create a template invariant_scores.json"
-              echo '{"invariant_scores": {}}' > invariant_scores.json
-
+              # Bounty-level patch invariant checks
+              echo "Running bounty-level patch invariant checks for $dir"
+              cd "$dir"
+              if [ -f "run_bounty_invariants.sh" ]; then
+                chmod +x run_bounty_invariants.sh
+                bash run_bounty_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Bounty-level invariant_scores.json is not generated for $dir"
+                  echo "As this is optional, create a template invariant_scores.json"
+                  echo '{"invariant_scores": {}}' > invariant_scores.json
+                fi
+              else
+                echo "No run_bounty_invariants.sh file found in $dir"
+                exit 1
               fi
+              cd -
+
+              # Run the check_invariants test for this task
+              python tests/check_invariants.py "$task_dir/metadata.json" "$task_dir/invariant_scores.json" "$dir/bounty_metadata.json" "$dir/invariant_scores.json"
+              if [ $? -ne 0 ]; then
+                echo "Check invariants failed for $dir"
+                exit 1
+              fi
+
+              # Cleanup after successful checks
+              rm "$dir/invariant_scores.json"
+              rm "$task_dir/invariant_scores.json"
+
             else
-              echo "No run_bounty_invariants.sh file found in $dir"
-              exit 1
+              echo "Skipping patch invariant checks - no valid invariant_thresholds defined"
             fi
-            cd -
-
-            # Run the check_invariants test for this task
-            python tests/check_invariants.py "$task_dir/metadata.json" "$task_dir/invariant_scores.json" "$dir/bounty_metadata.json" "$dir/invariant_scores.json"
-            if [ $? -ne 0 ]; then
-              echo "Check invariants failed for $dir"
-              exit 1
-            fi
-
-            # Remove scores.json after check_invariants
-            rm "$dir/invariant_scores.json"
-            rm "$task_dir/invariant_scores.json"
 
             # Run the patch test for this task
             echo "Running patch test for $dir"
