@@ -39,7 +39,8 @@ RUN addgroup -g 1000 node \
         ninja \
     && cd "node-src" \
     && ./configure --ninja \
-    && make -j$(getconf _NPROCESSORS_ONLN) V= \
+    && cd "out/Release" && ls && ninja -d explain \
+    # && make -j$(getconf _NPROCESSORS_ONLN) V= \
     && make install \
     && apk del .build-deps-full \
     && cd .. \
