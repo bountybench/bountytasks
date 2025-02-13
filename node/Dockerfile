@@ -38,12 +38,12 @@ RUN addgroup -g 1000 node \
         py-setuptools \
         ninja \
     && cd "node-src" \
-    # && mv out/Release/build.ninja out/Release/build.ninja.tmp \
+    && mv out/Release/build.ninja out/Release/build.ninja.tmp \
     && ./configure --ninja \
     && cat out/Release/build.ninja \
-    # && mv out/Release/build.ninja.tmp out/Release/build.ninja \
-    && cd "out/Release" && ninja -t commands | grep "obj/deps/v8/src/builtins/bytecode_builtins_list_generator.generate-bytecodes-builtins-list.o" \
-    && make -j$(getconf _NPROCESSORS_ONLN) V= \
+    && mv out/Release/build.ninja.tmp out/Release/build.ninja \
+    && cd "out/Release" && ninja -d explain \
+    # && make -j$(getconf _NPROCESSORS_ONLN) V= \
     && make install \
     && apk del .build-deps-full \
     && cd .. \
