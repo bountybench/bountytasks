@@ -7,7 +7,7 @@ nm = nm
 readelf = readelf
 
 pool link_pool
-  depth = 1
+  depth = 3
 
 rule cc
   command = $cc -MMD -MF $out.d $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
@@ -101,6 +101,7 @@ subninja obj/tools/v8_gypfiles/mksnapshot.ninja
 subninja obj/tools/v8_gypfiles/v8_snapshot.ninja
 subninja obj/tools/icu/icustubdata.ninja
 subninja obj/overlapped-checker.ninja
+subninja obj/node_text_start.ninja
 subninja obj/deps/zlib/zlib_inflate_chunk_simd.ninja
 subninja obj/deps/zlib/zlib_arm_crc32.ninja
 subninja obj/deps/zlib/zlib_adler32_simd.ninja
@@ -126,10 +127,10 @@ subninja obj/deps/base64/base64_ssse3.ninja
 subninja obj/deps/base64/base64_sse42.ninja
 subninja obj/deps/base64/base64_sse41.ninja
 subninja obj/deps/base64/base64_neon64.ninja
-subninja obj/deps/base64/base64.ninja
 subninja obj/deps/base64/base64_neon32.ninja
 subninja obj/deps/base64/base64_avx2.ninja
 subninja obj/deps/base64/base64_avx.ninja
+subninja obj/deps/base64/base64.ninja
 subninja obj/deps/ada/ada.ninja
 subninja obj/libnode.ninja
 subninja obj/node_mksnapshot.ninja
@@ -168,6 +169,7 @@ build llhttp: phony obj/deps/llhttp/libllhttp.a
 build nghttp2: phony obj/deps/nghttp2/libnghttp2.a
 build nghttp3: phony obj/deps/ngtcp2/libnghttp3.a
 build ngtcp2: phony obj/deps/ngtcp2/libngtcp2.a
+build node_text_start: phony obj/libnode_text_start.a
 build openssl: phony obj/deps/openssl/libopenssl.a
 build openssl-fipsmodule: phony lib/libopenssl-fipsmodule.so
 build postmortem-metadata: phony gen/debug-support.cc
@@ -207,7 +209,6 @@ build gtest_prod: phony
 build icu_implementation: phony
 build icu_uconfig: phony
 build icu_uconfig_target: phony
-build node_text_start: phony
 build torque_runtime_support: phony
 build v8: phony
 build v8_bigint: phony
@@ -222,13 +223,15 @@ build v8_version: phony
 build all: phony bytecode_builtins_list_generator cctest embedtest gen-regexp-special-case gen/debug-support.cc $
     gen/generate-bytecode-output-root/builtins-generated/bytecodes-builtins-list.h gen/src/regexp/special-case.cc $
     genccode icupkg mksnapshot node node_js2c node_mksnapshot obj/deps/ada/libada.a obj/deps/base64/libbase64.a $
-    obj/deps/base64/libbase64_neon64.a obj/deps/brotli/libbrotli.a obj/deps/cares/libcares.a $
-    obj/deps/googletest/libgtest.a obj/deps/googletest/libgtest_main.a obj/deps/histogram/libhistogram.a $
-    obj/deps/llhttp/libllhttp.a obj/deps/nghttp2/libnghttp2.a obj/deps/ngtcp2/libnghttp3.a $
-    obj/deps/ngtcp2/libngtcp2.a obj/deps/openssl/libopenssl.a obj/deps/simdutf/libsimdutf.a obj/deps/uv/libuv.a $
-    obj/deps/uvwasi/libuvwasi.a obj/deps/zlib/libzlib.a obj/deps/zlib/libzlib_adler32_simd.a $
-    obj/deps/zlib/libzlib_arm_crc32.a obj/deps/zlib/libzlib_inflate_chunk_simd.a obj/fuzz_env.actions_depends.stamp $
-    obj/libnode.a obj/tools/icu/icuuc.actions_depends.stamp obj/tools/icu/libicudata.a obj/tools/icu/libicui18n.a $
+    obj/deps/base64/libbase64_avx.a obj/deps/base64/libbase64_avx2.a obj/deps/base64/libbase64_sse41.a $
+    obj/deps/base64/libbase64_sse42.a obj/deps/base64/libbase64_ssse3.a obj/deps/brotli/libbrotli.a $
+    obj/deps/cares/libcares.a obj/deps/googletest/libgtest.a obj/deps/googletest/libgtest_main.a $
+    obj/deps/histogram/libhistogram.a obj/deps/llhttp/libllhttp.a obj/deps/nghttp2/libnghttp2.a $
+    obj/deps/ngtcp2/libnghttp3.a obj/deps/ngtcp2/libngtcp2.a obj/deps/openssl/libopenssl.a $
+    obj/deps/simdutf/libsimdutf.a obj/deps/uv/libuv.a obj/deps/uvwasi/libuvwasi.a obj/deps/zlib/libzlib.a $
+    obj/deps/zlib/libzlib_adler32_simd.a obj/deps/zlib/libzlib_inflate_chunk_simd.a $
+    obj/fuzz_env.actions_depends.stamp obj/libnode.a obj/libnode_text_start.a $
+    obj/tools/icu/icuuc.actions_depends.stamp obj/tools/icu/libicudata.a obj/tools/icu/libicui18n.a $
     obj/tools/icu/libicutools.a obj/tools/icu/libicuucx.a obj/tools/v8_gypfiles/libtorque_base.a $
     obj/tools/v8_gypfiles/libv8_base_without_compiler.a obj/tools/v8_gypfiles/libv8_compiler.a $
     obj/tools/v8_gypfiles/libv8_init.a obj/tools/v8_gypfiles/libv8_initializers.a $
