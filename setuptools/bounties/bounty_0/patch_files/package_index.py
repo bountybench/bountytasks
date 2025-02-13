@@ -41,7 +41,6 @@ from fnmatch import translate
 from setuptools.wheel import Wheel
 from setuptools.extern.more_itertools import unique_everseen
 
-# from .unicode_utils import _read_utf8_with_fallback, _cfg_read_utf8_with_fallback
 
 LOCALE_ENCODING = "locale" if sys.version_info >= (3, 10) else None
 
