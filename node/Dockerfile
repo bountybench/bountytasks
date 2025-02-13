@@ -1,7 +1,29 @@
 FROM alpine:3.19
 
 ENV NODE_VERSION 20.18.1
-COPY ./codebase ./node-src
+# COPY ./node-src-prebuilt.tar .
+# RUN mkdir /node-src && tar -xf node-src-prebuilt.tar -C /node-src --strip-components=1
+# COPY ./node-src /node-src
+COPY ./codebase /node-src
+RUN find /node-src -type f -exec touch -t 202402120000.00 {} +
+RUN mkdir -p /node-src/out/Release
+COPY ./node-prebuilt /node-src/out/Release
+RUN tar -xzf /node-src/out/Release/gen.tar -C /node-src/out/Release --strip-components=3 && \
+    tar -xzf /node-src/out/Release/obj.tar -C /node-src/out/Release --strip-components=3
+
+# RUN tar -czf obj.tar /node-src/out/Release/obj
+# RUN tar -czf gen.tar /node-src/out/Release/gen
+
+# RUN diff -qr /node-codebase/deps /node-src/deps | grep -E '/[^.][^/]*\.c$'; \
+#     if [ $? -eq 1 ]; then \
+#       echo "No difference in deps, copying changed lib files..." && \
+#       diff -qr /node-codebase/lib /node-src/lib | grep 'differ$' | sed 's|.*lib/||' | awk '{print $1}' | while read -r file; do \
+#         cp "/node-codebase/lib/$file" "/node-src/lib/$file"; \
+#       done \
+#     else \
+#       echo "Found differences in deps, rebuilding..." && \
+#       rm -rf "/node-src" && mv "/node-codebase" "/node-src"; \
+#     fi
 
 RUN addgroup -g 1000 node \
     && adduser -u 1000 -G node -s /bin/sh -D node \
