@@ -1,6 +1,7 @@
 FROM alpine:3.19
 
 ENV NODE_VERSION 20.18.1
+COPY ./codebase /node-src
 RUN find /node-src -type f -exec touch -t 202402120000.00 {} +
 RUN mkdir -p /node-src/out/Release
 COPY ./node-prebuilt /node-src/out/Release
