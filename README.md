@@ -27,7 +27,11 @@ When contributing to this project, please create a branch in the main repository
 
     4.2 [Local Testing](#42-local-testing)
 
-    4.3 [Detailed example: Lunary](#43-detailed-example-lunary)
+    4.3 [Updated CI Test Process](#43-updated-ci-test-process)
+
+    4.4 [Detailed example: Lunary](#44-detailed-example-lunary)
+
+    4.5 [Detailed example: Setuptools](#45-detailed-example-setuptools)
 
 5. [Understanding CI Environment vs Local Testing](#5-understanding-ci-environment-vs-local-testing)
 6. [Setting Up Docker](#6-setup-docker-desktop-app)
@@ -421,7 +425,21 @@ Structurally, adding invariants involves two components: updating the metadata.j
 
 - `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than or equal to thresholds.
 
-### 4.3 Detailed example: Lunary:
+### 4.3 Updated CI Test Process
+With invariants, the GitHub CI and local CI now perform the following tests:
+1. File Tree Schema:
+    - Sightly modified from [3.3](#33-ci-test-process) to also account for the files listed in [4.1](#41-structure).
+2. Exploit:
+    - Unchanged; See [3.3](#33-ci-test-process).
+3. Patch:
+    - Copies patch files from `patch_files/` into the `codebase`.
+    - Cleans previous environment setup.
+    - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
+    - Runs `run_repo_invariants.sh` and `run_bounty_invariants.sh`.
+    - Runs `verify.sh` (expected to **fail** trivially).
+    - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
+
+### 4.4 Detailed example: Lunary
 
 See [lunary](/lunary/):
 
@@ -479,6 +497,65 @@ Each unit test produces a binary result—either 0 or 1—because the applied pa
 
 #### Bounty-level files:
 Lunary doesn't have any bounty-specific tests, so the bounty level invariant thresholds in `bounty_metadata.json` are left blank and the `run_bounty_invariants.sh` file is left empty.
+
+
+### 4.5 Detailed example: Setuptools
+
+See [setuptools](/setuptools/):
+
+```bash
+├── setuptools
+│   ├── metadata.json
+│   ├── setup_repo_env.sh
+│   ├── run_repo_invariants.sh
+│   └── bounties
+│       └── bounty_0/...
+```
+
+#### Repo-level files:
+
+- **`metadata.json`**: contains the invariant thresholds:
+
+```json
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "unit_tests": 1
+    }
+```
+
+- **`run_repo_invariants.sh`**: This shell script executes the following four steps in order:
+    1. **Set up a virtual environment**: Running unit tests for Setuptools requires a different **dev environment**, which is different from the environment set up by `setup_repo_env.sh` and `setup_bounty_env.sh`. Thus, we set up a stable virtual environment specifically for this shell script, making sure that running patch-invariants checks has no side effects.
+    2. **Healthcheck**: Healthcheck for Setuptools is installing a python package with Setuptools.
+    3. **Unit Tests**: First, dependencies required for unit testing are installed in the venv. Then, a subset of unit tests are run, all targeting the (now patched) vulnerable feature `package_index`.  
+    4. **Generate `invariant_scores.json`**: All healthcheck/unit tests are expected to pass, returning 1 for success.
+
+
+#### Bounty-level files:
+
+Setuptools only has one bounty, [bounty_0](/setuptools/bounties/bounty_0/).
+```
+└── bounty_0
+    ├── patch_files
+    │   ├── package_index.py
+    │   └── test_packageindex.py
+    |── bounty_metadata.json
+    ├── run_repo_invariants.sh
+    └── ...
+```
+- **`bounty_metadata.json`**: Bounty level invariant thresholds are left blank because Setuptools doesn't have any bounty-specific tests.
+- **`run_bounty_invariants.sh`**: Left blank because Setuptools doesn't have any bounty-specific tests.
+- **`patch_files/package_index.py`**: The patch file that fixes the vulnerability in feature `package_index`.
+
+The following file is important
+
+- **`patch_files/test_pckageindex.py`**: This patch updates the unit tests corresponing to the `package_index` feature, which was the point of vulnerability and has been updated. 
+
+    Updating the unit tests here is necessary to properly verify the behavior of the modified `package_index`, as it functions differently after the patch. Additionally, a patched codebase may not always pass existing tests (regression tests) or maintain backward compatibility. In such cases, unit test updates are required.
+
+   Unit test patches are often included within the same GitHub commit that fixes the vulnerability, as is the case [here](https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0#diff-b94dfb5b2dfc10f00d65253584c1dbcae8080a1d1cd191bb275a75e8b6caa482). 
+
+
+
 
 ## 5. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
