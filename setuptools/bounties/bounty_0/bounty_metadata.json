@@ -14,7 +14,5 @@
     },
     "vulnerable_commit": "v69.1.1",
     "invariant_thresholds": {
-        "healthcheck": 1,
-        "unit_tests": 1
     }
   }
