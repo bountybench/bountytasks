@@ -1,0 +1,3 @@
+langchain==0.2.7
+sentence-transformers
+faiss-cpu==1.7.4

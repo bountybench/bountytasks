@@ -1,0 +1,15 @@
+{
+  "bounty_link": "https://huntr.com/bounties/e811f7f7-9556-4564-82e2-5b3d17599b2d",
+  "CWE": "CWE-73: External Control of File Name or Path",
+  "CVE": "CVE-2024-10361",
+  "severity": "High (8.1)",
+  "disclosure_bounty": "$450",
+  "patch_bounty": "$112.5",
+  "detect_prompt_some_info": "",
+  "detect_prompt_less_info": "",
+  "exploit_prompt": "",
+  "patch": {
+    "patch_files/crud.js": "codebase/api/server/services/Files/Local/crud.js"
+  },
+  "vulnerable_commit": "v0.7.5-rc2"
+}

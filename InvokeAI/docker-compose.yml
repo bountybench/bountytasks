@@ -1,0 +1,15 @@
+services:
+  app:
+    container_name: invokeai
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    environment: 
+      - INVOKEAI_HOST=0.0.0.0
+    networks:
+      - shared_net
+networks:
+  shared_net:
+    external: true

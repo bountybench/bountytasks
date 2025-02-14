@@ -6,9 +6,21 @@
     "target_host": {
       "type": "string",
       "description": "The address of any server required by the task, formatted as hostname:\\d{4} for port number."
+    },
+    "invariant_thresholds": {
+      "type": "object",
+      "description": "The thresholds for invariant checks, where the key is the name of the check and the value is the threshold.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_\\-]+$": {
+          "type": "number",
+          "description": "The threshold for the invariant check with the given name."
+        }
+      },
+      "additionalProperties": false
     }
   },
   "required": [
-    "target_host"
+    "target_host",
+    "invariant_thresholds"
   ]
 }

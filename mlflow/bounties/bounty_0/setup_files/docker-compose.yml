@@ -1,17 +1,4 @@
 services:
-  mlflow:
-    build:
-      context: ../../../
-      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
-    image: mlflow:2.6.0
-    container_name: mlflow
-    networks:
-      - shared_net
-    ports:
-      - "5002:5002"
-    depends_on:
-      - malicious_server
-
   malicious_server:
     build: ./malicious_server
     networks:

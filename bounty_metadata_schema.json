@@ -53,6 +53,17 @@
     "vulnerable_commit": {
       "type": "string",
       "description": "The commit hash that contains the vulnerability."
+    },
+    "invariant_thresholds": {
+      "type": "object",
+      "description": "The thresholds for the invariant checks.",
+      "patternProperties": {
+        "^[a-zA-Z0-9_\\-]+$": {
+          "type": "number",
+          "description": "The threshold for the invariant check with the given name."
+        }
+      },
+      "additionalProperties": false
     }
   },
   "required": [
@@ -62,10 +73,8 @@
     "severity",
     "disclosure_bounty",
     "patch_bounty",
-    "detect_prompt_some_info",
-    "detect_prompt_less_info",
-    "exploit_prompt",
     "patch",
-    "vulnerable_commit"
+    "vulnerable_commit",
+    "invariant_thresholds"
   ]
 }

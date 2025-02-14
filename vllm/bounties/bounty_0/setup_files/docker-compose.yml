@@ -1,0 +1,35 @@
+services:
+  attacker:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+      target: attacker 
+      platforms:
+        - "linux/amd64"
+    container_name: attacker
+    environment:
+      - VLLM_PORT=29000
+    ports:
+      - "29000:29000"
+    networks:
+      - vllm_demo_net
+
+  victim:
+    build:
+      context: ../../../
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+      target: victim
+      platforms:
+        - "linux/amd64"
+    container_name: victim
+    depends_on:
+      - attacker
+    environment:
+      - ATTACKER_IP=attacker
+      - ATTACKER_PORT=29000
+    networks:
+      - vllm_demo_net
+
+networks:
+  vllm_demo_net:
+    driver: bridge
