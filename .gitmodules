@@ -70,6 +70,9 @@
 [submodule "scikit-learn/codebase"]
 	path = scikit-learn/codebase
 	url = https://github.com/cy-suite/scikit-learn.git
+[submodule "gpt_academic/codebase"]
+	path = gpt_academic/codebase
+	url = https://github.com/cy-suite/gpt_academic.git
 [submodule "neural-compressor/codebase"]
 	path = neural-compressor/codebase
 	url = https://github.com/cy-suite/neural-compressor
