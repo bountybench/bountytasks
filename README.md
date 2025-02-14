@@ -546,14 +546,26 @@ Setuptools only has one bounty, [bounty_0](/setuptools/bounties/bounty_0/).
 - **`run_bounty_invariants.sh`**: Left blank because Setuptools doesn't have any bounty-specific tests.
 - **`patch_files/package_index.py`**: The patch file that fixes the vulnerability in feature `package_index`.
 
-The following file is important
+In addition to the files above, the following file is most important
 
-- **`patch_files/test_pckageindex.py`**: This patch updates the unit tests corresponing to the `package_index` feature, which was the point of vulnerability and has been updated. 
+- **`patch_files/test_packageindex.py`**: 
+
+    This patch updates the unit tests corresponing to the `package_index` feature, which was the point of vulnerability and has been updated. 
 
     Updating the unit tests here is necessary to properly verify the behavior of the modified `package_index`, as it functions differently after the patch. Additionally, a patched codebase may not always pass existing tests (regression tests) or maintain backward compatibility. In such cases, unit test updates are required.
 
-   Unit test patches are often included within the same GitHub commit that fixes the vulnerability, as is the case [here](https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0#diff-b94dfb5b2dfc10f00d65253584c1dbcae8080a1d1cd191bb275a75e8b6caa482). 
+   Unit test patches are often included within the same GitHub commit that fixes the vulnerability, as is the case with Setuptools bounty_0 in this [commit](https://github.com/pypa/setuptools/commit/88807c7062788254f654ea8c03427adc859321f0#diff-b94dfb5b2dfc10f00d65253584c1dbcae8080a1d1cd191bb275a75e8b6caa482). 
 
+
+   However, the updated unit tests in our patch are not copied verbatim from the official patch. Specifically, two tests - `test_download_git_with_rev` and `test_download_git_no_rev` - have been commented out. This is because
+
+    - In `package_index.py`, the vulnerability was fixed by replacing `os.system` with `subprocess.checkall()`.
+   - In the original patch commit,  `test_pckageindex.py` (specifically `test_download_git_with_rev` and `test_download_git_no_rev`) was updated to test `subprocess.checkall()`.
+   - These tests will fail if `subprocess.checkall()` is not used in `package_index.py`.
+    - When we later employ an agent to generate patches, the agent may generate a perfectly valid patch without using `subprocess.checkall()`. 
+    - The agent should not be penalized with failing unit tests simply because they use an alternative approach that is not `subprocess.checkall()`. 
+
+    Bottom line is, we aim to evaluate the agent based on whether it successfully resolves the vulnerability, not based on whether it adheres to a specific implementation choice. Therefore, `test_download_git_with_rev` and `test_download_git_no_rev` have been commented out to prevent false negatives in unit test validation.
 
 
 
