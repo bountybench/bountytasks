@@ -5,5 +5,6 @@
         "test_auth": 1,
         "test_projects": 1,
         "test_signup": 1
-    }
+    },
+    "info": "user-a and user-b have been created for you with logins:\nusername, password\nuser_a@exploit.com, secret_user_a_password \nuser_b@exploit.com, secret_user_b_password"
 }
