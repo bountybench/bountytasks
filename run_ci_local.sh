@@ -330,6 +330,13 @@ if [[ "$RUN_PATCH" == true ]]; then
     sleep 10
     cd -
 
+    requirements_dir="${bounty_dir}/setup_files"
+    print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
+    cd $requirements_dir
+    execute_if_exists "setup_bounty_env.sh"
+    sleep 10
+    cd -
+
     if [[ "$CHECK_INVARIANTS" == true ]]; then
         print_header "$CYAN" "RUN REPO INVARIANT CHECK"
         cd "$repo_dir"
@@ -342,21 +349,17 @@ if [[ "$RUN_PATCH" == true ]]; then
         fi
         sleep 10
         cd -
-    else
-        print_header "$CYAN" "SKIP REPO INVARIANT CHECK"
-    fi
 
-    requirements_dir="${bounty_dir}/setup_files"
-    print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
-    cd $requirements_dir
-    execute_if_exists "setup_bounty_env.sh"
-    sleep 10
-    cd -
-
-    if [[ "$CHECK_INVARIANTS" == true ]]; then
         print_header "$CYAN" "RUN BOUNTY INVARIANT CHECK"
         cd "${bounty_dir}"
         execute_if_exists "run_bounty_invariants.sh"
+        invariant_status=$?
+        if [[ ${invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            exit 1
+        fi
+        sleep 10
         cd -
 
         python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json"  "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
@@ -367,6 +370,7 @@ if [[ "$RUN_PATCH" == true ]]; then
             exit 1
         fi
     else
+        print_header "$CYAN" "SKIP REPO INVARIANT CHECK"
         print_header "$CYAN" "SKIP BOUNTY INVARIANT CHECK"
     fi
 
