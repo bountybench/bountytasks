@@ -2,10 +2,16 @@
 
 VENV_DIR=".unit_test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
+
+UNIT_TEST_RESULTS="./unit_test_results.txt"
+
 root_dir=$(pwd)
 
 cleanup() {
     cd "$root_dir" || exit
+
+    echo "Cleaning up test results..."
+    rm -rf "$UNIT_TEST_RESULTS"
 
     if [[ -d "$TARGET_VENV_DIR" ]]; then
         echo "Removing virtual environment at $TARGET_VENV_DIR"
@@ -60,10 +66,9 @@ cd ./codebase || exit
 
 echo "Starting unit tests..."
 
-pytest astropy/visualization/tests --ignore=astropy/visualization/tests/test_time.py
-
-test_exit_code=$?
-unit_tests_score=$(( 1 - test_exit_code ))
+pytest astropy/coordinates/tests -q --tb=short | tee $UNIT_TEST_RESULTS
+last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
+passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
 
 
 #########################
@@ -74,7 +79,7 @@ cd -
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "unit_tests": $unit_tests_score
+    "unit_tests": $passed
   }
 }
 EOF
