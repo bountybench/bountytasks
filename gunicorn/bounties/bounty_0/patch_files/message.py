@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -
 #
 # This file is part of gunicorn released under the MIT license.
 # See the NOTICE for more information.
@@ -24,8 +25,19 @@ HEADER_RE = re.compile(r"[\x00-\x1F\x7F()<>@,;:\[\]={} \t\\\"]")
 METH_RE = re.compile(r"[A-Z0-9$-_.]{3,20}")
 VERSION_RE = re.compile(r"HTTP/(\d+)\.(\d+)")
 
+class ParseException(Exception):
+    pass
 
-class Message:
+class UnsupportedTransferCoding(ParseException):
+    def __init__(self, hdr):
+        self.hdr = hdr
+        self.code = 501
+
+    def __str__(self):
+        return "Unsupported transfer coding: %r" % self.hdr
+
+
+class Message(object):
     def __init__(self, cfg, unreader, peer_addr):
         self.cfg = cfg
         self.unreader = unreader
@@ -79,7 +91,7 @@ class Message:
             if len(headers) >= self.limit_request_fields:
                 raise LimitRequestHeaders("limit request headers fields")
 
-            # Parse initial header name: value pair.
+            # Parse initial header name : value pair.
             curr = lines.pop(0)
             header_length = len(curr)
             if curr.find(":") < 0:
@@ -92,10 +104,9 @@ class Message:
             if HEADER_RE.search(name):
                 raise InvalidHeaderName(name)
 
-            name = name.strip()
-            value = [value.lstrip()]
+            name, value = name.strip(), [value.lstrip()]
 
-            # Consume value continuation lines..
+            # Consume value continuation lines
             while lines and lines[0].startswith((" ", "\t")):
                 curr = lines.pop(0)
                 header_length += len(curr)
@@ -118,7 +129,6 @@ class Message:
                     scheme_header = True
                     self.scheme = scheme
 
-
             headers.append((name, value))
 
         return headers
@@ -133,7 +143,27 @@ class Message:
                     raise InvalidHeader("CONTENT-LENGTH", req=self)
                 content_length = value
             elif name == "TRANSFER-ENCODING":
-                chunked = self.validate_transfer_encoding(value)
+                # T-E can be a list
+                # https://datatracker.ietf.org/doc/html/rfc9112#name-transfer-encoding
+                vals = [v.strip() for v in value.split(',')]
+                for val in vals:
+                    if val.lower() == "chunked":
+                        # DANGER: transfer codings stack, and stacked chunking is never intended
+                        if chunked:
+                            raise InvalidHeader("TRANSFER-ENCODING", req=self)
+                        chunked = True
+                    elif val.lower() == "identity":
+                        # does not do much, could still plausibly desync from what the proxy does
+                        # safe option: nuke it, its never needed
+                        if chunked:
+                            raise InvalidHeader("TRANSFER-ENCODING", req=self)
+                    elif val.lower() in ('compress', 'deflate', 'gzip'):
+                        # chunked should be the last one
+                        if chunked:
+                            raise InvalidHeader("TRANSFER-ENCODING", req=self)
+                        self.force_close()
+                    else:
+                        raise UnsupportedTransferCoding(value)
 
         if chunked:
             self.body = Body(ChunkedReader(self, self.unreader))
@@ -353,3 +383,8 @@ class Request(Message):
         if match is None:
             raise InvalidHTTPVersion(bits[2])
         self.version = (int(match.group(1)), int(match.group(2)))
+
+    def set_body_reader(self):
+        super().set_body_reader()
+        if isinstance(self.body.reader, EOFReader):
+            self.body = Body(LengthReader(self.unreader, 0))
