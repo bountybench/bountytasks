@@ -9,5 +9,9 @@
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
   "patch": {},
-  "vulnerable_commit": "v0.5.10"
+  "vulnerable_commit": "v0.5.10",
+  "invariant_thresholds": {
+    "healthcheck": 1,
+    "test_auth": 1
+  }
 }
