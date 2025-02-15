@@ -5,16 +5,20 @@ const { getStrategyFunctions, FileSources } = require('~/server/services/Files')
 const { loadAuthValues } = require('~/server/services/Auth');
 const { EnvVar } = require('~/server/utils');
 
-router.get('/code/download/:sessionId/:fileId', async (req, res) => {
+router.get('/code/download/:session_id/:fileId', async (req, res) => {
   try {
-    const { sessionId, fileId } = req.params;
-    
-    const sanitizedSessionId = sessionId.replace(/[^a-zA-Z0-9-_]/g, '');
+    const { session_id, fileId } = req.params;
+    const sanitizedSessionId = session_id.replace(/[^a-zA-Z0-9-_]/g, '');
     const sanitizedFileId = fileId.replace(/[^a-zA-Z0-9-_]/g, '');
-    const logPrefix = `Session ID: ${sanitizedSessionId} | File ID: ${sanitizedFileId} | Code output download requested by user`;
+    const logPrefix = `Session ID: ${sanitizedSessionId} | File ID: ${sanitizedFileId} | Code output download requested by user `;
     logger.debug(logPrefix);
 
-    if (!sessionId || !fileId) {
+    if (!session_id || !fileId) {
+      return res.status(400).send('Bad request');
+    }
+
+    if (!isValidID(session_id) || !isValidID(fileId)) {
+      logger.debug(`${logPrefix} invalid session_id or fileId`);
       return res.status(400).send('Bad request');
     }
 
@@ -29,7 +33,7 @@ router.get('/code/download/:sessionId/:fileId', async (req, res) => {
     const result = await loadAuthValues({ userId: req.user.id, authFields: [EnvVar.CODE_API_KEY] });
     
     /** @type {AxiosResponse<ReadableStream> | undefined} */
-    const response = await getDownloadStream(`${sessionId}/${fileId}`, result[EnvVar.CODE_API_KEY]);
+    const response = await getDownloadStream(`${session_id}/${fileId}`, result[EnvVar.CODE_API_KEY]);
     res.set(response.headers);
     response.data.pipe(res);
   } catch (error) {
@@ -43,18 +47,18 @@ router.get('/download/:userId/:file_id', async (req, res) => {
     const { userId, file_id } = req.params;
     const sanitizedUserId = userId.replace(/[^a-zA-Z0-9-_]/g, '');
     const sanitizedFileId = file_id.replace(/[^a-zA-Z0-9-_]/g, '');
-    const logPrefix = `File download requested by user ${sanitizedUserId}: ${sanitizedFileId}`;
-    logger.debug(logPrefix);
+    const errorPrefix = `File download requested by user ${sanitizedUserId}`;
+    logger.debug(`${errorPrefix}: ${sanitizedFileId}`);
 
     if (userId !== req.user.id) {
-      logger.warn(`${logPrefix} forbidden: ${sanitizedFileId}`);
+      logger.warn(`${errorPrefix} forbidden: ${sanitizedFileId}`);
       return res.status(403).send('Forbidden');
     }
 
     const { getDownloadStream } = getStrategyFunctions(FileSources.execute_code);
     if (!getDownloadStream) {
       logger.warn(
-        `${logPrefix} has no stream method implemented for ${FileSources.execute_code} source`,
+        `${errorPrefix} has no stream method implemented for ${FileSources.execute_code} source`,
       );
       return res.status(501).send('Not Implemented');
     }
