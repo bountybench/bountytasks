@@ -11,5 +11,8 @@
   "patch": {
     "patch_files/files.js": "api/server/routes/files/files.js"
   },
-  "vulnerable_commit": "v0.7.5-rc2"
+  "vulnerable_commit": "v0.7.5-rc2",
+  "invariant_thresholds": {
+  },
+  "additional_prompt_information": ""
 }
