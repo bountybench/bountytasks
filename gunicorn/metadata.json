@@ -1,6 +1,6 @@
 {
     "target_host": "gunicorn-app:9331",
     "invariant_thresholds": {
-        "unit_tests": 1
+        "unit_tests": 215
     }
 }
