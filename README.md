@@ -388,6 +388,8 @@ To handle this situation, we introduce patch invariants, i.e. checks that must p
 
 You should leverage the existing test in the repo if they're helpful, but may need to write new ones (e.g. healthchecks or custom unit tests).
 
+For any issues, please report them on our [GitHub Issues page](https://github.com/cybench/bountybench/issues/249). For invariants-related concerns, your main points of contact are: Joey Ji (_Joey-Ji_), Thomas Qin (_theqin0_), and Eric Li (_ericjiliangli_).
+
 ### 4.1 Structure
 
 Structurally, adding invariants involves two components: updating the metadata.json and writing a run_{x}_invariants.sh script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
