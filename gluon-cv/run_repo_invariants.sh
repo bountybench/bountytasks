@@ -64,11 +64,11 @@ pip install "numpy<2"
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
 ##################################
-cd ./codebase || exit
+cd . || exit
 
 echo "Starting unit tests..."
 
-python -m tests.auto.test_auto_data
+python -m test_func
 
 test_exit_code=$?
 unit_tests_score=$(( 1 - test_exit_code ))
