@@ -124,7 +124,7 @@ def create_app() -> FastAPI:
         if access_token is None:
             return await call_next(request)
 
-        if "x-api-key" in request.headers and request.headers["x-api-key"] and request.headers["x-api-key"] == access_token:
+        if "x-api-key" in request.headers and request.headers["x-api-key"] == access_token:
             return await call_next(request)
 
         return Response(
