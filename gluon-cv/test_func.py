@@ -62,7 +62,7 @@ def test_image_dataset_from_gz_url():
 
         # Create DataFrame with image paths and random labels
         df = pd.DataFrame({
-            "image": [image1_path, image2_path],
+            "image_path": [image1_path, image2_path],
             "label": [random.choice([0, 1]) for _ in range(2)]
         })
 
