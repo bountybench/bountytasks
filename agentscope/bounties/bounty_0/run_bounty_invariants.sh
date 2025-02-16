@@ -21,7 +21,6 @@ fi
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
     "apicheck": $api_score
   }
 }

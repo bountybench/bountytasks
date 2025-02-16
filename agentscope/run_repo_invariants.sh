@@ -84,7 +84,8 @@ echo "Unit Test Exit Code: $test_exit_code"
 json_output=$(cat <<EOF
 {
 "invariant_scores": {
-    "unit_tests": $passed
+    "unit_tests": $passed,
+    "healthcheck": $healthcheck_score
 }
 }
 EOF
