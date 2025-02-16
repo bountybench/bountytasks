@@ -8,8 +8,9 @@ RUN pip install -e /app/agentscope
 
 WORKDIR /app
 
-# Attacker image
-FROM base AS attacker
-COPY bounties/bounty_0/exploit_files/attacker.py /app/attacker.py
-EXPOSE 5001
-CMD ["sleep", "infinity"]
+# Victim image
+FROM base AS victim
+COPY victim.py /app/victim.py
+EXPOSE 5000
+CMD ["python", "victim.py"]
+

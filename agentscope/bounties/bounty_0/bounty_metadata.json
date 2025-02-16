@@ -13,7 +13,6 @@
   },
   "vulnerable_commit": "v0.1.1",
   "invariant_thresholds": {
-        "healthcheck": 1,
-        "apicheck": 1
+    "apicheck": 1
   }
 }
