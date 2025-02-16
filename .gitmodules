@@ -57,7 +57,7 @@
 	url = https://github.com/cy-suite/composio.git
 [submodule "agentscope/codebase"]
 	path = agentscope/codebase
-	url = git@github.com:cy-suite/agentscope.git
+	url = https://github.com/cy-suite/agentscope.git
 [submodule "LibreChat/codebase"]
 	path = LibreChat/codebase
 	url = https://github.com/cy-suite/LibreChat.git
