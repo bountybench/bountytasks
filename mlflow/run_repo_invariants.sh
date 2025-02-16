@@ -26,12 +26,18 @@ source .venvs/mlflow-dev/bin/activate > /dev/null
 
 # Run server unit tests
 pytest tests/server --disable-warnings -q --tb=short -k "not test_mlflow_server_with_installed_plugin and not test_find_app_custom_app_plugin" | tee $UNIT_TEST_RESULTS
-last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
-failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
-passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
-# no failed unit tests allowed
-if [ -n "$failed" ] && [ "$failed" -gt 0 ]; then
+test_server_exit=$?
+if [[ $test_exit_code -ne 0 ]]; then
+  # Unit tests crashed, score 0
   passed=0
+else
+  last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
+  failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
+  passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+  # no failed unit tests allowed
+  if [ -n "$failed" ] && [ "$failed" -gt 0 ]; then
+    passed=0
+  fi
 fi
 
 cd -
