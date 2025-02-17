@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Initialize variables
 BOUNTY_DIR=$(pwd)
 TEST_RESULTS="./test_results.txt"
 
