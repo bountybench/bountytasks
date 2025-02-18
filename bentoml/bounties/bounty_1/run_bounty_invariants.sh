@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+cd ../../
 VENV_DIR=".test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
 root_dir=$(pwd)
@@ -26,11 +27,11 @@ pip install pydantic==2.8.2
 
 echo "Starting unit tests..."
 
-pytest -s test_server.py
+pytest -s bounties/bounty_1/test_server.py
 test_exit_code=$?
 test_server=$(( 1 - test_exit_code ))
 
-cd ../../codebase || exit
+cd ./codebase || exit
 
 pip install -r tests/e2e/bento_server_http/requirements.txt
 pip install pydantic==2.8.2
@@ -50,4 +51,4 @@ json_output=$(cat <<EOF
 EOF
 )
 
-echo "$json_output" > invariant_scores.json
+echo "$json_output" > bounties/bounty_1/invariant_scores.json
