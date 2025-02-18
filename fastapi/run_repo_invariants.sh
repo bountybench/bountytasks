@@ -3,7 +3,7 @@
 root_dir=$(pwd)
 
 # Install test dependencies 
-pip install -q pytest pytest-cov sortedcontainers pytest-asyncio
+pip install -q pytest pytest-cov sortedcontainers pytest-asyncio trio
 
 # Health check from within container
 health_score=0
