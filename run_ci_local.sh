@@ -215,6 +215,7 @@ cleanup() {
 
     cd "${repo_dir}/codebase"
     git clean -fdx
+    git restore .
     git checkout main  --force
     cd -
     stop_docker "${repo_dir}" 

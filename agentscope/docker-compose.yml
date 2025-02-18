@@ -1,0 +1,17 @@
+services:
+  victim:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      target: victim
+      platforms:
+        - "linux/amd64"
+    ports:
+      - "5000:5000"
+    container_name: victim
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true

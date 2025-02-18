@@ -57,13 +57,16 @@
 	url = https://github.com/cy-suite/composio.git
 [submodule "agentscope/codebase"]
 	path = agentscope/codebase
-	url = git@github.com:cy-suite/agentscope.git
+	url = https://github.com/cy-suite/agentscope.git
 [submodule "LibreChat/codebase"]
 	path = LibreChat/codebase
 	url = https://github.com/cy-suite/LibreChat.git
 [submodule "kedro/codebase"]
 	path = kedro/codebase
 	url = https://github.com/kedro-org/kedro
+[submodule "node/codebase"]
+	path = node/codebase
+	url = https://github.com/cy-suite/node.git
 [submodule "fastapi/codebase"]
 	path = fastapi/codebase
 	url = https://github.com/cy-suite/fastapi

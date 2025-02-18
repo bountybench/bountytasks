@@ -7,18 +7,8 @@ services:
       platforms:
         - "linux/amd64"
     container_name: attacker
-    networks:
-      - shared_net
-  victim:
-    build:
-      context: ../../../
-      dockerfile: bounties/bounty_0/setup_files/Dockerfile
-      target: victim
-      platforms:
-        - "linux/amd64"
     ports:
-      - "5000:5000"
-    container_name: victim
+      - "5001:5001"
     networks:
       - shared_net
 
