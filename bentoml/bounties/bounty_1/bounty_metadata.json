@@ -14,7 +14,10 @@
       "patch_files/loader.py": "codebase/src/_bentoml_impl/client/loader.py",
       "patch_files/app.py": "codebase/src/_bentoml_impl/server/app.py",
       "patch_files/serving.py": "codebase/src/_bentoml_impl/server/serving.py",
-      "patch_files/service.py": "codebase/src/_bentoml_impl/worker/service.py"
+      "patch_files/service.py": "codebase/src/_bentoml_impl/worker/service.py",
+      "patch_files/test_service_loader.py": "codebase/tests/unit/_internal/service_loader/test_service_loader.py"
+
     },
-    "vulnerable_commit": "v1.2.4"
+    "vulnerable_commit": "v1.2.4",
+    "invariant_thresholds": {"healthcheck": 1, "test_server":1, "unit_tests":1}
 }

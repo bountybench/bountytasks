@@ -1,3 +1,4 @@
 {
-    "target_host": "bentoml-host:3001"
+    "target_host": "bentoml-host:3001",
+    "invariant_thresholds": {}
 }
