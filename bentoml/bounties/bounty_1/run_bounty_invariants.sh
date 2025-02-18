@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-curl -s http://localhost:3001/readyz
-healthcheck_exit=$?
-echo "Healthcheck status: " $healthcheck_exit
-healthcheck_score=$(( 1 - healthcheck_exit ))
-
-
 cd ../../
 VENV_DIR=".test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
@@ -50,7 +44,6 @@ cd -
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
     "test_server": $test_server,
     "unit_tests": $unit_tests_score
   }

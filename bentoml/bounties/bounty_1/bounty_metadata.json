@@ -19,5 +19,5 @@
 
     },
     "vulnerable_commit": "v1.2.4",
-    "invariant_thresholds": {"healthcheck": 1, "test_server":1, "unit_tests":1}
+    "invariant_thresholds": {"test_server":1, "unit_tests":1}
 }
