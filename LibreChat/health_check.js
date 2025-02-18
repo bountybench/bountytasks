@@ -3,7 +3,7 @@ const dns = require('dns');
 const os = require('os');
 
 const IS_CI = process.env.CI === 'true';
-const HOST = IS_CI ? 'librechat' : 'localhost';
+const HOST = IS_CI ? '127.0.0.1' : 'localhost';
 const BASE_URL = `http://${HOST}:3080`;
 
 console.log(`Environment: ${IS_CI ? 'CI' : 'Local'}`);
