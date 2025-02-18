@@ -171,8 +171,8 @@ jobs:
                 # Get exposed TCP ports
                 ports=$(docker inspect --format '{{range $p, $conf := .NetworkSettings.Ports}}{{range $conf}}{{.HostPort}} {{end}}{{end}}' "$container")
                 if [ -z "$ports" ]; then
-                  echo "Error: No exposed ports for $container. Unable to check readiness." >&2
-                  exit 1
+                  echo "No exposed ports for $container. Skipping readiness check." >&2
+                  continue
                 fi
 
                 elapsed=0

@@ -1,0 +1,247 @@
+cc = cc
+cxx = c++
+ld = $cc
+ldxx = $cxx
+ar = ar
+nm = nm
+readelf = readelf
+
+pool link_pool
+  depth = 3
+
+rule cc
+  command = $cc -MMD -MF $out.d $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+  depfile = $out.d
+  deps = gcc
+rule cc_s
+  command = $cc $defines $includes $cflags $cflags_c $cflags_pch_c -c $in -o $out
+  description = CC $out
+rule cxx
+  command = $cxx -MMD -MF $out.d $defines $includes $cflags $cflags_cc $cflags_pch_cc -c $in -o $out
+  description = CXX $out
+  depfile = $out.d
+  deps = gcc
+rule alink
+  command = rm -f $out && $ar rcs $arflags $out $in
+  description = AR $out
+rule alink_thin
+  command = rm -f $out && $ar rcsT $arflags $out $in
+  description = AR $out
+rule solink
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--whole-archive $in $solibs -Wl,--no-whole-archive $libs
+rule solink_module
+  command = if [ ! -e $lib -o ! -e $lib.TOC ]; then $ld -shared $ldflags -o $lib -Wl,-soname=$soname @$link_file_list $
+      && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | cut -f1-2 -d' '; } > $lib.TOC; else $ld -shared $
+      $ldflags -o $lib -Wl,-soname=$soname @$link_file_list && { $readelf -d $lib | grep SONAME ; $nm -gD -f p $lib | $
+      cut -f1-2 -d' '; } > $lib.tmp && if ! cmp -s $lib.tmp $lib.TOC; then mv $lib.tmp $lib.TOC ; fi; fi
+  description = SOLINK(module) $lib
+  pool = link_pool
+  restat = 1
+  rspfile = $link_file_list
+  rspfile_content = -Wl,--start-group $in $solibs $libs -Wl,--end-group
+rule link
+  command = $ld $ldflags -o $out -Wl,--start-group $in $solibs $libs -Wl,--end-group
+  description = LINK $out
+  pool = link_pool
+rule stamp
+  command = ${postbuilds}touch $out
+  description = STAMP $out
+rule copy
+  command = ln -f $in $out 2>/dev/null || (rm -rf $out && cp -af $in $out)
+  description = COPY $in $out
+
+subninja obj/tools/v8_gypfiles/v8_zlib.ninja
+subninja obj/tools/v8_gypfiles/v8_headers.ninja
+subninja obj/tools/v8_gypfiles/v8_libbase.ninja
+subninja obj/tools/v8_gypfiles/v8_shared_internal_headers.ninja
+subninja obj/tools/v8_gypfiles/v8_flags.ninja
+subninja obj/tools/v8_gypfiles/torque_base.ninja
+subninja obj/tools/v8_gypfiles/torque_ls_base.ninja
+subninja obj/tools/v8_gypfiles/torque-language-server.ninja
+subninja obj/tools/v8_gypfiles/torque.ninja
+subninja obj/tools/v8_gypfiles/run_torque.ninja
+subninja obj/tools/v8_gypfiles/postmortem-metadata.ninja
+subninja obj/tools/v8_gypfiles/v8_libsampler.ninja
+subninja obj/tools/v8_gypfiles/v8_libplatform.ninja
+subninja obj/tools/v8_gypfiles/bytecode_builtins_list_generator.ninja
+subninja obj/tools/v8_gypfiles/generate_bytecode_builtins_list.ninja
+subninja obj/tools/icu/icuucx.ninja
+subninja obj/tools/icu/icui18n.ninja
+subninja obj/tools/icu/icutools.ninja
+subninja obj/tools/icu/icupkg.ninja
+subninja obj/tools/icu/iculslocs.ninja
+subninja obj/tools/icu/genrb.ninja
+subninja obj/tools/icu/genccode.ninja
+subninja obj/tools/icu/icudata.ninja
+subninja obj/tools/icu/icuuc.ninja
+subninja obj/tools/v8_gypfiles/v8_maybe_icu.ninja
+subninja obj/tools/v8_gypfiles/v8_internal_headers.ninja
+subninja obj/tools/v8_gypfiles/torque_generated_definitions.ninja
+subninja obj/tools/v8_gypfiles/gen-regexp-special-case.ninja
+subninja obj/tools/v8_gypfiles/run_gen-regexp-special-case.ninja
+subninja obj/tools/v8_gypfiles/v8_base_without_compiler.ninja
+subninja obj/tools/v8_gypfiles/v8_turboshaft.ninja
+subninja obj/tools/v8_gypfiles/v8_compiler.ninja
+subninja obj/tools/v8_gypfiles/v8_compiler_for_mksnapshot.ninja
+subninja obj/tools/v8_gypfiles/v8_base.ninja
+subninja obj/tools/v8_gypfiles/v8_compiler_for_mksnapshot_source_set.ninja
+subninja obj/tools/v8_gypfiles/torque_generated_initializers.ninja
+subninja obj/tools/v8_gypfiles/v8_initializers.ninja
+subninja obj/tools/v8_gypfiles/v8_init.ninja
+subninja obj/tools/v8_gypfiles/mksnapshot.ninja
+subninja obj/tools/v8_gypfiles/v8_snapshot.ninja
+subninja obj/tools/icu/icustubdata.ninja
+subninja obj/overlapped-checker.ninja
+subninja obj/node_text_start.ninja
+subninja obj/deps/zlib/zlib_inflate_chunk_simd.ninja
+subninja obj/deps/zlib/zlib_arm_crc32.ninja
+subninja obj/deps/zlib/zlib_adler32_simd.ninja
+subninja obj/deps/zlib/zlib.ninja
+subninja obj/deps/uv/libuv.ninja
+subninja obj/deps/uvwasi/uvwasi.ninja
+subninja obj/deps/simdutf/simdutf.ninja
+subninja obj/node_js2c.ninja
+subninja obj/deps/openssl/openssl.ninja
+subninja obj/deps/openssl/openssl-cli.ninja
+subninja obj/deps/openssl/openssl-fipsmodule.ninja
+subninja obj/deps/ngtcp2/ngtcp2.ninja
+subninja obj/deps/ngtcp2/nghttp3.ninja
+subninja obj/deps/nghttp2/nghttp2.ninja
+subninja obj/deps/llhttp/llhttp.ninja
+subninja obj/deps/histogram/histogram.ninja
+subninja obj/deps/googletest/gtest_prod.ninja
+subninja obj/deps/googletest/gtest.ninja
+subninja obj/deps/googletest/gtest_main.ninja
+subninja obj/deps/cares/cares.ninja
+subninja obj/deps/brotli/brotli.ninja
+subninja obj/deps/base64/base64_ssse3.ninja
+subninja obj/deps/base64/base64_sse42.ninja
+subninja obj/deps/base64/base64_sse41.ninja
+subninja obj/deps/base64/base64_neon64.ninja
+subninja obj/deps/base64/base64_neon32.ninja
+subninja obj/deps/base64/base64_avx2.ninja
+subninja obj/deps/base64/base64_avx.ninja
+subninja obj/deps/base64/base64.ninja
+subninja obj/deps/ada/ada.ninja
+subninja obj/libnode.ninja
+subninja obj/node_mksnapshot.ninja
+subninja obj/node.ninja
+subninja obj/fuzz_env.ninja
+subninja obj/embedtest.ninja
+subninja obj/cctest.ninja
+
+# Short names for targets.
+build ada: phony obj/deps/ada/libada.a
+build base64: phony obj/deps/base64/libbase64.a
+build base64_avx: phony obj/deps/base64/libbase64_avx.a
+build base64_avx2: phony obj/deps/base64/libbase64_avx2.a
+build base64_neon32: phony obj/deps/base64/libbase64_neon32.a
+build base64_neon64: phony obj/deps/base64/libbase64_neon64.a
+build base64_sse41: phony obj/deps/base64/libbase64_sse41.a
+build base64_sse42: phony obj/deps/base64/libbase64_sse42.a
+build base64_ssse3: phony obj/deps/base64/libbase64_ssse3.a
+build brotli: phony obj/deps/brotli/libbrotli.a
+build cares: phony obj/deps/cares/libcares.a
+build fuzz_env: phony obj/fuzz_env.actions_depends.stamp
+build generate_bytecode_builtins_list: phony $
+    gen/generate-bytecode-output-root/builtins-generated/bytecodes-builtins-list.h
+build gtest: phony obj/deps/googletest/libgtest.a
+build gtest_main: phony obj/deps/googletest/libgtest_main.a
+build histogram: phony obj/deps/histogram/libhistogram.a
+build icudata: phony obj/tools/icu/libicudata.a
+build icui18n: phony obj/tools/icu/libicui18n.a
+build icustubdata: phony obj/tools/icu/libicustubdata.a
+build icutools: phony obj/tools/icu/libicutools.a
+build icuuc: phony obj/tools/icu/icuuc.actions_depends.stamp
+build icuucx: phony obj/tools/icu/libicuucx.a
+build libnode: phony obj/libnode.a
+build libuv: phony obj/deps/uv/libuv.a
+build llhttp: phony obj/deps/llhttp/libllhttp.a
+build nghttp2: phony obj/deps/nghttp2/libnghttp2.a
+build nghttp3: phony obj/deps/ngtcp2/libnghttp3.a
+build ngtcp2: phony obj/deps/ngtcp2/libngtcp2.a
+build node_text_start: phony obj/libnode_text_start.a
+build openssl: phony obj/deps/openssl/libopenssl.a
+build openssl-fipsmodule: phony lib/libopenssl-fipsmodule.so
+build postmortem-metadata: phony gen/debug-support.cc
+build run_gen-regexp-special-case: phony gen/src/regexp/special-case.cc
+build run_torque: phony obj/tools/v8_gypfiles/run_torque.actions_rules_copies.stamp
+build simdutf: phony obj/deps/simdutf/libsimdutf.a
+build torque_base: phony obj/tools/v8_gypfiles/libtorque_base.a
+build torque_generated_definitions: phony obj/tools/v8_gypfiles/torque_generated_definitions.actions_depends.stamp
+build torque_generated_initializers: phony obj/tools/v8_gypfiles/torque_generated_initializers.actions_depends.stamp
+build torque_ls_base: phony obj/tools/v8_gypfiles/libtorque_ls_base.a
+build uvwasi: phony obj/deps/uvwasi/libuvwasi.a
+build v8_base: phony obj/tools/v8_gypfiles/v8_base.actions_depends.stamp
+build v8_base_without_compiler: phony obj/tools/v8_gypfiles/libv8_base_without_compiler.a
+build v8_compiler: phony obj/tools/v8_gypfiles/libv8_compiler.a
+build v8_compiler_for_mksnapshot: phony obj/tools/v8_gypfiles/v8_compiler_for_mksnapshot.actions_depends.stamp
+build v8_compiler_for_mksnapshot_source_set: phony obj/tools/v8_gypfiles/libv8_compiler_for_mksnapshot_source_set.a
+build v8_flags: phony obj/tools/v8_gypfiles/v8_flags.actions_depends.stamp
+build v8_init: phony obj/tools/v8_gypfiles/libv8_init.a
+build v8_initializers: phony obj/tools/v8_gypfiles/libv8_initializers.a
+build v8_internal_headers: phony obj/tools/v8_gypfiles/v8_internal_headers.actions_depends.stamp
+build v8_libbase: phony obj/tools/v8_gypfiles/libv8_libbase.a
+build v8_libplatform: phony obj/tools/v8_gypfiles/libv8_libplatform.a
+build v8_libsampler: phony obj/tools/v8_gypfiles/libv8_libsampler.a
+build v8_maybe_icu: phony obj/tools/v8_gypfiles/v8_maybe_icu.actions_depends.stamp
+build v8_shared_internal_headers: phony obj/tools/v8_gypfiles/libv8_libbase.a
+build v8_snapshot: phony obj/tools/v8_gypfiles/libv8_snapshot.a
+build v8_turboshaft: phony obj/tools/v8_gypfiles/libv8_turboshaft.a
+build v8_zlib: phony obj/tools/v8_gypfiles/libv8_zlib.a
+build zlib: phony obj/deps/zlib/libzlib.a
+build zlib_adler32_simd: phony obj/deps/zlib/libzlib_adler32_simd.a
+build zlib_arm_crc32: phony obj/deps/zlib/libzlib_arm_crc32.a
+build zlib_inflate_chunk_simd: phony obj/deps/zlib/libzlib_inflate_chunk_simd.a
+
+# Empty targets (output for completeness).
+build cppgc_base: phony
+build gtest_prod: phony
+build icu_implementation: phony
+build icu_uconfig: phony
+build icu_uconfig_target: phony
+build torque_runtime_support: phony
+build v8: phony
+build v8_bigint: phony
+build v8_compiler_sources: phony
+build v8_config_headers: phony
+build v8_headers: phony
+build v8_heap_base: phony
+build v8_heap_base_headers: phony
+build v8_pch: phony
+build v8_version: phony
+
+build all: phony bytecode_builtins_list_generator cctest embedtest gen-regexp-special-case gen/debug-support.cc $
+    gen/generate-bytecode-output-root/builtins-generated/bytecodes-builtins-list.h gen/src/regexp/special-case.cc $
+    genccode icupkg mksnapshot node node_js2c node_mksnapshot obj/deps/ada/libada.a obj/deps/base64/libbase64.a $
+    obj/deps/base64/libbase64_avx.a obj/deps/base64/libbase64_avx2.a obj/deps/base64/libbase64_sse41.a $
+    obj/deps/base64/libbase64_sse42.a obj/deps/base64/libbase64_ssse3.a obj/deps/brotli/libbrotli.a $
+    obj/deps/cares/libcares.a obj/deps/googletest/libgtest.a obj/deps/googletest/libgtest_main.a $
+    obj/deps/histogram/libhistogram.a obj/deps/llhttp/libllhttp.a obj/deps/nghttp2/libnghttp2.a $
+    obj/deps/ngtcp2/libnghttp3.a obj/deps/ngtcp2/libngtcp2.a obj/deps/openssl/libopenssl.a $
+    obj/deps/simdutf/libsimdutf.a obj/deps/uv/libuv.a obj/deps/uvwasi/libuvwasi.a obj/deps/zlib/libzlib.a $
+    obj/deps/zlib/libzlib_adler32_simd.a obj/deps/zlib/libzlib_inflate_chunk_simd.a $
+    obj/fuzz_env.actions_depends.stamp obj/libnode.a obj/libnode_text_start.a $
+    obj/tools/icu/icuuc.actions_depends.stamp obj/tools/icu/libicudata.a obj/tools/icu/libicui18n.a $
+    obj/tools/icu/libicutools.a obj/tools/icu/libicuucx.a obj/tools/v8_gypfiles/libtorque_base.a $
+    obj/tools/v8_gypfiles/libv8_base_without_compiler.a obj/tools/v8_gypfiles/libv8_compiler.a $
+    obj/tools/v8_gypfiles/libv8_init.a obj/tools/v8_gypfiles/libv8_initializers.a $
+    obj/tools/v8_gypfiles/libv8_libbase.a obj/tools/v8_gypfiles/libv8_libplatform.a $
+    obj/tools/v8_gypfiles/libv8_snapshot.a obj/tools/v8_gypfiles/libv8_turboshaft.a $
+    obj/tools/v8_gypfiles/libv8_zlib.a obj/tools/v8_gypfiles/run_torque.actions_rules_copies.stamp $
+    obj/tools/v8_gypfiles/torque_generated_definitions.actions_depends.stamp $
+    obj/tools/v8_gypfiles/torque_generated_initializers.actions_depends.stamp $
+    obj/tools/v8_gypfiles/v8_compiler_for_mksnapshot.actions_depends.stamp $
+    obj/tools/v8_gypfiles/v8_flags.actions_depends.stamp $
+    obj/tools/v8_gypfiles/v8_internal_headers.actions_depends.stamp $
+    obj/tools/v8_gypfiles/v8_maybe_icu.actions_depends.stamp openssl-cli overlapped-checker torque
+default all
