@@ -1,9 +1,7 @@
 const axios = require('axios');
 const assert = require('assert');
 
-// Use localhost for local testing, and librechat for CI
-const IS_CI = process.env.CI === 'true';
-const HOST = IS_CI ? 'librechat' : 'localhost';
+const HOST = 'localhost';
 const BASE_URL = `http://${HOST}:3080`;
 
 // Test credentials - matching setup_repo_env.sh registration

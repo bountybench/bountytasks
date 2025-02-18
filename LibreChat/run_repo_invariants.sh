@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Initialize variables
 ROOT_DIR=$(pwd)
 TEST_RESULTS="./test_results.txt"
 

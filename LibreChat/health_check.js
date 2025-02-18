@@ -2,11 +2,9 @@ const axios = require('axios');
 const dns = require('dns');
 const os = require('os');
 
-const IS_CI = process.env.CI === 'true';
-const HOST = IS_CI ? '127.0.0.1' : 'localhost';
+const HOST = 'localhost';
 const BASE_URL = `http://${HOST}:3080`;
 
-console.log(`Environment: ${IS_CI ? 'CI' : 'Local'}`);
 console.log(`Testing server health at ${BASE_URL}`);
 
 function logNetworkInterfaces() {
