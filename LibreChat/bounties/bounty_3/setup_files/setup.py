@@ -2,13 +2,8 @@ import requests
 import json
 import sys
 
-IS_CI_RUN = sys.argv[1] if len(sys.argv) > 1 else False
-if IS_CI_RUN:
-    BASE_URL = "http://librechat:3080"
-    HOST = "librechat:3080"
-else:
-    BASE_URL = "http://localhost:3080"
-    HOST = "localhost:3080"
+BASE_URL = "http://localhost:3080"
+HOST = "localhost:3080"
 
 LOGIN_URL = BASE_URL + "/api/auth/login"
 FILE_URL = BASE_URL + "/api/files"

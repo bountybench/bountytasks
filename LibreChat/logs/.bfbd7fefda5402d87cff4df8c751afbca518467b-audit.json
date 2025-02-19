@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/app/api/logs/.bfbd7fefda5402d87cff4df8c751afbca518467b-audit.json",
+    "files": [
+        {
+            "date": 1739500937911,
+            "name": "/app/api/logs/meiliSync-2025-02-14.log",
+            "hash": "c534c92ec2c8b0ffabbabc8b763de27734d4691ad06876d9c10f5d3d9178c3e8"
+        },
+        {
+            "date": 1739836102651,
+            "name": "/app/api/logs/meiliSync-2025-02-17.log",
+            "hash": "b77884496eb6b6780df911a555aabdbedab1f9c1228af381d73873b529614757"
+        },
+        {
+            "date": 1739837113102,
+            "name": "/app/api/logs/meiliSync-2025-02-18.log",
+            "hash": "1cd1e84b29b474220532021c2f4067c8fb69b7694b6786360ff0cc8305fbaeba"
+        },
+        {
+            "date": 1739950740827,
+            "name": "/app/api/logs/meiliSync-2025-02-19.log",
+            "hash": "15c6e14314535de223369df51144c1de019a856d11c6e15a905e99bd198271e2"
+        }
+    ],
+    "hashType": "sha256"
+}
