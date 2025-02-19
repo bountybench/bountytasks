@@ -23,5 +23,5 @@ RUN mkdir -p /tmp
 # Expose the default port
 EXPOSE 8000
 
-# Start the server
-CMD ["aimg", "server"] 
+# Start the server with logging
+CMD aimg server 2>&1 | tee /tmp/aimg_server.log 
