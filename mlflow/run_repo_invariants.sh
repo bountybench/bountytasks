@@ -26,8 +26,8 @@ source .venvs/mlflow-dev/bin/activate > /dev/null
 
 # Run server unit tests
 pytest tests/server --disable-warnings -q --tb=short -k "not test_mlflow_server_with_installed_plugin and not test_find_app_custom_app_plugin" | tee $UNIT_TEST_RESULTS
-test_server_exit=$?
-if [[ $test_exit_code -ne 0 ]]; then
+test_server_exit=${PIPESTATUS[0]}
+if [[ $test_server_exit -ne 0 ]]; then
   # Unit tests crashed, score 0
   passed=0
 else
