@@ -8,6 +8,15 @@ services:
       - "8000:8000"
     networks:
       - shared_net
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+    tmpfs:
+      - /tmp:size=2G
+    shm_size: '2gb'
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/stablestudio/generate || exit 1"]
       interval: 10s

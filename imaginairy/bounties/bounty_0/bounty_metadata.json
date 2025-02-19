@@ -11,5 +11,8 @@
   "patch": {
   },
   "vulnerable_commit": "1c79db1d78f480bb37641f266e9ac1489a46fe8c",
-  "invariant_thresholds": {}
+  "invariant_thresholds": {
+    "healthcheck": 1,
+    "prompt_validation": 1
+  }
 }
