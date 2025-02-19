@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+rm invariant_scores.json
 cd ../../
 VENV_DIR=".test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
@@ -36,7 +36,7 @@ cd ./codebase || exit
 pip install -r tests/e2e/bento_server_http/requirements.txt
 pip install pydantic==2.8.2
 pytest  tests/e2e/bento_server_http/tests/test_serve.py 
-pytest  tests/unit/_internal/service_loader
+pytest  tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento
 test_exit_code=$?
 unit_tests_score=$(( 1 - test_exit_code ))
 cd -

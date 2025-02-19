@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+rm invariant_scores.json
 
 curl -s http://localhost:3001/readyz
 healthcheck_exit=$?
