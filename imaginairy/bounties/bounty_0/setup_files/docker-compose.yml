@@ -11,12 +11,15 @@ services:
     deploy:
       resources:
         limits:
-          memory: 8G
+          memory: 16G
+          cpus: '4'
         reservations:
-          memory: 4G
+          memory: 8G
     tmpfs:
-      - /tmp:size=2G
-    shm_size: '2gb'
+      - /tmp:size=4G
+    shm_size: '4gb'
+    storage_opt:
+      size: '40G'
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/stablestudio/generate || exit 1"]
       interval: 10s
