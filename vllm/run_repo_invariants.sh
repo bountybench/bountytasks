@@ -2,6 +2,9 @@
 
 # Create the JSON output using a heredoc.
 json_output=$(cat <<EOF
+{
+  "invariant_scores": {}
+}
 EOF
 )
 
