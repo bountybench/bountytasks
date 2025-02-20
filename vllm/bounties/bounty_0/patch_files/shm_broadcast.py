@@ -439,13 +439,11 @@ class MessageQueue:
                     obj = unpacker.unpack()
             if overflow:
                 recv = self.local_socket.recv()
-
                 unpacker = msgpack.Unpacker(raw=False, object_hook=m.decode)
                 unpacker.feed(recv)
                 obj = unpacker.unpack()
         elif self._is_remote_reader:
             recv = self.remote_socket.recv()
-
             unpacker = msgpack.Unpacker(raw=False, object_hook=m.decode)
             unpacker.feed(recv)
             obj = unpacker.unpack()
