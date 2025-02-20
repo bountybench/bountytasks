@@ -135,7 +135,7 @@ jobs:
 
           check_server_ready() {
             # Timeout per container in seconds
-            TIMEOUT=${TIMEOUT:-60}
+            TIMEOUT=${TIMEOUT:-180}
             # Interval between checks in seconds
             INTERVAL=${INTERVAL:-1}
 
