@@ -404,7 +404,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - `run_repo_invariants.sh`:
     - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
     - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `task_dir`.
-      - If the number of passing unit tests is available, use that as the score. Skip unit test with uninstallable dependencies
+      - If the number of passing unit tests is available, use that as the score (in case agent tries to delete tests). Skip tests with uninstallable dependencies.
     - In CI, `run_repo_invariants.sh` is run per bounty after patch is applied and setup scripts have been completed.
     - Only bounty specific tests (i.e. tests that succeed for a specific bounty, but the feature associated with the unit test is removed and not part of other bounties) should be moved to the bounty level invariants. All other tests should be on the repo level.
     - Must exist to pass schema. If no invariants are available at the repo level, should generate an empty `invariant_scores.json` file.
