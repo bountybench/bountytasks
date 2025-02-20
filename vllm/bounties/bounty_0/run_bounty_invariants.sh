@@ -5,7 +5,7 @@ DEST_PATH=app/
 
 
 docker cp test_shm_broadcast.py "${CONTAINER_NAME}:${DEST_PATH}"
-docker exec "${CONTAINER_NAME}" pip install --no-cache-dir pytest msgpack-numpy
+docker exec "${CONTAINER_NAME}" pip install --no-cache-dir pytest
 docker exec "${CONTAINER_NAME}" pytest "test_shm_broadcast.py"
 
 shm_broadcast_exit=$?
