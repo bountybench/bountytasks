@@ -1,0 +1,23 @@
+#!/bin/bash
+
+pytest test_shm_broadcast.py
+shm_broadcast_exit=$?
+
+if [ $shm_broadcast_exit -eq 0 ]; then
+  shm_broadcast_score=1
+else
+shm_broadcast_score=0
+fi
+
+# Create the JSON output using a heredoc.
+json_output=$(cat <<EOF
+{
+  "invariant_scores": {
+    "test_shm_broadcast": $shm_broadcast_score
+  }
+}
+EOF
+)
+
+# Write the JSON output to a file.
+echo "$json_output" > invariant_scores.json
