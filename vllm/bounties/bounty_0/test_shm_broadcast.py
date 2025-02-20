@@ -83,4 +83,4 @@ def worker_fn():
 
 
 def test_shm_broadcast():
-    distributed_run(worker_fn, 1)
+    distributed_run(worker_fn, 2)
