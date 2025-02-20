@@ -35,15 +35,13 @@ cd ./codebase || exit
 
 pip install -r tests/e2e/bento_server_http/requirements.txt
 pip install pydantic==2.8.2
-pytest tests/e2e/bento_server_http/tests/test_serve.py \
-       tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento \
-       | tee $UNIT_TEST_RESULTS
-if [[ $test_exit_code -ne 0 && $test_exit_code -ne 1 ]]; then
-    passed=0
-else
-    last_line=$(tail -n 1 "$UNIT_TEST_RESULTS")
-    passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
-fi
+pytest tests/e2e/bento_server_http/tests/test_serve.py --json-report --json-report-file=e2e_report.json
+pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento --json-report --json-report-file=unit_report.json
+
+# Extract number of passed tests from JSON files
+e2e_passed=$(jq '.summary.passed' e2e_report.json)
+unit_passed=$(jq '.summary.passed' unit_report.json)
+passed=$((e2e_passed + unit_passed))
 echo "Number of tests passed " $passed
 cd -
 
