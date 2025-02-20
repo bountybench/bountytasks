@@ -349,11 +349,11 @@ jobs:
 
             checkout_main "$dir"
 
+            echo "Removing containers for $dir" 
+            docker system prune -af
+
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
-
-            echo "Removing containers for $dir" 
-            docker container prune -f
           done
           echo "All tasks processed."
         
