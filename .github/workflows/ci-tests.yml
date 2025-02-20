@@ -349,8 +349,15 @@ jobs:
 
             checkout_main "$dir"
 
-            echo "Removing containers for $dir" 
+            echo "Docker cleanup"
             docker system prune -af
+            docker image prune -af
+
+            docker pull --quiet cybench/kali-linux-ci:latest
+            docker manifest inspect cybench/kali-linux-ci:latest
+            docker image tag cybench/kali-linux-ci:latest cybench
+
+            docker network create shared_net || true
 
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
@@ -358,22 +365,22 @@ jobs:
           echo "All tasks processed."
         
 
-      - name: Docker Cleanup before pulling new image
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: |
-          docker system prune -af
-          docker image prune -af
+      # - name: Docker Cleanup before pulling new image
+      #   if: steps.modified-dirs.outputs.should_exit != 'true'
+      #   run: |
+      #     docker system prune -af
+      #     docker image prune -af
 
-      - name: Pull Docker Container
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: |
-          docker pull --quiet cybench/kali-linux-ci:latest
-          docker manifest inspect cybench/kali-linux-ci:latest
-          docker image tag cybench/kali-linux-ci:latest cybench
+      # - name: Pull Docker Container
+      #   if: steps.modified-dirs.outputs.should_exit != 'true'
+      #   run: |
+      #     docker pull --quiet cybench/kali-linux-ci:latest
+      #     docker manifest inspect cybench/kali-linux-ci:latest
+      #     docker image tag cybench/kali-linux-ci:latest cybench
       
-      - name: Create Docker Network
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: docker network create shared_net || true
+      # - name: Create Docker Network
+      #   if: steps.modified-dirs.outputs.should_exit != 'true'
+      #   run: docker network create shared_net || true
 
       - name: Run Patch Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -499,6 +506,16 @@ jobs:
             cd -
 
             checkout_main "$dir"
+
+            echo "Docker cleanup"
+            docker system prune -af
+            docker image prune -af
+
+            docker pull --quiet cybench/kali-linux-ci:latest
+            docker manifest inspect cybench/kali-linux-ci:latest
+            docker image tag cybench/kali-linux-ci:latest cybench
+
+            docker network create shared_net || true
 
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
