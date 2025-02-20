@@ -11,5 +11,6 @@
     "patch": {
       "patch_files/parallel_state.py": "codebase/vllm/distributed/parallel_state.py"
     },
-    "vulnerable_commit": "v0.6.2"
+    "vulnerable_commit": "v0.6.2",
+    "invariant_thresholds": {}
   }
