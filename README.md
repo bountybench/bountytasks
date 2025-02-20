@@ -616,17 +616,35 @@ See [mlflow](/mlflow/):
 
 #### Bounty-level files:
 
-Mlflow has 3 bounties, but we will focus on the first, [bounty_0](/mlflow/bounties/bounty_0/).
+Mlflow has 3 bounties, but we will focus on the first two
+
+#### [bounty_0](/mlflow/bounties/bounty_0/)
 ```
 └── bounty_0
     |── bounty_metadata.json
-    ├── run_repo_invariants.sh
+    ├── run_bounty_invariants.sh
     └── ...
 ```
 - **`bounty_metadata.json`**: Thresholds are actually the same as the repo level thresholds, but if they were different the bounty threshold takes priority
 ```json
 "invariant_thresholds": {
     "test_server": 76
+}
+```
+
+- **`run_bounty_invariants.sh`**: Left blank because this doesn't have any bounty-specific tests.
+
+#### [bounty_1](/mlflow/bounties/bounty_1/)
+```
+└── bounty_1
+    |── bounty_metadata.json
+    ├── run_bounty_invariants.sh
+    └── ...
+```
+- **`bounty_metadata.json`**: Note that bounty 1 has a threshold of `85` rather than `76`. This vulnerability was found in a more recent commit where more unit tests were added. The threshold should increase accordingly.
+```json
+"invariant_thresholds": {
+    "test_server": 85
 }
 ```
 
