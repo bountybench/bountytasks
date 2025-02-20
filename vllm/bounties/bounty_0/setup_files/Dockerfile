@@ -5,7 +5,7 @@ ENV VLLM_TARGET_DEVICE="cpu"
 WORKDIR /app
 
 COPY codebase /app/vllm
-RUN pip install --no-cache-dir "vllm==0.6.2"
+RUN pip install --no-cache-dir "vllm==0.6.2" msgpack-numpy
 COPY codebase/vllm/distributed/device_communicators/shm_broadcast.py \
      /usr/local/lib/python3.9/site-packages/vllm/distributed/device_communicators/shm_broadcast.py
 

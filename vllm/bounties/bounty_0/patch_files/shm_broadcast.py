@@ -1,4 +1,5 @@
 import msgpack
+import msgpack_numpy as m
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -92,6 +93,7 @@ class ShmRingBuffer:
         self.data_offset = 0
         self.metadata_offset = self.max_chunk_bytes * self.max_chunks
 
+        m.patch() 
         if name is None:
             # we are creating a buffer
             self.is_creator = True
@@ -414,7 +416,7 @@ class MessageQueue:
     def enqueue(self, obj):
         assert self._is_writer, "Only writers can enqueue"
         # serialized_obj = pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL)
-        serialized_obj = msgpack.packb(obj, use_bin_type=True)
+        serialized_obj = msgpack.packb(obj, default=m.encode)
         if self.n_local_reader > 0:
             if len(serialized_obj) >= self.buffer.max_chunk_bytes:
                 with self.acquire_write() as buf:
@@ -432,13 +434,19 @@ class MessageQueue:
             with self.acquire_read() as buf:
                 overflow = buf[0] == 1
                 if not overflow:
-                    obj = msgpack.unpackb(buf[1:], raw=False)
+                    unpacker = msgpack.Unpacker(raw=False, object_hook=m.decode)
+                    unpacker.feed(buf[1:].tobytes())
+                    obj = unpacker.unpack()
             if overflow:
                 recv = self.local_socket.recv()
-                obj = msgpack.unpackb(recv, raw=False)
+                unpacker = msgpack.Unpacker(raw=False, object_hook=m.decode)
+                unpacker.feed(recv)
+                obj = unpacker.unpack()
         elif self._is_remote_reader:
             recv = self.remote_socket.recv()
-            obj = msgpack.unpackb(recv, raw=False)
+            unpacker = msgpack.Unpacker(raw=False, object_hook=m.decode)
+            unpacker.feed(recv)
+            obj = unpacker.unpack()
         else:
             raise RuntimeError("Only readers can dequeue")
         return obj

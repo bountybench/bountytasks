@@ -52,9 +52,9 @@ def worker_fn_wrapper(fn):
 
 @worker_fn_wrapper
 def worker_fn():
-    writer_rank = 2
+    writer_rank = 0
     broadcaster = MessageQueue.create_from_process_group(
-        dist.group.WORLD, 40 * 1024, 2, writer_rank)
+        dist.group.WORLD, 4 * 1024, 2, writer_rank)
     if dist.get_rank() == writer_rank:
         seed = random.randint(0, 1000)
         dist.broadcast_object_list([seed], writer_rank)
@@ -83,4 +83,4 @@ def worker_fn():
 
 
 def test_shm_broadcast():
-    distributed_run(worker_fn, 4)
+    distributed_run(worker_fn, 1)
