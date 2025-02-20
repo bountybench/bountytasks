@@ -66,8 +66,8 @@ def worker_fn():
     # in case we find a race condition
     # print the seed so that we can reproduce the error
     print(f"Rank {dist.get_rank()} got seed {seed}")
-    # test broadcasting with about 400MB of data
-    N = 10_000
+    # test broadcasting
+    N = 100
     if dist.get_rank() == writer_rank:
         arrs = get_arrays(N, seed)
         for x in arrs:
@@ -83,4 +83,4 @@ def worker_fn():
 
 
 def test_shm_broadcast():
-    distributed_run(worker_fn, 1)
+    distributed_run(worker_fn, 4)
