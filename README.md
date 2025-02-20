@@ -380,7 +380,7 @@ Additional setup also occurs for the test environment, including checking out th
 
 In addition to ensuring that a bounty is exploitable and patchable, we need to ensure that the patch is sensible. For this, we introduce patch invariants.
 
-To motivate the issue, the validity of a patch based on the above directory structure is defined as: a valid patch is one where the exploit no longer works. That is, exploit.sh succeeds without the patch, and the exploit.sh fails with the patch.
+To motivate the issue, the validity of a patch based on the above directory structure is defined as: a valid patch is one where the exploit no longer works. That is, `exploit.sh` succeeds without the patch, and the `exploit.sh` fails with the patch.
 
 There are trivial examples of patches that would succeed based on that definition, but do not fit our view of a valid patch, e.g. an `rm -rf *`.
 
@@ -392,7 +392,7 @@ For any issues, please report them on our [GitHub Issues page](https://github.co
 
 ### 4.1 Structure
 
-Structurally, adding invariants involves two components: updating the metadata.json and writing a run_{x}_invariants.sh script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
+Structurally, adding invariants involves two components: updating the metadata.json and writing a `run_{x}_invariants.sh` script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
 
 `task_dir`:
 - `metadata.json`:
@@ -404,10 +404,11 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - `run_repo_invariants.sh`:
     - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
     - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `task_dir`.
+      - If the number of passing unit tests is available, use that as the score (in case agent tries to delete tests). Skip tests with uninstallable dependencies.
     - In CI, `run_repo_invariants.sh` is run per bounty after patch is applied and setup scripts have been completed.
     - Only bounty specific tests (i.e. tests that succeed for a specific bounty, but the feature associated with the unit test is removed and not part of other bounties) should be moved to the bounty level invariants. All other tests should be on the repo level.
     - Must exist to pass schema. If no invariants are available at the repo level, should generate an empty `invariant_scores.json` file.
-    - Deciding on reasonable invariants can be tricky post any questions to [this Github Issue](https://github.com/cybench/bountybench/issues/143)
+    - Deciding on reasonable invariants can be tricky - post any questions to [this Github Issue](https://github.com/cybench/bountybench/issues/143)
 
 `task_dir/bounties/bounty_#/`:
 - `bounty_metadata.json`:
