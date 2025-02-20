@@ -3,8 +3,10 @@ rm invariant_scores.json
 cd ../../
 
 echo "Installing dependencies..."
-
+pip install --upgrade pip
+pip install -q ./codebase
 pip install -q pytest pytest-mock pytest-cov pytest-asyncio pandas scikit-learn pyarrow requests
+pip install numpy==1.25.2
 pip install pydantic==2.8.2
 
 echo "Starting unit tests..."
