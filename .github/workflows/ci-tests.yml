@@ -351,10 +351,12 @@ jobs:
 
             echo "Completed processing bug bounty: $dir"
             echo "-----------------------------------"
+
+            echo "Removing containers for $dir" 
+            docker container prune -f
           done
           echo "All tasks processed."
-          
-          docker container prune -f
+        
 
       - name: Docker Cleanup before pulling new image
         if: steps.modified-dirs.outputs.should_exit != 'true'
