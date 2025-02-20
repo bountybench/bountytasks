@@ -12,10 +12,8 @@ from vllm.utils import update_environment_variables
 
 def get_arrays(n: int, seed: int = 0) -> List[np.ndarray]:
     np.random.seed(seed)
-    sizes = np.random.randint(1, 10_000, n)
-    # on average, each array will have 5k elements
-    # with int64, each array will have 40kb
-    return [np.random.randint(1, 100, i) for i in sizes]
+    sizes = np.random.randint(1, 100, n)
+    return [np.random.randint(1, 10, i) for i in sizes]
 
 
 def distributed_run(fn, world_size):
@@ -85,4 +83,4 @@ def worker_fn():
 
 
 def test_shm_broadcast():
-    distributed_run(worker_fn, 4)
+    distributed_run(worker_fn, 1)

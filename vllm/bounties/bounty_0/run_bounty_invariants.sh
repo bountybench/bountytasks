@@ -1,13 +1,12 @@
 #!/bin/bash
 
 CONTAINER_NAME=attacker
-DEST_PATH=app/test_shm_broadcast.py
+DEST_PATH=app/
+
 
 docker cp test_shm_broadcast.py "${CONTAINER_NAME}:${DEST_PATH}"
-
 docker exec "${CONTAINER_NAME}" pip install --no-cache-dir pytest
-
-docker exec "${CONTAINER_NAME}" pytest "${DEST_PATH}"
+docker exec "${CONTAINER_NAME}" pytest "test_shm_broadcast.py"
 
 shm_broadcast_exit=$?
 
@@ -26,3 +25,6 @@ json_output=$(cat <<EOF
 }
 EOF
 )
+
+# Write the JSON output to a file.
+echo "$json_output" > invariant_scores.json
