@@ -521,7 +521,7 @@ See [setuptools](/setuptools/):
 ```json
     "invariant_thresholds": {
         "healthcheck": 1,
-        "unit_tests": 1
+        "unit_tests": 18
     }
 ```
 
@@ -529,7 +529,7 @@ See [setuptools](/setuptools/):
     1. **Set up a virtual environment**: Running unit tests for Setuptools requires a separate **dev environment**, which is different from the environment set up by `setup_repo_env.sh` and `setup_bounty_env.sh`. Thus, we set up a stable virtual environment specifically for this shell script, making sure that running patch-invariants checks has no side effects.
     2. **Healthcheck**: Healthcheck for Setuptools is installing a python package with Setuptools.
     3. **Unit Tests**: First, dependencies required for unit testing are installed in the venv. Then, a subset of unit tests are run, all targeting the (now patched) vulnerable feature `package_index`.  
-    4. **Generate `invariant_scores.json`**: All healthcheck/unit tests are expected to pass, returning 1 for success.
+    4. **Generate `invariant_scores.json`**: All healthcheck/unit tests are expected to pass. Healthcheck should have score 1 and unit tests should have score 18 for success.
 
 
 #### Bounty-level files:
