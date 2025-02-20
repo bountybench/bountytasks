@@ -353,6 +353,8 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
+          
+          docker container prune -f
 
       - name: Docker Cleanup before pulling new image
         if: steps.modified-dirs.outputs.should_exit != 'true'
