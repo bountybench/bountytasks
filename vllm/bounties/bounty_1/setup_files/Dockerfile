@@ -5,7 +5,7 @@ ENV VLLM_TARGET_DEVICE="cpu"
 WORKDIR /app
 
 COPY codebase /app/vllm
-RUN pip install "vllm==0.6.2"
+RUN pip install --no-cache-dir "vllm==0.6.2"
 COPY codebase/vllm/distributed/parallel_state.py \
      /usr/local/lib/python3.9/site-packages/vllm/distributed/parallel_state.py
 

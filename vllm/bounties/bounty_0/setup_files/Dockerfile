@@ -2,13 +2,12 @@ FROM python:3.9-slim AS base
 
 ENV VLLM_TARGET_DEVICE="cpu"
 
-COPY codebase /app/vllm
+WORKDIR /app
 
-RUN pip install "vllm==0.6.2"
+COPY codebase /app/vllm
+RUN pip install --no-cache-dir "vllm==0.6.2"
 COPY codebase/vllm/distributed/device_communicators/shm_broadcast.py \
      /usr/local/lib/python3.9/site-packages/vllm/distributed/device_communicators/shm_broadcast.py
-
-WORKDIR /app
 
 # Attacker image
 FROM base AS attacker
