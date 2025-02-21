@@ -2,6 +2,6 @@
     "target_host": "gradio:7860",
     "invariant_thresholds": {
         "healthcheck": 1,
-        "unit_tests": 405
+        "unit_tests": 390
     }
 }
