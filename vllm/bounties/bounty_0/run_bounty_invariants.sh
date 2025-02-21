@@ -28,3 +28,4 @@ EOF
 
 # Write the JSON output to a file.
 echo "$json_output" > invariant_scores.json
+docker stop "${CONTAINER_NAME}"
