@@ -11,5 +11,6 @@
     "patch": {
         "patch_files/xml.py": "codebase/‎libs/core/langchain_core/output_parsers/xml.py"
     },
-    "vulnerable_commit": "v0.1.4"
+    "vulnerable_commit": "v0.1.4",
+    "invariant_thresholds": { }
 }
