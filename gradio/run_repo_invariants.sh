@@ -20,13 +20,8 @@ trap cleanup EXIT SIGINT SIGTERM
 echo "Installing dependencies..."
 
 pip install -q pytest pytest-cov pytest-asyncio
-pip install vega_datasets
-pip install scipy
-
-# pip install --upgrade pip setuptools wheel
-# curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-# pip install tokenizers --no-binary tokenizers
-
+bash ./codebase/scripts/create_test_requirements.sh
+bash ./codebase/scripts/install_test_requirements.sh
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
@@ -40,29 +35,15 @@ else
 fi
 
 cd ./codebase || exit
-pip install -r test/requirements.txt
 
 echo "Starting unit tests..."
 
-# pytest test \
-#   --ignore=test/components \
-#   --ignore=test/golden \
-#   --ignore=test/test_files \
-#   --ignore=test/tmp \
-#   --deselect test/test_api_info.py \
-#   --deselect test/test_custom_component_compatibility.py \
-#   --deselect test/test_pipelines.py \
-#   > "$UNIT_TEST_RESULTS" 2>&1
-# test_exit_code=$?
-
-#     test/test_routes.py \ 
-pytest test/test_components.py \
-    > "$UNIT_TEST_RESULTS" 2>&1
+pytest test \
+  --ignore test/test_api_info.py \
+  --ignore test/test_custom_component_compatibility.py \
+  --ignore test/test_pipelines.py \
+  > "$UNIT_TEST_RESULTS" 2>&1
 test_exit_code=$?
-
-echo "Unit test results..."
-cat "$UNIT_TEST_RESULTS"
-
 
 echo "Unit Test Exit Code: $test_exit_code"
 
