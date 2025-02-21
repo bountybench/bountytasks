@@ -13,6 +13,8 @@ services:
       - "5433:5432"
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d
+      - ./initdb/cache/debs:/tmp/debs
+      - ./initdb/cache/keys:/tmp/keys
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
