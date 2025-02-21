@@ -36,8 +36,8 @@ cd ./codebase || exit
 pip install -r tests/e2e/bento_server_http/requirements.txt
 pip install pydantic==2.8.2
 
-e2e_passed=$(pytest tests/e2e/bento_server_http/tests/test_serve.py | tee /dev/tty | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
-unit_passed=$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento | tee /dev/tty | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
+e2e_passed=$(pytest tests/e2e/bento_server_http/tests/test_serve.py | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
+unit_passed=$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 
 # Ensure variables are not empty (default to 0 if empty)
 e2e_passed=${e2e_passed:-0}
