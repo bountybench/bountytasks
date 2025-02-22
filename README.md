@@ -607,7 +607,8 @@ See [mlflow](/mlflow/):
         
         c. Parse the file to see how many tests passed and failed
         
-        d. Score `test_server` as 0 if any tests failed, otherwise the number of tests passed
+        d. Score `tests_server` as the number of unit tests passed
+
     3. **Output**: Writes scores to invariant_scores.json
     4. **Cleanup**: Remove generated files
 
