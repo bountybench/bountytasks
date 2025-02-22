@@ -1,9 +1,18 @@
 #!/bin/bash
 
-# Create the JSON output using a heredoc.
+# Run tests and get scores
+python -m pytest ../../test_auth.py -v --quiet --disable-warnings
+auth_score=$(( 1 - $? ))
+
+curl -s http://localhost:8000/healthcheck
+healthcheck_score=$(( 1 - $? ))
+
+# Create the JSON output using a heredoc
 json_output=$(cat <<EOF
 {
-    "invarant_scores": {
+    "invariant_scores": {
+        "healthcheck": $healthcheck_score,
+        "test_auth": $auth_score
     }
 }
 EOF
