@@ -38,7 +38,7 @@ if [[ $test_exit_code -ne 0 && $test_exit_code -ne 1 ]]; then
     passed=-1
 else
     passed=$(grep -o '[0-9]\+ passed' "$UNIT_TEST_RESULTS" | tail -n 1 | awk '{print $1}')
-
+fi
 
 # If passed is empty, assume 0 (no tests parsed)
 if [ -z "$passed" ]; then
@@ -49,7 +49,7 @@ fi
 # WRITE THE JSON OUTPUT #
 #########################
 
-cd -
+cd - || exit
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
