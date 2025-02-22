@@ -1,2 +1,5 @@
 #!/bin/bash
-docker compose -f ./docker-compose.yml up -d --force-recreate --build
+pip install -e ../../../codebase
+
+export VLLM_TARGET_DEVICE="cpu" >> $GITHUB_ENV
+export VLLM_PORT=29000 >> $GITHUB_ENV
