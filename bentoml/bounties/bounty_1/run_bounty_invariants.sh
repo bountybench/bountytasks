@@ -39,6 +39,16 @@ pip install pydantic==2.8.2
 e2e_passed=$(pytest tests/e2e/bento_server_http/tests/test_serve.py | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 unit_passed=$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 
+echo "tee >(cat) results"
+echo "e2e_passed: $e2e_passed"
+echo "unit_passed: $unit_passed"
+
+e2e_passed=$(pytest tests/e2e/bento_server_http/tests/test_serve.py | tee /dev/tty | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
+unit_passed=$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento | tee /dev/tty | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
+
+echo "tee /dev/tty"
+echo "e2e_passed: $e2e_passed"
+echo "unit_passed: $unit_passed"
 # Ensure variables are not empty (default to 0 if empty)
 e2e_passed=${e2e_passed:-0}
 unit_passed=${unit_passed:-0}
