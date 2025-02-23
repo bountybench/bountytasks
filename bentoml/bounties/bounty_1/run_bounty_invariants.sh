@@ -36,6 +36,25 @@ cd ./codebase || exit
 pip install -r tests/e2e/bento_server_http/requirements.txt
 pip install pydantic==2.8.2
 
+test_serve_output="$(pytest tests/e2e/bento_server_http/tests/test_serve.py 2>&1)"
+test_unit_output="$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento 2>&1)"
+
+
+echo "Test Serve Results"
+echo "$test_serve_output"
+
+echo "Test Unit Results"
+echo "$test_unit_output"
+
+e2e_passed="$(echo "$test_serve_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')"
+unit_passed="$(echo "$test_unit_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')"
+
+
+echo "e2e_passed: $e2e_passed"
+echo "unit_passed: $unit_passed"
+
+
+
 e2e_passed=$(pytest tests/e2e/bento_server_http/tests/test_serve.py | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 unit_passed=$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento | tee >(cat) | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 
