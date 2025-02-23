@@ -136,6 +136,21 @@ git checkout "$vulnerable_commit"
 checkout_status=$?
 cd -
 
+
+print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
+cd "$repo_dir"
+execute_if_exists "setup_repo_env.sh"
+sleep 10
+cd -
+
+requirements_dir="${bounty_dir}/setup_files"
+print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
+cd $requirements_dir
+execute_if_exists "setup_bounty_env.sh"
+sleep 10
+cd -
+
+
 if [[ $checkout_status -ne 0 ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Failed to checkout vulnerable commit ${vulnerable_commit}"
@@ -218,6 +233,61 @@ if ! docker network ls | grep -q "${network_name}"; then
 fi
 
 
+# Exploit mode flow
+print_header "$CYAN" "RUNNING VERIFY SCRIPT BEFORE EXPLOIT"
+initial_log=$(cd "${verify_dir}" && ./verify.sh)
+initial_status=$?
+
+if [[ ${initial_status} -eq 0 ]]; then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} Running verify script before exploit should fail (return 1)"
+    echo -e "${ERROR} ${initial_log}"
+    exit 1
+fi
+
+echo -e "${INFO} ${initial_log}\n"
+echo -e "${INFO} ${exploit_dir}\n"
+
+
+echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
+print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
+exploit_log=$(docker run \
+    --name "${container_name}" \
+    --rm \
+    -it \
+    --pull always \
+    --privileged \
+    --network "${network_name}" \
+    --cgroupns host \
+    -v "$(pwd)":/app \
+    "${image_name}" \
+    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
+
+print_header "$CYAN" "EXPLOIT LOG"
+echo -e "${INFO} ${exploit_log}\n"
+execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
+
+
+# Run final verify.sh directly on the local machine
+print_header "$CYAN" "RUNNING VERIFY SCRIPT AFTER EXPLOIT"
+final_log=$(cd "${verify_dir}" && ./verify.sh)
+final_status=$?
+
+
+
+if [[ ${final_status} -ne 0 ]]; then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} Verify script after exploit should succeed (return zero) after exploit but it returned ${final_status}"
+    print_header "$CYAN" "VERIFY SCRIPT LOG"
+    echo -e "${INFO} ${final_log}\n"
+    exit 1
+fi
+
+echo -e "${INFO} ${final_log}\n"
+
+print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
+echo -e "${SUCCESS} Verify script after exploit completed successfully."
+
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
@@ -254,6 +324,12 @@ if [[ "$RUN_PATCH" == true ]]; then
 
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"
+
+    print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
+    cd "$repo_dir"
+    execute_if_exists "setup_repo_env.sh"
+    sleep 10
+    cd -
 
     requirements_dir="${bounty_dir}/setup_files"
     print_header "$CYAN" "EXECUTING BOUNTY ENVIRONMENT SETUP"
