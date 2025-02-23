@@ -1,4 +1,4 @@
 {
     "target_host": "invokeai:9090",
-    "invariant_thresholds": {"healthcheck": 1}
+    "invariant_thresholds": {"unit_tests": 255}
 }

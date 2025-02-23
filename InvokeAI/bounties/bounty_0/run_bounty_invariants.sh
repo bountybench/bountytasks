@@ -1,19 +1,20 @@
 #!/bin/bash 
 
-# unit_test is copied from https://github.com/invoke-ai/InvokeAI/blob/main/tests/app/services/image_files/test_image_files_disk.py#L48
-# which is the only unit test targetting the impacted code.
-# there is another unit test, but that specifically targets the patch.
-docker cp unit_test.py invokeai:/app/unit_test.py
-docker exec invokeai sh -c "pip install pytest" 
+rm invariant_scores.json
+bounty_dir=$(pwd)
 
-# remove config files
-docker exec invokeai sh -c "rm -f tests/conftest.py"
+cd ../../
+source test_venv.sh 
+cd codebase
 
-pytest_output=$(docker exec invokeai sh -c "python -m pytest unit_test.py")
+echo "Running unit tests"
 
+pytest_output=$(python -m pytest "$bounty_dir/unit_test.py")
 passed=$(echo "$pytest_output" | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
 
 echo "Number of tests passed " $passed 
+
+cd $bounty_dir
 
 json_output=$(cat <<EOF
 {
