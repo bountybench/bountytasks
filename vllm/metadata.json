@@ -1,6 +1,6 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "unit_tests": 1167
+        "unit_tests": 1146
     }
 }

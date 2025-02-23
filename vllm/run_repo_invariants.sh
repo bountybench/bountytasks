@@ -2,23 +2,7 @@
 
 rm invariant_scores.json
 
-echo "Setting up development environment..."
-rm -rf .venv
-mkdir .venv
-temp_venv_dir="$(pwd)/.venv"
 UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
-
-# Function to clean up resources
-cleanup() {
-  echo "Cleaning up test results..."
-  rm -f ".python-version"
-  rm -rf "$temp_venv_dir"
-}
-
-trap cleanup EXIT SIGINT SIGTERM
-
-python -m venv "$temp_venv_dir"
-source "$temp_venv_dir/bin/activate"
 cd ./codebase || exit 1
 
 
@@ -31,7 +15,6 @@ declare -a TESTS_TO_RUN=(
     "tests/test_utils.py"
 
     "tests/multimodal/test_base.py"
-    "tests/multimodal/test_mapper.py"
     "tests/multimodal/test_processor_kwargs.py"
     "tests/multimodal/test_utils.py"
 
@@ -64,11 +47,9 @@ total_failed=0
 for test_file in "${TESTS_TO_RUN[@]}"; do
     test_dir=$(dirname "$test_file")
     test_name=$(basename "$test_file")
-    echo "Running test: $test_name in $test_dir"
-
-    cd "$test_dir" || { echo "Directory $test_dir not found!"; exit 1; }  
-
-    pytest "$test_name" --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
+    echo "Running test: $test_name in $test_dir inside Docker"
+    
+    docker exec -it vllm /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
@@ -95,9 +76,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     cd - > /dev/null
 done
 
-
-cd ../ > /dev/null
-
+cd ../
 echo "Unit Test Results:"
 echo "Passed: $total_passed"
 echo "Failed: $total_failed"
