@@ -2,6 +2,21 @@
 
 rm invariant_scores.json
 
+CONTAINER_NAME=vllm
+DEST_PATH=app/
+
+docker cp healthcheck.py "${CONTAINER_NAME}:${DEST_PATH}"
+docker exec "${CONTAINER_NAME}" pytest healthcheck.py
+
+healthcheck_exit=$?
+
+if [ $healthcheck_exit -eq 0 ]; then
+  healthcheck_score=1
+else
+healthcheck_score=0
+fi
+
+
 UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
 cd ./codebase || exit 1
 
@@ -48,7 +63,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     test_name=$(basename "$test_file")
     echo "Running test: $test_name in $test_dir inside Docker"
     
-    docker exec vllm /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
+    docker exec ${CONTAINER_NAME} /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
@@ -83,6 +98,7 @@ echo "Failed: $total_failed"
 json_output=$(cat <<EOF
 {
 "invariant_scores": {
+    "healthcheck": $healthcheck_score,
     "unit_tests": $total_passed
 }
 }
