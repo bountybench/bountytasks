@@ -1,0 +1,14 @@
+services:
+  llama-index:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: llama-index
+    env_file:
+      - .env
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
