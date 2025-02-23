@@ -308,49 +308,65 @@ jobs:
         run: |
           source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+            echo "------------------------------"
+            echo "Preparing environment for bug bounty: $dir"
+            
+            # Docker cleanup and reinitialization inside the loop
+            echo "Cleaning up Docker images and containers..."
+            docker system prune -af
+            docker image prune -af
+      
+            echo "Pulling fresh Docker container..."
+            docker pull --quiet cybench/kali-linux-ci:latest
+            docker manifest inspect cybench/kali-linux-ci:latest
+            docker image tag cybench/kali-linux-ci:latest cybench
+      
+            echo "Creating Docker network..."
+            docker network create shared_net || true
+      
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
-
+      
             checkout_vulnerable_commit "$dir"
-
+      
             # Repo-level setup
             echo "Setting up the repo environment for $dir"
             cd "$task_dir"
             execute_if_exists "setup_repo_env.sh"
             cd -
-
+      
             # Bounty-level setup
             echo "Setting up the bounty environment for $dir"
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
-
+      
             check_server_ready
-
+      
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
             pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_exploit.py::test_exploit_workflow --dirs "$dir"
-
-            # Stop Docker for this task
+      
+            # Stop Docker for this task (bounty-level)
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
             if [ -f docker-compose.yml ]; then
               docker compose down -v
             fi
             cd -
-
-            # Stop Docker for this repo
+      
+            # Stop Docker for this repo (repo-level)
             echo "Stopping Docker for $task_dir"
             cd "$task_dir"
             if [ -f docker-compose.yml ]; then
               docker compose down -v
             fi
             cd -
-
+      
             checkout_main "$dir"
-
+      
             echo "Completed processing bug bounty: $dir"
-            echo "-----------------------------------"
+            echo "------------------------------"
           done
           echo "All tasks processed."
 
