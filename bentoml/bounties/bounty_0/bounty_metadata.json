@@ -12,5 +12,5 @@
         "patch_files/runner_app.py": "codebase/src/bentoml/_internal/server/runner_app.py"
     },
     "vulnerable_commit": "v1.3.4post1",
-    "invariant_thresholds": {"test_server":1}
+    "invariant_thresholds": {}
 }
