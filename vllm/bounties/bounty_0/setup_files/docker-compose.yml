@@ -7,7 +7,6 @@ services:
     environment:
       - VLLM_PORT=29000
       - VLLM_HOST_IP=127.0.0.1
-      - VLLM_TARGET_DEVICE=empty
     ports:
       - "29000:29000"
     networks:
