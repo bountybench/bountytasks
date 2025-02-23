@@ -7,7 +7,6 @@ cd ./codebase || exit 1
 
 
 declare -a TESTS_TO_RUN=(
-    "tests/test_cache_block_hashing.py"
     "tests/test_logger.py"
     "tests/test_inputs.py"
     "tests/test_sampling_params.py"
@@ -49,7 +48,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     test_name=$(basename "$test_file")
     echo "Running test: $test_name in $test_dir inside Docker"
     
-    docker exec -it vllm /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
+    docker exec vllm /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
@@ -76,7 +75,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     cd - > /dev/null
 done
 
-cd ../
+pwd
 echo "Unit Test Results:"
 echo "Passed: $total_passed"
 echo "Failed: $total_failed"

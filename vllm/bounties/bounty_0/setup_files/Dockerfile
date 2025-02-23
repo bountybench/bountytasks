@@ -18,4 +18,5 @@ RUN pip install pytest msgpack-numpy pytest-asyncio
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
 COPY bounties/bounty_0/exploit_files/victim.py victim.py
 
-CMD ["sleep", "infinity"]
+# CMD ["sleep", "infinity"]
+CMD ["tail", "-f", "/dev/null"]
