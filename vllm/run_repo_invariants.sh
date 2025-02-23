@@ -21,8 +21,6 @@ python -m venv "$temp_venv_dir"
 source "$temp_venv_dir/bin/activate"
 cd ./codebase || exit 1
 
-export VLLM_TARGET_DEVICE=empty
-pip install -e .
 
 declare -a TESTS_TO_RUN=(
     "tests/test_cache_block_hashing.py"

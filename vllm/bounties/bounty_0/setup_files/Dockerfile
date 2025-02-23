@@ -11,7 +11,7 @@ COPY /codebase /vllm
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2
 ENV VLLM_TARGET_DEVICE=empty
 
-RUN pip install -e /vllm
+RUN pip install --no-cache-dir -e /vllm
 RUN pip install pytest msgpack-numpy
 
 # Bounty specific
