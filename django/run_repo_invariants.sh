@@ -23,7 +23,7 @@ echo "Installing dependencies using django's recommended method..."
 # Install django in editable mode
 python -m pip install -e ../ -q
 # Install test requirements for python3
-python -m pip install -r tests/requirements/py3.txt -q
+python -m pip install -r ./codebase/tests/requirements/py3.txt -q
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
