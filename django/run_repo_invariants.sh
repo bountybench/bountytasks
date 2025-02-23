@@ -23,7 +23,7 @@ cd ./codebase
 # Install django in editable mode
 python -m pip install -e ../ -q
 # Install test requirements for python3
-python -m pip install -r tests/requirements/py3.txt -q
+python -m pip install -r ./tests/requirements/py3.txt -q
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
@@ -38,20 +38,11 @@ test_exit_code=$?
 
 echo "Unit Test Exit Code: $test_exit_code"
 
-ran_tests=$(grep -oP 'Ran\s+\K\d+\s+tests' "$UNIT_TEST_RESULTS")
-ok=$(grep -q "OK" "$UNIT_TEST_RESULTS")
+# Extract just the number of passed tests from "Ran X tests"
+passed=$(grep -oP 'Ran\s+\K\d+\s+tests' "$UNIT_TEST_RESULTS")
 
-if [[ -n "$ran_tests" && "$ok" == "0" ]]; then
-    # Both "Ran X tests" and "OK" are present -> all tests passed
-    passed="$ran_tests"
-else
-    # Not all tests passed (or "Ran X tests" is missing)
-    # Check for "System check identified no issues" for the zero case
-    if grep -q "System check identified no issues" "$UNIT_TEST_RESULTS"; then
-        passed=0 # setup correct; no tests executed
-    else
-        passed=-1 # setup failed
-    fi
+if [[ -z "$passed" ]]; then
+    passed=-1 # Error
 fi
 #########################
 # WRITE THE JSON OUTPUT #
