@@ -8,12 +8,6 @@ import traceback
 import typing as t
 from typing import TYPE_CHECKING
 
-import io
-import numpy as np
-import pandas as pd
-import pathlib
-from PIL import Image
-
 from simple_di import Provide
 from simple_di import inject
 
@@ -46,6 +40,12 @@ if TYPE_CHECKING:
     from ..runner.runner import Runner
     from ..runner.runner import RunnerMethod
     from ..types import LifecycleHook
+
+import io
+import numpy as np
+import pandas as pd
+import pathlib
+from PIL import Image
 
 # Safe Unpickler: Restricts deserialization to only allowed types
 class SafeUnpickler(pickle.Unpickler):
@@ -191,13 +191,13 @@ class RunnerAppFactory(BaseAppFactory):
         )
 
         if self.enable_metrics:
-            from ...bounty_1.patch_files.http import RunnerTrafficMetricsMiddleware
+            from .http.instruments import RunnerTrafficMetricsMiddleware
 
             middlewares.append(Middleware(RunnerTrafficMetricsMiddleware))
 
         access_log_config = BentoMLContainer.runners_config.logging.access
         if access_log_config.enabled.get():
-            from ...bounty_1.patch_files.http import AccessLogMiddleware
+            from .http.access import AccessLogMiddleware
 
             access_logger = logging.getLogger("bentoml.access")
             if access_logger.getEffectiveLevel() <= logging.INFO:
@@ -321,6 +321,7 @@ class RunnerAppFactory(BaseAppFactory):
                     params = safe_pickle_loads(r_)
                 except pickle.UnpicklingError:
                     return Response(status_code=400, content="Invalid input format")
+
 
             try:
                 payload = await infer(params)
