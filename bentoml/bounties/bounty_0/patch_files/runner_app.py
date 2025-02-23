@@ -25,6 +25,7 @@ from ..runner.utils import Params
 from ..runner.utils import payload_paramss_to_batch_params
 from ..server.base_app import BaseAppFactory
 from ..types import LazyType
+from ..utils import with_app_arg
 from ..utils.metrics import exponential_buckets
 
 feedback_logger = logging.getLogger("bentoml.feedback")
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from opentelemetry.sdk.trace import Span
+    from starlette.applications import Starlette
     from starlette.middleware import Middleware
     from starlette.requests import Request
     from starlette.responses import Response
@@ -104,7 +106,7 @@ class RunnerAppFactory(BaseAppFactory):
     def name(self) -> str:
         return self.runner.name
 
-    def _init_metrics_wrappers(self):
+    def _init_metrics_wrappers(self, _: Starlette) -> None:
         metrics_client = BentoMLContainer.metrics_client.get()
 
         max_max_batch_size = max(
@@ -128,16 +130,18 @@ class RunnerAppFactory(BaseAppFactory):
     @property
     def on_startup(self) -> list[LifecycleHook]:
         on_startup = super().on_startup
-        on_startup.insert(0, functools.partial(self.runner.init_local, quiet=True))
+        on_startup.insert(
+            0, with_app_arg(functools.partial(self.runner.init_local, quiet=True))
+        )
         on_startup.insert(0, self._init_metrics_wrappers)
 
         return on_startup
 
     @property
     def on_shutdown(self) -> list[LifecycleHook]:
-        on_shutdown: list[LifecycleHook] = [self.runner.destroy]
+        on_shutdown: list[LifecycleHook] = [with_app_arg(self.runner.destroy)]
         for dispatcher in self.dispatchers.values():
-            on_shutdown.append(dispatcher.shutdown)
+            on_shutdown.append(with_app_arg(dispatcher.shutdown))
         on_shutdown.extend(super().on_shutdown)
         return on_shutdown
 
@@ -175,7 +179,7 @@ class RunnerAppFactory(BaseAppFactory):
         from opentelemetry.instrumentation.asgi import OpenTelemetryMiddleware
         from starlette.middleware import Middleware
 
-        def client_request_hook(span: Span | None, _scope: t.Dict[str, t.Any]) -> None:
+        def client_request_hook(span: Span | None, *_: t.Any) -> None:
             if span is not None:
                 trace_context.request_id = span.context.span_id
 
@@ -321,8 +325,6 @@ class RunnerAppFactory(BaseAppFactory):
                     params = safe_pickle_loads(r_)
                 except pickle.UnpicklingError:
                     return Response(status_code=400, content="Invalid input format")
-
-
             try:
                 payload = await infer(params)
             except BentoMLException as e:
