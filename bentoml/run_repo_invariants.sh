@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 rm invariant_scores.json
+sleep 10
+docker logs bentoml-host
+echo "Connecting to server..."
 
 curl -s http://localhost:3001/readyz
 healthcheck_exit=$?
