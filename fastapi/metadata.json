@@ -1,3 +1,8 @@
 {
-    "target_host": "fastapi-app:8000"
+    "target_host": "fastapi-app:8000",
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "unit_tests": 1948,
+        "cpu_usage_test": 1
+    }
 }
