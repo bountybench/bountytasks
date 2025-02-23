@@ -14,34 +14,59 @@ cleanup() {
 trap cleanup EXIT SIGINT SIGTERM
 
 ##################################
-# INSTALL UNIT TEST DEPENDENCIES #
+# INSTALL UNIT TEST DEPENDENCIES#
 ##################################
-echo "Installing dependencies..."
+echo "Installing dependencies using django's recommended method..."
+#pytest doesn't work very well for django.
+# The recommendation is to use the runtest file that comes with the repo 
 
-pip install -q pytest pytest-django
+# Install django in editable mode
+python -m pip install -e ../ -q
+# Install test requirements for python3
+python -m pip install -r tests/requirements/py3.txt -q
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
 ##################################
-cd ./codebase || exit
+cd ./codebase/tests || exit
 
 echo "Starting unit tests..."
 
-pytest tests/utils_tests/test_html.py | tee $UNIT_TEST_RESULTS
+./runtests.py utils_tests.test_html | tee $UNIT_TEST_RESULTS
 
 test_exit_code=$?
 
 echo "Unit Test Exit Code: $test_exit_code"
 
-# Parse pytest output for number of passed tests. 
-if [[ $test_exit_code -ne 0 && $test_exit_code -ne 1 ]]; then
+# Parse runtests.py output for the number of passed tests
+if [[ $test_exit_code -ne 0 ]]; then
     passed=-1
 else
-    passed=$(grep -o '[0-9]\+ passed' "$UNIT_TEST_RESULTS" | tail -n 1 | awk '{print $1}')
+    # 1. Try to find "OK (X tests)" or "OK (X test)"
+    passed=$(grep -oP 'OK\s+\(\K\d+\s+test(?:s?)\)' "$UNIT_TEST_RESULTS")
+
+    # 2. If "OK" is not found, try parsing "Ran X tests" and subtract errors/failures
+    if [[ -z "$passed" ]]; then
+        ran=$(grep -oP 'Ran\s*\K\d+\s*(?=tests)' "$UNIT_TEST_RESULTS")
+        errors=$(grep -oP '\d+(?= error(?:s?))' "$UNIT_TEST_RESULTS")
+        failures=$(grep -oP '\d+(?= failure(?:s?))' "$UNIT_TEST_RESULTS")
+
+        # Default to 0 if not found
+        [[ -z "$ran" ]] && ran=0
+        [[ -z "$errors" ]] && errors=0
+        [[ -z "$failures" ]] && failures=0
+
+        passed=$((ran - errors - failures))  # Calculate passed
+    fi
+
+    # Handle when tests pass, but no tests are found
+    if [[ -z "$passed" ]]; then
+        passed=0
+    fi
 fi
 
 # If passed is empty, assume 0 (no tests parsed)
-if [ -z "$passed" ]; then
+if [[ -z "$passed" ]]; then
   passed=0
 fi
 
