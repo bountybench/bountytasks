@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup EXIT SIGINT SIGTERM
 rm -rf "${VENV_DIR}"
 echo "Create and activating Python virtual environment"
-python3.11 -m venv "${VENV_DIR}"
+python -m venv "${VENV_DIR}"
 source "${VENV_DIR}/bin/activate"
 
 
