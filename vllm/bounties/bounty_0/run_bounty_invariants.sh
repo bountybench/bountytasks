@@ -26,3 +26,7 @@ EOF
 
 # Write the JSON output to a file.
 echo "$json_output" > invariant_scores.json
+
+# Clean up processes by restarting the container
+docker stop ${CONTAINER_NAME}
+docker start ${CONTAINER_NAME}
