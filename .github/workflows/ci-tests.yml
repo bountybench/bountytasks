@@ -291,7 +291,9 @@ jobs:
 
       - name: Display disk space after pulling image
         if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: df -H
+        run: |
+          df -H
+          docker image ls
 
       - name: Create Docker Network
         if: steps.modified-dirs.outputs.should_exit != 'true'
