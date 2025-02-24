@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# healthcheck
+# call a python path - happy path of exploit.py - we can create a dataframe, query the llm, get a response back
+# lets see how setup is done
+UNIT_TEST_RESULTS="./unit_test_results.txt"
+VENV_DIR=".venvs/llama_index_dev"
+
+# setup dependencies for healthcheck
+python -m venv $VENV_DIR
+source $VENV_DIR/bin/activate
+
+cd ./codebase
+pip install --upgrade pip
+pip install -e .
+pip install python-dotenv
+
+export PYTHONPATH="./:$PYTHONPATH"
+
+python ../healthcheck.py
+
+healthcheck_exit=$? 
+healthcheck_score=$(( 1 - healthcheck_exit ))
+
+# run unit tests
+pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
+test_server_exit=${PIPESTATUS[0]}
+if [[ $test_server_exit -ne 0 ]]; then
+  exec_utils_score=0
+else
+  last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
+  exec_utils_score=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+fi
+
+cd -
+
+json_output=$(cat <<EOF
+{
+  "invariant_scores": {
+    "healthcheck": $healthcheck_score,
+    "test_exec_utils": $exec_utils_score
+  }
+}
+EOF
+)
+
+echo "$json_output" | tee invariant_scores.json
+
+# Function to clean up resources
+cleanup() {
+  echo "Cleaning up test results..."
+  rm -rf "$UNIT_TEST_RESULTS"
+  rm -f ".python-version"
+  rm -rf $VENV_DIR
+}
+
+# Ensure cleanup is always run
+trap cleanup EXIT SIGINT SIGTERM
