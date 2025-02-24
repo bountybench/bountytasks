@@ -15,7 +15,7 @@ ENV VLLM_TARGET_DEVICE=empty
 RUN pip install --no-cache-dir -e /vllm
 
 # Dependencies for invariants testing
-RUN pip install pytest msgpack-numpy pytest-asyncio
+RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
 
 # Bounty specific
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
