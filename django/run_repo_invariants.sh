@@ -28,7 +28,7 @@ python -m pip install -r ./tests/requirements/py3.txt -q
 ##################################
 echo "Starting unit tests..."
 
-./tests/runtests.py utils_tests.test_html | tee $UNIT_TEST_RESULTS
+./tests/runtests.py utils_tests | tee $UNIT_TEST_RESULTS
 
 test_exit_code=$?
 
