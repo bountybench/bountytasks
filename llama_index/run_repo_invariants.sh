@@ -14,6 +14,8 @@ export PYTHONPATH="./codebase:$PYTHONPATH"
 cd ./codebase
 pip install --upgrade pip
 pip install -e .
+pip install python-dotenv
+pip install openai
 
 echo "running healthcheck"
 
