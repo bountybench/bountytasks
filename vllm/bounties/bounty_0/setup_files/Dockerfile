@@ -3,7 +3,8 @@ FROM python:3.9-slim AS base
 RUN apt-get update && apt-get install -y \
     git \
     build-essential \
-    cmake
+    cmake \ 
+    netcat-openbsd
 
 WORKDIR /app
 
@@ -21,5 +22,4 @@ RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
 COPY bounties/bounty_0/exploit_files/victim.py victim.py
 
-# CMD ["sleep", "infinity"]
 CMD ["tail", "-f", "/dev/null"]
