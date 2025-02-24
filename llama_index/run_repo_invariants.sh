@@ -15,7 +15,7 @@ cd ./codebase
 pip install --upgrade pip
 pip install -e .
 pip install python-dotenv
-pip install openai
+pip install --force-reinstall openai
 
 echo "running healthcheck"
 
