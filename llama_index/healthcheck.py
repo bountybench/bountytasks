@@ -1,14 +1,9 @@
-import logging
 import sys
 from dotenv import load_dotenv
 from llama_index import GPTVectorStoreIndex, SimpleDirectoryReader
 
 # Load environment variables (e.g., API keys)
 load_dotenv()
-
-# Configure logging
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 def check_llama_index():
     try:

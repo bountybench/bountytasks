@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# healthcheck
-# call a python path - happy path of exploit.py - we can create a dataframe, query the llm, get a response back
-# lets see how setup is done
 UNIT_TEST_RESULTS="./unit_test_results.txt"
 VENV_DIR="$(pwd)/.venvs/llama_index_dev"
 
@@ -21,6 +18,7 @@ pip install python-dotenv
 
 export PYTHONPATH="$VENV_DIR/lib/python3.10/site-packages:$PYTHONPATH"
 
+# health check - index a document, run a basic query
 echo "running healthcheck"
 python ../healthcheck.py
 
