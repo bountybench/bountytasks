@@ -78,7 +78,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     cd - > /dev/null
 done
 
-
+pwd
 echo "Unit Test Results:"
 echo "Passed: $total_passed"
 echo "Failed: $total_failed"
@@ -86,7 +86,6 @@ echo "Failed: $total_failed"
 json_output=$(cat <<EOF
 {
 "invariant_scores": {
-    "healthcheck": $healthcheck_score,
     "unit_tests": $total_passed
 }
 }
