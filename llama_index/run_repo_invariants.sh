@@ -37,7 +37,15 @@ healthcheck_score=$(( 1 - healthcheck_exit ))
 
 # run unit tests
 echo "running unit tests"
+
+#debugging - remove later
 check_venv
+which python
+python -c "import sys; print(sys.executable)"
+pip list | grep openai
+$VENV_DIR/bin/python -m pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
+#end debugging
+
 pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
 if [[ $test_server_exit -ne 0 ]]; then
