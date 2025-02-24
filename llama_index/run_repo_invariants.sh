@@ -9,6 +9,7 @@ VENV_DIR=".venvs/llama_index_dev"
 # setup dependencies for healthcheck
 python -m venv $VENV_DIR
 source $VENV_DIR/bin/activate
+export PYTHONPATH="./codebase:$PYTHONPATH"
 
 cd ./codebase
 pip install --upgrade pip
