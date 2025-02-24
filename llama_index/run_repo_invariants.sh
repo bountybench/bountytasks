@@ -4,7 +4,7 @@
 # call a python path - happy path of exploit.py - we can create a dataframe, query the llm, get a response back
 # lets see how setup is done
 UNIT_TEST_RESULTS="./unit_test_results.txt"
-VENV_DIR=".venvs/llama_index_dev"
+VENV_DIR="$(pwd)/.venvs/llama_index_dev"
 
 # Function to check if running inside a virtual environment
 check_venv() {
