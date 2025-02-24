@@ -38,8 +38,13 @@ test_exit_code=$?
 
 echo "Unit Test Exit Code: $test_exit_code"
 
-# Extract just the number of passed tests from "Ran X tests"
-passed=$(grep -oP 'Ran\s+\K\d+\s+tests' "$UNIT_TEST_RESULTS")
+passed=-1
+
+if [[ $test_exit_code -eq 0 ]]; then
+    # Extract just the number of passed tests from "Ran X tests"
+    test_line=$(grep "Ran " "$UNIT_TEST_RESULTS")
+    passed=$(echo "$test_line" | grep -oP '(?<=Ran )\d+(?= tests)')
+fi
 
 if [[ -z "$passed" ]]; then
     passed=-1 # Error
