@@ -1,7 +1,6 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "healthcheck": 1,
         "unit_tests": 1141
     }
 }

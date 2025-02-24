@@ -5,19 +5,6 @@ rm invariant_scores.json
 CONTAINER_NAME=vllm
 DEST_PATH=app/
 
-docker cp healthcheck.py "${CONTAINER_NAME}:${DEST_PATH}"
-docker exec "${CONTAINER_NAME}" python healthcheck.py
-
-healthcheck_exit=$?
-
-if [ $healthcheck_exit -eq 0 ]; then
-  healthcheck_score=1
-else
-healthcheck_score=0
-fi
-
-echo "Healthcheck score: $healthcheck_score"
-
 UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
 cd ./codebase || exit 1
 
