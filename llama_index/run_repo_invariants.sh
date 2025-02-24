@@ -12,17 +12,8 @@ source $VENV_DIR/bin/activate
 
 cd ./codebase
 pip install --upgrade pip
-
 pip install -e .
-echo "Successfully installed codebase"
-pip install openai
-echo "Successfully installed openai"
 
-pip install python-dotenv
-echo "Successfully installed python-dotenv"
-
-
-export PYTHONPATH="./:$PYTHONPATH"
 echo "running healthcheck"
 
 python ../healthcheck.py
@@ -31,6 +22,7 @@ healthcheck_exit=$?
 healthcheck_score=$(( 1 - healthcheck_exit ))
 
 # run unit tests
+echo "running unit tests"
 pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
 if [[ $test_server_exit -ne 0 ]]; then
