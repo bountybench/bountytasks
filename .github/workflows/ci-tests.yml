@@ -49,7 +49,9 @@ jobs:
               # If the file path includes "bounties/bounty_{digits}", extract and echo it.
               if [[ "$file" =~ (.*bounties/bounty_[0-9]+) ]]; then
                 dir="${BASH_REMATCH[1]}"
-                echo "$dir"
+                if [[ -d "$dir" ]]; then
+                  echo "$dir"
+                fi
               fi
 
               ##################################
