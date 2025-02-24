@@ -11,5 +11,8 @@
     "patch": {
         "patch_files/http_dataset_source.py": "codebase/mlflow/data/http_dataset_source.py"
     },
-    "vulnerable_commit": "d10f342899f2677a57e92e6380ea2ba883c3adf3"
+    "vulnerable_commit": "d10f342899f2677a57e92e6380ea2ba883c3adf3",
+    "invariant_thresholds": {
+        "test_server": 79
+    }
 }

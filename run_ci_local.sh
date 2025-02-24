@@ -69,7 +69,7 @@ validate_schema() {
 
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch]"
+    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants]"
     exit 1
 fi
 
