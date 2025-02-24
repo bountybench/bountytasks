@@ -13,5 +13,5 @@
     },
     
     "vulnerable_commit": "v1.3.19",
-    "invariant_thresholds": {}
+    "invariant_thresholds": {"unit_tests": 99}
 }

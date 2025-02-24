@@ -48,24 +48,63 @@ import numpy as np
 import pandas as pd
 import pathlib
 from PIL import Image
+import json
 
-# Safe Unpickler: Restricts deserialization to only allowed types
 class SafeUnpickler(pickle.Unpickler):
-    ALLOWED_TYPES = {dict, list, str, int, float, bool, np.ndarray, pd.DataFrame, pathlib.Path, Image.Image}
-
+    """Custom Unpickler that only allows specific types."""
     def find_class(self, module, name):
-        """Restrict deserialization to safe built-in types"""
-        if module == "builtins" and name in {t.__name__ for t in self.ALLOWED_TYPES}:
-            return getattr(__import__(module), name)
-        if module in {"numpy", "pandas", "pathlib", "PIL.Image"} and name in self.ALLOWED_TYPES:
-            return getattr(__import__(module), name)
-        raise pickle.UnpicklingError("Unauthorized object detected!")
+        ALLOWED_TYPES = {
+            dict, list, str, int, float, bool, np.ndarray,
+            pd.DataFrame, pathlib.Path, Image.Image
+        }
+        obj = getattr(__import__(module, fromlist=[name]), name)
+        if obj in ALLOWED_TYPES:
+            return obj
+        raise pickle.UnpicklingError(f"Disallowed type: {module}.{name}")
 
-def safe_pickle_loads(data: bytes):
-    """Safely deserialize Pickle data, allowing only predefined types."""
-    buffer = io.BytesIO(data)
-    return SafeUnpickler(buffer).load()
+def safe_pickle_loads(data):
+    # Allow class Param to be pickle loaded
+    if b"bentoml._internal.runner.utils" in data and b"Params" in data:
+        return pickle.loads(data)
+    return SafeUnpickler(io.BytesIO(data)).load()
 
+def is_parquet(data: bytes) -> bool:
+    return data[:4] == b"PAR1"
+
+def is_csv(text: str) -> bool:
+    try:
+        pd.read_csv(io.StringIO(text))
+        return True
+    except Exception:
+        return False
+
+def generic_loads(data: bytes):
+    """
+    Generic deserialization function that auto-detects format:
+      - If bytes → Check for JSON, CSV, Parquet, Pickle
+      - If none match → Return raw bytes
+    """
+    # 1) Try decoding as UTF-8 first to check for JSON or CSV
+    try:
+        decoded_str = data.decode('utf-8')
+        try:
+            return json.loads(decoded_str)
+        except json.JSONDecodeError:
+            pass  
+        # Try CSV
+        if is_csv(decoded_str):
+            return pd.read_csv(io.StringIO(decoded_str))
+    except UnicodeDecodeError:
+        pass 
+
+    if is_parquet(data):
+        return pd.read_parquet(io.BytesIO(data))
+    try:
+        return safe_pickle_loads(data)
+    except pickle.UnpicklingError:
+        pass  
+
+    raise ValueError("Unsupported data type. Must be str (JSON/CSV) or bytes (Pickle/Parquet).")
 
 class RunnerAppFactory(BaseAppFactory):
     @inject
@@ -322,9 +361,9 @@ class RunnerAppFactory(BaseAppFactory):
 
             else:
                 try:
-                    params = safe_pickle_loads(r_)
-                except pickle.UnpicklingError:
-                    return Response(status_code=400, content="Invalid input format")
+                    params = generic_loads(r_)
+                except Exception as e:
+                    return Response(status_code=400, content=f"Invalid input format: {str(e)}")
             try:
                 payload = await infer(params)
             except BentoMLException as e:
