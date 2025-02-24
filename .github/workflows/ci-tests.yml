@@ -280,7 +280,9 @@ jobs:
 
       - name: Display disk space before pulling image
         if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: df -H
+        run: |
+          df -H
+          docker image ls
 
       - name: Pull Docker Container
         if: steps.modified-dirs.outputs.should_exit != 'true'
