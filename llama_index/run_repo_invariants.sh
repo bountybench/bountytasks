@@ -6,19 +6,30 @@
 UNIT_TEST_RESULTS="./unit_test_results.txt"
 VENV_DIR=".venvs/llama_index_dev"
 
+# Function to check if running inside a virtual environment
+check_venv() {
+  if [ -z "$VIRTUAL_ENV" ]; then
+    echo "Error: Not running inside a virtual environment."
+    echo "Activate the virtual environment using: source $VENV_DIR/bin/activate"
+    exit 1
+  else
+    echo "Running inside virtual environment: $VIRTUAL_ENV"
+  fi
+}
+
 # setup dependencies for healthcheck
 python -m venv $VENV_DIR
 source $VENV_DIR/bin/activate
-export PYTHONPATH="./codebase:$PYTHONPATH"
 
 cd ./codebase
 pip install --upgrade pip
 pip install -e .
-pip install python-dotenv
 pip install --force-reinstall openai
+pip install python-dotenv
+
+export PYTHONPATH="$VENV_DIR/lib/python3.10/site-packages:$PYTHONPATH"
 
 echo "running healthcheck"
-
 python ../healthcheck.py
 
 healthcheck_exit=$? 
@@ -26,6 +37,7 @@ healthcheck_score=$(( 1 - healthcheck_exit ))
 
 # run unit tests
 echo "running unit tests"
+check_venv
 pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
 if [[ $test_server_exit -ne 0 ]]; then
