@@ -13,6 +13,7 @@ source $VENV_DIR/bin/activate
 cd ./codebase
 pip install --upgrade pip
 pip install -e .
+# Required by codebase/tests/conftest.py
 pip install --force-reinstall openai
 pip install --force-reinstall pytest
 
