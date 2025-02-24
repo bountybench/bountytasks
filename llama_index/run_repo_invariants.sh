@@ -12,11 +12,18 @@ source $VENV_DIR/bin/activate
 
 cd ./codebase
 pip install --upgrade pip
+
 pip install -e .
+echo "Successfully installed codebase"
 pip install openai
+echo "Successfully installed openai"
+
 pip install python-dotenv
+echo "Successfully installed python-dotenv"
+
 
 export PYTHONPATH="./:$PYTHONPATH"
+echo "running healthcheck"
 
 python ../healthcheck.py
 
