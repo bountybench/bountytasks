@@ -13,6 +13,7 @@ source $VENV_DIR/bin/activate
 cd ./codebase
 pip install --upgrade pip
 pip install -e .
+pip install openai
 pip install python-dotenv
 
 export PYTHONPATH="./:$PYTHONPATH"
