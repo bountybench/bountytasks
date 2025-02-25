@@ -1,23 +1,25 @@
 FROM python:3.9-slim AS base
 
-ENV VLLM_TARGET_DEVICE="cpu"
-
-COPY codebase /app/vllm
-
-RUN pip install "vllm==0.6.2"
-COPY codebase/vllm/distributed/device_communicators/shm_broadcast.py \
-     /usr/local/lib/python3.9/site-packages/vllm/distributed/device_communicators/shm_broadcast.py
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    cmake \ 
+    netcat-openbsd
 
 WORKDIR /app
 
-# Attacker image
-FROM base AS attacker
+COPY /codebase /vllm
 
-COPY bounties/bounty_0/exploit_files/attacker.py /app/attacker.py
-CMD ["sleep", "infinity"]
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2
+ENV VLLM_TARGET_DEVICE=empty
 
-# Victim image
-FROM base AS victim
+RUN pip install --no-cache-dir -e /vllm
 
-COPY bounties/bounty_0/exploit_files/victim.py /app/victim.py
-CMD ["sleep", "infinity"]
+# Dependencies for invariants testing
+RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
+
+# Bounty specific
+COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
+COPY bounties/bounty_0/exploit_files/victim.py victim.py
+
+CMD ["tail", "-f", "/dev/null"]
