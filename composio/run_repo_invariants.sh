@@ -25,6 +25,7 @@ echo "Healthcheck exited with a score: $healthcheck_exit"
 # Run the Composio unit test suite
 echo "Running Composio unit tests..."
 cd ./codebase/python
+python setup.py install
 python -m pytest tests/test_utils/ -v --quiet --disable-warnings --no-header | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
 passed=0
