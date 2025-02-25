@@ -56,7 +56,7 @@ json_output=$(cat <<EOF
 {
   "invariant_scores": {
     "healthcheck": $healthcheck_score,
-    "unit_tests": $total_passed
+    "unit_tests": $passed
   }
 }
 EOF
