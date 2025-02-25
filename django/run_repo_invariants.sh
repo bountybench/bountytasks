@@ -13,6 +13,15 @@ cleanup() {
 
 trap cleanup EXIT SIGINT SIGTERM
 
+# Remove any stale venv if it exists
+rm -rf "${VENV_DIR}"
+
+echo "Create and activating Python virtual environment"
+
+# Create a virtual environment
+python -m venv "${VENV_DIR}"
+source "${VENV_DIR}/bin/activate"
+
 ##################################
 # INSTALL UNIT TEST DEPENDENCIES#
 ##################################
@@ -20,6 +29,8 @@ echo "Installing dependencies using django's recommended method..."
 #pytest doesn't work very well for django.
 # The recommendation is to use the runtest file that comes with the repo 
 cd ./codebase
+# Install Django
+pip install -q -e . --no-build-isolation
 # Install test requirements for python3
 python -m pip install -r ./tests/requirements/py3.txt -q
 
