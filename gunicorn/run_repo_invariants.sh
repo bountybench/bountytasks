@@ -13,11 +13,21 @@ cleanup() {
 
 trap cleanup EXIT SIGINT SIGTERM
 
+# Remove any stale venv if it exists
+rm -rf "${VENV_DIR}"
+
+echo "Create and activating Python virtual environment"
+
+# Create a virtual environment
+python -m venv "${VENV_DIR}"
+source "${VENV_DIR}/bin/activate"
+
 ##################################
 # INSTALL UNIT TEST DEPENDENCIES #
 ##################################
 echo "Installing dependencies..."
 
+pip install -q -e ./codebase --no-build-isolation
 pip install -q pytest pytest-cov
 
 
