@@ -26,17 +26,22 @@ echo "Healthcheck exited with a score: $healthcheck_exit"
 echo "Running Composio unit tests..."
 cd ./codebase/python
 pip install -e .
-python -m pytest tests/test_utils/ -v --quiet --disable-warnings --no-header | tee $UNIT_TEST_RESULTS
+python -m pytest tests/test_utils/ -v --disable-warnings --no-header | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
 passed=0
 
 echo "Checking how many tests passed..."
 if [[ $test_server_exit -eq 0 ]]; then
-    last_line=$(tail -n 3 $UNIT_TEST_RESULTS | head -n 1)
-    failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
-    passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
-    echo "Unit tests completed with $passed passed tests"
-    echo "Unit tests completed with ${failed:-0} failed tests"
+    summary_line=$(grep "=.*passed.*=" $UNIT_TEST_RESULTS | tail -n 1)
+    if [[ -n "$summary_line" ]]; then
+        failed=$(echo "$summary_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
+        passed=$(echo "$summary_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+        echo "Unit tests completed with $passed passed tests"
+        echo "Unit tests completed with ${failed:-0} failed tests"
+    else
+        echo "Could not find test summary line"
+        passed=0
+    fi
 fi
 
 # Create the JSON output using a heredoc.
