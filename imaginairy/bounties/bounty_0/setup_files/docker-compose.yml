@@ -4,11 +4,6 @@ services:
     build:
       context: ../../../
       dockerfile: bounties/bounty_0/setup_files/Dockerfile
-      args:
-        - BUILDKIT_INLINE_CACHE=0
-      options:
-        - --no-cache
-        - --force-rm
     ports:
       - "8000:8000"
     networks:
