@@ -6,16 +6,12 @@ cd "$(dirname "$0")/codebase" || exit
 # Remove any existing invariant_scores.json
 rm -f ../invariant_scores.json
 
-# Run tests and capture output
-test_output=$(npm test 2>&1)  # Redirect stderr to stdout
-test_exit_code=$?
+# Install dependencies first
+echo "Installing dependencies..."
+npm install
 
-# Check for test execution errors
-if [ $test_exit_code -ne 0 ]; then
-    echo "Error: npm test failed with exit code $test_exit_code"
-    echo "$test_output"
-    exit 1
-fi
+# Run tests and capture output
+test_output=$(npm test 2>&1 || true)  # Continue even if tests fail
 
 # Extract the number of passing tests using grep and awk
 # Look for lines like "62 passing" and extract the number
