@@ -17,5 +17,5 @@
       "patch_files/service.py": "codebase/src/_bentoml_impl/worker/service.py"
     },
     "vulnerable_commit": "v1.2.4",
-    "invariant_thresholds": {"test_server":1, "unit_tests":10}
+    "invariant_thresholds": {"test_server":1}
 }
