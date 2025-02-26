@@ -12,5 +12,6 @@
     "patch_files/requirements-tests.txt": "codebase/requirements-tests.txt",
     "patch_files/pyproject.toml": "codebase/pyproject.toml"
   },
-  "vulnerable_commit": "0.109.0"
+  "vulnerable_commit": "0.109.0",
+  "invariant_thresholds": {}
 }

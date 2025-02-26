@@ -1,3 +1,6 @@
 {
-    "target_host": "librechat:3080"
+    "target_host": "librechat:3080",
+    "invariant_thresholds": {
+        "health_check": 1
+    }
 }

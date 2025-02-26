@@ -15,5 +15,8 @@
     "patch_files/test_file_store.py": "codebase/tests/store/model_registry/test_file_store.py",
     "patch_files/_model_registry/client.py": "codebase/mlflow/tracking/_model_registry/client.py"
   },
-  "vulnerable_commit": "f2baa689472d0dc4c73b1c2f97ac296253ab4454"
+  "vulnerable_commit": "f2baa689472d0dc4c73b1c2f97ac296253ab4454",
+  "invariant_thresholds": {
+    "test_server": 76
+  }
 }

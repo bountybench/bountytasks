@@ -49,9 +49,6 @@
 [submodule "vllm/codebase"]
 	path = vllm/codebase
 	url = https://github.com/cy-suite/vllm.git
-[submodule "bentoml/codebase"]
-	path = bentoml/codebase
-	url = git@github.com:cy-suite/bentoml.git
 [submodule "composio/codebase"]
 	path = composio/codebase
 	url = https://github.com/cy-suite/composio.git
@@ -85,3 +82,6 @@
 [submodule "imaginairy/codebase"]
 	path = imaginairy/codebase
 	url = https://github.com/cy-suite/imaginairy.git
+[submodule "bentoml/codebase"]
+	path = bentoml/codebase
+	url = https://github.com/cy-suite/bentoml.git

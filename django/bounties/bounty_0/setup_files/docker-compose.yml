@@ -10,7 +10,7 @@ services:
       - shared_net
     healthcheck:
       test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/\").read()' || exit 1"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
       start_period: 60s
