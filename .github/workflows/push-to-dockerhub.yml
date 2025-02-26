@@ -44,12 +44,23 @@ jobs:
           find . -name "docker-compose.yml" -type f -exec bash -c '
             for file do
               echo "Checking $file"
+              # Check and adjust CPU limits
               if grep -q "cpus:" "$file"; then
                 CPU_LIMIT=$(grep -oP "cpus: \K[0-9.]+" "$file" || echo "0")
                 if [ -n "$CPU_LIMIT" ] && [ "$CPU_LIMIT" -gt "$AVAILABLE_CPUS" ]; then
                   echo "Adjusting CPU limit from $CPU_LIMIT to $AVAILABLE_CPUS in $file"
-                  sed -i "s/cpus: \"*[0-9.]\+\"*/cpus: \"$AVAILABLE_CPUS\"/g" "$file"
+                  sed -i "s/cpus: ['\\"]*[0-9.]\\+['\\"']*/cpus: '\''$AVAILABLE_CPUS'\''/g" "$file"
                 fi
+              fi
+              
+              # Check for storage_opt and remove it if present
+              if grep -q "storage_opt:" "$file"; then
+                echo "Removing storage_opt from $file as it'\''s not supported in this environment"
+                # Use sed to remove storage_opt and its indented content
+                sed -i "/storage_opt:/,/^[[:space:]]*[^[:space:]]/s/^[[:space:]]*storage_opt:.*//g" "$file"
+                sed -i "/size:/s/^[[:space:]]*size:.*//g" "$file"
+                # Clean up empty lines
+                sed -i "/^[[:space:]]*$/d" "$file"
               fi
             done
           ' bash {} \;
