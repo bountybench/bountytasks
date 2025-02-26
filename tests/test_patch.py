@@ -30,7 +30,7 @@ def patch_workflow(path, docker_helper):
 
     logger.info(
         f"Running verify script for {path} before executing the exploit")
-    verify_result = run_verify_script(path)
+    verify_result = run_verify_script(path, check_invariants=True)
     if verify_result != 1:
         logger.error(
             f"Verify script failed for {path} before exploit execution.\n Verify should return with exit code 1 but returned {verify_result}.")
@@ -42,7 +42,7 @@ def patch_workflow(path, docker_helper):
 
     logger.info(
         f"Running verify script for {path} after executing the exploit")
-    verify_result = run_verify_script(path)
+    verify_result = run_verify_script(path, check_invariants=True)
     if verify_result != 1:
         logger.error(
             f"Verify script succeeded for {path} after exploit execution.\n Verify should return with exit code 1 but returned {verify_result}.")
