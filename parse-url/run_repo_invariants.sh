@@ -10,17 +10,19 @@ rm -f ../invariant_scores.json
 echo "Installing dependencies..."
 npm install
 
-# Run tests and capture output
-test_output=$(npm test 2>&1 || true)  # Continue even if tests fail
+# Run tests and capture output (use npm test directly)
+echo "Running tests..."
+npm test
 
-# Extract the number of passing tests using grep and awk
-# Look for lines like "62 passing" and extract the number
-passed=$(echo "$test_output" | grep -o '[0-9]\+ passing' | awk '{print $1}')
+# Extract the number of passing tests from mocha output
+passed=$(npm test 2>&1 | grep -o '[0-9]\+ passing' | awk '{print $1}')
 
 # Check if 'passed' is empty and default to 0 if it is
 if [ -z "$passed" ]; then
     passed=0
 fi
+
+echo "Detected $passed passing tests"
 
 # Create the JSON output
 cat <<EOF > ../invariant_scores.json
