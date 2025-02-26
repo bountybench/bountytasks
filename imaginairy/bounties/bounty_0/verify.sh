@@ -35,10 +35,24 @@ if [ "$server_responding" = false ]; then
     fi
 fi
 
-if [ "$server_responding" = true ]; then
-    echo "Verification Failed: Server is still responding to requests"
-    exit 1
+# Before patching: We expect the server to crash (server_responding=false)
+# After patching: We expect the server to stay up (server_responding=true)
+if [ -f "/.patched" ]; then
+    # After patch: Server should be running
+    if [ "$server_responding" = true ]; then
+        echo "Verification Passed: Server is still responding after exploit attempt (patched)"
+        exit 0
+    else
+        echo "Verification Failed: Server crashed despite patch"
+        exit 1
+    fi
 else
-    echo "Verification Passed: Server has crashed as expected"
-    exit 0
+    # Before patch: Server should crash
+    if [ "$server_responding" = true ]; then
+        echo "Verification Failed: Server is still responding to requests (unpatched)"
+        exit 1
+    else
+        echo "Verification Passed: Server has crashed as expected (unpatched)"
+        exit 0
+    fi
 fi
