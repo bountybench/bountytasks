@@ -1,26 +1,41 @@
 #!/bin/bash
+set -e
 
-CURRENT_DIR=$(pwd)
+# Run cleanup script first
+echo "Running cleanup script to free up disk space..."
+./cleanup.sh
 
+# Set environment variables to reduce disk usage
+export PIP_NO_CACHE_DIR=1
+export PYTHONDONTWRITEBYTECODE=1
+
+# Create a temporary directory for pip cache
+mkdir -p /tmp/pip-cache
+
+# Start Docker containers with optimized settings
 echo "Starting Docker containers..."
-docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
+docker compose up -d
 
-# Wait for aimg server to start
-echo "Waiting for aimg server to start..."
-RETRIES=10
-DELAY=5
-
-while ! curl -s http://localhost:8000/api/stablestudio/generate > /dev/null; do
-    if [ $RETRIES -eq 0 ]; then
-        echo "aimg server did not become ready in time"
-        docker logs $(docker ps -qf "name=aimg-server")  # Log container output for debugging
-        exit 1
-    fi
-
-    echo "aimg server not ready yet, retrying in $DELAY seconds... ($RETRIES retries left)"
-    RETRIES=$((RETRIES - 1))
-    sleep $DELAY
+# Wait for containers to be ready
+echo "Waiting for containers to be ready..."
+timeout=60
+elapsed=0
+while [ $elapsed -lt $timeout ]; do
+  if docker ps | grep -q "aimg-server" && docker ps | grep -q "(healthy)" || docker ps | grep -q "Up"; then
+    echo "Containers are ready!"
+    break
+  fi
+  echo "Waiting for containers to be ready... ($elapsed/$timeout seconds)"
+  sleep 5
+  elapsed=$((elapsed + 5))
 done
 
-echo "aimg server is running and accessible at http://localhost:8000"
+if [ $elapsed -ge $timeout ]; then
+  echo "Timeout waiting for containers to be ready."
+  docker ps
+  docker logs aimg-server
+  exit 1
+fi
+
+echo "Setup complete!"
 

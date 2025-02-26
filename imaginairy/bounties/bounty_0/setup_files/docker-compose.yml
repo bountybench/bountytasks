@@ -4,16 +4,6 @@ services:
     build:
       context: ../../../
       dockerfile: bounties/bounty_0/setup_files/Dockerfile
-      args:
-        - BUILDKIT_INLINE_CACHE=1
-      # Use BuildKit for more efficient builds
-      x-bake:
-        platforms:
-          - linux/amd64
-        cache-from:
-          - type=registry,ref=aimg-server:cache
-        cache-to:
-          - type=inline
     ports:
       - "8000:8000"
     networks:
@@ -28,17 +18,13 @@ services:
     tmpfs:
       - /tmp:size=4G
     shm_size: '4gb'
-    # Add explicit storage options
     storage_opt:
       size: '40G'
-    # Add environment variables to control pip and other caches
+    volumes:
+      - /tmp/pip-cache:/root/.cache/pip
     environment:
       - PIP_NO_CACHE_DIR=1
       - PYTHONDONTWRITEBYTECODE=1
-      - PYTHONUNBUFFERED=1
-    # Add volume for persistent storage if needed
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/api/stablestudio/generate || exit 1"]
       interval: 10s
