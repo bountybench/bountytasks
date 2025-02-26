@@ -341,7 +341,8 @@ jobs:
         run: |
           docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
-          docker image tag cybench/kali-linux-ci:latest cybench
+          # Verify the image is available
+          docker images | grep cybench
 
       - name: Display disk space after pulling image
         if: steps.modified-dirs.outputs.should_exit != 'true'
