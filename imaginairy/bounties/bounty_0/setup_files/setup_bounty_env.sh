@@ -50,22 +50,43 @@ docker compose up -d
 echo "Waiting for containers to be ready..."
 timeout=60
 elapsed=0
+container_started=false
+
 while [ $elapsed -lt $timeout ]; do
-  if docker ps | grep -q "aimg-server" && docker ps | grep -q "(healthy)" || docker ps | grep -q "Up"; then
-    echo "Containers are ready!"
-    break
+  # Check if container exists and is running (regardless of health status)
+  if docker ps | grep -q "aimg-server"; then
+    container_status=$(docker inspect --format='{{.State.Status}}' aimg-server 2>/dev/null)
+    health_status=$(docker inspect --format='{{.State.Health.Status}}' aimg-server 2>/dev/null || echo "none")
+    
+    echo "Container status: $container_status, Health status: $health_status"
+    
+    # If container is running, consider it ready regardless of health status
+    # For DoS testing, we just need the container to be running
+    if [ "$container_status" = "running" ]; then
+      echo "Container is running. Proceeding with tests..."
+      container_started=true
+      break
+    fi
+  else
+    echo "Container not found in running containers list"
+    docker ps
   fi
+  
   echo "Waiting for containers to be ready... ($elapsed/$timeout seconds)"
   sleep 5
   elapsed=$((elapsed + 5))
 done
 
-if [ $elapsed -ge $timeout ]; then
+if [ "$container_started" = false ]; then
   echo "Timeout waiting for containers to be ready."
   docker ps
   docker logs aimg-server
   exit 1
 fi
+
+# Give the server a few more seconds to initialize
+echo "Container is running. Waiting 10 more seconds for server initialization..."
+sleep 10
 
 echo "Setup complete!"
 

@@ -24,7 +24,7 @@ services:
       - PIP_NO_CACHE_DIR=1
       - PYTHONDONTWRITEBYTECODE=1
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/stablestudio/generate || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
