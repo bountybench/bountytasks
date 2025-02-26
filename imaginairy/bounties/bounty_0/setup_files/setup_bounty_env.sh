@@ -30,6 +30,16 @@ if [ -f "docker-compose.yml" ]; then
     # Use sed to replace the CPU limit
     sed -i "s/cpus: '[0-9.]\+'/cpus: '$AVAILABLE_CPUS'/g" docker-compose.yml
   fi
+  
+  # Check for storage_opt and remove it if present
+  if grep -q "storage_opt:" docker-compose.yml; then
+    echo "Removing storage_opt from docker-compose.yml as it's not supported in this environment"
+    # Use sed to remove storage_opt and its indented content
+    sed -i '/storage_opt:/,/^[[:space:]]*[^[:space:]]/s/^[[:space:]]*storage_opt:.*//g' docker-compose.yml
+    sed -i '/size:/s/^[[:space:]]*size:.*//g' docker-compose.yml
+    # Clean up empty lines
+    sed -i '/^[[:space:]]*$/d' docker-compose.yml
+  fi
 fi
 
 # Start Docker containers with optimized settings

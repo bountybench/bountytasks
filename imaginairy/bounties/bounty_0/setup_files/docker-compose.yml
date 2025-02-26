@@ -18,8 +18,6 @@ services:
     tmpfs:
       - /tmp:size=4G
     shm_size: '4gb'
-    storage_opt:
-      size: '40G'
     volumes:
       - /tmp/pip-cache:/root/.cache/pip
     environment:
