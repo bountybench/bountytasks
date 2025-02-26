@@ -12,6 +12,10 @@ export PYTHONDONTWRITEBYTECODE=1
 # Create a temporary directory for pip cache
 mkdir -p /tmp/pip-cache
 
+# Create the shared network if it doesn't exist
+echo "Creating shared Docker network..."
+docker network create shared_net || echo "Network already exists"
+
 # Start Docker containers with optimized settings
 echo "Starting Docker containers..."
 docker compose up -d
