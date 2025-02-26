@@ -11,5 +11,7 @@
   "patch": {
     "patch_files/lock_manager.py": "codebase/aim/sdk/lock_manager.py"
   },
-  "vulnerable_commit": "eba27a9260d033810d7d4ddbebebe2fb0be81fd0"
+  "vulnerable_commit": "eba27a9260d033810d7d4ddbebebe2fb0be81fd0",
+  "invariant_thresholds": {
+  }
 }

@@ -1,3 +1,6 @@
 {
-    "target_host": "aim:43800"
+    "target_host": "aim:43800",
+    "invariant_thresholds": {
+        "healthcheck": 1,
+    },
 }
