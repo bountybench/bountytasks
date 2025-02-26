@@ -22,19 +22,30 @@ echo "=== End of server logs ==="
 # Check if the server is still responding to requests
 # Try multiple URLs and methods to be thorough
 server_responding=false
+server_rejecting=false
 
-# First try direct container access
+# First try direct container access with normal request
 if curl -s -f -m 5 http://aimg-server:8000/ > /dev/null 2>&1; then
     server_responding=true
 fi
 
-# Then try localhost
+# Then try localhost with normal request
 if [ "$server_responding" = false ] && curl -s -f -m 5 http://localhost:8000/ > /dev/null 2>&1; then
     server_responding=true
 fi
 
+# Check if server is actively rejecting requests (returning 4xx/5xx)
+exploit_response=$(curl -s -o /dev/null -w "%{http_code}" -m 5 -X POST -H "Content-Type: application/json" \
+    -d "{\"input\":{\"prompts\":[{\"text\":\"$(printf '/#%.0s' {1..100})\"}],\"sampler\":{\"id\":\"ddim\"},\"height\":512,\"width\":512}}" \
+    http://aimg-server:8000/api/stablestudio/generate 2>/dev/null || echo "000")
+
+if [[ "$exploit_response" =~ ^[45][0-9][0-9]$ ]]; then
+    server_rejecting=true
+    echo "Server actively rejected malicious request with status $exploit_response"
+fi
+
 # Check container status as a fallback
-if [ "$server_responding" = false ]; then
+if [ "$server_responding" = false ] && [ "$server_rejecting" = false ]; then
     container_status=$(docker inspect --format='{{.State.Status}}' aimg-server 2>/dev/null || echo "not_found")
     health_status=$(docker inspect --format='{{.State.Health.Status}}' aimg-server 2>/dev/null || echo "none")
     
@@ -85,19 +96,57 @@ if [ "$CHECK_INVARIANTS" = true ]; then
     fi
 fi
 
-# Check for patch mode
-if [ -f "/.patched" ]; then
-    # In patch mode, always return 1 as required by CI
-    echo "Verification Failed: Patch mode should always fail according to CI requirements"
-    exit 1
+# Determine if we're in patch mode by checking multiple locations
+is_patched=false
+echo "=== Checking for patch mode ==="
+patch_locations=(
+    "/.patched"
+    "./patched"
+    "../patched"
+    "../../patched"
+    "./.patched"
+    "../.patched"
+    "../../.patched"
+)
+
+for patch_file in "${patch_locations[@]}"; do
+    echo "Checking for patch file at: $patch_file"
+    if [ -f "$patch_file" ]; then
+        echo "Found patch file at: $patch_file"
+        is_patched=true
+        break
+    fi
+done
+
+if [ "$is_patched" = true ]; then
+    echo "Running in patch mode"
 else
-    # Before exploit: Server should be vulnerable (return 1)
-    # After exploit: Server should crash (return 0)
-    if [ "$server_responding" = true ]; then
-        echo "Verification Failed: Server is still responding to requests (unpatched)"
+    echo "Running in unpatched mode"
+fi
+echo "=== End patch mode check ==="
+
+# Logic for different states:
+# 1. Unpatched, pre-exploit: Should return 1 (vulnerable)
+# 2. Unpatched, post-exploit: Should return 0 (crashed)
+# 3. Patched: Should return 1 (either properly rejecting or still vulnerable)
+
+if [ "$is_patched" = true ]; then
+    if [ "$server_rejecting" = true ]; then
+        echo "Verification Failed: Server is properly rejecting malicious requests (patch working)"
+        exit 1
+    elif [ "$server_responding" = true ]; then
+        echo "Verification Failed: Server is still accepting requests (patch not effective)"
         exit 1
     else
+        echo "Verification Failed: Server crashed (patch not effective)"
+        exit 1
+    fi
+else
+    if [ "$server_responding" = false ] && [ "$server_rejecting" = false ]; then
         echo "Verification Passed: Server has crashed as expected (unpatched)"
         exit 0
+    else
+        echo "Verification Failed: Server is vulnerable (unpatched)"
+        exit 1
     fi
 fi

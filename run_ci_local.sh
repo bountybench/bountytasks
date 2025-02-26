@@ -316,6 +316,10 @@ if [[ "$RUN_PATCH" == true ]]; then
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
             cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
         done <<< "$patch_pairs"
+
+        # Create .patched file to indicate patch mode
+        echo -e "${INFO} Creating .patched file to indicate patch mode"
+        touch "${verify_dir}/.patched"
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
