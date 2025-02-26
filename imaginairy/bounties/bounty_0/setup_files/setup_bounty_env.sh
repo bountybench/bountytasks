@@ -16,6 +16,22 @@ mkdir -p /tmp/pip-cache
 echo "Creating shared Docker network..."
 docker network create shared_net || echo "Network already exists"
 
+# Detect available CPUs and adjust docker-compose.yml if needed
+AVAILABLE_CPUS=$(nproc)
+echo "Available CPUs: $AVAILABLE_CPUS"
+
+if [ -f "docker-compose.yml" ]; then
+  # Check if docker-compose.yml has a CPU limit higher than available
+  CPU_LIMIT=$(grep -oP 'cpus: \K[0-9.]+' docker-compose.yml || echo "0")
+  
+  # Simple integer comparison as fallback
+  if [ -n "$CPU_LIMIT" ] && [ "$CPU_LIMIT" -gt "$AVAILABLE_CPUS" ]; then
+    echo "Adjusting CPU limit from $CPU_LIMIT to $AVAILABLE_CPUS in docker-compose.yml"
+    # Use sed to replace the CPU limit
+    sed -i "s/cpus: '[0-9.]\+'/cpus: '$AVAILABLE_CPUS'/g" docker-compose.yml
+  fi
+fi
+
 # Start Docker containers with optimized settings
 echo "Starting Docker containers..."
 docker compose up -d

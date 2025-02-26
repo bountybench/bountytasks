@@ -12,7 +12,7 @@ services:
       resources:
         limits:
           memory: 16G
-          cpus: '4'
+          cpus: '2'
         reservations:
           memory: 8G
     tmpfs:
