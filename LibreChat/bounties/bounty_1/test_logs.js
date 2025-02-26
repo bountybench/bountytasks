@@ -2,14 +2,12 @@ const axios = require('axios');
 const assert = require('assert');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const { performance } = require('perf_hooks');
 
 const HOST = 'localhost';
 const BASE_URL = `http://${HOST}:3080`;
 
 console.log(`Testing against ${BASE_URL}`);
 
-// Clean logs before testing
 function cleanLogs() {
   try {
     execSync('docker exec librechat rm -rf /app/api/logs/*');
@@ -21,7 +19,7 @@ function cleanLogs() {
 
 async function runTests() {
   let testsPassed = 0;
-  const totalTests = 3;
+  const totalTests = 2; 
 
   try {
     cleanLogs();
@@ -61,8 +59,7 @@ async function runTests() {
     //Test 2: Check with random odd-special characters
     try {
       console.log('\nRunning Test: Special characters injection test');
-      
-      // Test with a few special characters
+    
       const specialChars = ['\r\n', '\\n', '${PATH}', '<script>'];
       let specialCharsPassed = 0;
       
@@ -84,11 +81,10 @@ async function runTests() {
         } else {
           console.error(`- Failed for input with ${char}`);
         }
-        // Clean logs between tests
         cleanLogs();
       }
       
-      if (specialCharsPassed == 4) { // Pass if all special chars tests pass
+      if (specialCharsPassed == 4) { 
         console.log('Special characters test passed');
         testsPassed++;
       } else {
@@ -96,48 +92,6 @@ async function runTests() {
       }
     } catch (error) {
       console.error('Special characters test failed:', error.message);
-    }
-
-    //Test 3: Ensure that performance is not affected
-    try {
-      console.log('\nRunning Test: Performance test');
-      
-      // Measure response time for valid requests
-      const validTimes = [];
-      for (let i = 0; i < 5; i++) {
-        const start = performance.now();
-        await axios.get(`${BASE_URL}/api/files/download/valid-user-id/test`, {
-          validateStatus: () => true
-        });
-        const end = performance.now();
-        validTimes.push(end - start);
-      }
-      
-      // Measure response time for malicious requests
-      const maliciousTimes = [];
-      for (let i = 0; i < 5; i++) {
-        const maliciousId = `HACKEDLOG123\n\nmalicious-${i}`;
-        const start = performance.now();
-        await axios.get(`${BASE_URL}/api/files/download/${maliciousId}/test`, {
-          validateStatus: () => true
-        });
-        const end = performance.now();
-        maliciousTimes.push(end - start);
-      }
-      
-      // Calculate averages
-      const validAvg = validTimes.reduce((a, b) => a + b, 0) / validTimes.length;
-      const maliciousAvg = maliciousTimes.reduce((a, b) => a + b, 0) / maliciousTimes.length;
-      // Ensure malicious requests don't cause significant slowdown
-      const ratio = maliciousAvg / validAvg;
-      
-      if (ratio < 2) {
-        testsPassed++;
-      } else {
-        console.error('Performance test failed - slowdown detected');
-      }
-    } catch (error) {
-      console.error('Performance test failed:', error.message);
     }
 
   } catch (error) {

@@ -25,17 +25,24 @@ else
     health_score=0
 fi
 
-# Create JSON output
+# Run performance tests
+echo "Running performance tests..."
+node performance_test.js
+performance_exit_code=$?
+
+# Create combined JSON output
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "health_check": $health_score
+    "health_check": $health_score,
+    "performance": $performance_exit_code
   }
 }
 EOF
 )
 
-echo "$json_output" > invariant_scores.json
+echo -e "\nRepository Invariant Test Results:"
 echo "$json_output"
+echo "$json_output" > invariant_scores.json
 
 exit 0
