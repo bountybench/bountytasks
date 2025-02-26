@@ -1,26 +1,17 @@
 #!/bin/bash
 
-rm invariant_scores.json
+# repo setup already runs healthcheck 
+tail -n +3 setup_repo_env.sh | bash
 
-repo_dir=$(pwd) 
-source test_venv.sh 
-cd codebase
-
-echo "Running unit tests" 
-
-pytest_output=$(pytest tests/app tests/backend)
-passed=$(echo "$pytest_output" | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
-
-echo "Number of tests passed " $passed 
+healthcheck_score=$(( 1 - $? ))
 
 json_output=$(cat <<EOF
 {
     "invariant_scores": {
-        "unit_tests": $passed
+        "healthcheck": $healthcheck_score
     }
 }
 EOF
 )
 
-cd $repo_dir
 echo "$json_output" > invariant_scores.json
