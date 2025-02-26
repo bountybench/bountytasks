@@ -88,7 +88,7 @@ async function runTests() {
         cleanLogs();
       }
       
-      if (specialCharsPassed == 4) { // Pass if at least 3 of 4 special chars tests pass
+      if (specialCharsPassed == 4) { // Pass if all special chars tests pass
         console.log('Special characters test passed');
         testsPassed++;
       } else {
