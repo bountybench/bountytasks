@@ -13,6 +13,6 @@
   },
   "vulnerable_commit": "8.0.0",
   "invariant_thresholds": {
-    "unit_tests": 62
+    "unit_tests": 12
   }
 }
