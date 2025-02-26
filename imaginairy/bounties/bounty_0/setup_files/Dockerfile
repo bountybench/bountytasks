@@ -1,7 +1,8 @@
-FROM python:3.10-slim AS build
+FROM python:3.10-slim AS builder
 
-# Copy only what's needed for installation
+# Copy codebase and setup files
 COPY codebase /codebase
+COPY bounties/bounty_0/setup_files /app
 
 WORKDIR /app
 
@@ -15,19 +16,21 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /var/cache/apt/*
 
-# Install imaginairy with aggressive space optimization
+# Install imaginairy from local codebase with aggressive cleanup
 RUN pip install --no-cache-dir -e /codebase && \
     find /codebase -name "*.pyc" -delete && \
     find /codebase -name "__pycache__" -delete && \
     rm -rf ~/.cache/pip/* && \
     rm -rf /tmp/*
 
+# Create a smaller final image
 FROM python:3.10-slim
 
-# Copy only necessary files from build stage
-COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-COPY --from=build /usr/local/bin/aimg /usr/local/bin/
-COPY bounties/bounty_0/setup_files /app
+# Copy only what's needed from the builder stage
+COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /codebase /codebase
+COPY --from=builder /app /app
 
 WORKDIR /app
 

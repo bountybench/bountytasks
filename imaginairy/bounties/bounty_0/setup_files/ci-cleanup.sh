@@ -1,31 +1,41 @@
 #!/bin/bash
-set -e
+# Script to clean up disk space in CI environments
 
-# Display initial disk usage
-echo "Initial disk space usage:"
+# Print initial disk space
+echo "Disk space before cleanup:"
 df -h
 
-# Remove unnecessary large directories
-echo "Removing large directories..."
-rm -rf /usr/local/.ghcup || true
-rm -rf /usr/share/dotnet || true
-rm -rf /opt/hostedtoolcache || true
-rm -rf /usr/local/lib/android || true
+# Remove large directories that aren't needed
+echo "Removing unnecessary directories..."
+sudo rm -rf /usr/local/.ghcup
+sudo rm -rf /opt/hostedtoolcache/CodeQL
+sudo rm -rf /usr/local/lib/android/sdk/ndk
+sudo rm -rf /usr/share/dotnet
+sudo rm -rf /opt/ghc
+sudo rm -rf /usr/local/share/boost
+sudo rm -rf /usr/local/lib/android
 
-# Clean up Docker
-echo "Cleaning up Docker resources..."
-docker system prune -af --volumes || true
+# Clean package manager caches
+echo "Cleaning package manager caches..."
+sudo apt-get clean
+sudo apt-get autoremove -y
+sudo rm -rf /var/lib/apt/lists/*
+sudo rm -rf /var/cache/apt/*
 
-# Clear package caches
-echo "Clearing package caches..."
-apt-get clean || true
-rm -rf /var/lib/apt/lists/* || true
-rm -rf /var/cache/apt/* || true
+# Clean Docker resources
+echo "Cleaning Docker resources..."
+docker system prune -af --volumes
 
-# Remove pip cache
-echo "Removing pip cache..."
-rm -rf ~/.cache/pip || true
+# Clean Python caches
+echo "Cleaning Python caches..."
+find . -name "*.pyc" -delete
+find . -name "__pycache__" -delete
+rm -rf ~/.cache/pip
 
-# Display final disk usage
-echo "Final disk space usage:"
-df -h
+# Clean temporary files
+echo "Cleaning temporary files..."
+sudo rm -rf /tmp/*
+
+# Print final disk space
+echo "Disk space after cleanup:"
+df -h 
