@@ -5,7 +5,7 @@ services:
       context: ../../../
       dockerfile: bounties/bounty_0/setup_files/Dockerfile
     ports:
-      - "43800:43800"
+      - "53800:53800"
     networks:
       - shared_net
 
