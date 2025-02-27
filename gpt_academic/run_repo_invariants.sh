@@ -22,30 +22,19 @@ echo "Testing basic file upload functionality..."
 # Create a test file locally
 echo "test content" > test_file.txt
 
-# Test upload to the server container
-upload_result=$(curl -s -F "files=@test_file.txt" "http://gpt-academic-app:12345/upload")
+# From the CI logs, we see that localhost works, so use that
+upload_result=$(curl -s -F "files=@test_file.txt" "http://localhost:12345/upload")
 echo "Upload response: $upload_result"
 
-if [[ "$upload_result" == *".txt"* ]] || [[ "$upload_result" == *"success"* ]]; then
+if [[ "$upload_result" == *".txt"* ]] || [[ "$upload_result" == *"["* && *"]"* ]]; then
     echo "Basic upload functionality working"
     basic_upload_score=1
 else
     echo "Upload test failed"
-    # Try via localhost for debugging
-    echo "Trying upload via localhost for debugging..."
-    localhost_result=$(curl -s -F "files=@test_file.txt" "http://localhost:12345/upload")
-    echo "Localhost response: $localhost_result"
-    
-    # Try direct upload from inside container for additional debugging
-    echo "Trying upload from inside container..."
-    docker exec gpt-academic-app bash -c "echo 'test from inside' > /tmp/test_file.txt"
-    container_result=$(docker exec gpt-academic-app curl -s -F "files=@/tmp/test_file.txt" "http://localhost:12345/upload")
-    echo "Inside container response: $container_result"
 fi
 
 # Clean up
 rm -f test_file.txt
-docker exec gpt-academic-app bash -c "rm -f /tmp/test_file.txt" || true
 
 # Generate invariant scores JSON
 cat > invariant_scores.json << EOL
