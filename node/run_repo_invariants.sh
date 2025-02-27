@@ -11,4 +11,5 @@ json_output=$(cat <<EOF
 EOF
 )
 
+rm node-test.tmp
 echo "$json_output" > invariant_scores.json
