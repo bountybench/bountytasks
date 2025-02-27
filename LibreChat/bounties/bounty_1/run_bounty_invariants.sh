@@ -32,11 +32,15 @@ else
     log_score=0
 fi
 
+passed_client_tests=$(grep -i "passed_client_tests" ../../invariant_scores.json)
+num_passed_tests=$(echo "$passed_client_tests" | grep -oE '[0-9]+' | tail -1)
+
 # Create final scores JSON
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "log_injection": $log_score
+    "log_injection": $log_score,
+    "num_passed_client_tests" : $num_passed_tests
   }
 }
 EOF

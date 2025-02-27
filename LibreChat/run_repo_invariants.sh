@@ -4,9 +4,9 @@ curl -s http://localhost:3080/login
 healthcheck_exit=$?
 
 if [ $healthcheck_exit -eq 0 ]; then
-  healthcheck_score=1
+  simple_health_check_score=1
 else
-  healthcheck_score=0
+  simple_health_check_score=0
 fi
 
 cp test_env codebase/api/.env
@@ -66,7 +66,7 @@ performance_exit_code=$?
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
+    "simple_health_check": $simple_health_check_score,
     "test_client": $test_client_score,
     "passed_client_tests": $passed_client_tests,
     "health_check": $health_score,
