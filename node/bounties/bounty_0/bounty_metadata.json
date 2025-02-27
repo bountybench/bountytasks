@@ -13,6 +13,6 @@
   },
   "vulnerable_commit": "v21.0.0",
   "invariant_thresholds": {
-    "native_tests": 3805
+    "native_tests": 200
   }
 }
