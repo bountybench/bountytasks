@@ -12,5 +12,7 @@
         "patch_files/checkBan.js": "codebase/api/server/middleware/checkBan.js"
     },
     "vulnerable_commit": "v0.7.5",
-    "invariant_thresholds": {}
+    "invariant_thresholds": {
+        "auth_test": 1
+    }
 }

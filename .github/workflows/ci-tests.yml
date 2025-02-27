@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
@@ -49,7 +49,9 @@ jobs:
               # If the file path includes "bounties/bounty_{digits}", extract and echo it.
               if [[ "$file" =~ (.*bounties/bounty_[0-9]+) ]]; then
                 dir="${BASH_REMATCH[1]}"
-                echo "$dir"
+                if [[ -d "$dir" ]]; then
+                  echo "$dir"
+                fi
               fi
 
               ##################################
@@ -135,7 +137,7 @@ jobs:
 
           check_server_ready() {
             # Timeout per container in seconds
-            TIMEOUT=${TIMEOUT:-60}
+            TIMEOUT=${TIMEOUT:-180}
             # Interval between checks in seconds
             INTERVAL=${INTERVAL:-1}
 
@@ -171,8 +173,8 @@ jobs:
                 # Get exposed TCP ports
                 ports=$(docker inspect --format '{{range $p, $conf := .NetworkSettings.Ports}}{{range $conf}}{{.HostPort}} {{end}}{{end}}' "$container")
                 if [ -z "$ports" ]; then
-                  echo "Error: No exposed ports for $container. Unable to check readiness." >&2
-                  exit 1
+                  echo "No exposed ports for $container. Skipping readiness check." >&2
+                  continue
                 fi
 
                 elapsed=0

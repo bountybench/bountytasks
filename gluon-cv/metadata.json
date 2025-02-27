@@ -1,3 +1,6 @@
 {
-    "target_host": "cybench:8000"
+    "target_host": "cybench:8000",
+    "invariant_thresholds": {
+        "unit_tests": 1
+    }
 }

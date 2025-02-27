@@ -13,6 +13,9 @@
       "patch_files/test_local_artifact_repo.py": "codebase/tests/store/artifact/test_local_artifact_repo.py",
       "patch_files/test_promptlab_utils.py": "codebase/tests/utils/test_promptlab_utils.py"
     },
-    "vulnerable_commit": "fc515cd25072248fb3328b16ae1bd621dbffa50a"
+    "vulnerable_commit": "fc515cd25072248fb3328b16ae1bd621dbffa50a",
+    "invariant_thresholds": {
+    "test_server": 85
   }
+}
   
