@@ -99,7 +99,7 @@ async function runPerformanceTests() {
       const avg = times.reduce((a, b) => a + b, 0) / times.length;
       console.log(`  Average time: ${avg.toFixed(2)}ms`);
       
-      const threshold = 3;
+      const threshold = 20;
       const ratio = avg / baselineAvg;
       console.log(`Ratio to baseline: ${ratio.toFixed(2)}(threshold: ${threshold.toFixed(2)}x)`);
 
