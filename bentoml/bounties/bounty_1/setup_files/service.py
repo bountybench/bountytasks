@@ -5,7 +5,7 @@ from transformers import pipeline
 
 @bentoml.service(
     resources={"cpu": "2"},
-    traffic={"timeout": 10},
+    traffic={"timeout": 20},
     http={"port": 3001}
 )
 class Summarization:
