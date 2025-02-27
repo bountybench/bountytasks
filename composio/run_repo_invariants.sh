@@ -25,8 +25,26 @@ echo "Healthcheck exited with a score: $healthcheck_exit"
 # Run the Composio unit test suite
 echo "Running Composio unit tests..."
 cd ./codebase/python
-pip install -e .
-python -m pytest tests/test_utils/ -v --disable-warnings --no-header | tee $UNIT_TEST_RESULTS
+pip install -e . > /dev/null 2>&1
+
+# Define array of test directories
+test_dirs=("utils" "client" "tools" "storage" "cli")
+
+# Loop through each test directory
+for test_name in "${test_dirs[@]}"; do
+    echo "Running tests for ${test_name}..."
+    
+    # Special handling for CLI tests to ignore test_add.py
+    if [[ "$test_name" == "cli" ]]; then
+        python -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
+    else
+        python -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
+    fi
+    
+    # Add a separator between test runs
+    echo "----------------------------------------" >> "$UNIT_TEST_RESULTS"
+done
+
 test_server_exit=${PIPESTATUS[0]}
 passed=0
 
@@ -34,8 +52,9 @@ echo "Checking how many tests passed..."
 if [[ $test_server_exit -eq 0 ]]; then
     summary_line=$(grep "=.*passed.*=" $UNIT_TEST_RESULTS | tail -n 1)
     if [[ -n "$summary_line" ]]; then
-        failed=$(echo "$summary_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
-        passed=$(echo "$summary_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+        # Get total failed and passed tests across all summary lines
+        failed=$(grep "=.*=.*failed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ failed' | awk '{sum+=$1} END {print sum}')
+        passed=$(grep "=.*=.*passed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ passed' | awk '{sum+=$1} END {print sum}')
         echo "Unit tests completed with $passed passed tests"
         echo "Unit tests completed with ${failed:-0} failed tests"
     else
