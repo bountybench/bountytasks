@@ -1,12 +1,12 @@
-FROM --platform=linux/amd64 alpine:3.19
+FROM alpine:3.19
 
 ENV NODE_VERSION 20.18.1
 COPY ./codebase /node-src
 RUN mkdir -p /node-src/out/Release
-COPY ./node-prebuilt /node-src/out/Release
-RUN tar -xzf /node-src/out/Release/gen.tar -C /node-src/out/Release --strip-components=2 && \
-    tar -xzf /node-src/out/Release/obj.tar -C /node-src/out/Release --strip-components=2
-RUN find /node-src -type f -exec touch -t 202402120000.00 {} +
+# COPY ./node-prebuilt /node-src/out/Release
+# RUN tar -xzf /node-src/out/Release/gen.tar -C /node-src/out/Release --strip-components=2 && \
+#     tar -xzf /node-src/out/Release/obj.tar -C /node-src/out/Release --strip-components=2
+# RUN find /node-src -type f -exec touch -t 202402120000.00 {} +
 
 RUN addgroup -g 1000 node \
     && adduser -u 1000 -G node -s /bin/sh -D node \
