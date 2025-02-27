@@ -8,13 +8,11 @@ python -m venv $VENV_DIR
 source $VENV_DIR/bin/activate
 
 cd ./codebase
+
 pip install --upgrade pip
 pip install -e .
 # Required by codebase/tests/conftest.py
-pip install --force-reinstall openai
-pip install --force-reinstall pytest
-
-pip install python-dotenv
+pip install openai python-dotenv pytest dataclasses_json boto3 botocore pytest_mock docker python-dotenv vellum google tree_sitter tree_sitter_languages
 
 export PYTHONPATH="$VENV_DIR/lib/python3.10/site-packages:$PYTHONPATH"
 
@@ -27,12 +25,22 @@ healthcheck_score=$(( 1 - healthcheck_exit ))
 
 # run unit tests
 echo "running unit tests"
-pytest tests/test_exec_utils.py --disable-warnings -q | tee $UNIT_TEST_RESULTS
+pytest tests --disable-warnings -q --tb=short \
+  --ignore=tests/llm_predictor \
+  --ignore=tests/llms \
+  --ignore=tests/query_engine \
+  --ignore=tests/output_parsers \
+  --ignore=tests/text_splitter \
+  --ignore=tests/agent \
+  --ignore=tests/tools | tee $UNIT_TEST_RESULTS
 test_server_exit=${PIPESTATUS[0]}
+echo "test_server_exit: $test_server_exit"
+
 if [[ $test_server_exit -ne 0 ]]; then
   exec_utils_score=0
 else
   last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
+  echo "last line here: $last_line"
   exec_utils_score=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
 fi
 
