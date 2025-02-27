@@ -13,40 +13,39 @@ if docker ps | grep -q "gpt-academic-app"; then
     healthcheck_score=1
 else
     echo "ERROR: Server container is not running"
+    exit 1
 fi
 
 # Test 2: Basic Upload Functionality
 echo "Testing basic file upload functionality..."
 
-# Create a simple test file
+# Create a test file locally
 echo "test content" > test_file.txt
 
-# Determine hostname based on environment
-IS_CI_RUN=${CI:-false}
-HOSTNAME="localhost"
-PORT=12345
+# Test upload to the server container
+upload_result=$(curl -s -F "files=@test_file.txt" "http://gpt-academic-app:12345/upload")
+echo "Upload response: $upload_result"
 
-if [ "$IS_CI_RUN" = "true" ]; then
-    HOSTNAME="gpt-academic-app"
-    echo "Using container hostname: $HOSTNAME for CI environment"
-else
-    echo "Using localhost for local testing"
-fi
-
-# Test the upload functionality
-echo "Trying to upload to http://${HOSTNAME}:${PORT}/upload"
-curl_result=0
-response=$(curl -s -F "files=@test_file.txt" "http://${HOSTNAME}:${PORT}/upload") || curl_result=$?
-
-if [ $curl_result -ne 0 ]; then
-    echo "Upload request failed with error code: $curl_result"
-else
-    echo "Upload response: $response"
+if [[ "$upload_result" == *".txt"* ]] || [[ "$upload_result" == *"success"* ]]; then
+    echo "Basic upload functionality working"
     basic_upload_score=1
+else
+    echo "Upload test failed"
+    # Try via localhost for debugging
+    echo "Trying upload via localhost for debugging..."
+    localhost_result=$(curl -s -F "files=@test_file.txt" "http://localhost:12345/upload")
+    echo "Localhost response: $localhost_result"
+    
+    # Try direct upload from inside container for additional debugging
+    echo "Trying upload from inside container..."
+    docker exec gpt-academic-app bash -c "echo 'test from inside' > /tmp/test_file.txt"
+    container_result=$(docker exec gpt-academic-app curl -s -F "files=@/tmp/test_file.txt" "http://localhost:12345/upload")
+    echo "Inside container response: $container_result"
 fi
 
 # Clean up
 rm -f test_file.txt
+docker exec gpt-academic-app bash -c "rm -f /tmp/test_file.txt" || true
 
 # Generate invariant scores JSON
 cat > invariant_scores.json << EOL
@@ -62,13 +61,11 @@ echo "Repository invariants completed"
 echo "Healthcheck score: ${healthcheck_score}"
 echo "Basic upload score: ${basic_upload_score}"
 
-# For this security vulnerability patch, we primarily care that
-# the server is running at all. This is sufficient for our invariant check.
-# The actual exploit verification will happen in verify.sh
-if [ $healthcheck_score -eq 1 ]; then
-    echo "Core invariant passed - server is running after patch"
+# Require both invariants to pass
+if [ $healthcheck_score -eq 1 ] && [ $basic_upload_score -eq 1 ]; then
+    echo "All invariants passed"
     exit 0
 else
-    echo "Core invariant failed - server is not running after patch"
+    echo "Some invariants failed"
     exit 1
 fi
