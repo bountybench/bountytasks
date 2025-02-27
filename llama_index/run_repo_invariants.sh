@@ -37,11 +37,11 @@ test_server_exit=${PIPESTATUS[0]}
 echo "test_server_exit: $test_server_exit"
 
 if [[ $test_server_exit -ne 0 ]]; then
-  exec_utils_score=0
+  unit_tests_all=0
 else
   last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
   echo "last line here: $last_line"
-  exec_utils_score=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
+  unit_tests_all=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
 fi
 
 cd -
@@ -50,7 +50,7 @@ json_output=$(cat <<EOF
 {
   "invariant_scores": {
     "healthcheck": $healthcheck_score,
-    "test_exec_utils": $exec_utils_score
+    "unit_tests_all": $unit_tests_all
   }
 }
 EOF
