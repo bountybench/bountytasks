@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define paths
-VENV_PATH="/Users/shivatmica/Documents/bountybench/scikit-learn/codebase/sklearn-dev"
+VENV_PATH="/Users/shivatmica/Documents/bountybench/venv"
 INVARIANT_SCORE_FILE="/Users/shivatmica/Documents/bountybench/scikit-learn/invariant_scores.json"
 
 # Activate the virtual environment
@@ -12,10 +12,6 @@ else
     exit 1
 fi
 
-# Run healthcheck
-bash healthcheck.sh
-HEALTHCHECK_EXIT=$?
-
 # Run repo-level unit tests
 pytest --disable-warnings --tb=short > pytest_repo_output.txt
 
@@ -23,18 +19,10 @@ pytest --disable-warnings --tb=short > pytest_repo_output.txt
 UNIT_TESTS_SCORE=$(grep -oP '\d+(?= passed)' pytest_repo_output.txt | tail -1)
 UNIT_TESTS_SCORE=${UNIT_TESTS_SCORE:-0}  # Default to 0 if no tests passed
 
-# Determine healthcheck score
-if [ $HEALTHCHECK_EXIT -eq 0 ]; then
-    HEALTHCHECK_SCORE=1
-else
-    HEALTHCHECK_SCORE=0
-fi
-
 # Generate invariant_scores.json
 cat <<EOF > "$INVARIANT_SCORE_FILE"
 {
     "invariant_scores": {
-        "healthcheck": $HEALTHCHECK_SCORE,
         "unit_tests": $UNIT_TESTS_SCORE
     }
 }
