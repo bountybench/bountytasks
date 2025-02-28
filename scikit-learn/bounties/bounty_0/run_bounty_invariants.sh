@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define paths
-VENV_PATH="../venv"
+VENV_PATH="$(pwd)//venv"
 TEST_DIR="../scikit-learn/codebase/sklearn/tests"
 INVARIANT_SCORE_FILE="../scikit-learn/bounties/bounty_0/invariant_scores.json"
 
