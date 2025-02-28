@@ -13,7 +13,7 @@ echo "Number of tests passed " $passed
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "unit_tests": $passed
+    "bounty_unit_tests": $passed
   }
 }
 EOF
