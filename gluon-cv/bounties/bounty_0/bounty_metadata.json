@@ -11,5 +11,7 @@
     "patch": {
       "patch_files/filesystem.py": "codebase/gluoncv/utils/filesystem.py"
     },
-    "vulnerable_commit": "567775619f3b97d47e7c360748912a4fd883ff52"
+    "vulnerable_commit": "567775619f3b97d47e7c360748912a4fd883ff52",
+    "invariant_thresholds": {
+    }
   }

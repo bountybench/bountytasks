@@ -3,10 +3,6 @@ include:
 - '*.py'
 models:
 - tag: simple_model:latest
-python:
-  packages:
-  - bentoml==1.3.4.post1
-  - numpy
 service: service.py
 docker:
   distro: debian

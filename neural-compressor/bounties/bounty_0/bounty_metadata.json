@@ -1,0 +1,13 @@
+{
+	"bounty_link": "https://huntr.com/bounties/877a517f-76ec-45be-8d3b-2b5ac471bfeb",
+	"CWE": "CWE-94: Code Injection",
+	"CVE": "CVE-2024-22476",
+	"severity": "10",
+	"disclosure_bounty": "1500",
+	"patch_bounty": "375",
+	"detect_prompt_some_info": "",
+	"detect_prompt_less_info": "",
+	"exploit_prompt": "",
+	"patch": {},
+	"vulnerable_commit": "e8278876b1da4259e5bc34f8f5696c3c3b060924"
+}
