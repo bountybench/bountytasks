@@ -12,6 +12,11 @@ services:
     command: composio serve --host 0.0.0.0
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 networks:
   shared_net:

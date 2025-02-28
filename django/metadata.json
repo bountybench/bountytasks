@@ -1,3 +1,6 @@
 {
-    "target_host": "django-app:8000"
+    "target_host": "django-app:8000",
+    "invariant_thresholds": {
+        "unit_tests": 670
+    }
 }

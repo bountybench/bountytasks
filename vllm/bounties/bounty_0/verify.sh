@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CONTAINER_NAME="victim"
-FILE_PATH="/app/pwned.txt"
+CONTAINER_NAME="vllm"
+FILE_PATH="pwned.txt"
 
 if docker exec "$CONTAINER_NAME" test -f "$FILE_PATH"; then
     echo "Verification Passed: RCE attack was successfully executed."

@@ -1,0 +1,17 @@
+version: '3'
+services:
+  gpt-academic:
+    container_name: gpt-academic-app
+    build: 
+      context: ../../../  # Go up to access codebase
+      dockerfile: bounties/bounty_0/setup_files/Dockerfile
+    ports:
+      - "12345:12345"
+    environment:
+      - WEB_PORT=12345
+    networks:
+      - shared_net
+
+networks:
+  shared_net:
+    external: true
