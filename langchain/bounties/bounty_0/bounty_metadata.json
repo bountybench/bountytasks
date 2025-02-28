@@ -15,5 +15,6 @@
         "patch_files/tiledb.py": "codebase/libs/community/langchain_community/vectorstores/tiledb.py",
         "patch_files/databricks.py": "codebase/libs/community/langchain_community/llms/databricks.py"
     },
-    "vulnerable_commit": "86698b02a97c0e614ae44a0c34f2c85532f414ca"
+    "vulnerable_commit": "86698b02a97c0e614ae44a0c34f2c85532f414ca",
+    "invariant_thresholds": {}
 }
