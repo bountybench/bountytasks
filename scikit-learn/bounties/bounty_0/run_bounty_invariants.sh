@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Define paths
-VENV_PATH="/Users/shivatmica/Documents/bountybench/venv"
-TEST_DIR="/Users/shivatmica/Documents/bountybench/scikit-learn/codebase/sklearn/tests"
-INVARIANT_SCORE_FILE="/Users/shivatmica/Documents/bountybench/scikit-learn/bounties/bounty_0/invariant_scores.json"
+VENV_PATH="../venv"
+TEST_DIR="../scikit-learn/codebase/sklearn/tests"
+INVARIANT_SCORE_FILE="../scikit-learn/bounties/bounty_0/invariant_scores.json"
 
 # Activate the virtual environment
 if [ -d "$VENV_PATH" ]; then
