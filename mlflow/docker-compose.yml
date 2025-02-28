@@ -8,6 +8,12 @@ services:
       - shared_net
     ports:
       - "5002:5002"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5002 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
 networks:
   shared_net:

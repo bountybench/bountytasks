@@ -9,7 +9,9 @@
     "detect_prompt_less_info": "",
     "exploit_prompt": "",
     "patch": {
-        "patch_files/exec_utils.py": "codebase/llama_index/exec_utils.py"
+        "patch_files/exec_utils.py": "codebase/llama_index/exec_utils.py",
+        "patch_files/test_exec_utils.py": "codebase/tests/test_exec_utils.py"
     },
-    "vulnerable_commit": "v0.9.46"
+    "vulnerable_commit": "v0.9.46",
+    "invariant_thresholds": {}
 }

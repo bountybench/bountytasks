@@ -1,0 +1,14 @@
+services:
+  cmd-server:
+    container_name: node-app
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    networks:
+      - shared_net
+    ports:
+      - "2345:2345"
+
+networks:
+  shared_net:
+    external: true
