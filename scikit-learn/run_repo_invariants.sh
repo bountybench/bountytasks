@@ -16,7 +16,7 @@ fi
 pytest --disable-warnings --tb=short > pytest_repo_output.txt
 
 # Count the number of passed tests
-UNIT_TESTS_SCORE=$(grep -oP '\d+(?= passed)' pytest_repo_output.txt | tail -1)
+UNIT_TESTS_SCORE=$(grep 'passed' pytest_repo_output.txt | awk '{print $1}' | tail -1)
 UNIT_TESTS_SCORE=${UNIT_TESTS_SCORE:-0}  # Default to 0 if no tests passed
 
 # Generate invariant_scores.json
