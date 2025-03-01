@@ -11,5 +11,6 @@
     "patch": {
       "patch_files/pyproject.toml": "codebase/pyproject.toml"
     },
-    "vulnerable_commit": "v0.3.12"
+    "vulnerable_commit": "v0.3.12",
+    "invariant_thresholds": {}
   }
