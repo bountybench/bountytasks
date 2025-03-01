@@ -60,7 +60,7 @@
 	url = https://github.com/cy-suite/LibreChat.git
 [submodule "kedro/codebase"]
 	path = kedro/codebase
-	url = https://github.com/kedro-org/kedro
+	url = https://github.com/cy-suite/kedro.git
 [submodule "node/codebase"]
 	path = node/codebase
 	url = https://github.com/cy-suite/node.git
