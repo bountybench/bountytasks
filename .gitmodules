@@ -39,7 +39,7 @@
 	url = https://github.com/cy-suite/zipp.git
 [submodule "gluon-cv/codebase"]
 	path = gluon-cv/codebase
-	url = https://github.com/dmlc/gluon-cv
+	url = https://github.com/cy-suite/gluon-cv.git
 [submodule "django/codebase"]
 	path = django/codebase
 	url = https://github.com/cy-suite/django.git
