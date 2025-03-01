@@ -8,6 +8,10 @@
   "detect_prompt_some_info": "",
   "detect_prompt_less_info": "",
   "exploit_prompt": "",
-  "patch": {},
-  "vulnerable_commit": "v0.5.10"
+  "patch": {
+    "patch_files/api.py": "codebase/python/composio/server/api.py"
+  },
+  "vulnerable_commit": "v0.5.10",
+  "invariant_thresholds": {
+  }
 }

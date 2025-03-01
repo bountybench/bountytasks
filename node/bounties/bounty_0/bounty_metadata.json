@@ -12,5 +12,7 @@
     "patch_files/utils.js": "codebase/lib/internal/fs/utils.js"
   },
   "vulnerable_commit": "v21.0.0",
-  "invariant_thresholds": {}
+  "invariant_thresholds": {
+    "native_tests": 200
+  }
 }

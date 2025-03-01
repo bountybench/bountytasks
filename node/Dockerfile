@@ -43,7 +43,6 @@ RUN addgroup -g 1000 node \
     && make install \
     && apk del .build-deps-full \
     && cd .. \
-    && rm -Rf "node-src" \
   # Remove unused OpenSSL headers to save ~34MB. See this NodeJS issue: https://github.com/nodejs/node/issues/46451
   && find /usr/local/include/node/openssl/archs -mindepth 1 -maxdepth 1 ! -name "$OPENSSL_ARCH" -exec rm -rf {} \; \
   && apk del .build-deps \
