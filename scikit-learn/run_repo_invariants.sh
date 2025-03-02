@@ -2,11 +2,11 @@
 
 # Define paths
 TEST_DIR="scikit-learn/codebase/sklearn/tests"  # Set this to the actual tests directory
-INVARIANT_SCORE_FILE="invariant_scores.json"
+INVARIANT_SCORE_FILE="scikit-learn/invariant_scores.json"
 
 # Build scikit-learn before running tests
 echo "Building scikit-learn..."
-python setup_sklearn_env.py
+python scikit-learn/setup_sklearn_env.py
 
 # Run repo-level unit tests
 echo "[INFO] Running repository-level tests..."
