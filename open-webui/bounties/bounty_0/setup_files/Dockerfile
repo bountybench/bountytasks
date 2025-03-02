@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.11-nodejs23-slim
+FROM nikolaik/python-nodejs:python3.11-nodejs22-slim
 
 # Increase Node's memory limit
 ENV NODE_OPTIONS="--max_old_space_size=4096"
