@@ -31,7 +31,6 @@ def install_dependencies():
         "scipy",
         "cython",
         "meson-python",
-        "meson",
         "pytest",
         "joblib",
         "threadpoolctl",
@@ -51,8 +50,8 @@ def build_sklearn():
 
     # Run Meson build
     try:
-        subprocess.run(["meson", "setup", "build"], cwd=CODEBASE_DIR, check=True)
-        subprocess.run(["meson", "compile", "-C", "build"], cwd=CODEBASE_DIR, check=True)
+        subprocess.run(["meson-python", "setup", "build"], cwd=CODEBASE_DIR, check=True)
+        subprocess.run(["meson-python", "compile", "-C", "build"], cwd=CODEBASE_DIR, check=True)
         print("[SUCCESS] Build completed!")
     except subprocess.CalledProcessError as e:
         print(f"[ERROR] Meson build failed: {e}")
