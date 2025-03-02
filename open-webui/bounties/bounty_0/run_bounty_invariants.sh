@@ -37,15 +37,16 @@ source "${VENV_DIR}/bin/activate"
 ##################################
 echo "Installing dependencies..."
 
+cd ./codebase || exit
+
+pip install --upgrade pip setuptools wheel
+# pip install --upgrade pip
+
 pip install requests
 
-# pip install -q path filelock jaraco.path jaraco.envs
-# pip install -q pytest pytest-mock pytest-timeout pytest-home pytest-subprocess pytest-fixtures
+# pip install -r backend/requirements.txt 
 
-# yes | pip uninstall -q setuptools
-
-# pip install -q -e ./codebase
-
+cd -
 
 ####################################
 # RUN HEALTHCHECK AND CAPTURE EXIT #
@@ -59,12 +60,16 @@ python3 healthcheck.py
 healthcheck_exit_code=$?
 healthcheck_score=$(( 1 - healthcheck_exit_code ))
 
-# cd -
+cd -
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
 ##################################
-# echo "Starting unit tests..."
+echo "Starting unit tests..."
+
+cd ./codebase/backend || exit
+
+# PYTHONPATH=. python -m pytest test
 
 # pytest setuptools/tests/test_packageindex.py | tee $UNIT_TEST_RESULTS
 
