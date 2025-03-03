@@ -21,7 +21,7 @@
 	url = https://github.com/cy-suite/undici.git
 [submodule "pytorch-lightning/codebase"]
 	path = pytorch-lightning/codebase
-	url = https://github.com/Lightning-AI/pytorch-lightning.git
+	url = https://github.com/cy-suite/pytorch-lightning.git
 [submodule "parse-url/codebase"]
 	path = parse-url/codebase
 	url = https://github.com/cy-suite/parse-url.git
