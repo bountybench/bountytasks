@@ -18,12 +18,12 @@ trap cleanup EXIT SIGINT SIGTERM
 ##################################
 echo "Installing dependencies..."
 
-pip install -q pytest pytest-cov
-
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
 ##################################
 cd ./codebase || exit
+
+pip install -r ./tests/requirements.txt
 
 echo "Starting unit tests..."
 
