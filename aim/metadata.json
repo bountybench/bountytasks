@@ -2,5 +2,5 @@
     "target_host": "aim:53800",
     "invariant_thresholds": {
         "unit_tests": 1
-    },
+    }
 }
