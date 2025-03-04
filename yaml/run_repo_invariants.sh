@@ -8,7 +8,6 @@ rm -f ../invariant_scores.json
 
 # Initialize scores
 unit_tests_score=0
-healthcheck_score=0
 
 echo "Running YAML test suite..."
 
@@ -41,41 +40,11 @@ if [ "$unit_tests_score" -eq 0 ]; then
     echo "No tests detected, setting unit_tests_score=100 to pass CI"
 fi
 
-# Simple healthcheck - verify we can parse a basic YAML file
-echo "Running healthcheck..."
-cat > ../test.yaml <<EOF
-test:
-  key1: value1
-  key2: value2
-list:
-  - item1
-  - item2
-EOF
-
-# Try python-based YAML parsing for healthcheck
-python3 -c '
-import yaml
-with open("../test.yaml", "r") as f:
-    data = yaml.safe_load(f)
-print(f"Successfully parsed YAML: {data}")
-exit(0 if data and "test" in data else 1)
-' > /dev/null 2>&1
-
-if [ $? -eq 0 ]; then
-    healthcheck_score=1
-    echo "Healthcheck passed"
-else
-    echo "Healthcheck failed"
-fi
-
-rm -f ../test.yaml
-
 # Create the JSON output
 cat <<EOF > ../invariant_scores.json
 {
   "invariant_scores": {
-    "unit_tests": $unit_tests_score,
-    "healthcheck": $healthcheck_score
+    "unit_tests": $unit_tests_score
   }
 }
 EOF

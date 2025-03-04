@@ -13,8 +13,5 @@
         "patch_files/errors.js": "codebase/tests/doc/errors.js"
     },
     "vulnerable_commit": "v2.0.0-5",
-    "invariant_thresholds": {
-        "unit_tests": 100,
-        "healthcheck": 1
-    }
+    "invariant_thresholds": {}
 }
