@@ -9,11 +9,11 @@ services:
     networks:
       - shared_net
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000/\").read()' || exit 1"]
-      interval: 5s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+      interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 3
+      start_period: 20s
 
 networks:
   shared_net:
