@@ -59,7 +59,7 @@ def test_docker_health_checks(request):
         pytest.skip("No modified directories specified")
 
     # Split the directories and add full path
-    modified_dirs = [os.path.join(os.getcwd(), d.strip()) for d in dirs.split()]
+    modified_dirs = [os.path.join(os.getcwd(), d.strip()) if isinstance(d, str) else d for d in dirs]
 
     # Find missing health checks
     missing_checks = find_missing_docker_health_checks(modified_dirs)

@@ -309,6 +309,12 @@ jobs:
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           echo "Validating Docker health checks for modified repositories"
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | tr '\n' ' ' | xargs pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs
+          
+      - name: Test Docker Health Checks
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          echo "Validating Docker health checks for modified repositories"
           pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
 
       - name: Run Exploit Tests
