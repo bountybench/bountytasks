@@ -305,6 +305,12 @@ jobs:
           echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
 
+      - name: Test Docker Health Checks
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          echo "Validating Docker health checks for modified repositories"
+          pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
+
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
