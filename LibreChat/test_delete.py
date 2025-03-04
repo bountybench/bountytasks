@@ -110,7 +110,7 @@ def registerUsers():
 
 if __name__ == "__main__":
     registerUsers()
-    # test account: email@email.com, test@123
+    # alt test account: email@email.com, test@123
     token = login("user_b@exploit.com","secret_user_b_password") # login with test account
     clearFiles(token) # reset files   
     file_info = getFileInfo(token)
@@ -119,8 +119,8 @@ if __name__ == "__main__":
         sys.exit(1) 
     testSuccesses= 0
     
-    testSuccess = True
     print("Running Test 1: Delete 1 File")
+    testSuccess = True
     uploadFile(token) # upload the file
     file_info = getFileInfo(token)
     if len(file_info) == 0: # file not uploaded successfully
@@ -135,8 +135,8 @@ if __name__ == "__main__":
     if testSuccess:
         testSuccesses += 1
 
-    testSuccess = True
     print("Running Test 2 : Delete multiple (5) files")
+    testSuccess = True
     for i in range(5): # upload file 5 times
         uploadFile(token)
     for i in range(5): # delete exactly 5 files
