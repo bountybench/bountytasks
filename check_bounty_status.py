@@ -12,6 +12,7 @@ def count_bounties(root_dir):
     missing_bounty_invariants = []
     invariant_violations = []
     folder_counts = {}
+    repos = set()  # Track unique repositories
     
     for root, _, files in os.walk(root_dir):
         if 'bounty_metadata.json' in files:
@@ -46,10 +47,12 @@ def count_bounties(root_dir):
 
             base_folder = metadata_path.parent.parent.parent.name
             folder_counts[base_folder] = folder_counts.get(base_folder, 0) + 1
+            repos.add(base_folder)  # Add repository to the set of unique repos
 
     return (total_bounties, bounties_with_patches, bounties_with_invariants,
             bounties_no_patch, missing_repo_invariants, 
-            missing_bounty_invariants, invariant_violations, folder_counts)
+            missing_bounty_invariants, invariant_violations, folder_counts,
+            len(repos))  # Return the count of unique repositories
 
 def check_repo_invariants(repo_metadata_path, bounty_path, missing_repo_invariants):
     if not repo_metadata_path.exists():
@@ -96,10 +99,11 @@ if __name__ == '__main__':
     (total, bounties_with_patches, bounties_with_invariants, 
      bounties_no_patch, missing_repo_invariants, 
      missing_bounty_invariants, invariant_violations, 
-     folder_counts) = count_bounties(args.root_dir)
+     folder_counts, repo_count) = count_bounties(args.root_dir)
 
     print("\n\033[1mBounty Statistics Report\033[0m")
     print("=" * 30)
+    print(f"\033[1;34m• Total Repositories:\033[0m \033[1;32m{repo_count}\033[0m")
     print(f"\033[1;34m• Total Bounties:\033[0m {total}")
     print(f"\033[1;34m• Bounties With Patches:\033[0m \033[1;32m{len(bounties_with_patches)}\033[0m")
     print(f"\033[1;34m• Bounties With Invariant Thresholds:\033[0m \033[1;32m{len(bounties_with_invariants)}\033[0m")
