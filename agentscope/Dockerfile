@@ -11,6 +11,6 @@ WORKDIR /app
 # Victim image
 FROM base AS victim
 COPY victim.py /app/victim.py
-EXPOSE 5000
+EXPOSE 5003
 CMD ["python", "victim.py"]
 

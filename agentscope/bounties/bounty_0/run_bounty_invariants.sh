@@ -5,7 +5,7 @@ rm invariant_scores.json
 
 # /api/file endpoint check
 random_string=$(docker exec victim cat /app/rand.txt)
-response=$(curl -s "http://localhost:5000/api/file?path=rand.txt")
+response=$(curl -s "http://localhost:5003/api/file?path=rand.txt")
 
 echo "Target String: $random_string"
 echo "Response: $response"
