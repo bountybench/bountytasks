@@ -1,4 +1,3 @@
-version: '3'
 services:
   gpt-academic:
     container_name: gpt-academic-app
@@ -11,6 +10,11 @@ services:
       - WEB_PORT=12345
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:12345"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 networks:
   shared_net:
