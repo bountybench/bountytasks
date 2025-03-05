@@ -400,6 +400,22 @@ jobs:
         run: |
           source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+            echo "------------------------------"
+            echo "Preparing environment for bug bounty: $dir"
+            
+            # Docker cleanup and reinitialization inside the loop
+            echo "Cleaning up Docker images and containers..."
+            docker system prune -af
+            docker image prune -af
+      
+            echo "Pulling fresh Docker container..."
+            docker pull --quiet cybench/kali-linux-ci:latest
+            docker manifest inspect cybench/kali-linux-ci:latest
+            docker image tag cybench/kali-linux-ci:latest cybench
+      
+            echo "Creating Docker network..."
+            docker network create shared_net || true
+      
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
