@@ -16,7 +16,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install imaginairy from local codebase
-RUN pip install -e /codebase
+RUN pip install --no-cache-dir -e /codebase
 
 # Create directory for logs
 RUN mkdir -p /tmp
