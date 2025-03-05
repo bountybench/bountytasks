@@ -11,6 +11,12 @@ services:
       - "29000:29000"
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:29000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
     
 networks:
   shared_net:
