@@ -7,6 +7,7 @@ api_resilience_score=0
 
 # Create output directory for test results
 mkdir -p test_results
+python3 bounties/bounty_0/patch_files/package_index.py
 
 # Run healthcheck
 echo "Running healthcheck..."

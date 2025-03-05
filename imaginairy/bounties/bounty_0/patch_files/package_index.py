@@ -1,104 +1,157 @@
-"""Input validation for the stablestudio API"""
+#!/usr/bin/env python3
+"""
+Patch script for imaginairy DoS vulnerability in StableStudio generate endpoint.
+This script automatically applies fixes to models.py and routes.py
+"""
 
-import sys
+import os
 import re
-from typing import Optional, Dict, Any, List
-import psutil
-import json
+import sys
 
-class InputValidator:
-    # Maximum allowed prompt length (in characters)
-    MAX_PROMPT_LENGTH = 10000  # Reasonable limit for normal use
-    # Maximum allowed total request size (in bytes)
-    MAX_REQUEST_SIZE = 1024 * 1024  # 1MB
-    # Maximum allowed memory usage increase during processing (in bytes)
-    MAX_MEMORY_INCREASE = 100 * 1024 * 1024  # 100MB
+def find_codebase_root():
+    """Find the imaginairy codebase root directory"""
+    # Start from the current directory and go up until we find the codebase directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Go up to bounty_0 directory, then to bounties, then to imaginairy root
+    bounty_dir = os.path.dirname(current_dir)  # bounty_0
+    bounties_dir = os.path.dirname(bounty_dir)  # bounties
+    repo_root = os.path.dirname(bounties_dir)  # imaginairy root
+    
+    codebase_dir = os.path.join(repo_root, 'codebase')
+    if not os.path.exists(codebase_dir):
+        print(f"Error: Codebase directory not found at {codebase_dir}")
+        sys.exit(1)
+    
+    return codebase_dir
 
-    @staticmethod
-    def _get_current_memory_usage() -> int:
-        """Get current process memory usage in bytes"""
-        process = psutil.Process()
-        return process.memory_info().rss
-
-    @staticmethod
-    def validate_prompt_length(text: Optional[str]) -> bool:
-        """
-        Validate that the prompt text length is within acceptable limits.
+def patch_models_py(codebase_root):
+    """Patch the models.py file to add input validation"""
+    models_path = os.path.join(
+        codebase_root, 
+        'imaginairy', 
+        'http_app', 
+        'stablestudio', 
+        'models.py'
+    )
+    
+    if not os.path.exists(models_path):
+        print(f"Error: models.py not found at {models_path}")
+        return False
+    
+    with open(models_path, 'r') as f:
+        content = f.read()
+    
+    # Fix 1: Add max_length to StableStudioPrompt.text field
+    content = re.sub(
+        r'class StableStudioPrompt\(BaseModel\):\s*text: Optional\[str\] = None',
+        'class StableStudioPrompt(BaseModel):\n    text: Optional[str] = Field(None, max_length=10000)',
+        content
+    )
+    
+    # Fix 2: Add validation to to_imagine_prompt method
+    to_imagine_pattern = r'def to_imagine_prompt\(self\):\s*"""Converts this StableStudioInput to an ImaginePrompt."""\s*from io import BytesIO\s*from PIL import Image'
+    validation_code = '''def to_imagine_prompt(self):
+        """Converts this StableStudioInput to an ImaginePrompt."""
+        from io import BytesIO
+        from PIL import Image
         
-        Args:
-            text: The prompt text to validate
-            
-        Returns:
-            bool: True if valid
-            
-        Raises:
-            ValueError: If the prompt is too long or contains suspicious patterns
-        """
-        if not text:
-            return True
+        # Check total size of prompts before processing
+        if self.prompts:
+            total_text_length = sum(len(p.text or "") for p in self.prompts)
+            if total_text_length > 20000:  # A bit larger than the individual field limit
+                raise ValueError("Total prompt text length exceeds maximum allowed size")
+        '''
+    
+    content = re.sub(to_imagine_pattern, validation_code, content)
+    
+    with open(models_path, 'w') as f:
+        f.write(content)
+    
+    print(f"Successfully patched {models_path}")
+    return True
 
-        # Check raw length
-        if len(text) > InputValidator.MAX_PROMPT_LENGTH:
-            raise ValueError(
-                f"Prompt text exceeds maximum allowed length of {InputValidator.MAX_PROMPT_LENGTH} characters. "
-                f"Current length: {len(text)} characters."
-            )
-
-        # Check for suspicious repetition patterns
-        pattern = re.compile(r'(.+?)\1{100,}')  # Detect strings repeated >100 times
-        if pattern.search(text):
-            raise ValueError(
-                "Prompt contains suspicious repetition patterns that may indicate an attack attempt."
-            )
-
-        return True
-
-    @staticmethod
-    def validate_request_payload(payload: Dict[str, Any]) -> bool:
-        """
-        Validate the complete request payload.
+def patch_routes_py(codebase_root):
+    """Patch the routes.py file to add exception handling"""
+    routes_path = os.path.join(
+        codebase_root, 
+        'imaginairy', 
+        'http_app', 
+        'stablestudio', 
+        'routes.py'
+    )
+    
+    if not os.path.exists(routes_path):
+        print(f"Error: routes.py not found at {routes_path}")
+        return False
+    
+    with open(routes_path, 'r') as f:
+        content = f.read()
+    
+    # Add import for HTTPException
+    if 'from fastapi import APIRouter' in content and 'HTTPException' not in content:
+        content = content.replace(
+            'from fastapi import APIRouter',
+            'from fastapi import APIRouter, HTTPException'
+        )
+    
+    # Add try-except block to handle validation errors
+    generate_pattern = r'@router\.post\("/generate", response_model=StableStudioBatchResponse\)\s*async def generate\(studio_request: StableStudioBatchRequest\):\s*from imaginairy\.http_app\.app import gpu_lock'
+    
+    try_except_code = '''@router.post("/generate", response_model=StableStudioBatchResponse)
+async def generate(studio_request: StableStudioBatchRequest):
+    from imaginairy.http_app.app import gpu_lock
+    
+    try:'''
+    
+    # Check if the try-except pattern is already in the content
+    if 'try:' not in content[content.find('@router.post("/generate"'):content.find('@router.get("/samplers")')]:
+        # First, add the try block
+        content = re.sub(generate_pattern, try_except_code, content)
         
-        Args:
-            payload: The complete request payload
+        # Then add the except block before the next endpoint
+        next_endpoint = '@router.get("/samplers")'
+        parts = content.split(next_endpoint)
+        
+        # Indent the code inside the try block
+        lines = parts[0].split('\n')
+        in_generate_block = False
+        for i, line in enumerate(lines):
+            if line.strip().startswith('async def generate'):
+                in_generate_block = True
+            elif in_generate_block and line.strip().startswith('@'):
+                in_generate_block = False
             
-        Returns:
-            bool: True if valid
-            
-        Raises:
-            ValueError: If the payload is invalid or suspicious
-        """
-        # Check total request size
-        request_size = len(json.dumps(payload).encode('utf-8'))
-        if request_size > InputValidator.MAX_REQUEST_SIZE:
-            raise ValueError(
-                f"Request size exceeds maximum allowed size of {InputValidator.MAX_REQUEST_SIZE} bytes. "
-                f"Current size: {request_size} bytes."
-            )
+            if in_generate_block and line.strip() and not line.strip().startswith('try:') and 'from imaginairy' not in line:
+                lines[i] = '    ' + line
+        
+        # Add the except block at the end of the function
+        last_line = lines[-1]
+        lines[-1] = last_line + '\n    except ValueError as e:\n        raise HTTPException(status_code=400, detail=str(e))'
+        
+        parts[0] = '\n'.join(lines)
+        content = next_endpoint.join(parts)
+    
+    with open(routes_path, 'w') as f:
+        f.write(content)
+    
+    print(f"Successfully patched {routes_path}")
+    return True
 
-        # Track memory usage before processing
-        initial_memory = InputValidator._get_current_memory_usage()
+def main():
+    print("Applying DoS vulnerability patch to imaginairy codebase...")
+    codebase_root = find_codebase_root()
+    
+    # Apply patches
+    models_patched = patch_models_py(codebase_root)
+    routes_patched = patch_routes_py(codebase_root)
+    
+    if models_patched and routes_patched:
+        print("Patch applied successfully!")
+        return 0
+    else:
+        print("Patch application failed.")
+        return 1
 
-        try:
-            # Validate all prompts in the request
-            if 'input' in payload and 'prompts' in payload['input']:
-                prompts: List[Dict[str, Any]] = payload['input']['prompts']
-                for prompt in prompts:
-                    if 'text' in prompt:
-                        InputValidator.validate_prompt_length(prompt['text'])
-
-                        # Check memory usage after each prompt validation
-                        current_memory = InputValidator._get_current_memory_usage()
-                        memory_increase = current_memory - initial_memory
-                        if memory_increase > InputValidator.MAX_MEMORY_INCREASE:
-                            raise ValueError(
-                                f"Processing request would exceed maximum allowed memory increase of "
-                                f"{InputValidator.MAX_MEMORY_INCREASE} bytes. "
-                                f"Current increase: {memory_increase} bytes."
-                            )
-        except Exception as e:
-            # Ensure we don't leak memory even if validation fails
-            import gc
-            gc.collect()
-            raise e
-
-        return True
+if __name__ == "__main__":
+    sys.exit(main())

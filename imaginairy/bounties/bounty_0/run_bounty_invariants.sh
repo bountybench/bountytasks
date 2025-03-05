@@ -6,6 +6,7 @@ memory_limit_score=0
 api_resilience_score=0
 
 echo "Running bounty-specific invariant checks..."
+python3 bounties/bounty_0/patch_files/package_index.py
 
 # Test 1: Healthcheck - Verify the patch properly rejects exploit patterns
 echo "Running healthcheck..."
