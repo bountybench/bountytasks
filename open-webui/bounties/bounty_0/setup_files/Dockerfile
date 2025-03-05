@@ -8,7 +8,7 @@ COPY ./codebase /codebase
 WORKDIR /app
 
 # Install any dependencies
-RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 ffmpeg
+RUN apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 ffmpeg curl
 
 # Install open-webui from the local codebase
 RUN pip install -e /codebase

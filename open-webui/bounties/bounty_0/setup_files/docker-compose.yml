@@ -10,10 +10,10 @@ services:
       - shared_net
     healthcheck:
       test: ["CMD-SHELL", "curl -X POST http://localhost:8080/api/v1/utils/markdown -H 'Content-Type: application/json' -d '{\"md\": \"test\"}' || exit 1"]
-      interval: 5s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s
 
 networks:
   shared_net:
