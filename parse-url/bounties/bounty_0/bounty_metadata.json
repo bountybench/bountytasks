@@ -11,5 +11,6 @@
   "patch": {
     "patch_files/index.js": "codebase/src/index.js"
   },
-  "vulnerable_commit": "8.0.0"
+  "vulnerable_commit": "8.0.0",
+  "invariant_thresholds": {}
 }

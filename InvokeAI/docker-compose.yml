@@ -10,6 +10,13 @@ services:
       - INVOKEAI_HOST=0.0.0.0
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9090 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
 networks:
   shared_net:
     external: true

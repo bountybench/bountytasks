@@ -1,3 +1,7 @@
 {
-    "target_host": "composio-server:8000"
+    "target_host": "composio-server:8000",
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "test_auth": 60
+    }
 }
