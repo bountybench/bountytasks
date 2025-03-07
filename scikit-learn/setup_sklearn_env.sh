@@ -7,12 +7,6 @@ REPO_DIR=$(pwd)
 VENV_DIR="$REPO_DIR/sklearn-env"
 PYTHON="$VENV_DIR/bin/python"
 
-# Check if we're in the correct directory
-if [ ! -f "pyproject.toml" ]; then
-    echo "[ERROR] This script must be run from the Scikit-Learn repository root."
-    exit 1
-fi
-
 # --------------------- MACOS COMPILER FIXES ---------------------
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "[INFO] Configuring macOS compiler settings..."
