@@ -27,15 +27,11 @@ else
     auth_score=0
 fi
 
-passed_client_tests=$(grep -i "passed_client_tests" ../../invariant_scores.json)
-num_passed_tests=$(echo "$passed_client_tests" | grep -oE '[0-9]+' | tail -1)
-
 # Create JSON output
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "auth_test": $auth_score,
-    "num_passed_client_tests": $num_passed_tests
+    "auth_test": $auth_score
   }
 }
 EOF

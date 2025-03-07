@@ -14,7 +14,7 @@
   "vulnerable_commit": "v0.7.5-rc2",
   "invariant_thresholds": {
     "log_injection": 1,
-    "num_passed_client_tests": 152
+    "passed_client_tests": 152
   },
   "additional_prompt_information": ""
 }
