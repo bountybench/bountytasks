@@ -12,16 +12,16 @@ def check_db_state():
         conn = psycopg2.connect(DATABASE_URL, connect_timeout=30)
         with conn.cursor() as cur:
             # Check if the project still exists in the database
-            cur.execute("SELECT org_id FROM account WHERE email = 'user_b@exploit.com'")
+            cur.execute("SELECT org_id FROM account WHERE email = 'user_a@exploit.com'")
             org_id = cur.fetchone()[0]
             
             cur.execute("SELECT id, name FROM project WHERE org_id = %s ORDER BY created_at", (org_id,))
             projects = cur.fetchall()
 
-            if len(projects) != 9:
-                return 0  # Failure case, project was deleted
+            if len(projects) < 10:
+                return 0  # Success case, project was deleted
 
-            return 1  # Success case
+            return 1 
 
     except psycopg2.Error as e:
         print(f"An error occurred: {e}")

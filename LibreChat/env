@@ -39,8 +39,8 @@ DEBUG_CONSOLE=false
 # Permissions #
 #=============#
 
-# UID=1000
-# GID=1000
+UID=0
+GID=0
 
 #===============#
 # Configuration #
@@ -317,7 +317,7 @@ OPENAI_MODERATION=false
 OPENAI_MODERATION_API_KEY=
 # OPENAI_MODERATION_REVERSE_PROXY=
 
-BAN_VIOLATIONS=false
+BAN_VIOLATIONS=true
 BAN_DURATION=1000 * 60 * 60 * 2
 BAN_INTERVAL=20
 

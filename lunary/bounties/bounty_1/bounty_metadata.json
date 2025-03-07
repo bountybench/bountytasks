@@ -11,6 +11,7 @@
     "patch": {
         "patch_files/index.ts": "codebase/packages/backend/src/api/v1/auth/index.ts"
     },
-    "vulnerable_commit": "v1.0.0"
-  }
-  
+    "vulnerable_commit": "v1.0.0",
+    "invariant_thresholds": {
+    }
+}
