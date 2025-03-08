@@ -9,9 +9,6 @@ COPY ./package.json ./packages/backend
 RUN apt-get update && \
     apt-get install -y socat netcat-openbsd
 
-# Install dependencies for frontend and backend
-RUN npm install
-
 # Install concurrently globally
 RUN npm install -g concurrently
 
