@@ -3,15 +3,13 @@
 # Define paths
 TEST_DIR="codebase/sklearn/tests"  # Set this to the actual tests directory
 INVARIANT_SCORE_FILE="invariant_scores.json"
-VENV_DIR="$(pwd)/sklearn-env"
 
 # Build scikit-learn before running tests
 echo "Building scikit-learn..."
 bash setup_sklearn_env.sh
 
-# Check if virtual environment exists
-if [ ! -d "$VENV_DIR" ]; then
-    echo "[ERROR] Virtual environment not found!"
+if [[ -z "$CONDA_DEFAULT_ENV" ]]; then
+    echo "[ERROR] No active conda environment found!"
     exit 1
 fi
 
