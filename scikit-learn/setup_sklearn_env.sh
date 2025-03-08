@@ -1,81 +1,85 @@
 #!/bin/bash
 
-set -e  # Exit immediately if a command exits with a non-zero status.
+# This script sets up the environment and builds scikit-learn from source.
+# It supports macOS (using conda) and Linux (using a Python virtualenv).
 
-# Define paths
-REPO_DIR=$(pwd)
-VENV_DIR="$REPO_DIR/sklearn-env"
-PYTHON="$VENV_DIR/bin/python"
+# Helper function to check if a command exists.
+command_exists () {
+    command -v "$1" >/dev/null 2>&1
+}
 
-# --------------------- MACOS COMPILER FIXES ---------------------
+# Detect OS type
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    echo "[INFO] Configuring macOS compiler settings..."
+    echo "Detected macOS environment."
 
-    # Install Homebrew if not present
-    if ! command -v brew &> /dev/null; then
-        echo "[INFO] Installing Homebrew..."
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-
-    # Install llvm and libomp for OpenMP support
-    brew install llvm libomp
-
-    # Determine libomp prefix based on architecture
-    if [[ $(uname -m) == "arm64" ]]; then
-        OMP_PREFIX="/opt/homebrew/opt/libomp"
+    # Check if Xcode command line tools are installed
+    if ! xcode-select -p &>/dev/null; then
+        echo "Xcode command line tools not found. Installing..."
+        xcode-select --install
+        echo "Please complete the Xcode installation and re-run this script."
+        exit 1
     else
-        OMP_PREFIX="/usr/local/opt/libomp"
+        echo "Xcode command line tools are already installed."
     fi
 
-    # Get llvm prefix from Homebrew
-    LLVM_PREFIX=$(brew --prefix llvm)
+    # Check if conda is available
+    if ! command_exists conda; then
+        echo "conda not found. Please install conda (e.g. Miniconda or Anaconda) before proceeding."
+        exit 1
+    fi
 
-    # Prepend llvm to PATH so that the brewed clang is used instead of /usr/bin/clang
-    export PATH="${LLVM_PREFIX}/bin:$PATH"
+    echo "Creating conda environment 'sklearn-dev'..."
+    conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
-    # Set compiler environment variables to use llvm's clang and clang++
-    export CC="${LLVM_PREFIX}/bin/clang"
-    export CXX="${LLVM_PREFIX}/bin/clang++"
+    echo "Activating conda environment..."
+    # This line sources the conda base environment to enable 'conda activate'
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    conda activate sklearn-dev
 
-    # Set compiler flags to enable OpenMP support
-    export CPPFLAGS+=" -Xpreprocessor -fopenmp"
-    export CFLAGS+=" -I${OMP_PREFIX}/include -I${LLVM_PREFIX}/include"
-    export CXXFLAGS+=" -I${OMP_PREFIX}/include -I${LLVM_PREFIX}/include"
-    export LDFLAGS+=" -L${OMP_PREFIX}/lib -L${LLVM_PREFIX}/lib -lomp"
-fi
-# ----------------------------------------------------------------
+    # Clean any previous builds if a Makefile exists
+    if [ -f Makefile ]; then
+        echo "Cleaning previous builds..."
+        make clean
+    fi
 
-# Set up virtual environment
-if [ ! -d "$VENV_DIR" ]; then
-    echo "[INFO] Creating virtual environment 'sklearn-env'..."
-    python3 -m venv "$VENV_DIR"
-    echo "[SUCCESS] Virtual environment 'sklearn-env' created at $VENV_DIR"
+    echo "Installing scikit-learn in editable mode..."
+    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+
+    echo "Building the project with pip..."
+    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+
+    echo "scikit-learn build complete for macOS."
+
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    echo "Detected Linux environment."
+
+    echo "Creating Python virtual environment 'sklearn-env'..."
+    python3 -m venv sklearn-env
+
+    echo "Activating virtual environment..."
+    source sklearn-env/bin/activate
+
+    echo "Installing build dependencies..."
+    pip install wheel numpy scipy cython meson-python ninja
+
+    # Reminder: Ensure a compiler with OpenMP support is installed on your system.
+    echo "Please make sure that a compiler with OpenMP support is installed (if not, install one now)."
+
+    # Clean any previous builds if a Makefile exists
+    if [ -f Makefile ]; then
+        echo "Cleaning previous builds..."
+        make clean
+    fi
+
+    echo "Installing scikit-learn in editable mode..."
+    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+
+    echo "Building the project with pip..."
+    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+
+    echo "scikit-learn build complete for Linux."
+
 else
-    echo "[INFO] Using existing virtual environment at $VENV_DIR"
+    echo "Unsupported OS: $OSTYPE. This script supports macOS and Linux only."
+    exit 1
 fi
-
-# Activate virtual environment
-source "$VENV_DIR/bin/activate"
-
-# Install dependencies
-echo "[INFO] Installing required dependencies..."
-pip install --upgrade pip
-pip install numpy scipy cython meson-python ninja pytest
-
-# Build Scikit-Learn from source with verbose output
-echo "[INFO] Building Scikit-Learn from source..."
-echo "[DEBUG] Using these compiler flags:"
-echo "CC: $CC, CXX: $CXX"
-echo "CFLAGS: $CFLAGS"
-echo "LDFLAGS: $LDFLAGS"
-
-pip install --no-build-isolation --editable . --verbose
-
-# Verify installation and OpenMP support
-echo "[INFO] Verifying Scikit-Learn installation..."
-python -c "from sklearn import config; print('\nBuild configuration:', config); config.show()"
-
-# Clean up environment variables
-unset CC CXX CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
-
-echo "[SUCCESS] Setup completed! OpenMP enabled for macOS."

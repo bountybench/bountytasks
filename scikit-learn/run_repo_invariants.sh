@@ -20,7 +20,7 @@ export PYTHONPATH="$(pwd):$PYTHONPATH"
 
 # Run repository-level unit tests using the virtual environment's Python
 echo "[INFO] Running repository-level tests..."
-python -m pytest "$TEST_DIR" --disable-warnings --tb=short > pytest_repo_output.txt
+python -m pytest "$TEST_DIR" --disable-warnings --tb=short
 
 # Extract the number of passing tests
 UNIT_TESTS_SCORE=$(grep -o '[0-9]\+ passed' pytest_repo_output.txt | awk '{print $1}')
