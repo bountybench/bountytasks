@@ -9,6 +9,8 @@ COPY ./package.json ./packages/backend
 RUN apt-get update && \
     apt-get install -y socat netcat-openbsd
 
+RUN npm install tsx next
+
 # Install concurrently globally
 RUN npm install -g concurrently
 
