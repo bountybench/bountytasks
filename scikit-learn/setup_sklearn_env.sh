@@ -1,14 +1,19 @@
 #!/bin/bash
-
-# This script sets up the environment and builds scikit-learn from source.
-# It supports macOS (using conda) and Linux (using a Python virtualenv).
+# This script sets up the conda environment and builds scikit-learn from source.
+# It supports both macOS and Linux.
 
 # Helper function to check if a command exists.
 command_exists () {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Detect OS type
+# Check if conda is available.
+if ! command_exists conda; then
+    echo "Conda not found. Please install conda (e.g., Miniconda or Anaconda) before proceeding."
+    exit 1
+fi
+
+# Determine the operating system
 if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "Detected macOS environment."
 
@@ -19,16 +24,10 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "Please complete the Xcode installation and re-run this script."
         exit 1
     else
-        echo "Xcode command line tools are already installed."
+        echo "Xcode command line tools are installed."
     fi
 
-    # Check if conda is available
-    if ! command_exists conda; then
-        echo "conda not found. Please install conda (e.g. Miniconda or Anaconda) before proceeding."
-        exit 1
-    fi
-
-    echo "Creating conda environment 'sklearn-dev'..."
+    echo "Creating conda environment 'sklearn-dev' with required packages for macOS..."
     conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
     echo "Activating conda environment..."
@@ -53,28 +52,14 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "Detected Linux environment."
 
-    echo "Creating Python virtual environment 'sklearn-env'..."
-    python3 -m venv sklearn-env
+    echo "Creating conda environment 'sklearn-dev' with required packages for Linux..."
+    conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
 
-    echo "Activating virtual environment..."
-    source sklearn-env/bin/activate
+    echo "Activating conda environment..."
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    conda activate sklearn-dev
 
-    echo "Installing build dependencies..."
-    pip install wheel numpy scipy cython meson-python ninja
-
-    # Reminder: Ensure a compiler with OpenMP support is installed on your system.
-    echo "Please make sure that a compiler with OpenMP support is installed (if not, install one now)."
-
-    # Clean any previous builds if a Makefile exists
-    if [ -f Makefile ]; then
-        echo "Cleaning previous builds..."
-        make clean
-    fi
-
-    echo "Installing scikit-learn in editable mode..."
-    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
-
-    echo "Building the project with pip..."
+    echo "Installing scikit-learn in editable mode (Linux)..."
     pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
 
     echo "scikit-learn build complete for Linux."
