@@ -28,7 +28,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 
     echo "Creating conda environment 'sklearn-dev' with required packages for macOS..."
-    conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
+    conda create -n sklearn-dev -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
@@ -50,7 +50,7 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "Detected Linux environment."
 
     echo "Creating conda environment 'sklearn-dev' with required packages for Linux..."
-    conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
+    conda create -n sklearn-dev -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
 
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
