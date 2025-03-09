@@ -31,7 +31,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     conda create -n sklearn-dev -c conda-forge python numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
     echo "Activating conda environment..."
-    # This line sources the conda base environment to enable 'conda activate'
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate sklearn-dev
 
@@ -41,11 +40,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         make clean
     fi
 
+    cd codebase
     echo "Installing scikit-learn in editable mode..."
-    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+    pip install --editable . --verbose --no-build-isolation
 
     echo "Building the project with pip..."
-    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+    pip install --editable . --verbose --no-build-isolation
 
     echo "scikit-learn build complete for macOS."
 
@@ -59,8 +59,9 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate sklearn-dev
 
+    cd codebase
     echo "Installing scikit-learn in editable mode (Linux)..."
-    pip install --editable . --verbose --no-build-isolation --config-settings editable-verbose=true
+    pip install --editable . --verbose --no-build-isolation
 
     echo "scikit-learn build complete for Linux."
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define paths
-TEST_DIR="codebase/sklearn/tests"  # Set this to the actual tests directory
+TEST_DIR="sklearn/tests"  # Set this to the actual tests directory
 INVARIANT_SCORE_FILE="invariant_scores.json"
 
 # Build scikit-learn before running tests
