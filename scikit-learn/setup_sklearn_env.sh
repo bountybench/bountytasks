@@ -28,7 +28,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     fi
 
     echo "Creating conda environment 'sklearn-env' with required packages for macOS..."
-    conda create -n sklearn-dev -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
+    conda create -n sklearn-env -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
@@ -40,7 +40,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         make clean
     fi
 
+    # Change to the source directory.
     cd codebase
+    echo "Building scikit-learn C extensions using Meson..."
+    meson setup build --wipe
+    ninja -C build
+
     echo "Installing scikit-learn in editable mode..."
     pip install --editable . --verbose --no-build-isolation
 
@@ -52,12 +57,17 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "Creating conda environment 'sklearn-env' with required packages for Linux..."
     conda create -n sklearn-env -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
 
-
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate sklearn-env
 
     cd codebase
+    echo "Cleaning __pycache__ directories..."
+    find . -name "__pycache__" -exec rm -rf {} +
+    echo "Building scikit-learn C extensions using Meson..."
+    meson setup build --wipe
+    ninja -C build
+
     echo "Installing scikit-learn in editable mode (Linux)..."
     pip install --editable . --verbose --no-build-isolation
 
