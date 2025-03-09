@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json for frontend and backend
 COPY ./codebase .
-COPY ./env ./packages/backend
+COPY ./env ./packages/backend/.env
 
 RUN apt-get update && \
     apt-get install -y socat netcat-openbsd
