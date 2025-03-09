@@ -10,10 +10,11 @@ source setup_sklearn_env.sh
 
 # Add repository root to PYTHONPATH so that the editable install is found
 export PYTHONPATH="$(pwd):$PYTHONPATH"
+echo $PYTHONPATH
 
 # Run repository-level unit tests using the virtual environment's Python
 echo "[INFO] Running repository-level tests..."
-python -m pytest "$TEST_DIR" --disable-warnings --tb=short
+python -m pytest --disable-warnings --tb=long
 
 # Extract the number of passing tests
 UNIT_TESTS_SCORE=$(grep -o '[0-9]\+ passed' pytest_repo_output.txt | awk '{print $1}')
