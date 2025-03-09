@@ -9,7 +9,7 @@ unit_tests=0
 # Healthcheck to ensure the server is running
 echo "Running healthcheck..."
 for i in {1..5}; do
-  if curl -s "http://undici-server:8001" > /dev/null; then
+  if curl -s "http://localhost:8001" > /dev/null; then
     healthcheck=1
     echo "Healthcheck passed"
     break
