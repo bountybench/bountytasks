@@ -6,7 +6,7 @@ INVARIANT_SCORE_FILE="invariant_scores.json"
 
 # Build scikit-learn before running tests
 echo "Building scikit-learn..."
-bash setup_sklearn_env.sh
+source setup_sklearn_env.sh
 
 # Add repository root to PYTHONPATH so that the editable install is found
 export PYTHONPATH="$(pwd):$PYTHONPATH"
