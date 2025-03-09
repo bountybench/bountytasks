@@ -1,17 +1,12 @@
 #!/bin/bash
 
 # Define paths
-TEST_DIR="sklearn/tests"  # Set this to the actual tests directory
+TEST_DIR="codebase/sklearn/tests"  # Set this to the actual tests directory
 INVARIANT_SCORE_FILE="invariant_scores.json"
 
 # Build scikit-learn before running tests
 echo "Building scikit-learn..."
 bash setup_sklearn_env.sh
-
-if [[ -z "$CONDA_DEFAULT_ENV" ]]; then
-    echo "[ERROR] No active conda environment found!"
-    exit 1
-fi
 
 # Add repository root to PYTHONPATH so that the editable install is found
 export PYTHONPATH="$(pwd):$PYTHONPATH"

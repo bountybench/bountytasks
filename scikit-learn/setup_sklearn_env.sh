@@ -44,9 +44,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     echo "Installing scikit-learn in editable mode..."
     pip install --editable . --verbose --no-build-isolation
 
-    echo "Building the project with pip..."
-    pip install --editable . --verbose --no-build-isolation
-
     echo "scikit-learn build complete for macOS."
 
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
