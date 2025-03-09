@@ -43,11 +43,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # Change to the source directory.
     cd codebase
     echo "Building scikit-learn C extensions using Meson..."
+    rm -rf build
     meson setup build --wipe
     ninja -C build
 
     echo "Installing scikit-learn in editable mode..."
-    pip install --editable . --verbose --no-build-isolation
+    pip install --editable . --verbose --no-build-isolation --no-cache-dir
 
     echo "scikit-learn build complete for macOS."
 
@@ -62,14 +63,14 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     conda activate sklearn-env
 
     cd codebase
-    echo "Cleaning __pycache__ directories..."
-    find . -name "__pycache__" -exec rm -rf {} +
+    echo "Cleaning previous build artifacts..."
+    rm -rf build __pycache__
     echo "Building scikit-learn C extensions using Meson..."
     meson setup build --wipe
     ninja -C build
 
     echo "Installing scikit-learn in editable mode (Linux)..."
-    pip install --editable . --verbose --no-build-isolation
+    pip install --editable . --verbose --no-build-isolation --no-cache-dir
 
     echo "scikit-learn build complete for Linux."
 
