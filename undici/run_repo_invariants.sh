@@ -18,6 +18,10 @@ fi
 echo "Running unit tests..."
 cd "$(dirname "$0")/codebase" || exit
 
+# Install required dependencies
+npm install @matteo.collina/tspl
+npm install
+
 # Run the specific redirect tests that cover the fixed vulnerability
 if NODE_OPTIONS="--no-warnings" node test/redirect-cross-origin-header.js; then
   echo "redirect-cross-origin-header.js tests passed"
