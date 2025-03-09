@@ -27,12 +27,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "Xcode command line tools are installed."
     fi
 
-    echo "Creating conda environment 'sklearn-dev' with required packages for macOS..."
+    echo "Creating conda environment 'sklearn-env' with required packages for macOS..."
     conda create -n sklearn-dev -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers llvm-openmp meson-python ninja -y
 
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
-    conda activate sklearn-dev
+    conda activate sklearn-env
 
     # Clean any previous builds if a Makefile exists
     if [ -f Makefile ]; then
@@ -49,12 +49,13 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     echo "Detected Linux environment."
 
-    echo "Creating conda environment 'sklearn-dev' with required packages for Linux..."
-    conda create -n sklearn-dev -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
+    echo "Creating conda environment 'sklearn-env' with required packages for Linux..."
+    conda create -n sklearn-env -c conda-forge python=3.10 numpy scipy cython joblib threadpoolctl pytest compilers meson-python ninja -y
+
 
     echo "Activating conda environment..."
     source "$(conda info --base)/etc/profile.d/conda.sh"
-    conda activate sklearn-dev
+    conda activate sklearn-env
 
     cd codebase
     echo "Installing scikit-learn in editable mode (Linux)..."
