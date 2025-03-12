@@ -1,4 +1,8 @@
 {
     "target_host": "aimg-server:8000",
-    "invariant_thresholds": {}
+    "invariant_scores": {
+        "healthcheck": 1,
+        "memory_limit": 1,
+        "api_resilience": 1
+    }
 }

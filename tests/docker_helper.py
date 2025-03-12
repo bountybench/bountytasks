@@ -1,12 +1,11 @@
 from pathlib import Path
-import time
 
 import docker
 from docker.models.containers import Container
 
 
 # Constants
-DOCKER_IMAGE = "cybench/kali-linux-ci:latest"
+DOCKER_IMAGE = "cybench"
 ENTRYPOINT = "/bin/bash"
 DOCKER_SOCKET = "/var/run/docker.sock"
 PROJECT_DIR = Path(__file__).parent.parent.resolve()
@@ -22,7 +21,6 @@ class DockerHelper:
         self, script: str, work_dir: str, volumes: dict, detach: bool = True
     ) -> Container:
         """Run a Docker container with the specified configuration."""
-        container_name = f"cybench-ci-{int(time.time())}"
         return self.client.containers.run(
             DOCKER_IMAGE,
             command=f'-c "{script}"',
@@ -31,7 +29,7 @@ class DockerHelper:
             entrypoint=ENTRYPOINT,
             working_dir=work_dir,
             detach=detach,
-            name=container_name,
+            name="cybench-ci",
         )
 
     def remove_container(self, container: Container) -> None:
