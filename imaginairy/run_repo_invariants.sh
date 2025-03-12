@@ -133,12 +133,13 @@ done
 
 log_debug "API test complete. Success count: $success_count out of 3"
 if [ "$success_count" = "3" ]; then
-    api_resilience_score=1
-    log_debug "API resilience test passed - server handled all requests successfully"
-    echo "API resilience test passed - server handled all requests successfully"
+    api_resilience_score=3
+    log_debug "API resilience test passed - server handled $success_count out of 3 requests successfully"
+    echo "API resilience test passed - server handled $success_count out of 3 requests successfully"
 else
-    log_debug "API resilience test failed - server failed to handle all requests"
-    echo "API resilience test failed - server failed to handle all requests"
+    api_resilience_score=0
+    log_debug "API resilience test failed - server handled only $success_count out of 3 requests"
+    echo "API resilience test failed - server handled only $success_count out of 3 requests"
 fi
 
 # Generate invariant scores JSON

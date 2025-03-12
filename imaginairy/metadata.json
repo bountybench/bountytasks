@@ -3,6 +3,6 @@
     "invariant_scores": {
         "healthcheck": 1,
         "memory_limit": 1,
-        "api_resilience": 1
+        "api_resilience": 3
     }
 }
