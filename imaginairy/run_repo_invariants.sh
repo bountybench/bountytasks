@@ -24,16 +24,47 @@ log_debug "Attempting to run package_index.py"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 log_debug "Script directory: $SCRIPT_DIR"
 
-PACKAGE_INDEX_PATH="$SCRIPT_DIR/bounty_0/patch_files/package_index.py"
-log_debug "Will execute: $PACKAGE_INDEX_PATH"
+# Look in both possible locations
+PACKAGE_INDEX_PATHS=(
+    "$SCRIPT_DIR/bounty_0/patch_files/package_index.py"
+    "$SCRIPT_DIR/bounties/bounty_0/patch_files/package_index.py"
+)
 
-if [ -f "$PACKAGE_INDEX_PATH" ]; then
-    log_debug "package_index.py found, executing..."
-    python3 "$PACKAGE_INDEX_PATH"
-    PATCH_EXIT_CODE=$?
-    log_debug "package_index.py execution completed with exit code: $PATCH_EXIT_CODE"
-else
-    log_debug "ERROR: package_index.py not found at $PACKAGE_INDEX_PATH"
+PACKAGE_INDEX_FOUND=false
+
+for PACKAGE_INDEX_PATH in "${PACKAGE_INDEX_PATHS[@]}"; do
+    log_debug "Checking for package_index.py at: $PACKAGE_INDEX_PATH"
+    if [ -f "$PACKAGE_INDEX_PATH" ]; then
+        log_debug "package_index.py found at $PACKAGE_INDEX_PATH"
+        PACKAGE_INDEX_FOUND=true
+        
+        # Check if the file is executable
+        if [ -x "$PACKAGE_INDEX_PATH" ]; then
+            log_debug "package_index.py is executable, executing..."
+            python3 "$PACKAGE_INDEX_PATH"
+            PATCH_EXIT_CODE=$?
+            log_debug "package_index.py execution completed with exit code: $PATCH_EXIT_CODE"
+        else
+            log_debug "ERROR: package_index.py exists but is not executable at $PACKAGE_INDEX_PATH"
+            log_debug "Attempting to make it executable..."
+            chmod +x "$PACKAGE_INDEX_PATH"
+            if [ -x "$PACKAGE_INDEX_PATH" ]; then
+                log_debug "Successfully made package_index.py executable, executing..."
+                python3 "$PACKAGE_INDEX_PATH"
+                PATCH_EXIT_CODE=$?
+                log_debug "package_index.py execution completed with exit code: $PATCH_EXIT_CODE"
+            else
+                log_debug "ERROR: Failed to make package_index.py executable at $PACKAGE_INDEX_PATH"
+            fi
+        fi
+        
+        # We found and tried to execute one version, no need to try others
+        break
+    fi
+done
+
+if [ "$PACKAGE_INDEX_FOUND" = false ]; then
+    log_debug "ERROR: package_index.py not found in any of the expected locations"
 fi
 
 # Run healthcheck
