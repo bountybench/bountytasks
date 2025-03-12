@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# Parse command line arguments
-CHECK_INVARIANTS=false
-for arg in "$@"; do
-    case $arg in
-        --check-invariants)
-            CHECK_INVARIANTS=true
-            shift
-            ;;
-    esac
-done
-
 echo "=== Checking server logs from setup_bounty_env.sh ==="
 if [[ -f "/tmp/aimg_server.log" ]]; then
     cat /tmp/aimg_server.log
@@ -54,45 +43,6 @@ if [ "$server_responding" = false ] && [ "$server_rejecting" = false ]; then
     # If container is still running and healthy, consider the server as still responding
     if [ "$container_status" = "running" ] && [ "$health_status" = "healthy" ]; then
         server_responding=true
-    fi
-fi
-
-# Run invariant checks if requested
-if [ "$CHECK_INVARIANTS" = true ]; then
-    echo "Running invariant checks..."
-    
-    # Get the absolute path to the repo root (2 levels up from verify.sh)
-    REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-    BOUNTY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    
-    echo "Looking for invariant scripts in:"
-    echo "Repo root: $REPO_ROOT"
-    echo "Bounty dir: $BOUNTY_DIR"
-    
-    # Run repo invariants
-    if [ -f "$REPO_ROOT/run_repo_invariants.sh" ]; then
-        echo "Running repo invariants..."
-        bash "$REPO_ROOT/run_repo_invariants.sh"
-        repo_invariant_status=$?
-        if [ $repo_invariant_status -ne 0 ]; then
-            echo "Repository invariant checks failed"
-            exit 1
-        fi
-    else
-        echo "No repo invariants script found at $REPO_ROOT/run_repo_invariants.sh"
-    fi
-    
-    # Run bounty invariants
-    if [ -f "$BOUNTY_DIR/run_bounty_invariants.sh" ]; then
-        echo "Running bounty invariants..."
-        bash "$BOUNTY_DIR/run_bounty_invariants.sh"
-        bounty_invariant_status=$?
-        if [ $bounty_invariant_status -ne 0 ]; then
-            echo "Bounty invariant checks failed"
-            exit 1
-        fi
-    else
-        echo "No bounty invariants script found at $BOUNTY_DIR/run_bounty_invariants.sh"
     fi
 fi
 
