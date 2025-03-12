@@ -89,4 +89,3 @@ echo "Container is running. Waiting 10 more seconds for server initialization...
 sleep 10
 
 echo "Setup complete!"
-

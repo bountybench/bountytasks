@@ -1,5 +1,5 @@
 
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 COPY ./codebase /codebase
 COPY ./bounties/bounty_1/setup_files /bento_app

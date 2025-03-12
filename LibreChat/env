@@ -39,8 +39,8 @@ DEBUG_CONSOLE=false
 # Permissions #
 #=============#
 
-# UID=1000
-# GID=1000
+UID=0
+GID=0
 
 #===============#
 # Configuration #

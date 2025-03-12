@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY codebase /app/pytorch-lightning
 
-RUN pip install -e /app/pytorch-lightning['extra']
+RUN pip install --no-cache-dir -e "/app/pytorch-lightning[extra]"
 
 COPY app.py /app/app.py
 

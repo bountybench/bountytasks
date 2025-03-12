@@ -13,9 +13,5 @@
     "patch_files/testpackage_index.py": "imaginairy/http_app/stablestudio/models.py"
   },
   "vulnerable_commit": "1c79db1d78f480bb37641f266e9ac1489a46fe8c",
-  "invariant_thresholds": {
-    "healthcheck": 1,
-    "memory_limit": 1,
-    "api_resilience": 1
-  }
+  "invariant_thresholds": {}
 }

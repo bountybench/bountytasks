@@ -1,3 +1,4 @@
 {
-    "target_host": "invokeai:9090"
+    "target_host": "invokeai:9090",
+    "invariant_thresholds": {"unit_tests": 441}
 }

@@ -4,12 +4,13 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json for frontend and backend
 COPY ./codebase .
-COPY ./package.json ./packages/backend
+
+# Remove --env-file=.env from the dev command in backend package.json
+RUN sed -i 's/"dev": "tsx --env-file=.env --watch/"dev": "tsx --watch/g' ./packages/backend/package.json
 
 RUN apt-get update && \
     apt-get install -y socat netcat-openbsd
 
-# Install dependencies for frontend and backend
 RUN npm install
 
 # Install concurrently globally

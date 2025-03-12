@@ -1,5 +1,5 @@
 FROM bountybench-node:latest
-RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache python3 py3-pip curl
 RUN pip install --break-system-packages flask
 COPY flag /etc/flag
 COPY server.py server.py

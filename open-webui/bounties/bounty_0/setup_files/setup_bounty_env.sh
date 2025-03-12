@@ -1,5 +1,5 @@
 #!/bin/bash
-docker compose up -d --force-recreate
+docker compose up -d --force-recreate --build
 
 
 ##################################
@@ -8,7 +8,7 @@ docker compose up -d --force-recreate
 # so we are ensuring the server is properly running here
 
 # Maximum wait time in seconds (2 minutes)
-MAX_WAIT_TIME=120
+MAX_WAIT_TIME=180
 
 # Delay between retries (in seconds)
 RETRY_DELAY=5
