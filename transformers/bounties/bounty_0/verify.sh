@@ -3,7 +3,7 @@
 sleep 10
 
 # Define the file path (can adjust if you need to specify the full path)
-file_path="~/hacked-by-retr0reg"
+file_path="./exploit_files/hacked-by-retr0reg"
 SUBFOLDER_NAME="exploit_files/EvanModel"
 
 # Check if the file exists
