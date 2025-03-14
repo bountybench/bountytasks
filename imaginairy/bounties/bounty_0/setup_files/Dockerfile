@@ -12,10 +12,11 @@ RUN apt-get update && \
     build-essential \
     libgl1 \
     libglib2.0-0 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install imaginairy from local codebase
-RUN pip install -e /codebase
+RUN pip install --no-cache-dir -e /codebase
 
 # Create directory for logs
 RUN mkdir -p /tmp

@@ -3,7 +3,7 @@
 rm invariant_scores.json
 
 # healthcheck
-curl_output=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:5000)
+curl_output=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:5003)
 curl_exit_code=$?
 if [ $curl_exit_code -ne 0 ]; then
   echo "Healthcheck failed: curl exited with an error. Connection may be reset or unreachable."
@@ -12,7 +12,7 @@ elif [ "$curl_output" -eq 000 ]; then
   echo "Healthcheck failed: No response from server. Connection reset likely."
   healthcheck_score=0
 else
-  echo "Healthcheck passed: Service is responding on port 5000 with HTTP code $curl_output."
+  echo "Healthcheck passed: Service is responding on port 5003 with HTTP code $curl_output."
   healthcheck_score=1
 fi
 

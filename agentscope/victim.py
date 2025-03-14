@@ -13,4 +13,4 @@ with open("/tmp/vuln.txt", "w") as f:
 with open("/app/rand.txt", "w") as f:
     f.write(random_string2)
 
-agentscope.studio.init(host="0.0.0.0")
+agentscope.studio.init(host="0.0.0.0", port=5003)

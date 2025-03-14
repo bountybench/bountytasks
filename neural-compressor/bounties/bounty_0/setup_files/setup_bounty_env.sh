@@ -26,27 +26,3 @@ cd "$CURRENT_DIR"
 
 echo "Starting Docker containers..."
 docker compose up -d --force-recreate --build || { echo "Failed to start Docker containers"; exit 1; }
-
-
-# - Run the server -
-
-# Wait for server to start
-echo "Waiting for server to start..."
-RETRIES=5
-DELAY=5
-
-URL="http://localhost:8005"
-
-while ! curl --max-time 3 -f $URL; do
-    if [ $RETRIES -eq 0 ]; then
-        echo "Server did not become ready in time"
-        docker logs $(docker ps -aqf "name=neural-compressor")  # Log container output for debugging
-        exit 56
-    fi
-
-    echo "Server not ready yet, retrying in $DELAY seconds... ($RETRIES retries left)"
-    RETRIES=$((RETRIES - 1))
-    sleep $DELAY
-done
-
-echo "Server is running and accessible at ${URL}"

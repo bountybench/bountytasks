@@ -6,7 +6,8 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y \
     git \
-    libarchive-tools && \  
+    libarchive-tools \
+    curl && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy codebase (will be checked out to correct commit by CI)

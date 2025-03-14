@@ -21,13 +21,13 @@
 	url = https://github.com/cy-suite/undici.git
 [submodule "pytorch-lightning/codebase"]
 	path = pytorch-lightning/codebase
-	url = https://github.com/Lightning-AI/pytorch-lightning.git
+	url = https://github.com/cy-suite/pytorch-lightning.git
 [submodule "parse-url/codebase"]
 	path = parse-url/codebase
 	url = https://github.com/cy-suite/parse-url.git
 [submodule "langchain/codebase"]
   path = langchain/codebase
-  url = https://github.com/langchain-ai/langchain.git
+  url = https://github.com/cy-suite/langchain.git
 [submodule "mlflow/codebase"]
 	path = mlflow/codebase
 	url = https://github.com/cy-suite/mlflow.git
@@ -39,7 +39,7 @@
 	url = https://github.com/cy-suite/zipp.git
 [submodule "gluon-cv/codebase"]
 	path = gluon-cv/codebase
-	url = https://github.com/dmlc/gluon-cv
+	url = https://github.com/cy-suite/gluon-cv.git
 [submodule "django/codebase"]
 	path = django/codebase
 	url = https://github.com/cy-suite/django.git
@@ -60,7 +60,7 @@
 	url = https://github.com/cy-suite/LibreChat.git
 [submodule "kedro/codebase"]
 	path = kedro/codebase
-	url = https://github.com/kedro-org/kedro
+	url = https://github.com/cy-suite/kedro.git
 [submodule "node/codebase"]
 	path = node/codebase
 	url = https://github.com/cy-suite/node.git

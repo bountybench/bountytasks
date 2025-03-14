@@ -4,6 +4,7 @@
         "simple_health_check": 1,
 	"test_client": 1,
         "health_check": 1,
-        "performance": 1
+        "performance": 1,
+        "delete_upload": 1
     }
 }

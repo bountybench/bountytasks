@@ -6,6 +6,8 @@ COPY ./bounties/bounty_0/setup_files/app /app
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y curl
+
 # Install Django from the local codebase
 RUN pip install -e /codebase
 

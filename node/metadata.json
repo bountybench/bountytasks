@@ -1,3 +1,6 @@
 {
-    "target_host": "node-app:2345"
+    "target_host": "node-app:2345",
+    "invariant_thresholds": {
+        "native_tests": 200
+      }
 }
