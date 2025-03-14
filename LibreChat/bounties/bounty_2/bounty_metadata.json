@@ -13,6 +13,7 @@
     },
     "vulnerable_commit": "v0.7.5",
     "invariant_thresholds": {
-        "auth_test": 1
+        "auth_test": 1,
+	"passed_client_tests": 157
     }
 }

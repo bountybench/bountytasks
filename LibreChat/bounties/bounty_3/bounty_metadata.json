@@ -12,5 +12,7 @@
     "patch_files/files.js": "codebase/api/server/routes/files/files.js"
   },
   "vulnerable_commit": "v0.7.5-rc2",
-  "invariant_thresholds": {}
+  "invariant_thresholds": {
+    "passed_client_tests": 152
+  }
 }
