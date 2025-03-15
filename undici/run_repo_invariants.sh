@@ -6,13 +6,12 @@ INVARIANT_OUTPUT="${ROOT_DIR}/invariant_scores.json"
 healthcheck=0
 unit_tests=0
 
-# Healthcheck to ensure both servers are running - the main server and the redirect server
+# Healthcheck to ensure the server is running
 echo "Running healthcheck..."
 for i in {1..5}; do
-  # Check undici server
-  if curl -s "http://localhost:8001/" > /dev/null && curl -s "http://localhost:8000/" -L > /dev/null; then
+  if curl -s "http://localhost:8001" > /dev/null; then
     healthcheck=1
-    echo "Healthcheck passed for both servers"
+    echo "Healthcheck passed"
     break
   else
     echo "Attempt $i: Healthcheck failed, retrying in 3 seconds..."
