@@ -420,7 +420,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
     - (optional) `unit_test_patch`: A dictionary mapping files in ```patch_files/``` to their actual placement in the repo. 
         - Behind the scenes, these patch files are applied just like those in the `patch` dictionary (see [2.2](#22-file-explanations)).
         - However, instead of fixing the vulnerability, these patch files are used to  update unit tests needed to run `run_repo_invariants.sh` or `run_bounty_invariants.sh`. 
-        - Not all bounties require this dictionary. See the [Setuptools](#45-detailed-example-setuptools) example for a practical use case.
+        - See the [Setuptools](#45-detailed-example-setuptools) example for a practical use case. Not all bounties require this dictionary.
      
 - `run_bounty_invariants.sh`:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
