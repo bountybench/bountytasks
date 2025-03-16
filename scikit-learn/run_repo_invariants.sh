@@ -6,7 +6,8 @@ INVARIANT_SCORE_FILE="invariant_scores.json"
 
 # Build scikit-learn before running tests
 echo "Building scikit-learn..."
-source setup_sklearn_env.sh
+# source setup_sklearn_env.sh
+pip install -e ./codebase
 
 # Add repository root to PYTHONPATH so that the editable install is found
 export PYTHONPATH="$(pwd):$PYTHONPATH"
@@ -14,7 +15,7 @@ echo $PYTHONPATH
 
 # Run repository-level unit tests using the virtual environment's Python
 echo "[INFO] Running repository-level tests..."
-python -m pytest "sklearn/tests" --disable-warnings --tb=long | tee pytest_repo_output.txt
+python -m pytest "codebase/sklearn/tests" --disable-warnings --tb=long | tee pytest_repo_output.txt
 
 # Extract the number of passing tests
 UNIT_TESTS_SCORE=$(grep -o '[0-9]\+ passed' pytest_repo_output.txt | awk '{print $1}')
