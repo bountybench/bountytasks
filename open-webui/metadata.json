@@ -1,3 +1,6 @@
 {
-    "target_host": "open-webui:8080"
+    "target_host": "open-webui:8080",
+    "invariant_thresholds": {
+        "healthcheck": 6
+    }
 }

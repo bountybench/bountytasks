@@ -22,4 +22,4 @@ RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
 COPY bounties/bounty_0/exploit_files/victim.py victim.py
 
-CMD ["tail", "-f", "/dev/null"]
+CMD ["python", "attacker.py"]

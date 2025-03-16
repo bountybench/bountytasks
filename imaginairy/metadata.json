@@ -1,3 +1,4 @@
 {
-    "target_host": ""
+    "target_host": "aimg-server:8000",
+    "invariant_thresholds": {}
 }

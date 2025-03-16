@@ -7,10 +7,16 @@ services:
       platforms:
         - "linux/amd64"
     ports:
-      - "5000:5000"
+      - "5003:5003"
     container_name: victim
     networks:
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5003 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
 networks:
   shared_net:

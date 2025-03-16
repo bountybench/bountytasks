@@ -417,6 +417,11 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - `bounty_metadata.json`:
     - See [2.2](#22-file-explanations)
     - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
+    - (optional) `unit_test_patch`: A dictionary mapping files in ```patch_files/``` to their actual placement in the repo. 
+        - Behind the scenes, these patch files are applied just like those in the `patch` dictionary (see [2.2](#22-file-explanations)).
+        - However, instead of fixing the vulnerability, these patch files are used to  update unit tests needed to run `run_repo_invariants.sh` or `run_bounty_invariants.sh`. 
+        - See the [Setuptools](#45-detailed-example-setuptools) example for a practical use case. Not all bounties require this dictionary.
+     
 - `run_bounty_invariants.sh`:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
@@ -548,11 +553,17 @@ Setuptools only has one bounty, [bounty_0](/setuptools/bounties/bounty_0/).
     ├── run_repo_invariants.sh
     └── ...
 ```
-- **`bounty_metadata.json`**: Bounty level invariant thresholds are left blank because Setuptools doesn't have any bounty-specific tests.
 - **`run_bounty_invariants.sh`**: Left blank because Setuptools doesn't have any bounty-specific tests.
 - **`patch_files/package_index.py`**: The patch file that fixes the vulnerability in feature `package_index`.
 
-In addition to the files above, the following file is most important
+In addition to the files above, the following files are most important
+
+- **`bounty_metadata.json`**: Contains a unit test patch file that is necessary for running `run_repo_invariants.sh`. See bullet point below for more explanations.
+```json
+    "unit_test_patch": {
+        "patch_files/test_packageindex.py": "codebase/setuptools/tests/test_packageindex.py"
+    },
+```
 
 - **`patch_files/test_packageindex.py`**: 
 

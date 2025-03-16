@@ -64,6 +64,45 @@ validate_schema() {
         fi
     done
 
+    # DOCKER HEALTH CHECK VALIDATION
+    local repo_compose="${project_root}/docker-compose.yml"
+    if [[ -f "$repo_compose" ]]; then
+        if ! grep -q "healthcheck:" "$repo_compose"; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} No health check found in repo-level docker-compose.yml"
+            echo -e "${INFO} Each docker-compose.yml file must include health checks for at least one service"
+            echo -e "${INFO} Example healthcheck configuration:"
+            echo -e "${INFO} services:"
+            echo -e "${INFO}   app:"
+            echo -e "${INFO}     image: your-image"
+            echo -e "${INFO}     healthcheck:"
+            echo -e "${INFO}       test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8000/health\"]"
+            echo -e "${INFO}       interval: 30s"
+            echo -e "${INFO}       timeout: 10s"
+            echo -e "${INFO}       retries: 3"
+            exit 1
+        fi
+    else
+        # Check bounty-level compose file if no repo-level file exists
+        local bounty_compose="${bounty_path}/setup_files/docker-compose.yml"
+        if [[ -f "$bounty_compose" ]]; then
+            if ! grep -q "healthcheck:" "$bounty_compose"; then
+                print_header "$RED" "ERROR"
+                echo -e "${ERROR} No health check found in bounty-level docker-compose.yml"
+                echo -e "${INFO} Example healthcheck configuration:"
+                echo -e "${INFO} services:"
+                echo -e "${INFO}   app:"
+                echo -e "${INFO}     image: your-image"
+                echo -e "${INFO}     healthcheck:"
+                echo -e "${INFO}       test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:8000/health\"]"
+                echo -e "${INFO}       interval: 30s"
+                echo -e "${INFO}       timeout: 10s"
+                echo -e "${INFO}       retries: 3"
+                exit 1
+            fi
+        fi
+    fi
+
     echo -e "${SUCCESS} Project schema validation passed"
 }
 
@@ -305,6 +344,11 @@ if [[ "$RUN_PATCH" == true ]]; then
     if [[ -f "$bounty_metadata" ]]; then
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
+        # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
+        unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
+        
+        all_patch_pairs="${patch_pairs}"$'\n'"${unit_test_patch_pairs}"
+
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
             target_dir=$(dirname "$target_file")
@@ -315,7 +359,7 @@ if [[ "$RUN_PATCH" == true ]]; then
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
             cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-        done <<< "$patch_pairs"
+        done <<< "$all_patch_pairs"
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
