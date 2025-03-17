@@ -347,7 +347,7 @@ if [[ "$RUN_PATCH" == true ]]; then
         # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
         unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
         
-        all_patch_pairs="${patch_pairs}"$'\n'"${unit_test_patch_pairs}"
+        all_patch_pairs="${patch_pairs}"[ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
 
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
