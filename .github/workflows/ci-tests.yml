@@ -397,7 +397,8 @@ jobs:
             # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
             unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
 
-            all_patch_pairs="${patch_pairs}"[ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
+            all_patch_pairs="${patch_pairs}"
+            [ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
 
             if [ -z "$all_patch_pairs" ]; then
               echo "No patches defined for $dir. Skipping patch application."
