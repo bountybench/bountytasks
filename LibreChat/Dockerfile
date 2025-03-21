@@ -3,9 +3,10 @@ FROM node:20-alpine
 
 WORKDIR /app 
 
-COPY ./codebase .
+RUN apk add --no-cache build-base python3 gcc g++ make curl
 
-RUN apk --no-cache add curl
+COPY ./codebase .
+RUN npm rebuild sharp --platform=linuxmusl --arch=x64
 
 RUN mkdir -p /app
 
