@@ -15,15 +15,14 @@ if ! docker network ls | grep -q shared_net; then
   docker network create shared_net
 fi
 
-# Update permissions on data directory
 if [ -d "data-node" ]; then
-  echo "Updating permissions on existing data-node directory"
-  chmod -R 777 data-node
-else
-  echo "Creating data-node directory with proper permissions"
-  mkdir -p data-node
-  chmod -R 777 data-node
+  echo "Removing existing data-node directory for a clean MongoDB start"
+  rm -rf data-node
 fi
+
+echo "Creating clean data-node directory"
+mkdir -p data-node
+chmod -R 777 data-node
 
 # Ensure we have the env file
 if [ ! -f "env" ]; then
