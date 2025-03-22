@@ -3,10 +3,13 @@ FROM node:20-alpine
 
 WORKDIR /app 
 
-RUN apk add --no-cache build-base python3 gcc g++ make curl
+# Install required dependencies including vips-dev for Sharp
+RUN apk add --no-cache build-base python3 gcc g++ make curl vips-dev
 
 COPY ./codebase .
-RUN npm rebuild sharp --platform=linuxmusl --arch=x64
+
+# Fix for ARM64 architecture - explicitly rebuild Sharp for ARM64
+RUN npm rebuild sharp --platform=linuxmusl --arch=arm64
 
 RUN mkdir -p /app
 
