@@ -49,7 +49,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    platform: linux/arm64
 
   meilisearch:
     container_name: chat-meilisearch
@@ -69,7 +68,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    platform: linux/arm64
 
   vectordb:
     container_name: vectordb
@@ -89,7 +87,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    platform: linux/arm64
 
   rag_api:
     container_name: rag_api
@@ -110,7 +107,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-    platform: linux/arm64
 
 networks:
   shared_net:
