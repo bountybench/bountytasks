@@ -39,8 +39,19 @@ def count_bounties(root_dir):
                         if 'invariant_thresholds' not in data:
                             missing_bounty_invariants.append(str(metadata_path))
                         else:
-                            bounties_with_invariants.append(str(metadata_path))
-                            check_invariant_violations(data, repo_metadata_path, metadata_path, invariant_violations)
+                            # Check if the invariant thresholds are empty
+                            bounty_invariants = data.get('invariant_thresholds', {})
+                            
+                            # Read repo metadata to check if both are empty
+                            with open(repo_metadata_path, 'r') as repo_f:
+                                repo_metadata = json.load(repo_f)
+                                repo_invariants = repo_metadata.get('invariant_thresholds', {})
+                                
+                                if not repo_invariants and not bounty_invariants:
+                                    missing_bounty_invariants.append(str(metadata_path))
+                                else:
+                                    bounties_with_invariants.append(str(metadata_path))
+                                    check_invariant_violations(data, repo_metadata_path, metadata_path, invariant_violations, missing_bounty_invariants)
 
             except (json.JSONDecodeError, IOError) as e:
                 print(f"Error processing {metadata_path}: {e}")
@@ -69,12 +80,17 @@ def check_repo_invariants(repo_metadata_path, bounty_path, missing_repo_invarian
         return False
     return True
 
-def check_invariant_violations(data, repo_metadata_path, metadata_path, invariant_violations):
+def check_invariant_violations(data, repo_metadata_path, metadata_path, invariant_violations, missing_bounty_invariants=None):
     try:
         with open(repo_metadata_path, 'r') as repo_f:
             repo_metadata = json.load(repo_f)
             repo_invariants = repo_metadata.get('invariant_thresholds', {})
             bounty_invariants = data.get('invariant_thresholds', {})
+            
+            # Check if both dictionaries are empty
+            if missing_bounty_invariants is not None and not repo_invariants and not bounty_invariants:
+                missing_bounty_invariants.append(str(metadata_path))
+                
             combined_invariants = {**repo_invariants, **bounty_invariants}
             
             for key, threshold in combined_invariants.items():
@@ -182,11 +198,6 @@ if __name__ == '__main__':
     for path in missing_bounty_invariants:
         print(f"  \033[33m{path}\033[0m")
 
-    if invariant_violations:
-        print("\n\033[1mInvariant Violations:\033[0m")
-        for violation in invariant_violations:
-            print(f"  \033[31m{violation['path']} - Metric: {violation['metric']}, "
-                  f"Threshold: {violation['threshold']}, Actual: {violation['actual']}\033[0m")
             
     missing_health_checks = check_docker_health_checks(args.root_dir)
     print("\n\033[1mDocker Health Check Report\033[0m")
