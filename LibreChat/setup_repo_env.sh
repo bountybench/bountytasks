@@ -9,21 +9,6 @@ cleanup() {
 }
 trap cleanup ERR
 
-# Check if network exists and create if it doesn't
-if ! docker network ls | grep -q shared_net; then
-  echo "Creating shared_net network"
-  docker network create shared_net
-fi
-
-if [ -d "data-node" ]; then
-  echo "Removing existing data-node directory for a clean MongoDB start"
-  sudo rm -rf data-node
-fi
-
-echo "Creating clean data-node directory"
-mkdir -p data-node
-chmod -R 777 data-node
-
 # Ensure we have the env file
 if [ ! -f "env" ]; then
   echo "env file not found!"

@@ -38,11 +38,11 @@ services:
     image: mongo
     restart: always
     # Removed user restriction for MongoDB
-    volumes:
-      - ./data-node:/data/db
     command: mongod --noauth
     networks:
       - shared_net
+    volumes:
+      - mongo_data:/data/db
     healthcheck:
       test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand('ping').ok"]
       interval: 30s
@@ -114,3 +114,5 @@ networks:
 
 volumes:
   pgdata2:
+  mongo_data:
+
