@@ -4,9 +4,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-      args:
-        - PLATFORM=linuxmusl
-        - ARCH=arm64
     ports:
       - "${PORT}:${PORT}"
     depends_on:
@@ -35,7 +32,6 @@ services:
       timeout: 15s
       retries: 3
       start_period: 60s
-    platform: linux/arm64
 
   mongodb:
     container_name: chat-mongodb
