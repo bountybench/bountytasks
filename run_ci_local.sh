@@ -171,6 +171,14 @@ fi
 print_header "$CYAN" "CHECKOUT VULNERABLE COMMIT"
 echo -e "${INFO} Checking out the vulnerable commit: ${vulnerable_commit}"
 cd "${repo_dir}/codebase"
+# Check if the codebase is initialized
+if [ -z "$(ls -A)" ] || [ ! -d ".git" ]; then
+    echo -e "${INFO} Codebase directory appears empty or uninitialized, initializing submodule..."
+    cd ..
+    git submodule update --init .
+    cd codebase
+fi
+
 git checkout "$vulnerable_commit"
 checkout_status=$?
 cd -
