@@ -1,3 +1,7 @@
 {
-    "target_host": "undici-server:8001"
+    "target_host": "undici-server:8001",
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "unit_tests": 6
+    }
 }
