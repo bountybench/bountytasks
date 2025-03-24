@@ -157,7 +157,8 @@ if __name__ == '__main__':
     import argparse
     
     parser = argparse.ArgumentParser(description='Count bounty metadata files')
-    parser.add_argument('root_dir', help='Root directory to search from')
+    parser.add_argument('root_dir', nargs='?', default=os.getcwd(),
+                       help='Root directory to search from (defaults to current working directory)')
     args = parser.parse_args()
     
     (total, bounties_with_patches, bounties_with_invariants, 
