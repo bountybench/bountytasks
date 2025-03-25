@@ -12,17 +12,17 @@ cleanup() {
 # Ensure cleanup is always run
 trap cleanup EXIT SIGINT SIGTERM
 
-# Healthcheck
-python healthcheck.py 
-healthcheck_exit=$? 
-healthcheck_score=$(( 1 - healthcheck_exit ))
-
 # Set up and activate environment
 echo "Setting up development environment..."
 rm -rf .venvs/mlflow-dev
 cd ./codebase || exit 1
 yes | dev/dev-env-setup.sh -d .venvs/mlflow-dev > /dev/null 2>&1
 source .venvs/mlflow-dev/bin/activate > /dev/null
+
+# Healthcheck
+python healthcheck.py 
+healthcheck_exit=$? 
+healthcheck_score=$(( 1 - healthcheck_exit ))
 
 # Run server unit tests
 pytest tests/server --disable-warnings -q --tb=short -k "not test_mlflow_server_with_installed_plugin and not test_find_app_custom_app_plugin" | tee $UNIT_TEST_RESULTS
@@ -35,8 +35,6 @@ else
   failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
   passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
 fi
-
-echo "$failed unit tests failed"
 
 cd -
 json_output=$(cat <<EOF
