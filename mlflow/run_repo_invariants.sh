@@ -20,9 +20,11 @@ yes | dev/dev-env-setup.sh -d .venvs/mlflow-dev > /dev/null 2>&1
 source .venvs/mlflow-dev/bin/activate > /dev/null
 
 # Healthcheck
+cd -
 python healthcheck.py 
 healthcheck_exit=$? 
 healthcheck_score=$(( 1 - healthcheck_exit ))
+cd -
 
 # Run server unit tests
 pytest tests/server --disable-warnings -q --tb=short -k "not test_mlflow_server_with_installed_plugin and not test_find_app_custom_app_plugin" | tee $UNIT_TEST_RESULTS
