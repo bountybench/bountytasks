@@ -392,6 +392,25 @@ if [[ "$RUN_PATCH" == true ]]; then
     cd -
 
     if [[ "$CHECK_INVARIANTS" == true ]]; then
+        # Store information about the current virtual environment if one is active
+        VENV_WAS_ACTIVE=false
+        if [[ -n "$VIRTUAL_ENV" ]]; then
+            VENV_WAS_ACTIVE=true
+            ORIGINAL_VENV="$VIRTUAL_ENV"
+            echo "Deactivating virtual environment: $VIRTUAL_ENV"
+            # The proper way to deactivate a virtual environment in a script
+            if type deactivate >/dev/null 2>&1; then
+                deactivate
+            else
+                # If deactivate function is not available, we need to modify PATH directly
+                # and unset VIRTUAL_ENV
+                OLD_PATH="$PATH"
+                PATH=$(echo "$PATH" | sed -e "s|$VIRTUAL_ENV/bin:||")
+                unset VIRTUAL_ENV
+                echo "Virtual environment variables cleared"
+            fi
+        fi
+        
         print_header "$CYAN" "RUN REPO INVARIANT CHECK"
         cd "$repo_dir"
         execute_if_exists "run_repo_invariants.sh"
@@ -399,6 +418,17 @@ if [[ "$RUN_PATCH" == true ]]; then
         if [[ ${invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
             echo -e "${ERROR} CHECK REPO INVARIANT FAIL"
+            
+            # Reactivate virtual environment if it was active before
+            if [[ "$VENV_WAS_ACTIVE" == true ]]; then
+                echo "Reactivating virtual environment: $ORIGINAL_VENV"
+                if [[ -f "$ORIGINAL_VENV/bin/activate" ]]; then
+                    source "$ORIGINAL_VENV/bin/activate"
+                else
+                    echo "Warning: Could not reactivate virtual environment. Activate manually if needed."
+                fi
+            fi
+            
             exit 1
         fi
         sleep 10
@@ -411,6 +441,17 @@ if [[ "$RUN_PATCH" == true ]]; then
         if [[ ${invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
             echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            
+            # Reactivate virtual environment if it was active before
+            if [[ "$VENV_WAS_ACTIVE" == true ]]; then
+                echo "Reactivating virtual environment: $ORIGINAL_VENV"
+                if [[ -f "$ORIGINAL_VENV/bin/activate" ]]; then
+                    source "$ORIGINAL_VENV/bin/activate"
+                else
+                    echo "Warning: Could not reactivate virtual environment. Activate manually if needed."
+                fi
+            fi
+            
             exit 1
         fi
         sleep 10
@@ -421,7 +462,28 @@ if [[ "$RUN_PATCH" == true ]]; then
         if [[ ${invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
             echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            
+            # Reactivate virtual environment if it was active before
+            if [[ "$VENV_WAS_ACTIVE" == true ]]; then
+                echo "Reactivating virtual environment: $ORIGINAL_VENV"
+                if [[ -f "$ORIGINAL_VENV/bin/activate" ]]; then
+                    source "$ORIGINAL_VENV/bin/activate"
+                else
+                    echo "Warning: Could not reactivate virtual environment. Activate manually if needed."
+                fi
+            fi
+            
             exit 1
+        fi
+        
+        # Reactivate virtual environment if it was active before
+        if [[ "$VENV_WAS_ACTIVE" == true ]]; then
+            echo "Reactivating virtual environment: $ORIGINAL_VENV"
+            if [[ -f "$ORIGINAL_VENV/bin/activate" ]]; then
+                source "$ORIGINAL_VENV/bin/activate"
+            else
+                echo "Warning: Could not reactivate virtual environment. Activate manually if needed."
+            fi
         fi
     else
         print_header "$CYAN" "SKIP REPO INVARIANT CHECK"
