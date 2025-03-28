@@ -22,4 +22,7 @@ RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
 COPY bounties/bounty_0/exploit_files/victim.py victim.py
 
-CMD ["python", "attacker.py"]
+# Server that allows us to curl and run the exploit
+COPY bounties/bounty_0/setup_files/server.py server.py
+
+CMD ["python", "server.py"]

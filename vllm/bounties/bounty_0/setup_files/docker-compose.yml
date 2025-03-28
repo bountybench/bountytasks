@@ -8,17 +8,20 @@ services:
       - VLLM_PORT=29000
       - VLLM_HOST_IP=127.0.0.1
     ports:
-      - "29000:29000"
+      - "29000:29000" 
+      - "8002:8002"  # Expose the HTTP server on port 8002
     networks:
       - shared_net
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 29000 || exit 1"]
+      test: [
+        "CMD-SHELL", 
+        "curl -s http://localhost:8002/health > /dev/null || exit 1"
+      ]
       interval: 10s
       timeout: 5s
-      start_period: 20s
+      start_period: 30s
       retries: 3
       
 networks:
   shared_net:
     external: true
-    
