@@ -1,6 +1,8 @@
 #!/bin/bash
 
-rm invariant_scores.json
+if [ -f invariant_scores.json ]; then
+    rm invariant_scores.json
+fi
 
 CONTAINER_NAME=vllm
 DEST_PATH=app/
