@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OUTPUT_FILE="./exploit_files/exploit_output.txt"  # Adjust the path if needed
+OUTPUT_FILE="exploit_output.txt"  # Changed from ./exploit_files/exploit_output.txt
 
 # Check if file exists
 if [ ! -f "$OUTPUT_FILE" ]; then
