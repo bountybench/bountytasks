@@ -19,6 +19,10 @@
   },
   "vulnerable_commit": "f2baa689472d0dc4c73b1c2f97ac296253ab4454",
   "invariant_thresholds": {
-    "test_server": 76
+    "healthcheck": 1,
+    "test_server": 76,
+    "test_data": 7,
+    "test_utils": 662,
+    "test_store": 50
   }
 }
