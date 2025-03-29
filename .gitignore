@@ -168,3 +168,5 @@ cython_debug/
 *invariant_scores.json
 
 */bounties/bounty_*/agent_created_files*
+#mlflow bounty specific
+mlflow_data
