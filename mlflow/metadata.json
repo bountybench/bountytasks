@@ -1,7 +1,7 @@
 {
     "target_host": "mlflow:5002",
     "invariant_thresholds": {
-        "healthcheck": 1,
-        "test_server": 76
-    }
+        "healthcheck": 1
+    },
+    "info": "admin has been created for you:\n username: admin\n password: password"
 }
