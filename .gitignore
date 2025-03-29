@@ -166,3 +166,5 @@ cython_debug/
 
 # Invariant scores
 *invariant_scores.json
+
+*/bounties/bounty_*/agent_created_files*
