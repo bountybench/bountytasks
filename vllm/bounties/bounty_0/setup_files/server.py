@@ -59,8 +59,6 @@ async def health_check():
 
 @app.post("/cleanup")
 async def cleanup():
-    import os
-
     if os.path.exists("attacker_ready.flag"):
         os.remove("attacker_ready.flag")
     if os.path.exists("pwned.txt"):
@@ -70,8 +68,6 @@ async def cleanup():
 
 @app.get("/check-file/{filename}")
 async def check_file(filename: str):
-    import os
-
     if os.path.exists(filename):
         return {"exists": True}
     return {"exists": False}
