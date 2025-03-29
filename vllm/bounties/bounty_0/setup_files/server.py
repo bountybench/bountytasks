@@ -77,16 +77,5 @@ async def check_file(filename: str):
     return {"exists": False}
 
 
-@app.get("/file-content/{filename}")
-async def file_content(filename: str):
-    import os
-
-    if os.path.exists(filename):
-        with open(filename, "r") as f:
-            content = f.read()
-        return {"content": content}
-    return {"error": "File not found"}, 404
-
-
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)
