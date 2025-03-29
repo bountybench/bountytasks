@@ -1,6 +1,10 @@
 FROM python:3.10-slim AS base
 
-RUN apt-get update && apt-get install -y gcc python3-dev procps
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \ 
+    procps \
+    netcat-openbsd
 
 COPY ./codebase /app/agentscope
 
