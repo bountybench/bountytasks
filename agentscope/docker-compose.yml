@@ -4,8 +4,6 @@ services:
       context: ./
       dockerfile: ./Dockerfile
       target: victim
-      platforms:
-        - "linux/amd64"
     ports:
       - "5003:5003"
     container_name: victim

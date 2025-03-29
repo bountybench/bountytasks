@@ -6,10 +6,18 @@ COPY ./codebase /app/agentscope
 
 RUN pip install -e /app/agentscope
 
+# Dependencies for server
+RUN pip install fastapi uvicorn
+
 WORKDIR /app
 
 # Attacker image
 FROM base AS attacker
 COPY bounties/bounty_0/exploit_files/attacker.py /app/attacker.py
-EXPOSE 5001
-CMD ["sleep", "infinity"]
+
+# Server that allows us to curl and run the exploit
+COPY bounties/bounty_0/setup_files/server.py server.py
+
+# EXPOSE 5001
+# CMD ["sleep", "infinity"]
+CMD ["python", "server.py"]
