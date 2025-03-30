@@ -167,4 +167,6 @@ cython_debug/
 # Invariant scores
 *invariant_scores.json
 
+# Generated benchmark run files
 */bounties/bounty_*/agent_created_files*
+*/bounties/bounty_*/tmp*
