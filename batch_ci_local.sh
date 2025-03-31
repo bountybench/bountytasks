@@ -48,6 +48,7 @@ done
 # Create summary arrays
 successful_bounties=()
 failed_bounties=()
+skipped_bounties=()
 
 # Find all bounty directories - only match the direct bounty_X directories, not subdirectories
 print_header "$CYAN" "FINDING ALL BOUNTY DIRECTORIES"
@@ -77,7 +78,34 @@ for bounty_dir in "${bounty_dirs[@]}"; do
     output=$(./run_ci_local.sh "$bounty_dir" $patch_flag $invariants_flag 2>&1)
     exit_status=$?
     
-    if [[ $exit_status -eq 0 ]]; then
+    # Check if failure is just due to missing invariant files
+    if [[ $exit_status -ne 0 && "$invariants_flag" == "--check-invariants" && 
+          ("$output" =~ "invariant_scores.json: [Errno 2] No such file or directory" ||
+           "$output" =~ "Missing invariant_thresholds key in repo metadata.json") ]]; then
+        print_header "$YELLOW" "BOUNTY $bounty_dir SKIPPED INVARIANTS"
+        skipped_bounties+=("$bounty_dir")
+        echo "$output"
+        
+        # Create logs directory if it doesn't exist
+        mkdir -p "local_ci_logs"
+        
+        # Extract the project name from the path (e.g., "astropy" from "./astropy/bounties/bounty_0")
+        project_name=$(echo "$bounty_dir" | sed -E 's|^\./([^/]+)/.*|\1|')
+        bounty_name=$(basename "$bounty_dir")
+        
+        # Construct log filename
+        log_flags=""
+        [[ -n "$patch_flag" ]] && log_flags="${log_flags}_patch"
+        [[ -n "$invariants_flag" ]] && log_flags="${log_flags}_invariants"
+        log_flags=${log_flags#_}
+        
+        log_file="local_ci_logs/${project_name}_${bounty_name}_skipped"
+        [[ -n "$log_flags" ]] && log_file="${log_file}_${log_flags}"
+        log_file="${log_file}.txt"
+        
+        echo "$output" > "$log_file"
+        echo -e "${INFO} Log saved to $log_file"
+    elif [[ $exit_status -eq 0 ]]; then
         print_header "$GREEN" "BOUNTY $bounty_dir PASSED"
         successful_bounties+=("$bounty_dir")
         # Just print the output for successful bounties
@@ -121,12 +149,36 @@ print_header "$CYAN" "SUMMARY"
 echo -e "${INFO} Total bounties: $total"
 echo -e "${SUCCESS} Successful bounties: ${#successful_bounties[@]}"
 echo -e "${ERROR} Failed bounties: ${#failed_bounties[@]}"
+echo -e "${WARNING} Skipped bounties (missing invariants): ${#skipped_bounties[@]}"
 echo
 
 if [[ ${#successful_bounties[@]} -gt 0 ]]; then
     print_header "$GREEN" "SUCCESSFUL BOUNTIES"
     for bounty in "${successful_bounties[@]}"; do
         echo -e "${SUCCESS} - $bounty"
+    done
+    echo
+fi
+
+if [[ ${#skipped_bounties[@]} -gt 0 ]]; then
+    print_header "$YELLOW" "SKIPPED BOUNTIES (MISSING INVARIANTS)"
+    for bounty in "${skipped_bounties[@]}"; do
+        # Extract project and bounty name for the log reference
+        project_name=$(echo "$bounty" | sed -E 's|^\./([^/]+)/.*|\1|')
+        bounty_name=$(basename "$bounty")
+        
+        # Construct log flags string
+        log_flags=""
+        [[ -n "$patch_flag" ]] && log_flags="${log_flags}_patch"
+        [[ -n "$invariants_flag" ]] && log_flags="${log_flags}_invariants"
+        log_flags=${log_flags#_}
+        
+        # Construct log filename
+        log_file="local_ci_logs/${project_name}_${bounty_name}_skipped"
+        [[ -n "$log_flags" ]] && log_file="${log_file}_${log_flags}"
+        log_file="${log_file}.txt"
+        
+        echo -e "${WARNING} - $bounty (log: $log_file)"
     done
     echo
 fi
@@ -154,7 +206,7 @@ if [[ ${#failed_bounties[@]} -gt 0 ]]; then
     echo
 fi
 
-# Exit with error if any bounty failed
+# Exit with error if any bounty failed (but not if they were just skipped due to missing invariants)
 if [[ ${#failed_bounties[@]} -gt 0 ]]; then
     exit 1
 fi
