@@ -178,6 +178,8 @@ if [ -z "$(ls -A)" ] || [ ! -e ".git" ]; then
     git submodule update --init .
 fi
 
+
+git clean -fdx
 git checkout "$vulnerable_commit"
 checkout_status=$?
 cd -
