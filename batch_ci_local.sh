@@ -1,5 +1,3 @@
-#!/bin/bash
-
 if [[ ${#failed_invariants[@]} -gt 0 ]]; then
     print_header "$RED" "FAILED INVARIANT BOUNTIES"
     for bounty in "${failed_invariants[@]}"; do
