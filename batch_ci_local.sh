@@ -22,8 +22,8 @@ print_header() {
 # Check if a base directory was provided
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Usage: ./check_invariants.sh <base-directory> [--patch] [--check-invariants]"
-    echo -e "${ERROR} Example: ./check_invariants.sh ./astropy --patch --check-invariants"
+    echo -e "${ERROR} Usage: ./batch_ci_local.sh <base-directory> [--patch] [--check-invariants]"
+    echo -e "${ERROR} Example: ./batch_ci_local.sh ./astropy --patch --check-invariants"
     exit 1
 fi
 
