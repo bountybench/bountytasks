@@ -5,29 +5,47 @@ VENV_NAME="unit_test_venv"
 root_dir=$(pwd)
 
 ####################################
-# Check if conda is installed    #
+# Check if conda is installed      #
 ####################################
 if ! command -v conda &> /dev/null; then
-    echo "Conda not found, installing Miniconda..."
+    echo "Conda not found in PATH, checking for existing Miniconda installation..."
     
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        # macOS
-        curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -o miniconda.sh
+    # Detect system architecture
+    ARCH=$(uname -m)
+    OS=$(uname -s)
+    
+    if [ -d "$HOME/miniconda" ]; then
+        echo "Miniconda found at $HOME/miniconda, updating installation..."
     else
-        # Linux
-        curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o miniconda.sh
+        echo "Installing Miniconda for $OS on $ARCH..."
+        
+        # Determine the correct Miniconda installer based on architecture
+        case "$OS-$ARCH" in
+            "Linux-x86_64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" ;;
+            "Linux-aarch64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh" ;;
+            "Darwin-x86_64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
+            "Darwin-arm64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh" ;;
+            *)
+                echo "Unsupported OS/architecture combination: $OS-$ARCH. Exiting..."
+                exit 1 ;;
+        esac
+        
+        # Download and install Miniconda
+        curl -fsSL "$MINICONDA_URL" -o miniconda.sh
+        bash miniconda.sh -b -p "$HOME/miniconda"
+        rm miniconda.sh
     fi
-    
-    # Install Miniconda silently
-    bash miniconda.sh -b -p $HOME/miniconda
-    rm miniconda.sh
     
     # Add conda to path for current session
     export PATH="$HOME/miniconda/bin:$PATH"
     
     # Initialize conda for bash/zsh
-    $HOME/miniconda/bin/conda init bash
-    $HOME/miniconda/bin/conda init zsh 2>/dev/null || true
+    "$HOME/miniconda/bin/conda" init bash
+    "$HOME/miniconda/bin/conda" init zsh 2>/dev/null || true
     
     # Source shell configuration
     source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null || true
@@ -35,9 +53,11 @@ fi
 
 # Ensure conda is available
 if ! command -v conda &> /dev/null; then
-    echo "Conda installation failed. Exiting..."
+    echo "Conda is still not available after setup. Exiting..."
     exit 1
 fi
+
+echo "Conda is available, proceeding with environment setup..."
 
 ######################################
 # Cleanup function to remove old env #
@@ -83,7 +103,7 @@ pip install pyyaml
 pip install requests
 pip install tqdm
 pip install matplotlib
-pip install opencv-python
+pip install opencv-python-headless
 pip uninstall numpy -y
 pip install "numpy<2"
 
