@@ -1,25 +1,4 @@
-if [[ ${#failed_invariants[@]} -gt 0 ]]; then
-    print_header "$RED" "FAILED INVARIANT BOUNTIES"
-    for bounty in "${failed_invariants[@]}"; do
-        # Extract project and bounty name for the log reference
-        project_name=$(echo "$bounty" | sed -E 's|^\./([^/]+)/.*|\1|')
-        bounty_name=$(basename "$bounty")
-        
-        # Construct log flags string
-        log_flags=""
-        [[ -n "$patch_flag" ]] && log_flags="${log_flags}_patch"
-        [[ -n "$invariants_flag" ]] && log_flags="${log_flags}_invariants"
-        log_flags=${log_flags#_}
-        
-        # Construct log filename
-        log_file="local_ci_logs/${project_name}_${bounty_name}_failed_invariants"
-        [[ -n "$log_flags" ]] && log_file="${log_file}_${log_flags}"
-        log_file="${log_file}.txt"
-        
-        echo -e "${ERROR} - $bounty (log: $log_file)"
-    done
-    echo
-fi#!/bin/bash
+#!/bin/bash
 
 # Define color codes
 GREEN="\033[1;32m"
@@ -70,7 +49,6 @@ done
 successful_bounties=()
 failed_bounties=()
 skipped_bounties=()
-failed_invariants=()
 
 # Find all bounty directories - only match the direct bounty_X directories, not subdirectories
 print_header "$CYAN" "FINDING ALL BOUNTY DIRECTORIES"
@@ -104,9 +82,9 @@ for bounty_dir in "${bounty_dirs[@]}"; do
     if [[ $exit_status -ne 0 && "$invariants_flag" == "--check-invariants" && 
           ("$output" =~ "invariant_scores.json: [Errno 2] No such file or directory" ||
            "$output" =~ "Missing invariant_thresholds key in repo metadata.json" ||
-           "$output" =~ "No invariant_scores key found in" ||
-           "$output" =~ "ERROR: No matching distribution found for" ||
-           "$output" =~ "ERROR: Could not find a version that satisfies the requirement") ]]; then
+           "$output" =~ "No invariant_scores key found in bounty scores" ||
+           "$output" =~ "No invariant_scores key found in repo scores") &&
+          ! ("$output" =~ "Invariant violations:") ]]; then
         print_header "$YELLOW" "BOUNTY $bounty_dir SKIPPED INVARIANTS"
         skipped_bounties+=("$bounty_dir")
         echo "$output"
@@ -125,33 +103,6 @@ for bounty_dir in "${bounty_dirs[@]}"; do
         log_flags=${log_flags#_}
         
         log_file="local_ci_logs/${project_name}_${bounty_name}_skipped"
-        [[ -n "$log_flags" ]] && log_file="${log_file}_${log_flags}"
-        log_file="${log_file}.txt"
-        
-        echo "$output" > "$log_file"
-        echo -e "${INFO} Log saved to $log_file"
-    # Check if failure is due to failing invariants
-    elif [[ $exit_status -ne 0 && "$invariants_flag" == "--check-invariants" && 
-          ("$output" =~ "Invariant violations:" ||
-           "$output" =~ "score .* is below threshold") ]]; then
-        print_header "$RED" "BOUNTY $bounty_dir FAILED INVARIANTS"
-        failed_invariants+=("$bounty_dir")
-        echo "$output"
-        
-        # Create logs directory if it doesn't exist
-        mkdir -p "local_ci_logs"
-        
-        # Extract the project name from the path (e.g., "astropy" from "./astropy/bounties/bounty_0")
-        project_name=$(echo "$bounty_dir" | sed -E 's|^\./([^/]+)/.*|\1|')
-        bounty_name=$(basename "$bounty_dir")
-        
-        # Construct log filename
-        log_flags=""
-        [[ -n "$patch_flag" ]] && log_flags="${log_flags}_patch"
-        [[ -n "$invariants_flag" ]] && log_flags="${log_flags}_invariants"
-        log_flags=${log_flags#_}
-        
-        log_file="local_ci_logs/${project_name}_${bounty_name}_failed_invariants"
         [[ -n "$log_flags" ]] && log_file="${log_file}_${log_flags}"
         log_file="${log_file}.txt"
         
@@ -201,7 +152,6 @@ print_header "$CYAN" "SUMMARY"
 echo -e "${INFO} Total bounties: $total"
 echo -e "${SUCCESS} Successful bounties: ${#successful_bounties[@]}"
 echo -e "${ERROR} Failed bounties: ${#failed_bounties[@]}"
-echo -e "${ERROR} Failed invariant bounties: ${#failed_invariants[@]}"
 echo -e "${WARNING} Skipped bounties (missing invariants): ${#skipped_bounties[@]}"
 echo
 
@@ -260,7 +210,7 @@ if [[ ${#failed_bounties[@]} -gt 0 ]]; then
 fi
 
 # Exit with error if any bounty failed (but not if they were just skipped due to missing invariants)
-if [[ ${#failed_bounties[@]} -gt 0 || ${#failed_invariants[@]} -gt 0 ]]; then
+if [[ ${#failed_bounties[@]} -gt 0 ]]; then
     exit 1
 fi
 
