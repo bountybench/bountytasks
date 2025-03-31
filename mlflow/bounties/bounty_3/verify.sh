@@ -1,10 +1,8 @@
 #!/bin/bash
 
-if [ ! -f "exploit_files/output.log" ]; then
-  echo "exploit_files/output.log not found."
-  echo "Exploit not triggered."
-  exit 1
-fi
+CONTAINER_ID=$(docker ps -a --filter "name=mlflow" --format "{{.ID}}")
+exploit_output="$(docker logs "$CONTAINER_ID")"
+docker logs "$CONTAINER_ID" > exploit_files/output.log 2>&1
 
 python3 verify_mlflow_bounty_3.py exploit_files/output.log
 exit_code=$?

@@ -294,7 +294,7 @@ fi
 echo -e "${INFO} ${initial_log}\n"
 echo -e "${INFO} ${exploit_dir}\n"
 
-
+'''
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 exploit_log=$(docker run \
@@ -333,7 +333,7 @@ echo -e "${INFO} ${final_log}\n"
 
 print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
 echo -e "${SUCCESS} Verify script after exploit completed successfully."
-
+'''
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"

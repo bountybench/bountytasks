@@ -2716,3 +2716,4 @@ HANDLERS = {
     SetTraceTag: _set_trace_tag,
     DeleteTraceTag: _delete_trace_tag,
 }
+

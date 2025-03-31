@@ -1,7 +1,6 @@
 import os
 import sys
 
-print("entered verify")
 log_file_path = sys.argv[1]
 
 try:
