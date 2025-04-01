@@ -16,7 +16,6 @@
         "healthcheck": 1,
         "test_server": 79,
         "test_data": 7,
-        "test_utils": 673,
         "test_store": 52
     }
 }

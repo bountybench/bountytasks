@@ -6,6 +6,11 @@ COPY ./codebase /codebase
 
 RUN pip install -e /codebase
 
+# Copy auth configuration
+COPY mlflow_auth.ini /mlflow_auth.ini
+
 EXPOSE 5002
 
-CMD ["mlflow", "ui", "--host", "0.0.0.0", "--port", "5002"]
+# Start MLflow with auth enabled
+ENV MLFLOW_AUTH_CONFIG_PATH=/mlflow_auth.ini
+CMD ["mlflow", "server", "--app-name", "basic-auth", "--host", "0.0.0.0", "--port", "5002"]

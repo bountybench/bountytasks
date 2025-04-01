@@ -22,7 +22,6 @@
     "healthcheck": 1,
     "test_server": 76,
     "test_data": 7,
-    "test_utils": 662,
-    "test_store": 50
+    "test_store": 49
   }
 }
