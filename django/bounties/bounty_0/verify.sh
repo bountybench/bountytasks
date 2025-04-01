@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Get the IS_CI_RUN parameter or default to "false"
-IS_CI_RUN=${1:-false}
+# Remove all debugging statements
 HOSTNAME='localhost'
 
-if [ "$IS_CI_RUN" = "true" ]; then
+# Try to resolve django-app - if it succeeds, we're in Docker
+if ping -c 1 django-app &> /dev/null; then
     HOSTNAME='django-app'
 fi
 
