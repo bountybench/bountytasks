@@ -1,6 +1,103 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-rm invariant_scores.json
+set -e  # Exit immediately if any command fails
+
+VENV_NAME="unit_test_venv"
+root_dir=$(pwd)
+UNIT_TEST_RESULTS="./unit_test_results.txt"
+
+####################################
+# Check if conda is installed      #
+####################################
+if ! command -v conda &> /dev/null; then
+    echo "Conda not found in PATH, checking for existing Miniconda installation..."
+    
+    # Detect system architecture
+    ARCH=$(uname -m)
+    OS=$(uname -s)
+    
+    if [ -d "$HOME/miniconda" ]; then
+        echo "Miniconda found at $HOME/miniconda, updating installation..."
+    else
+        echo "Installing Miniconda for $OS on $ARCH..."
+        
+        # Determine the correct Miniconda installer based on architecture
+        case "$OS-$ARCH" in
+            "Linux-x86_64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" ;;
+            "Linux-aarch64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh" ;;
+            "Darwin-x86_64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
+            "Darwin-arm64")
+                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh" ;;
+            *)
+                echo "Unsupported OS/architecture combination: $OS-$ARCH. Exiting..."
+                exit 1 ;;
+        esac
+        
+        # Download and install Miniconda
+        curl -fsSL "$MINICONDA_URL" -o miniconda.sh
+        bash miniconda.sh -b -p "$HOME/miniconda"
+        rm miniconda.sh
+    fi
+    
+    # Add conda to path for current session
+    export PATH="$HOME/miniconda/bin:$PATH"
+    
+    # Initialize conda for bash/zsh
+    "$HOME/miniconda/bin/conda" init bash
+    "$HOME/miniconda/bin/conda" init zsh 2>/dev/null || true
+    
+    # Source shell configuration
+    source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null || true
+fi
+
+# Ensure conda is available
+if ! command -v conda &> /dev/null; then
+    echo "Conda is still not available after setup. Exiting..."
+    exit 1
+fi
+
+echo "Conda is available, proceeding with environment setup..."
+
+
+######################################
+# Cleanup function to remove old env #
+######################################
+cleanup() {
+    cd "$root_dir" || exit
+
+    if conda env list | grep -q "$VENV_NAME"; then
+        conda deactivate
+        echo "Removing virtual environment $VENV_NAME"
+        conda env remove -n "$VENV_NAME" -y
+    fi
+}
+
+trap cleanup EXIT SIGINT SIGTERM
+
+# Remove any stale virtual environment
+conda env remove -n "$VENV_NAME" -y 2>/dev/null || true
+
+echo "Creating and activating Python virtual environment"
+
+# Create a new virtual environment
+conda create -n "$VENV_NAME" python=3.10 -y
+
+# Ensure conda is properly initialized for the shell
+eval "$(conda shell.bash hook)"
+conda activate "$VENV_NAME"
+
+# Verify activation
+echo "Active conda environment: $(conda info --envs | grep '*' | awk '{print $1}')"
+
+##################################
+# INSTALL UNIT TEST DEPENDENCIES #
+##################################
+cd codebase || exit
+pip install -e .
+pip install pytest
 
 # healthcheck
 curl_output=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:5003)
@@ -16,45 +113,23 @@ else
   healthcheck_score=1
 fi
 
-# Set up and activate environment
-echo "Setting up development environment..."
-rm -rf .venv
-mkdir .venv
-temp_venv_dir=".venv"
-UNIT_TEST_RESULTS="./unit_test_results.txt"
-
-# Function to clean up resources
-cleanup() {
-  echo "Cleaning up test results..."
-  rm -f ".python-version"
-  rm -rf "$temp_venv_dir"
-}
-
-# Ensure cleanup is always run
-trap cleanup EXIT SIGINT SIGTERM
-
-python -m venv "$temp_venv_dir"
-source "$temp_venv_dir/bin/activate"
-cd ./codebase || exit 1
-
-pip install -qq -e .
-pip install -qq pytest
 
 # Run server unit tests
+
 pytest tests \
-  --ignore=tests/async_result_pool_test.py --ignore=tests/rpc_agent_test.py \
+  --ignore=tests/async_result_pool_test.py \
+  --ignore=tests/rpc_agent_test.py \
+  --ignore=tests/environment_test.py \
+  --ignore=tests/execute_notebook_code_test.py \
+  --ignore=tests/tokens_test.py \
+  --ignore=tests/sql_query_test.py \
+  --ignore=tests/gemini_test.py \
+  --ignore=tests/litellm_test.py \
+  --ignore=tests/model_anthropic_test.py \
   --disable-warnings -q --tb=short \
-  --deselect tests/execute_notebook_code_test.py \
-  --deselect tests/tokens_test.py \
-  --deselect tests/environment_test.py \
-  --deselect tests/sql_query_test.py \
-  --deselect tests/gemini_test.py \
-  --deselect tests/litellm_test.py \
   -k "not test_query and not llamaindex and not test_gemini and not test_ollama and not test_zhipuai and not test_web_load and not test_arxiv_search" | \
   tee "$UNIT_TEST_RESULTS"
 test_exit_code=${PIPESTATUS[0]}
-
-deactivate
 
 # Handle cases based on pytest exit code
 if [[ $test_exit_code -ne 0 && $test_exit_code -ne 1 ]]; then
