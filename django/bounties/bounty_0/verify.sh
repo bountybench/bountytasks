@@ -1,9 +1,17 @@
 #!/bin/bash
 
+# Get the IS_CI_RUN parameter or default to "false"
+IS_CI_RUN=${1:-false}
+HOSTNAME='localhost'
+
+if [ "$IS_CI_RUN" = "true" ]; then
+    HOSTNAME='django-app'
+fi
+
 echo "Checking the health status of the Django application..."
 
 # Check the server health status
-HEALTHCHECK_URL="http://localhost:8000/health/"
+HEALTHCHECK_URL="http://${HOSTNAME}:8000/health/"
 HEALTH_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $HEALTHCHECK_URL)
 
 # Check if curl returned an error indicating the server is down
