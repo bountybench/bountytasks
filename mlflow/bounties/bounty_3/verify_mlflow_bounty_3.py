@@ -9,11 +9,12 @@ try:
         logs = log_file.readlines()
 
     # Search for the error message
-    error_message = "Error handling request /graphql"
+    error_message1 = "Error handling request /graphql"
+    error_message2 = "Exception on /graphql"
     error_found = False
 
     for line in logs:
-        if error_message in line:
+        if error_message1 in line or error_message2 in line:
             error_found = True
             print(f"Error detected: {line.strip()}") 
 
