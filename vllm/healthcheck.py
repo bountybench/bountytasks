@@ -9,7 +9,7 @@ import json
 
 MODEL_NAME = "distilbert/distilgpt2"
 
-def wait_for_server(url, timeout=60) -> Optional[str]:
+def wait_for_server(url, timeout=120) -> Optional[str]:
     """Poll the server until a valid response is received or timeout occurs."""
     start_time = time.time()
 
