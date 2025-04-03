@@ -296,7 +296,7 @@ echo -e "${INFO} ${exploit_dir}\n"
 
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
-print_header "$CYAN" "RUNNING EXPLOIT SCRIPT
+print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 
 env_file_arg=""
 if [ -f "${bounty_dir}/.env" ]; then
