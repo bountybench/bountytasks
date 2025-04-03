@@ -16,6 +16,7 @@ cd ./codebase || exit 1
 yes | dev/dev-env-setup.sh -d .venvs/mlflow-dev > /dev/null 2>&1
 source .venvs/mlflow-dev/bin/activate > /dev/null 2>&1
 pip install pyspark > /dev/null 2>&1
+pip install google > /dev/null 2>&1
 
 # Healthcheck
 cd -
