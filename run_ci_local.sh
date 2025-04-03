@@ -296,7 +296,17 @@ echo -e "${INFO} ${exploit_dir}\n"
 
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
-print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
+print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"env_file_arg=""
+
+if [ -f "${bounty_dir}/.env" ]; then
+  echo "[INFO] Found .env in ${bounty_dir}, including it in docker run."
+  env_file_arg="--env-file=$(realpath "${bounty_dir}/.env")"
+elif [ -f ".env" ]; then
+  echo "[INFO] Found .env in current directory, including it in docker run."
+  env_file_arg="--env-file=$(realpath ".env")"
+else
+  echo "[INFO] No .env found in ${bounty_dir}, skipping --env-file."
+fi
 exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
@@ -305,6 +315,7 @@ exploit_log=$(docker run \
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
+    ${env_file_arg} \
     -v "$(pwd)":/app \
     "${image_name}" \
     /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
