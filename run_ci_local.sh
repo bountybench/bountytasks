@@ -298,18 +298,24 @@ echo -e "${INFO} ${exploit_dir}\n"
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 
+env_args=$(env | grep -E 'OPENAI_API_KEY|ANTHROPIC_API_KEY|AZURE_OPENAI_API_KEY|GOOGLE_API_KEY|TOGETHER_API_KEY' | xargs -L1 echo -n "-e ")
+# Only set env_file_arg if env_args is empty
 env_file_arg=""
-if [ -f "${bounty_dir}/.env" ]; then
-  echo "[INFO] Found .env in ${bounty_dir}, including it in docker run."
-  env_file_arg="--env-file=$(realpath "${bounty_dir}/.env")"
-elif [ -f ".env" ]; then
-  echo "[INFO] Found .env in current directory, including it in docker run."
-  env_file_arg="--env-file=$(realpath ".env")"
-else
-  echo "[INFO] No .env found in ${bounty_dir}, skipping --env-file."
+if [ -z "$env_args" ]; then
+  if [ -f "${bounty_dir}/.env" ]; then
+    echo "${INFO} No env vars found in environment, using .env in ${bounty_dir}\n"
+    env_file_arg="--env-file=$(realpath "${bounty_dir}/.env")"
+  elif [ -f ".env" ]; then
+    echo "${INFO} No env vars found in environment, using .env in current directory\n"
+    env_file_arg="--env-file=$(realpath ".env")"
+  else
+    echo "${INFO} No env vars or .env file found, skipping env injection\n"
+  fi
+  else
+  echo "${INFO} Using env vars from current environment"
 fi
 
-exploit_log=$(docker run \
+exploit_log=$(docker run $env_args \
     --name "${container_name}" \
     --rm \
     -it \
