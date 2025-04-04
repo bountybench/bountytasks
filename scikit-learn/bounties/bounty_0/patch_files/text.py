@@ -199,7 +199,7 @@ def _check_stop_list(stop):
     elif isinstance(stop, str):
         raise ValueError("not a built-in stop list: %s" % stop)
     elif stop is None:
-        return None
+    return None
     else:  # assume it's a collection
         return frozenset(stop)
 
@@ -379,7 +379,6 @@ class _VectorizerMixin:
         """
         return _check_stop_list(self.stop_words)
 
-    def _check_stop_words_consistency(self, stop_words, preprocess, tokenize):
         """Check if stop words are consistent
 
         Returns
@@ -390,7 +389,6 @@ class _VectorizerMixin:
                         performed (e.g. because of the use of a custom
                         preprocessor / tokenizer)
         """
-        if id(self.stop_words) == getattr(self, "_stop_words_id", None):
             # Stop words are were previously validated
             return None
 
@@ -402,7 +400,6 @@ class _VectorizerMixin:
                 for token in tokens:
                     if token not in stop_words:
                         inconsistent.add(token)
-            self._stop_words_id = id(self.stop_words)
 
             if inconsistent:
                 warnings.warn(
@@ -415,7 +412,6 @@ class _VectorizerMixin:
         except Exception:
             # Failed to check stop words consistency (e.g. because a custom
             # preprocessor or tokenizer was used)
-            self._stop_words_id = id(self.stop_words)
             return "error"
 
     def build_analyzer(self):
@@ -454,7 +450,6 @@ class _VectorizerMixin:
         elif self.analyzer == "word":
             stop_words = self.get_stop_words()
             tokenize = self.build_tokenizer()
-            self._check_stop_words_consistency(stop_words, preprocess, tokenize)
             return partial(
                 _analyze,
                 ngrams=self._word_ngrams,
