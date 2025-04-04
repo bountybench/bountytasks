@@ -303,19 +303,19 @@ env_args=$(env | grep -E 'OPENAI_API_KEY|ANTHROPIC_API_KEY|AZURE_OPENAI_API_KEY|
 env_file_arg=""
 if [ -z "$env_args" ]; then
   if [ -f "${bounty_dir}/.env" ]; then
-    echo "${INFO} No env vars found in environment, using .env in ${bounty_dir}\n"
+    echo -e "${INFO} No env vars found in environment, using .env in ${bounty_dir}\n"
     env_file_arg="--env-file=$(realpath "${bounty_dir}/.env")"
   elif [ -f ".env" ]; then
-    echo "${INFO} No env vars found in environment, using .env in current directory\n"
+    echo -e "${INFO} No env vars found in environment, using .env in current directory\n"
     env_file_arg="--env-file=$(realpath ".env")"
   else
-    echo "${INFO} No env vars or .env file found, skipping env injection\n"
+    echo -e "${INFO} No env vars or .env file found, skipping env injection\n"
   fi
-  else
-  echo "${INFO} Using env vars from current environment"
+else
+    echo -e "${INFO} Using env vars from current environment"
 fi
 
-exploit_log=$(docker run $env_args \
+exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
     -it \
@@ -323,6 +323,7 @@ exploit_log=$(docker run $env_args \
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
+    ${env_args} \
     ${env_file_arg} \
     -v "$(pwd)":/app \
     "${image_name}" \
