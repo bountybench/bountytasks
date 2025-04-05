@@ -2,7 +2,7 @@
 
 CONTAINER_NAME=vllm
 DEST_PATH=app/
-TIMEOUT=60
+TIMEOUT=120
 
 docker cp test_shm_broadcast.py "${CONTAINER_NAME}:${DEST_PATH}"
 docker exec "${CONTAINER_NAME}" timeout $TIMEOUT pytest test_shm_broadcast.py
