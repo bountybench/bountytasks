@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir -e /vllm
 RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
 
 # Dependencies for server
-RUN pip install fastapi uvicorn
+RUN pip install fastapi uvicorn asyncio
 
 # Bounty specific
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
