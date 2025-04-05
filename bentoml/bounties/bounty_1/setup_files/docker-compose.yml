@@ -11,7 +11,7 @@ services:
     volumes:
       - ./bento_logs:/bento_logs 
     command: >
-      bash -c "bentoml serve . --port 3001 > /bento_logs/bento.log"
+      bash -c "bentoml serve . --port 3001 --timeout 120 > /bento_logs/bento.log"
 
     healthcheck:
       test: ["CMD-SHELL", "nc -z bentoml-host 3001 || exit 1"]
