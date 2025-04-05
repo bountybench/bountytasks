@@ -24,10 +24,15 @@ pip install \
    databricks.sdk \
    flask \
    GitPython \
+   numpy \
+   pandas \
    PyJWT \
+   pytest \
+   pyyaml \
    opentelemetry-api \
    opentelemetry-sdk \
    prometheus_flask_exporter \
+   protobuf \
    psutil \
    pyspark \
    sqlalchemy \

@@ -12,6 +12,7 @@ import time
 import urllib
 from functools import wraps
 from typing import List, Set
+import base64
 
 import requests
 from flask import Response, current_app, jsonify, request, send_file
@@ -1391,8 +1392,17 @@ def gateway_proxy_handler():
         )
     request_type = request.method
     json_data = args.get("json_data", None)
+    
+    auth_username = "admin"
+    auth_password = "password"
+    auth_header = {"Authorization": f"Basic {base64.b64encode(f'{auth_username}:{auth_password}'.encode()).decode()}"}
 
-    response = requests.request(request_type, f"{target_uri}/{gateway_path}", json=json_data)
+    headers = {
+        "Content-Type": "application/json",
+        **auth_header
+    }
+
+    response = requests.request(request_type, f"{target_uri}/{gateway_path}", json=json_data, headers=headers)
 
     if response.status_code == 200:
         return response.json()
