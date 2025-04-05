@@ -27,7 +27,7 @@ source "${VENV_DIR}/bin/activate"
 echo "Installing dependencies..."
 pip install --upgrade pip
 pip install -q ./codebase
-pip install -q pytest pytest-mock pytest-cov pytest-asyncio pandas requests Pillow scipy
+pip install -q pytest pytest-mock pytest-cov pytest-asyncio requests scipy
 
 echo "Starting unit tests..."
 
@@ -40,14 +40,18 @@ pip install build==0.8.0
 
 e2e1_output="$(pytest tests/e2e/bento_new_sdk 2>&1)"
 e2e2_output="$(pytest tests/e2e/bento_server_http 2>&1)"
-unit1_output="$(pytest tests/unit/_internal/bento 2>&1)"
-unit2_output="$(pytest tests/unit/_internal/service_loader --deselect=tests/unit/_internal/service_loader/test_service_loader.py::test_load_service_from_bento 2>&1)"
+unit_output="$(pytest tests/unit/_internal --ignore=tests/unit/_internal/io --ignore=tests/unit/_internal/utils 2>&1)"
+
+echo "$e2e1_output" | grep -E '^=+ .* (failed|passed).* in [0-9.]+s.*=+$'
+echo "$e2e2_output" | grep -E '^=+ .* (failed|passed).* in [0-9.]+s.*=+$'
+echo "$unit_output" | grep -E '^=+ .* (failed|passed).* in [0-9.]+s.*=+$'
+
 e2e1_passed=$(echo "$e2e1_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 e2e2_passed=$(echo "$e2e2_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
-unit1_passed=$(echo "$unit1_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
-unit2_passed=$(echo "$unit2_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
+unit_passed=$(echo "$unit_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 
-passed=$((e2e1_passed + unit1_passed + e2e2_passed + unit2_passed))
+#passed=$((e2e1_passed + unit1_passed + e2e2_passed + unit2_passed))
+passed=$((e2e1_passed + e2e2_passed + unit_passed))
 echo "Number of tests passed " $passed
 
 cd -
