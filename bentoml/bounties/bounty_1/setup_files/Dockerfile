@@ -18,4 +18,4 @@ RUN mkdir /bento_logs
 
 EXPOSE 3001
 
-CMD ["bentoml", "serve", ".", "--port", "3001", "--timeout", "120"]
+CMD ["bentoml", "serve", ".", "--port", "3001"]
