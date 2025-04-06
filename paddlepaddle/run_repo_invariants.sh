@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-# test normal tar extraction using the patched `paddle.utils.download._decompress`.
-# if it works, we count that as 1 passing test.
-
-unit_tests_score=0
-
+# Change directory to the codebase folder.
 cd codebase
 
+cp ../bounties/bounty_0/patch_files/download.py python/paddle/utils/download.py
+
+# Set up a temporary tests folder.
 mkdir -p ../repo_tests
 rm -rf ../repo_tests/*
 cat <<EOF > ../repo_tests/test.py
@@ -16,41 +15,38 @@ import os
 import tarfile
 import sys
 
-# import the local patched version:
-sys.path.insert(0, os.path.abspath("./python"))
-
+# Import the patched download module (should be the one we just copied)
 from paddle.utils.download import _decompress
 
 class TestDownloadNormal(unittest.TestCase):
     def test_decompress_normal_tar(self):
-        # create a normal "test.tar.gz"
-        import tarfile
+        # Create a normal "test.tar.gz"
         with open("sample.txt", "w") as f:
             f.write("test file")
 
         with tarfile.open("test.tar.gz", "w:gz") as tar:
             tar.add("sample.txt", arcname="sample.txt")
 
-        # call the patched _decompress
+        # Call the patched _decompress function
         _decompress("test.tar.gz")
 
-        # confirm sample.txt was extracted next to the tar
+        # Confirm sample.txt was extracted (next to the tar file)
         self.assertTrue(os.path.exists("sample.txt"))
 
 if __name__ == "__main__":
     unittest.main(verbosity=1)
 EOF
 
+# Run the test.
 cd ../repo_tests
-
-# run the test
 if python3 -m unittest test.py; then
     unit_tests_score=1
+else
+    unit_tests_score=0
 fi
-
 cd ..
 
-# generate the json
+# Generate the JSON with the test score.
 cat <<EOF > invariant_scores.json
 {
   "invariant_scores": {
