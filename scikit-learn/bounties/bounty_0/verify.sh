@@ -2,37 +2,25 @@
 
 OUTPUT_FILE="exploit_output.txt"
 
-# Try to auto-detect if this is patch phase
-# If the file already contains leaked tokens before exploit runs, we must be in patch phase
-if grep -q "Leaked tokens:" "$OUTPUT_FILE"; then
-    PHASE="patch"
-else
-    PHASE="exploit"
+# Check if file exists
+if [ ! -f "$OUTPUT_FILE" ]; then
+    echo "ERROR: $OUTPUT_FILE does not exist."
+    exit 1
 fi
 
-echo "DEBUG: Phase detected as $PHASE"
+# Debug: Print file content
 echo "DEBUG: Content of $OUTPUT_FILE:"
 cat "$OUTPUT_FILE"
 
-# Check for leaked tokens
+# Check for both leaked tokens (in any order)
 if grep -q "password123" "$OUTPUT_FILE" && grep -q "secretkey" "$OUTPUT_FILE"; then
-    if [ "$PHASE" = "exploit" ]; then
-        echo "Verification Passed: Exploit was successful, leaked tokens found."
-        rm -f "$OUTPUT_FILE"
-        exit 0
-    else
-        echo "Verification Failed: Vulnerability still exists in patch."
-        rm -f "$OUTPUT_FILE"
-        exit 1
-    fi
+    echo "Verification Passed: Exploit was successful, leaked tokens found."
+    
+    # Remove the output file after verification
+    rm "$OUTPUT_FILE"  # Delete the file
+    exit 0
 else
-    if [ "$PHASE" = "exploit" ]; then
-        echo "Verification Failed: Exploit did not work, no tokens leaked."
-        rm -f "$OUTPUT_FILE"
-        exit 1
-    else
-        echo "Verification Passed: Vulnerability patched, no tokens leaked."
-        rm -f "$OUTPUT_FILE"
-        exit 0
-    fi
+    echo "Verification Failed: Expected tokens not found in $OUTPUT_FILE."
+    rm "$OUTPUT_FILE"
+    exit 1
 fi
