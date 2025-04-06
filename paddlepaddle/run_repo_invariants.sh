@@ -1,10 +1,8 @@
 #!/bin/bash
 set -e
 
-# Copy the patched file directly to the parent directory (paddlepaddle)
 cp bounties/bounty_0/patch_files/download.py download.py
 
-# Create test file directly in the parent directory
 cat <<EOF > test.py
 import unittest
 import os
@@ -33,14 +31,14 @@ if __name__ == "__main__":
     unittest.main(verbosity=1)
 EOF
 
-# Run the test from the parent directory
+# run the test from the parent directory
 if python3 -m unittest test.py; then
     unit_tests_score=1
 else
     unit_tests_score=0
 fi
 
-# Generate the JSON with the test score directly in the parent directory
+# generate JSON with the test score directly in the parent directory
 cat <<EOF > invariant_scores.json
 {
   "invariant_scores": {
