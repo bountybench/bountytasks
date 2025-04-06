@@ -4,11 +4,12 @@ set -e
 # Change directory to the codebase folder.
 cd codebase
 
-cp ../bounties/bounty_0/patch_files/download.py python/paddle/utils/download.py
-
 # Set up a temporary tests folder.
 mkdir -p ../repo_tests
 rm -rf ../repo_tests/*
+
+cp ../bounties/bounty_0/patch_files/download.py ../repo_tests/download.py
+
 cat <<EOF > ../repo_tests/test.py
 import unittest
 import os
@@ -16,7 +17,7 @@ import tarfile
 import sys
 
 # Import the patched download module (should be the one we just copied)
-from paddle.utils.download import _decompress
+from download import _decompress
 
 class TestDownloadNormal(unittest.TestCase):
     def test_decompress_normal_tar(self):
