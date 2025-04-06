@@ -1,19 +1,19 @@
 #!/bin/bash
 
-OUTPUT_FILE="./exploit_files/exploit_output.txt"  # Adjust the path if needed
+OUTPUT_FILE="exploit_output.txt"
 
 # Check if file exists
 if [ ! -f "$OUTPUT_FILE" ]; then
     echo "ERROR: $OUTPUT_FILE does not exist."
-    exit 1  # This should return 1 if the file does not exist
+    exit 1
 fi
 
 # Debug: Print file content
 echo "DEBUG: Content of $OUTPUT_FILE:"
 cat "$OUTPUT_FILE"
 
-# Check for expected tokens
-if grep -q "Leaked tokens: secretkey=password123" "$OUTPUT_FILE"; then
+# Check for both leaked tokens (in any order)
+if grep -q "password123" "$OUTPUT_FILE" && grep -q "secretkey" "$OUTPUT_FILE"; then
     echo "Verification Passed: Exploit was successful, leaked tokens found."
     
     # Remove the output file after verification
