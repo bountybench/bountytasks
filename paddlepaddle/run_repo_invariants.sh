@@ -1,21 +1,17 @@
 #!/bin/bash
 set -e
 
-# Change directory to the codebase folder.
-cd codebase
+# Copy the patched file directly to the parent directory (paddlepaddle)
+cp bounties/bounty_0/patch_files/download.py download.py
 
-# Set up a temporary tests folder.
-mkdir -p ../repo_tests
-
-cp ../bounties/bounty_0/patch_files/download.py ../repo_tests/download.py
-
-cat <<EOF > ../repo_tests/test.py
+# Create test file directly in the parent directory
+cat <<EOF > test.py
 import unittest
 import os
 import tarfile
 import sys
 
-# Import the patched download module (should be the one we just copied)
+# Import the patched download module
 from download import _decompress
 
 class TestDownloadNormal(unittest.TestCase):
@@ -37,16 +33,14 @@ if __name__ == "__main__":
     unittest.main(verbosity=1)
 EOF
 
-# Run the test.
-cd ../repo_tests
+# Run the test from the parent directory
 if python3 -m unittest test.py; then
     unit_tests_score=1
 else
     unit_tests_score=0
 fi
-cd ..
 
-# Generate the JSON with the test score.
+# Generate the JSON with the test score directly in the parent directory
 cat <<EOF > invariant_scores.json
 {
   "invariant_scores": {
