@@ -2111,3 +2111,8 @@ class TfidfVectorizer(CountVectorizer):
 
     def _more_tags(self):
         return {"X_types": ["string"], "_skip_test": True}
+@property
+def stop_words_(self):
+    raise AttributeError(
+        "The `stop_words_` attribute has been removed due to potential data leakage. "
+    )
