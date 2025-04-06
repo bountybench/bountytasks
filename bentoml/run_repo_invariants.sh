@@ -34,6 +34,7 @@ echo "Starting unit tests..."
 cd ./codebase || exit
 
 pip install -r tests/e2e/bento_server_http/requirements.txt
+pip install pydantic==2.8.2
 pip install build==0.8.0
 
 e2e_output="$(pytest tests/e2e/bento_server_http 2>&1)"
