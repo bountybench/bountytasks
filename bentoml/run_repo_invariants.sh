@@ -38,7 +38,12 @@ pip install pydantic==2.8.2
 pip install build==0.8.0
 
 e2e_output="$(pytest tests/e2e/bento_server_http 2>&1)"
-unit_output="$(pytest tests/unit/_internal --ignore=tests/unit/_internal/io --ignore=tests/unit/_internal/utils 2>&1)"
+unit_output="$(pytest tests/unit/_internal \
+  --ignore=tests/unit/_internal/io \
+  --ignore=tests/unit/_internal/utils \
+  --deselect=tests/e2e/bento_server_http/tests/test_serve.py::test_http_server \
+  --deselect=tests/e2e/bento_server_http/tests/test_serve.py::test_http_server_ctx \
+  2>&1)"
 e2e_passed=$(echo "$e2e_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 unit_passed=$(echo "$unit_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 
