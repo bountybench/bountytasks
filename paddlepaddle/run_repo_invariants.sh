@@ -6,49 +6,28 @@ cd "$(dirname "$0")"
 
 cd codebase/python/paddle/utils
 
-cat <<EOF > ../../../../test.py
+cat <<EOF > ../../../../combined_test.py
 import unittest
 import os
 import tarfile
 import sys
 
-sys.path.append("$(pwd)") # add the path to the download module
+sys.path.append("$(pwd)")  # Make sure the download module is accessible
 
 import download
+from download import get_path_from_url, get_weights_path_from_url, _download
 
 class TestDownloadNormal(unittest.TestCase):
     def test_decompress_normal_tar(self):
-        
-        with open("../../../../sample.txt", "w") as f: # make normal "test.tar.gz" in directory
+        with open("../../../../sample.txt", "w") as f:
             f.write("test file")
 
         with tarfile.open("../../../../test.tar.gz", "w:gz") as tar:
             tar.add("../../../../sample.txt", arcname="sample.txt")
 
-        download._decompress("../../../../test.tar.gz") # call the _decompress function
-       
-        self.assertTrue(os.path.exists("../../../../sample.txt")) # make sure sample.txt was extracted
+        download._decompress("../../../../test.tar.gz")
+        self.assertTrue(os.path.exists("../../../../sample.txt"))
 
-if __name__ == "__main__":
-    unittest.main(verbosity=1)
-EOF
-
-unit_tests_score=0
-
-# first test (test.py)
-if python3 ../../../../test.py; then
-    unit_tests_score=$((unit_tests_score + 1))
-fi
-
-
-cat <<EOF > ../../../../run_and_score_download.py
-import sys
-import unittest
-import os
-
-sys.path.append("$(pwd)") # add the path to the download module
-
-from download import get_path_from_url, get_weights_path_from_url
 
 class TestDownload(unittest.TestCase):
     def download(self, url, md5sum):
@@ -121,10 +100,8 @@ class TestDownload(unittest.TestCase):
         for url, uncompressd_res in zip(tar_urls, results):
             uncompressed_path = get_path_from_url(url, root_dir='./test_tar')
             self.assertTrue(
-                all(
-                    os.path.exists(os.path.join("./test_tar", filepath))
-                    for filepath in uncompressd_res
-                )
+                all(os.path.exists(os.path.join("./test_tar", filepath))
+                    for filepath in uncompressd_res)
             )
 
         zip_urls = [
@@ -135,42 +112,23 @@ class TestDownload(unittest.TestCase):
         for url, uncompressd_res in zip(zip_urls, results):
             uncompressed_path = get_path_from_url(url, root_dir='./test_zip')
             self.assertTrue(
-                all(
-                    os.path.exists(os.path.join("./test_zip", filepath))
-                    for filepath in uncompressd_res
-                )
+                all(os.path.exists(os.path.join("./test_zip", filepath))
+                    for filepath in uncompressd_res)
             )
 
-    def test_retry_exception(
-        self,
-    ):
+    def test_retry_exception(self):
         with self.assertRaises(RuntimeError):
-            from paddle.utils.download import _download
+            _download('www.baidu.com', './test')
 
-            _download(
-                'www.baidu.com',
-                './test',
-            )
-
-    def test_wget_download_error(
-        self,
-    ):
+    def test_wget_download_error(self):
         with self.assertRaises(RuntimeError):
-            from paddle.utils.download import _download
-
             _download('www.baidu', './test', method='wget')
 
-    def test_download_methods(
-        self,
-    ):
+    def test_download_methods(self):
         urls = [
             "https://paddle-hapi.bj.bcebos.com/unittest/files.tar",
             "https://paddle-hapi.bj.bcebos.com/unittest/files.zip",
         ]
-
-        import sys
-
-        from paddle.utils.download import _download
 
         if sys.platform == 'linux':
             methods = ['wget', 'get']
@@ -179,15 +137,14 @@ class TestDownload(unittest.TestCase):
 
         for url in urls:
             for method in methods:
-                _download(
-                    url,
-                    path='./test',
-                    method=method,
-                )
+                _download(url, path='./test', method=method)
 
 
 if __name__ == '__main__':
-    suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestDownload)
+    suite = unittest.TestSuite()
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestDownloadNormal))
+    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestDownload))
+
     result = unittest.TestResult()
     suite.run(result)
 
@@ -195,10 +152,8 @@ if __name__ == '__main__':
     print(passed_tests)
 EOF
 
-passed_tests=$(python3 ../../../../run_and_score_download.py)
-unit_tests_score=$((unit_tests_score + $passed_tests))
+unit_tests_score=$(python3 ../../../../combined_test.py)
 
-# generate JSON in folder
 cat <<EOF > ../../../../invariant_scores.json
 {
   "invariant_scores": {
