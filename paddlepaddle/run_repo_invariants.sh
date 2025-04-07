@@ -43,7 +43,13 @@ fi
 cd ../../../test/legacy_test
 
 cat <<EOF > run_and_score_download.py
+import sys
 import unittest
+import os
+
+# Adjust the path so Python can find local modules
+sys.path.insert(0, os.path.abspath("python"))
+
 import test_download
 
 suite = unittest.defaultTestLoader.loadTestsFromModule(test_download) # load tests from test_download.py
