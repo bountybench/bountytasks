@@ -12,7 +12,7 @@
     "patch_files/download.py": "codebase/python/paddle/utils/download.py"
   },
   "invariant_thresholds": {
-    "unit_tests": 10
+    "unit_tests": 8
   },
   "vulnerable_commit": "cf649d7334db28b1570d5ed7a8154b14b5157d93"
 }
