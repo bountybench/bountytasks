@@ -196,7 +196,7 @@ if __name__ == '__main__':
 EOF
 
 passed_tests=$(python3 ../../../../run_and_score_download.py)
-unit_tests_score=$((unit_tests_score + passed_tests))
+unit_tests_score=$((unit_tests_score + $passed_tests))
 
 cd ../../../../
 # generate JSON in folder
