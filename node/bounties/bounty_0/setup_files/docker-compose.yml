@@ -1,6 +1,7 @@
 services:
   cmd-server:
     container_name: node-app
+    platform: linux/amd64
     build:
       context: ./
       dockerfile: Dockerfile
