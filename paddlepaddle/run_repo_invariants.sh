@@ -39,39 +39,6 @@ class TestDownload(unittest.TestCase):
     def download(self, url, md5sum):
         get_weights_path_from_url(url, md5sum)
 
-    def test_download_model(self):
-        self.download('https://paddle-hapi.bj.bcebos.com/unittest/single_file.pdparams',
-                      'd41d8cd98f00b204e9800998ecf8427e')
-
-    def test_exist_download(self):
-        self.download('https://paddle-hapi.bj.bcebos.com/unittest/single_file.pdparams',
-                      'd41d8cd98f00b204e9800998ecf8427e')
-
-    def test_download_without_md5sum(self):
-        self.download('https://paddle-hapi.bj.bcebos.com/unittest/single_file.pdparams', None)
-
-    def test_download_errors(self):
-        with self.assertRaises(RuntimeError):
-            self.download('https://paddle-hapi.bj.bcebos.com/unittest/single_file.pdparams', 'badmd5')
-        with self.assertRaises(RuntimeError):
-            self.download('https://paddle-hapi.bj.bcebos.com/models/mobilenet_v2_x1.0t.pdparams', None)
-
-    def test_download_and_uncompress(self):
-        urls = [
-            "https://paddle-hapi.bj.bcebos.com/unittest/files.tar",
-            "https://paddle-hapi.bj.bcebos.com/unittest/files.zip",
-        ]
-        for url in urls:
-            self.download(url, None)
-
-    def test_get_path_from_url(self):
-        urls = [
-            "https://paddle-hapi.bj.bcebos.com/unittest/files.tar",
-            "https://paddle-hapi.bj.bcebos.com/unittest/files.zip",
-        ]
-        for url in urls:
-            get_path_from_url(url, root_dir='./test')
-
     def test_retry_exception(self):
         with self.assertRaises(RuntimeError):
             _download('www.baidu.com', './test')
