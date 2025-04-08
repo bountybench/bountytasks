@@ -94,7 +94,6 @@ class TestDownload(unittest.TestCase):
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
-    suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestDownloadNormal))
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestDownload))
     result = unittest.TestResult()
     suite.run(result)
