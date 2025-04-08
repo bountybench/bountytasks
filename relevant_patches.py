@@ -6,13 +6,17 @@ from pathlib import Path
 from typing import List
 
 
-def run_verify_script(verify_script: Path) -> int:
-    result = subprocess.run(
-        ["bash", str(verify_script.name)],
-        cwd=str(verify_script.parent),
+def run_script(script_path: Path) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        ["bash", str(script_path.name)],
+        cwd=str(script_path.parent),
         capture_output=True,
         text=True
     )
+
+
+def run_verify_script(verify_script: Path) -> int:
+    result = run_script(verify_script)
     print(f"\n🔎 verify.sh stdout:\n{result.stdout.strip()}")
     print(f"🛑 verify.sh stderr:\n{result.stderr.strip()}")
     return result.returncode
@@ -28,6 +32,7 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
     cmd = [
         "docker", "run",
         "--rm",
+        "--pull", "always",
         "--privileged",
         "--network", network,
         "--cgroupns", "host",
@@ -75,20 +80,17 @@ def extract_vulnerable_commit(bounty_path: Path) -> str:
         return json.load(f)["vulnerable_commit"]
 
 
-def clean_repo_state(codebase: Path, commit: str):
-    print("🧹 Cleaning repo and checking out vulnerable commit...")
-    subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True)
-    subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True)
-
-
 def extract_patch_ids(bounty_path: Path) -> List[str]:
     metadata_path = bounty_path / "bounty_metadata.json"
     with metadata_path.open() as f:
         data = json.load(f)
+    return list(data.get("patch", {}).keys()) + list(data.get("unit_test_patch", {}).keys())
 
-    patch_ids = list(data.get("patch", {}).keys())
-    patch_ids += list(data.get("unit_test_patch", {}).keys())
-    return patch_ids
+
+def clean_repo_state(codebase: Path, commit: str):
+    print("🧹 Cleaning repo and checking out vulnerable commit...")
+    subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True)
+    subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True)
 
 
 def update_metadata_with_compatible_patches(bounty_path: Path, compatible_patch_ids: List[str]):
@@ -104,66 +106,72 @@ def update_metadata_with_compatible_patches(bounty_path: Path, compatible_patch_
     print(f"✅ {bounty_path.name} compatible_patches: {compatible_patch_ids}")
 
 
-def test_exploit_against_target(bounty_path: Path, verify_script: Path, codebase: Path, task_dir: Path) -> bool:
-    exploit_dir = bounty_path / "exploit_files"
+def test_exploit_and_own_verify(
+    exploit_bounty_path: Path,
+    codebase: Path,
+    task_dir: Path,
+    target_commit: str,
+) -> bool:
+    verify_script = exploit_bounty_path / "verify.sh"
+    exploit_dir = exploit_bounty_path / "exploit_files"
+
+    print(f"🧼 Resetting codebase for {exploit_bounty_path.name}")
+    clean_repo_state(codebase, target_commit)
+    stop_docker_services(task_dir)
+    stop_docker_services(exploit_bounty_path / "setup_files")
+
+    ensure_docker_network("shared_net")
+
+    # Setup env for this exploit bounty
+    execute_if_exists(task_dir / "setup_repo_env.sh", working_dir=task_dir)
+    execute_if_exists(exploit_bounty_path / "setup_files" / "setup_bounty_env.sh")
+
     if not verify_script.exists() or not (exploit_dir / "exploit.sh").exists():
-        print(f"⚠️  Missing scripts in {bounty_path.name}")
+        print(f"⚠️  Missing scripts in {exploit_bounty_path.name}")
         return False
 
-    print(f"🔍 Running pre-exploit verify for {bounty_path.name}...")
+    print(f"🔍 Running pre-exploit verify for {exploit_bounty_path.name}...")
     if run_verify_script(verify_script) == 0:
         print("❌ Pre-exploit verify should fail but returned 0")
         return False
     print("✅ Pre-exploit verify failed as expected")
 
-    print(f"🚀 Running exploit.sh for {bounty_path.name}...")
+    print(f"🚀 Running exploit.sh from {exploit_bounty_path.name}...")
     if run_exploit_docker(exploit_dir, task_dir) != 0:
-        print("❌ Exploit.sh failed to run successfully")
+        print("❌ Exploit.sh failed")
         return False
 
-    print(f"🔍 Running post-exploit verify for {bounty_path.name}...")
+    print(f"🔍 Running post-exploit verify from {exploit_bounty_path.name}...")
     if run_verify_script(verify_script) != 0:
-        print("❌ Post-exploit verify failed. Exploit likely ineffective.")
+        print("❌ Post-exploit verify failed")
         return False
 
-    print("✅ Post-exploit verify succeeded. Exploit worked!")
+    print("✅ Post-exploit verify succeeded")
     return True
 
 
 def main(task_dir: Path, bounty_number: int):
     bounty_name = f"bounty_{bounty_number}"
-    bounty_0 = task_dir / "bounties" / bounty_name
+    target_bounty = task_dir / "bounties" / bounty_name
     codebase = task_dir / "codebase"
 
-    commit = extract_vulnerable_commit(bounty_0)
+    target_commit = extract_vulnerable_commit(target_bounty)
 
-    # 🧼 Clean state before anything runs
-    clean_repo_state(codebase, commit)
-    stop_docker_services(task_dir)
-    stop_docker_services(bounty_0 / "setup_files")
-
-    ensure_docker_network("shared_net")
-
-    execute_if_exists(task_dir / "setup_repo_env.sh", working_dir=task_dir)
-    execute_if_exists(bounty_0 / "setup_files" / "setup_bounty_env.sh")
-
-    all_bounties = sorted((task_dir / "bounties").glob("bounty_*"))
-    verify_script = bounty_0 / "verify.sh"
     compatible_patch_ids = []
+    all_bounties = sorted((task_dir / "bounties").glob("bounty_*"))
 
     for bounty in all_bounties:
-        print(f"\n🔍 Testing {bounty.name}")
+        print(f"\n🔍 Testing {bounty.name}'s exploit and verify against {target_bounty.name}")
         try:
-            if test_exploit_against_target(bounty, verify_script, codebase, task_dir):
-                patch_ids = extract_patch_ids(bounty)
-                compatible_patch_ids.extend(patch_ids)
+            if test_exploit_and_own_verify(bounty, codebase, task_dir, target_commit):
+                compatible_patch_ids.append(bounty.name)
                 print(f"✅ {bounty.name} exploit succeeded")
             else:
                 print(f"❌ {bounty.name} exploit failed")
         except Exception as e:
             print(f"💥 Error testing {bounty.name}: {e}")
 
-    update_metadata_with_compatible_patches(bounty_0, compatible_patch_ids)
+    update_metadata_with_compatible_patches(target_bounty, compatible_patch_ids)
 
 
 if __name__ == "__main__":
