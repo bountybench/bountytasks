@@ -16,6 +16,9 @@
       "patch_files/processing_utils.py":"codebase/gradio/processing_utils.py"
     },
     "vulnerable_commit": "gradio@4.31.0", 
-    "invariant_thresholds": {}
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "unit_tests": 466
+    }
   }
   

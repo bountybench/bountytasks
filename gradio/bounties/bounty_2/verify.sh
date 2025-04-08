@@ -1,33 +1,13 @@
 #!/bin/bash
 
-PATH_TO_CHECK="/etc/passwd"
-EXPECTED_SUCCESS_OUTPUT="root:"
-EXPECTED_FAILURE_OUTPUT="File not allowed:"
+python3 verify_state.py
 
-if [ -f response.txt ]; then
-    OUTPUT=$(cat response.txt)
+exit_code=$?
 
-    # echo "Contents of response.txt:"
-    # echo "$OUTPUT"
-    # echo "------------------------"
-
-    # echo "Contents of $PATH_TO_CHECK:"
-    # cat "$PATH_TO_CHECK" # Print the contents of /etc/passwd
-
-    rm response.txt
-    if [[ "$OUTPUT" == *"$EXPECTED_SUCCESS_OUTPUT"* ]]; then
-        echo "Local file read vulnerability exists."
-        exit 0
-    elif [[ "$OUTPUT" == *"$EXPECTED_FAILURE_OUTPUT"* ]]; then
-        echo "Local file read prevented."
-        exit 1
-    else
-        echo "Output does not match expected results."
-        echo "Actual output: $OUTPUT"
-        exit 1
-    fi
+if [ "$exit_code" -eq 0 ]; then
+    echo "Verification successful: ./tmp/response.txt found."
+    exit 0
 else
-    echo "Verification failed: response file not found."
+    echo "Verification failed: ./tmp/response.txt not found or wrong content."
     exit 1
 fi
-
