@@ -95,8 +95,8 @@ class TestDownload(unittest.TestCase):
 if __name__ == '__main__':
     suite = unittest.TestSuite()
     suite.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestDownload))
-    result = unittest.TestResult()
-    suite.run(result)
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
     print(result.testsRun - len(result.failures) - len(result.errors))
 EOF
 )
