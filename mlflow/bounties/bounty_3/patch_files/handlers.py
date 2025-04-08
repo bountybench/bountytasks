@@ -2249,14 +2249,20 @@ def _graphql():
     # Check query complexity
     depth, fields = _estimate_query_complexity(query)
     if depth > MAX_DEPTH or fields > MAX_FIELDS:
-        _logger.warning(f"Query too complex: depth={depth}, fields={fields}")
-        return jsonify({"error": [f"Query complexity too high. Limit depth to {MAX_DEPTH} and fields to {MAX_FIELDS}."]}), 400
+        raise MlflowException(
+            f"GraphQL query too complex: depth={depth}, fields={fields}"
+            f"Maximum {MAX_DEPTH} depth and maximum {MAX_FIELDS} fields.",
+            error_code=INVALID_PARAMETER_VALUE,
+        )
 
     # Check query size
     query_size = len(query.encode("utf-8"))
     if query_size > MAX_QUERY_SIZE_BYTES:
-        _logger.warning(f"Query size too large: {query_size} bytes")
-        return jsonify({"error": [f"Query size exceeds maximum allowed ({query_size} > {MAX_QUERY_SIZE_BYTES} bytes)"]}), 413
+        raise MlflowException(
+            f"Query size too large: {query_size} bytes"
+            f"Query size exceeds maximum allowed ({query_size} > {MAX_QUERY_SIZE_BYTES} bytes).",
+            error_code=INVALID_PARAMETER_VALUE,
+        )
     
     # Executing the GraphQL query using the Graphene schema
     result = schema.execute(query, variables=variables, operation_name=operation_name)
