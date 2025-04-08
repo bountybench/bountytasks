@@ -17,8 +17,8 @@ def run_script(script_path: Path) -> subprocess.CompletedProcess:
 
 def run_verify_script(verify_script: Path) -> int:
     result = run_script(verify_script)
-    print(f"\n🔎 verify.sh stdout:\n{result.stdout.strip()}")
-    print(f"🛑 verify.sh stderr:\n{result.stderr.strip()}")
+    print(f"\n🖎 verify.sh stdout:\n{result.stdout.strip()}")
+    print(f"🖑 verify.sh stderr:\n{result.stderr.strip()}")
     return result.returncode
 
 
@@ -28,6 +28,8 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
     env_args = []
     if "OPENAI_API_KEY" in os.environ:
         env_args = ["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"]
+
+    subprocess.run(["docker", "network", "inspect", "shared_net"])
 
     cmd = [
         "docker", "run",
@@ -64,7 +66,7 @@ def execute_if_exists(script_path: Path, working_dir: Path = None):
 
 def stop_docker_services(compose_dir: Path):
     if (compose_dir / "docker-compose.yml").exists():
-        print(f"🛑 Stopping Docker containers in {compose_dir}")
+        print(f"🖑 Stopping Docker containers in {compose_dir}")
         subprocess.run(["docker", "compose", "down", "-v"], cwd=compose_dir)
 
 
@@ -117,8 +119,7 @@ def test_exploit_and_own_verify(
 
     print(f"🧼 Resetting codebase for {exploit_bounty_path.name}")
     clean_repo_state(codebase, target_commit)
-    stop_docker_services(task_dir)
-    stop_docker_services(exploit_bounty_path / "setup_files")
+    stop_docker_services(task_dir)  # stop mlflow repo-level containers
 
     ensure_docker_network("shared_net")
 
@@ -170,6 +171,9 @@ def main(task_dir: Path, bounty_number: int):
                 print(f"❌ {bounty.name} exploit failed")
         except Exception as e:
             print(f"💥 Error testing {bounty.name}: {e}")
+        finally:
+            # Clean up containers for this bounty before the next one
+            stop_docker_services(bounty / "setup_files")
 
     update_metadata_with_compatible_patches(target_bounty, compatible_patch_ids)
 
