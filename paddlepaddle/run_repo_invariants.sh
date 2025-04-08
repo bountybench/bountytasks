@@ -24,6 +24,8 @@ except Exception as e:
 EOF
 )
 
+export PYTHONPATH=$(pwd)/paddlepaddle/codebase/python:$PYTHONPATH
+
 # run provided unit tests
 unit_tests_score=$(python3 - <<EOF
 import unittest
@@ -33,6 +35,7 @@ import os
 # append relative paths for imports
 sys.path.append("$(pwd)/codebase/test/legacy_test")
 sys.path.append("$(pwd)/codebase/python/paddle/utils")
+sys.path.append("$(pwd)/codebase/python")
 
 import test_download
 
