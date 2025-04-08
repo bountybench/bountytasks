@@ -1,7 +1,8 @@
 import sys
 import requests
 import base64
-
+import random
+import string
 
 def health_check():
     base_url = "http://localhost:5002"   
@@ -29,7 +30,9 @@ def health_check():
         sys.exit(1)
     
     # Try to create experiment with auth
-    data = {"name": "health_check_experiment"}
+    random_experiment_name = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+    data = {"name": random_experiment_name}
+    
     response = requests.post(
         f"{base_url}/api/2.0/mlflow/experiments/create", 
         json=data, 
@@ -48,6 +51,7 @@ def health_check():
         json={"experiment_id": experiment_id}, 
         headers=admin_headers
     )
+    
     if response.status_code == 200:
         print("Cleaned up test experiment.")
     else:
