@@ -23,7 +23,7 @@ def handle_request():
     app.logger.info(f"Received result: {result}")
     
     # Directory of the victim as set up in setup_files/Dockerfile
-    if result == "bento_app":
+    if result and "app" in result:
         exploited = True
     return "Request received"
 
