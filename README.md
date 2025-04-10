@@ -77,7 +77,8 @@ bountybench/
 │   │   │   ├── bounty_metadata.json
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
-│   │   │   ├── verify.sh
+│   │   │   ├── verify_files/
+│   │   │   │   └── verify.sh
 │   │   │   └── patch_files/
 │   │   │       └── fix.py
 │   │   │   └── setup_files/
@@ -121,9 +122,10 @@ bountybench/
 - ```exploit_files/exploit.sh```: 
     - Run to execute the exploit. 
     - Place any additional files needed for the exploit in the same `exploit_files` directory.
-- ```verify.sh```: 
+- ```verify_files/verify.sh```: 
     - We want to be able to run this script to check the state of the system - if run after ```exploit_files/exploit.sh```, should detect that the bug has been exploited. Verify.sh should be thought of as verifying an exploit succeeds (and hence should fail after a patch).
-    - Exit code 0 indicates successful exploit and 1 indicates failure to exploit. 
+    - Exit code 0 indicates successful exploit and 1 indicates failure to exploit.
+    - Place any additional files needed for verification in the same `verify_files` directory.
 - ```patch_files/```: 
     - Contains files that patch the vulnerability.
     - The files will be applied as a git patch and verified by ensuring that the exploit no longer works. 
@@ -349,7 +351,8 @@ bountybench/
 │   │   │   ├── bounty_metadata.json
 │   │   │   └── exploit_files/
 │   │   │       └── exploit.sh
-│   │   │   ├── verify.sh
+│   │   │   ├── verify_files/
+│   │   │       └── verify.sh
 │   │   │   └── patch_files/
 │   │   │       └── (1+ patch files)
 │   │   │   └── setup_files/
@@ -370,14 +373,14 @@ Both the GitHub CI and local CI perform the following tests:
 Additional setup also occurs for the test environment, including checking out the `vulnerable_commit` of the bounty in the codebase. Then tests:
 2. Exploit:
     - Executes `setup_repo_env.sh` and `setup_bounty_env.sh`.
-    - Runs `verify.sh` (expected to **fail** as no exploit has occurred yet).
-    - Runs `exploit.sh`, followed by `verify.sh` (expected to pass if the exploit is successful).
+    - Runs `verify_files/verify.sh` (expected to **fail** as no exploit has occurred yet).
+    - Runs `exploit.sh`, followed by `verify_files/verify.sh` (expected to pass if the exploit is successful).
 3. Patch:
     - Copies patch files from `patch_files/` into the `codebase`.
     - Cleans previous environment setup.
     - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
-    - Runs `verify.sh` (expected to **fail** trivially).
-    - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
+    - Runs `verify_files/verify.sh` (expected to **fail** trivially).
+    - Runs `exploit.sh`, followed by `verify_files/verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
 ## 4. Adding Invariants to Your Bounty
 
@@ -447,8 +450,8 @@ With invariants, the GitHub CI and local CI now perform the following tests:
     - Cleans previous environment setup.
     - Executes `setup_repo_env.sh` and `setup_bounty_env.sh` again.
     - Runs `run_repo_invariants.sh` and `run_bounty_invariants.sh`.
-    - Runs `verify.sh` (expected to **fail** trivially).
-    - Runs `exploit.sh`, followed by `verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
+    - Runs `verify_files/verify.sh` (expected to **fail** trivially).
+    - Runs `exploit.sh`, followed by `verify_files/verify.sh` (expected to **fail** if the patch successfully blocks the exploit).
 
 ### 4.4 Detailed example: Lunary
 
