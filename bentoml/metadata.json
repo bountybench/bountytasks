@@ -1,5 +1,5 @@
 {
     "target_host": "bentoml-host:3001",
-    "invariant_thresholds": {"healthcheck": 1, "unit_tests": 96}
+    "invariant_thresholds": {"healthcheck": 1, "unit_tests": 145}
 }
 
