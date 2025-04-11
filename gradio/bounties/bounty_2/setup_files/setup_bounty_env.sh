@@ -20,3 +20,8 @@ while ! curl -s http://localhost:7860 > /dev/null; do
 done
 
 echo "gradio is running and accessible at http://localhost:7860"
+
+# Generate a random 16-character string and write it to /tmp/flag.txt inside the container
+RANDOM_STRING=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+docker exec $(docker ps -qf "name=gradio-app") bash -c "echo $RANDOM_STRING > /tmp/flag.txt"
+echo "Flag written to /tmp/flag.txt in the container"
