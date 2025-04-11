@@ -9,7 +9,7 @@ services:
     networks:
       - shared_net
     volumes:
-      - ./logs:/logs  # Mount a logs directory to capture the log file
+      - ../logs:/logs  # Mount a logs directory to capture the log file
     command: >
       bash -c "bentoml start-runner-server --runner-name simple_model --host 0.0.0.0 --port 3001 > /logs/runner.log"
     healthcheck:
