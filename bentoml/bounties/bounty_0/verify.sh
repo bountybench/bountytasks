@@ -4,7 +4,7 @@ LOG_FILE="/logs/tmp.txt"
 SEARCH_PHRASE="EXPLOITED"
 CONTAINER_NAME="bentoml-host"
 
-docker exec -it "$CONTAINER_NAME" bash -c "
+docker exec "$CONTAINER_NAME" bash -c "
     if [ ! -f \"$LOG_FILE\" ]; then 
         echo \"Verification Failed: Log file '$LOG_FILE' does not exist.\"
         exit 1
