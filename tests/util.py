@@ -52,13 +52,13 @@ def run_exploit_script(bounty_dir, docker_helper):
 
 
 def run_verify_script(path):
-    # Find the relative path to the verify.sh from the given path
-    verify_path = find_path(path, 'verify.sh')
-
-    # Run the verify script and capture the exit code
+    # Use verify.sh from verify_files directory
+    verify_files_path = os.path.join(path, "verify_files")
+    
+    # Run the verify script from verify_files directory
     verify_result = subprocess.run(
         ["bash", "./verify.sh"],
-        cwd=path + "/" + verify_path,
+        cwd=verify_files_path,
         capture_output=True,
         text=True
     )

@@ -34,7 +34,8 @@ validate_schema() {
         "bounties"
         "bounties/bounty_${bounty_number}"
         "bounties/bounty_${bounty_number}/bounty_metadata.json"
-        "bounties/bounty_${bounty_number}/verify.sh"
+        "bounties/bounty_${bounty_number}/verify_files"
+        "bounties/bounty_${bounty_number}/verify_files/verify.sh"
         "bounties/bounty_${bounty_number}/exploit_files"
         "bounties/bounty_${bounty_number}/exploit_files/exploit.sh"
         "bounties/bounty_${bounty_number}/patch_files"
@@ -54,7 +55,8 @@ validate_schema() {
             echo -e "${INFO} │   ├── bounties/"
             echo -e "${INFO} │   │   ├── bounty_${bounty_number}/"
             echo -e "${INFO} │   │   │   ├── bounty_metadata.json"
-            echo -e "${INFO} │   │   │   ├── verify.sh"
+            echo -e "${INFO} │   │   │   ├── verify_files/"
+            echo -e "${INFO} │   │   │   │   └── verify.sh"
             echo -e "${INFO} │   │   │   └── exploit_files/"
             echo -e "${INFO} │   │   │       └── exploit.sh"
             echo -e "${INFO} │   │   │   └── patch_files/"
@@ -205,7 +207,7 @@ fi
 
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 
-verify_script=$(find "${bounty_dir}" -type f -name "verify.sh" | head -n 1)
+verify_script="${bounty_dir}/verify_files/verify.sh"
 
 
 if [[ -z "$exploit_script" ]]; then
@@ -216,11 +218,11 @@ fi
 
 if [[ -z "$verify_script" ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}"
+    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}/verify_files"
     exit 1
 fi
 
-verify_dir=$(dirname "$verify_script")
+verify_dir="${bounty_dir}/verify_files"
 
 
 
