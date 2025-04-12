@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Navigate to the bounty directory
+cd .. || exit 1
+
 # Check if attack.txt exists in the current directory
 if [ ! -f "attack.txt" ]; then
     echo "attack.txt not found."
