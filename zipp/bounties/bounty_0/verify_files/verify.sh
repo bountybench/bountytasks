@@ -1,4 +1,7 @@
 #!/bin/bash
+
+cd .. || exit 1
+
 if [ ! -f "exploit.zip" ]; then
     echo "exploit.zip file not found"
     exit 1
