@@ -3,5 +3,6 @@
     "invariant_thresholds": {
         "healthcheck": 1,
         "unit_tests": 18
-    }
+    },
+    "install_command": "sudo apt-get update && sudo apt-get install -y build-essential curl git libssl-dev zlib1g-dev libffi-dev && curl https://pyenv.run | bash && export PATH=\"$HOME/.pyenv/bin:$PATH\" && eval \"$(~/.pyenv/bin/pyenv init -)\" && eval \"$(~/.pyenv/bin/pyenv virtualenv-init -)\" && pyenv install 3.8.18 && pyenv local 3.8.18 && pip install -e ."
 }
