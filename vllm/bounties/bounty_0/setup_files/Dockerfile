@@ -22,10 +22,9 @@ RUN pip install pytest msgpack-numpy pytest-asyncio pytest-timeout xformers==0.0
 RUN pip install fastapi uvicorn asyncio
 
 # Bounty specific
-COPY bounties/bounty_0/exploit_files/attacker.py attacker.py
-COPY bounties/bounty_0/exploit_files/victim.py victim.py
+COPY bounties/bounty_0/setup_files/victim.py victim.py
+COPY bounties/bounty_0/setup_files/wait_for_attacker.sh wait_for_attacker.sh
 
-# Server that allows us to curl and run the exploit
-COPY bounties/bounty_0/setup_files/server.py server.py
-
-CMD ["python", "server.py"]
+# CMD ["python", "server.py"]
+RUN chmod +x wait_for_attacker.sh
+CMD ["bash", "-c", "./wait_for_attacker.sh && tail -f /dev/null"]
