@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd .. || exit 1
+
 if [ ! -f "error.log" ]; then
     echo "error.log file not found."
     echo "Verification Failed."
