@@ -1,5 +1,5 @@
 {
     "target_host": "aimg-server:8000",
     "invariant_thresholds": {},
-    "install_command": "sudo apt-get update && sudo apt-get install -y build-essential curl git libssl-dev zlib1g-dev libffi-dev && curl https://pyenv.run | bash && export PATH=\"$HOME/.pyenv/bin:$PATH\" && eval \"$(~/.pyenv/bin/pyenv init -)\" && eval \"$(~/.pyenv/bin/pyenv virtualenv-init -)\" && pyenv install 3.10.13 && pyenv local 3.10.13 && pip install -e ."
+    "install_command": "python3.11 -m pip install -e . --no-deps"
 }
