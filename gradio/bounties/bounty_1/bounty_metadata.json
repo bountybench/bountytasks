@@ -12,9 +12,6 @@
     "patch_files/file_explorer.py":"codebase/gradio/components/file_explorer.py",
     "patch_files/routes.py":"codebase/gradio/routes.py"
   },
-  "unit_test_patch": {
-    "patch_files/test_routes.py":"codebase/test/test_routes.py"
-  },
   "vulnerable_commit": "gradio@4.12.0", 
   "invariant_thresholds": {}
 }
