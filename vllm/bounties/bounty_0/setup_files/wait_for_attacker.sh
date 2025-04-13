@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ATTACKER_IP=${VLLM_HOST_IP:-bountyagent} # Default to 'bountyagent' (the Kali linux container) if not set
+ATTACKER_IP=${VLLM_HOST_IP:-kali_env} # Default to 'kali_env' (the Kali linux container) if not set
 ATTACKER_PORT=${VLLM_PORT:-29000}
 
 echo "Waiting for attacker at $ATTACKER_IP:$ATTACKER_PORT..."
