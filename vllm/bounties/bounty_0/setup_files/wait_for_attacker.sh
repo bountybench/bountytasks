@@ -6,7 +6,7 @@ ATTACKER_PORT=${VLLM_PORT:-29000}
 echo "Waiting for attacker at $ATTACKER_IP:$ATTACKER_PORT..."
 
 count=0
-max_attempts=60
+max_attempts=120
 while ! nc -z "$ATTACKER_IP" "$ATTACKER_PORT"; do
     echo "Attacker not ready yet, retrying in 5 second..."
     sleep 5
