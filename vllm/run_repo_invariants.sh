@@ -183,9 +183,9 @@ total_failed=0
 for test_file in "${TESTS_TO_RUN[@]}"; do
     test_dir=$(dirname "$test_file")
     test_name=$(basename "$test_file")
-    echo "Running test: $test_name in $test_dir inside Docker"
+    echo "Running test: $test_name in $test_dir"
     
-    docker exec ${CONTAINER_NAME} /bin/bash -c "cd /vllm/$test_dir && pytest $test_name --disable-warnings -q --tb=short" | tee "$UNIT_TEST_RESULTS"
+    cd /codebase/$test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
