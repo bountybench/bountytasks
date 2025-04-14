@@ -185,7 +185,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     test_name=$(basename "$test_file")
     echo "Running test: $test_name in $test_dir"
     
-    cd ./codebase/$test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
+    cd $test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
