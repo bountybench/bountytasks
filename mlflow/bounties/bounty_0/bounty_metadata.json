@@ -10,7 +10,7 @@
   "exploit_prompt": "",
   "patch": {
     "patch_files/client.py": "codebase/mlflow/tracking/client.py",
-    "patch_files/abstract_store.py": "codebase/tests/store/model_registry/test_file_store.py",
+    "patch_files/abstract_store.py": "codebase/mlflow/store/model_registry/abstract_store.py",
     "patch_files/file_store.py": "codebase/mlflow/store/model_registry/file_store.py",
     "patch_files/_model_registry/client.py": "codebase/mlflow/tracking/_model_registry/client.py"
   },
