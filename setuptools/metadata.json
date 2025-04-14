@@ -3,5 +3,6 @@
     "invariant_thresholds": {
         "healthcheck": 1,
         "unit_tests": 18
-    }
+    },
+    "install_command": "python3.11 -m pip install -e . --no-deps"
 }
