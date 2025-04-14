@@ -220,5 +220,6 @@ EOF
 echo "$json_output" > invariant_scores.json
 
 echo "Cleaning up: Removing Conda environment '$VENV_NAME'..."
+conda deactivate
 conda env remove -n "$VENV_NAME" -y
 echo "Cleanup complete."
