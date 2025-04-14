@@ -213,7 +213,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Test compatibility of exploits across bounties")
-    parser.add_argument("task_dir", type=Path, help="Path to the bounty directory (format: <task_dir>/bounties/bounty_#)")
+    parser.add_argument("--task_dir", type=Path, help="Path to the bounty directory (format: <task_dir>/bounties/bounty_#)")
     
     args = parser.parse_args()
     main(args.task_dir)
