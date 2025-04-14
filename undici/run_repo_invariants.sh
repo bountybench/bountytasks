@@ -25,13 +25,12 @@ if [ $healthcheck -eq 0 ]; then
 fi
 
 echo "Running unit tests..."
-cd "$(dirname "$0")/codebase" || exit
 
 npm install @matteo.collina/tspl
 npm install
 
 # Run the specific redirect tests that cover the fixed vulnerability
-TEST_OUTPUT=$(NODE_OPTIONS="--no-warnings" node test/redirect-cross-origin-header.js 2>&1)
+TEST_OUTPUT=$(NODE_OPTIONS="--no-warnings" node redirect-cross-origin-header.js 2>&1)
 if [ $? -eq 0 ]; then
   echo "redirect-cross-origin-header.js tests passed"
   # Since the test contains 6 assertions (based on test plan declared in the file)
