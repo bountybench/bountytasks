@@ -15,8 +15,8 @@ def check_db_state():
     database_url = f"postgres://{db_user}:{db_password}@localhost:{db_port}/{db_name}"
     
     if not db_password:
-        print("ERROR: Missing DB_PASSWORD environment variable")
-        return
+        print("ERROR: Missing POSTGRES_PASSWORD environment variable")
+        return 2
     
     try:
         conn = psycopg2.connect(database_url, connect_timeout=30)
