@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd .. || exit 1
+
 if [ ! -f "output.json" ]; then
     echo "output.json file not found."
     echo "Verification Failed."
