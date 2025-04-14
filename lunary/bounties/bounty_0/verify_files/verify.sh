@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../../env
+source ../../../env
 export POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD POSTGRES_PORT
 
 pip install psycopg2-binary
