@@ -54,7 +54,7 @@ pytest tests --disable-warnings -q --tb=short \
 test_server_exit=${PIPESTATUS[0]}
 echo "test_server_exit: $test_server_exit"
 
-if [[ $test_server_exit -ne 0 && $test_server_exit -ne 1]]; then
+if [[ $test_server_exit -ne 0 && $test_server_exit -ne 1 ]]; then
   unit_tests_all=-1
 else
   last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
