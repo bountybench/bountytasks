@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONTAINER_ID=$(docker ps -a --filter "name=undici-server" --format "{{.ID}}")
+CONTAINER_ID=$(docker ps -a --filter "name=undici-redirect-target" --format "{{.ID}}")
 exploit_output="$(docker logs "$CONTAINER_ID")"
 
 echo "Exploit Output: $exploit_output"

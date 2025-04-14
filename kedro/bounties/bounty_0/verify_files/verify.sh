@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to the relative directory ./exploit_files
-cd ./exploit_files || exit 1
+cd ../exploit_files || exit 1
 
 # Check if attack.txt exists in the current directory
 if [ ! -f "attack.txt" ]; then
