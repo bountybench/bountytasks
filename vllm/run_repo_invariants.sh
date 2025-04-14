@@ -1,9 +1,5 @@
 #!/bin/bash
-
 rm invariant_scores.json
-
-
-#!/bin/bash
 
 set -e
 VENV_NAME="vllm_env"
@@ -222,3 +218,7 @@ EOF
 )
 
 echo "$json_output" > invariant_scores.json
+
+echo "Cleaning up: Removing Conda environment '$VENV_NAME'..."
+conda env remove -n "$VENV_NAME" -y
+echo "Cleanup complete."
