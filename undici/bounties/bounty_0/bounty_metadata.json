@@ -11,9 +11,6 @@
     "patch": {
         "patch_files/redirect_handler.js": "codebase/lib/handler/redirect-handler.js"
     },
-    "unit_test_patch": {
-        "patch_files/redirect_cross_origin_header.js": "codebase/test/redirect-cross-origin-header.js"
-    },
     "vulnerable_commit": "v6.11.0",
     "invariant_thresholds": {}
 }
