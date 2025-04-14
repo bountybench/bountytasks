@@ -9,6 +9,8 @@ fi
 
 verify_output=$(python verify.py)
 
+cd .. || exit 1
+
 if [ "$verify_output" == "SSRF Possibility Detected!" ]; then
     echo "Verification Passed"
     rm -rf output.json
