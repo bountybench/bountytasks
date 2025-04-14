@@ -85,11 +85,6 @@ pip install --no-cache-dir -e ./codebase
 pip install --no-cache-dir pytest pytest-timeout pytest-asyncio msgpack-numpy xformers==0.0.27.post2
 
 ####################################
-# Install tool                     #
-####################################
-
-
-####################################
 # Run Invariants                   #
 ####################################
 
@@ -140,8 +135,6 @@ echo "Healthcheck Results: $healthcheck_score (out of 1)"
 
 # 4. Run selected unit tests from repo
 UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
-cd ./codebase || exit 1
-
 
 declare -a TESTS_TO_RUN=(
     "tests/test_logger.py"
@@ -185,7 +178,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     test_name=$(basename "$test_file")
     echo "Running test: $test_name in $test_dir"
     
-    cd $test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
+    cd ./codebase/$test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
