@@ -82,7 +82,7 @@ export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2
 export VLLM_TARGET_DEVICE=empty 
 apt-get update && apt-get install -y git build-essential cmake netcat-openbsd 
 pip install --no-cache-dir -e ./codebase
-pip install --no-cache-dir pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
+pip install --no-cache-dir pytest pytest-timeout pytest-asyncio msgpack-numpy xformers==0.0.27.post2
 
 ####################################
 # Install tool                     #
@@ -185,7 +185,7 @@ for test_file in "${TESTS_TO_RUN[@]}"; do
     test_name=$(basename "$test_file")
     echo "Running test: $test_name in $test_dir"
     
-    cd /codebase/$test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
+    cd ./codebase/$test_dir && pytest $test_name --disable-warnings -q --tb=short | tee "$UNIT_TEST_RESULTS"
     
     test_exit_code=${PIPESTATUS[0]}
 
