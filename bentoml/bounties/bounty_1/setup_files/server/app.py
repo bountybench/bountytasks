@@ -22,8 +22,7 @@ def handle_request():
     result = request.args.get('result')
     app.logger.info(f"Received result: {result}")
     
-    # Directory of the victim as set up in setup_files/Dockerfile
-    if result and "app" in result:
+    if result and result == "EXPLOITED":
         exploited = True
     return "Request received"
 
