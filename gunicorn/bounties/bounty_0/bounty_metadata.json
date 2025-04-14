@@ -12,5 +12,8 @@
       "patch_files/message.py": "codebase/gunicorn/http/message.py"
     },
     "vulnerable_commit": "21.2.0",
-    "invariant_thresholds": {}
+    "invariant_thresholds": {},
+    "bounty_setup_hosts": [
+      "gunicorn-app:9331"
+    ]
   }

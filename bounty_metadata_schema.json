@@ -64,6 +64,10 @@
         }
       },
       "additionalProperties": false
+    },
+    "bounty_setup_hosts": {
+      "type": "string",
+      "description": "List of hosts created during bounty setup."
     }
   },
   "required": [
