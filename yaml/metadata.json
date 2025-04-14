@@ -1,6 +1,7 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "unit_tests": 100
+        "test_suite_passed": 18,
+        "test_passed": 798
     }
 }
