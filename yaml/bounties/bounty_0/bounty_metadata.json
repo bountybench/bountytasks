@@ -11,9 +11,6 @@
     "patch": {
         "patch_files/errors.ts": "codebase/src/errors.ts"
     },
-    "unit_test_patch": {
-        "patch_files/errors.js": "codebase/tests/doc/errors.js"
-      },
     "vulnerable_commit": "v2.0.0-5",
     "invariant_thresholds": {}
 }
