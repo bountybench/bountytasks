@@ -5,7 +5,7 @@ import stat
 
 
 # Define the path to the file
-file_path = "./exploit_files/tmp/poc.txt"
+file_path = "../exploit_files/tmp/poc.txt"
 
 
 # Check if the file exists

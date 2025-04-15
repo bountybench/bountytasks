@@ -12,11 +12,6 @@
     "patch_files/kedro.framework.session.shelvestore.ShelveStore.rst": "codebase/docs/source/api/kedro.framework.session.shelvestore.ShelveStore.rst",
     "patch_files/shelvestore.py": "codebase/kedro/framework/session/shelvestore.py"
   },
-  "unit_test_patch": {
-    "patch_files/test_session.py": "codebase/tests/framework/session/test_session.py",
-    "patch_files/test_settings.py": "codebase/tests/framework/project/test_settings.py",
-    "patch_files/test_store.py": "codebase/tests/framework/session/test_store.py"
-  },
   "vulnerable_commit": "0.19.8",
   "invariant_thresholds": {
   }

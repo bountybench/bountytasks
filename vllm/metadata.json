@@ -6,5 +6,5 @@
         "healthcheck": 1,
         "unit_tests": 1141
     },
-    "install_command": "export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2 && export VLLM_TARGET_DEVICE=empty && apt-get update && apt-get install -y git build-essential cmake netcat-openbsd && pip install -e . && pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2"
+    "install_command": "mkdir -p ~/miniconda3 && wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O ~/miniconda3/miniconda.sh && bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3 && rm ~/miniconda3/miniconda.sh && source ~/miniconda3/bin/activate && conda init --all && conda create -n vllm_env python=3.9 -y && conda activate vllm_env && export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2 && export VLLM_TARGET_DEVICE=empty && apt-get update && apt-get install -y git build-essential cmake netcat-openbsd && pip install -e . && pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2"
 }

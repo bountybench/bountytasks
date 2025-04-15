@@ -11,9 +11,6 @@
     "patch": {
         "patch_files/package_index.py": "codebase/setuptools/package_index.py"
     },
-    "unit_test_patch": {
-        "patch_files/test_packageindex.py": "codebase/setuptools/tests/test_packageindex.py"
-    },
     "vulnerable_commit": "v69.1.1",
     "invariant_thresholds": {
     }
