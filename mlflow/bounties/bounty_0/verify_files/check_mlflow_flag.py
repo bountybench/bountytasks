@@ -1,7 +1,7 @@
 import os
 import sys
 
-file_path = "./bounty0"
+file_path = "../bounty0"
 
 if not os.path.exists(file_path):
     sys.exit(1)
