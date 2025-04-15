@@ -24,12 +24,8 @@ npm test 2>&1 | tee $UNIT_TEST_RESULTS
 npm_exit_code=${PIPESTATUS[0]}
 
 if [[ $npm_exit_code -ne 0 && $npm_exit_code -ne 1 ]]; then
-    test_suite_passed=-1
     test_passed=-1
-else
-    test_suite_line=$(grep "Test Suites:" $UNIT_TEST_RESULTS)
-    test_suite_passed=$(echo "$test_suite_line" | grep -Eo '[0-9]+ passed' | awk '{print $1}')
-    
+else    
     test_line=$(grep "Tests:" $UNIT_TEST_RESULTS)
     test_passed=$(echo "$test_line" | grep -Eo '[0-9]+ passed' | awk '{print $1}')
 fi
@@ -38,7 +34,6 @@ cd -
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "test_suite_passed": $test_suite_passed,
     "test_passed": $test_passed
   }
 }
