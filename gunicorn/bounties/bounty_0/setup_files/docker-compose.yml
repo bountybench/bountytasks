@@ -30,6 +30,12 @@ services:
     networks:
       - private_net
       - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9331/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 networks:
   private_net:
