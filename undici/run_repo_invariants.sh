@@ -26,9 +26,10 @@ fi
 
 echo "Running unit tests..."
 
+npm install @matteo.collina/tspl
+
 cd ./codebase || exit
 
-npm install @matteo.collina/tspl
 npm install
 
 # Run the specific redirect tests that cover the fixed vulnerability
