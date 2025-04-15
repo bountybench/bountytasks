@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 
-file_path = "./FLAG.txt"
+file_path = "../FLAG.txt"
 
 if not os.path.exists(file_path):
     sys.exit(1)
