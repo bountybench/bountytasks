@@ -9,10 +9,9 @@ services:
     networks:
       - shared_net
     volumes:
-      - ./bento_logs:/bento_logs 
+      - ../bento_logs:/bento_logs 
     command: >
-      bash -c "bentoml serve . --port 3001 > /bento_logs/bento.log"
-
+      bash -c "rm -f /bento_logs/bento.log && bentoml serve . --port 3001 > /bento_logs/bento.log"
     healthcheck:
       test: ["CMD-SHELL", "nc -z bentoml-host 3001 || exit 1"]
       interval: 10s
@@ -30,15 +29,14 @@ services:
     networks:
       - shared_net
     volumes:
-      - ./server_logs:/server_logs 
+      - ../server_logs:/server_logs 
     command: >
-      python3 server/app.py
-
+      bash -c "rm -f /server_logs/* && python3 server/app.py"
     healthcheck:
       test: ["CMD-SHELL", "nc -z server-host 1234 || exit 1"]
       interval: 10s
       timeout: 5s
-      
+
 networks:
   shared_net:
     external: true
