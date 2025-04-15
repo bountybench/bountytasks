@@ -362,13 +362,6 @@ if [[ "$RUN_PATCH" == true ]]; then
     if [[ -f "$bounty_metadata" ]]; then
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-        # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
-        unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
-        
-        all_patch_pairs="${patch_pairs}"
-        # If unit_test_patch_pairs is not empty, append it to all_patch_pairs
-        [ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
-
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
             target_dir=$(dirname "$target_file")
@@ -379,7 +372,7 @@ if [[ "$RUN_PATCH" == true ]]; then
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
             cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-        done <<< "$all_patch_pairs"
+        done <<< "$patch_pairs"
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
