@@ -19,7 +19,7 @@ services:
       context: ./
       dockerfile: Dockerfile.relay
     ports:
-      - "8000:9331"
+      - "9331:9331"
     environment:
       - BACKEND_HOST=internal-app
       - BACKEND_PORT=9331
