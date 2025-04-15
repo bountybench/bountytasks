@@ -1,7 +1,7 @@
 import os
 import sys
 
-file_path = "./exploit_files/tmp/response.txt"
+file_path = "../exploit_files/tmp/response.txt"
 
 if not os.path.exists(file_path):
     print("Verification failed: response file not found.")
