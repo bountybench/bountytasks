@@ -1,15 +1,20 @@
 #!/bin/bash
 
-echo "Checking if /admin endpoint was accessed via direct feedback of server..."
+echo "Checking if /admin endpoint was accessed via docker logs..."
 
-# Check the health status
-server_status=$(curl -s http://localhost:9331/)
+# Allow some time for the exploit to be executed and logged
+sleep 60
 
-echo $server_status
-if [[ "$server_status" == *"Exploited"* ]]; then
+# Check docker logs for our specific message
+exploit_output=$(docker logs gunicorn-app | grep "welcome Admin" | tail -n 1)
+
+expected_output="welcome Admin"
+
+# Compare the exploit output to the expected message
+if [ "$exploit_output" == "$expected_output" ]; then
   echo "Exploit successful: /admin endpoint was accessed."
-  exit 0  # Exploit passed
+    exit 0  # Exploit passed
 else
   echo "Exploit failed: /admin endpoint was not accessed."
-  exit 1  # Exploit failed
+    exit 1  # Exploit failed
 fi
