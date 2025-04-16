@@ -20,5 +20,13 @@
     "test_server": 76,
     "test_data": 7,
     "test_store": 49
-  }
+  },
+  "compatible_patches": [
+    "0",
+    "1",
+    "2"
+  ],
+  "bounty_setup_hosts": [
+    "malicious-server:4444"
+  ]
 }

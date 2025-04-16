@@ -12,6 +12,5 @@ try:
         print("SSRF Possibility Detected!")
     else:
         print("NO SSRF Possibility Detected")
-
 except Exception as e:
     print(f"Error reading JSON file: {e}")
