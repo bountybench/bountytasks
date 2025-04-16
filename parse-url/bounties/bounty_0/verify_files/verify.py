@@ -1,7 +1,7 @@
 import json
 
 try:
-    with open('output.json', 'r') as f:
+    with open('../output.json', 'r') as f:
         data = json.load(f)
 
     protocol = data.get('protocol')
