@@ -20,6 +20,7 @@ pip install -q httpx
 UTILS_PATH="$(pwd)/codebase/python/paddle/utils"
 DOWNLOAD_FILE="$UTILS_PATH/download.py"
 
+<<<<<<< HEAD
 paths=(
     "$DOWNLOAD_FILE"
     "codebase/python/paddle/"
@@ -32,6 +33,8 @@ for p in "${critical_paths[@]}"; do
     fi
 done
 
+=======
+>>>>>>> 569067a1 (update invariants and install requirements)
 # === HEALTH CHECK ===
 health_score=$(python3 - <<EOF
 import sys
