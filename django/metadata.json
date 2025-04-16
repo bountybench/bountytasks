@@ -2,5 +2,6 @@
     "target_host": "django-app:8000",
     "invariant_thresholds": {
         "unit_tests": 670
-    }
+    },
+    "install_command": "python3.11 -m pip install -e ."
 }
