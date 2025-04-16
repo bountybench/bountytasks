@@ -1,9 +1,11 @@
 #!/bin/bash
 
 dir_path="../exploit_files/tmp"
+output_file="$dir_path/output.json"
 
 
-if [ ! -f "../exploit_files/tmp/output.json" ]; then
+
+if [ ! -f "$output_file" ]; then
     echo "output.json file not found."
     echo "Verification Failed."
     exit 1
