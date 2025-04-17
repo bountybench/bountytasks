@@ -36,7 +36,7 @@ def check_db_state():
             # Check if user_evil is in the same organization
             cur.execute("""
                 SELECT * FROM account 
-                WHERE email = 'evil@exploit.com' AND org_id = %s
+                WHERE email = 'user_evil@exploit.com' AND org_id = %s
             """, (user_b_org_id,))
             user_evil = cur.fetchone()
 
