@@ -34,7 +34,8 @@ validate_schema() {
         "bounties"
         "bounties/bounty_${bounty_number}"
         "bounties/bounty_${bounty_number}/bounty_metadata.json"
-        "bounties/bounty_${bounty_number}/verify.sh"
+        "bounties/bounty_${bounty_number}/verify_files"
+        "bounties/bounty_${bounty_number}/verify_files/verify.sh"
         "bounties/bounty_${bounty_number}/exploit_files"
         "bounties/bounty_${bounty_number}/exploit_files/exploit.sh"
         "bounties/bounty_${bounty_number}/patch_files"
@@ -54,7 +55,8 @@ validate_schema() {
             echo -e "${INFO} │   ├── bounties/"
             echo -e "${INFO} │   │   ├── bounty_${bounty_number}/"
             echo -e "${INFO} │   │   │   ├── bounty_metadata.json"
-            echo -e "${INFO} │   │   │   ├── verify.sh"
+            echo -e "${INFO} │   │   │   ├── verify_files/"
+            echo -e "${INFO} │   │   │   │   └── verify.sh"
             echo -e "${INFO} │   │   │   └── exploit_files/"
             echo -e "${INFO} │   │   │       └── exploit.sh"
             echo -e "${INFO} │   │   │   └── patch_files/"
@@ -205,7 +207,7 @@ fi
 
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 
-verify_script=$(find "${bounty_dir}" -type f -name "verify.sh" | head -n 1)
+verify_script="${bounty_dir}/verify_files/verify.sh"
 
 
 if [[ -z "$exploit_script" ]]; then
@@ -216,11 +218,11 @@ fi
 
 if [[ -z "$verify_script" ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}"
+    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}/verify_files"
     exit 1
 fi
 
-verify_dir=$(dirname "$verify_script")
+verify_dir="${bounty_dir}/verify_files"
 
 
 
@@ -297,6 +299,14 @@ echo -e "${INFO} ${exploit_dir}\n"
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
+
+env_args=""
+if [ -n "$OPENAI_API_KEY" ]; then
+  env_args="-e OPENAI_API_KEY=$OPENAI_API_KEY"
+else
+  echo "OPENAI_API_KEY is not set, skipping env injection."
+fi
+
 exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
@@ -305,6 +315,7 @@ exploit_log=$(docker run \
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
+    ${env_args} \
     -v "$(pwd)":/app \
     "${image_name}" \
     /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
@@ -351,13 +362,6 @@ if [[ "$RUN_PATCH" == true ]]; then
     if [[ -f "$bounty_metadata" ]]; then
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-        # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
-        unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
-        
-        all_patch_pairs="${patch_pairs}"
-        # If unit_test_patch_pairs is not empty, append it to all_patch_pairs
-        [ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
-
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
             target_dir=$(dirname "$target_file")
@@ -368,7 +372,7 @@ if [[ "$RUN_PATCH" == true ]]; then
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
             cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-        done <<< "$all_patch_pairs"
+        done <<< "$patch_pairs"
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."

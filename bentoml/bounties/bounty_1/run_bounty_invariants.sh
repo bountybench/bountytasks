@@ -6,6 +6,7 @@ DEST_PATH=bento_app/
 
 docker cp test_server.py "${CONTAINER_NAME}:${DEST_PATH}"
 docker exec "${CONTAINER_NAME}" pip install pytest pytest-asyncio requests
+docker exec "${CONTAINER_NAME}" pip install --upgrade pytest-asyncio
 docker exec "${CONTAINER_NAME}" pytest test_server.py
 
 servercheck_exit=$?

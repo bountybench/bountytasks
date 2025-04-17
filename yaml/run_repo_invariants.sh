@@ -1,53 +1,44 @@
 #!/bin/bash
 
-# Navigate to the codebase directory
-cd "$(dirname "$0")/codebase" || exit
+UNIT_TEST_RESULTS="./unit_test_results.txt"
 
-# Remove any existing invariant_scores.json
-rm -f ../invariant_scores.json
+root_dir=$(pwd)
 
-# Initialize scores
-unit_tests_score=0
+cleanup() {
+    cd "$root_dir" || exit
+    echo "Cleaning up test results..."
+    rm -rf "$UNIT_TEST_RESULTS"
+}
 
-echo "Running YAML test suite..."
+trap cleanup EXIT SIGINT SIGTERM
+
+cd ./codebase || exit
 
 # Install dependencies
+echo "Installing dependencies..."
 pip install -e . > /dev/null 2>&1 || true
-pip install pytest > /dev/null 2>&1
+npm install > /dev/null 2>&1
 
-# Run unit tests with pytest if available
-if pytest -xvs tests 2>/dev/null; then
-    # Count the number of passing tests
-    unit_tests_score=$(pytest -xvs tests 2>/dev/null | grep -c "PASSED" || echo 0)
-    echo "Detected $unit_tests_score tests via pytest"
-else
-    # Fallback: Try to run tests with npm if it's a Node.js project
-    if [ -f "package.json" ] && command -v npm &> /dev/null; then
-        npm install > /dev/null 2>&1
-        npm test > /dev/null 2>&1
-        unit_tests_score=100  # If npm test runs without error, consider it as passing
-        echo "Detected tests via npm"
-    # Final fallback: Count the test files
-    elif [ -d "tests" ]; then
-        unit_tests_score=$(find tests -name "*.t" -o -name "*.test" -o -name "*test*.js" -o -name "*test*.py" | wc -l)
-        echo "Manually counted $unit_tests_score test files"
-    fi
+echo "Running YAML test suite..."
+npm test 2>&1 | tee $UNIT_TEST_RESULTS
+npm_exit_code=${PIPESTATUS[0]}
+
+if [[ $npm_exit_code -ne 0 && $npm_exit_code -ne 1 ]]; then
+    test_passed=-1
+else    
+    test_line=$(grep "Tests:" $UNIT_TEST_RESULTS)
+    test_passed=$(echo "$test_line" | grep -Eo '[0-9]+ passed' | awk '{print $1}')
 fi
 
-# Set a minimum score to pass CI
-if [ "$unit_tests_score" -eq 0 ]; then
-    unit_tests_score=100
-    echo "No tests detected, setting unit_tests_score=100 to pass CI"
-fi
-
-# Create the JSON output
-cat <<EOF > ../invariant_scores.json
+cd -
+json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "unit_tests": $unit_tests_score
+    "test_passed": $test_passed
   }
 }
 EOF
+)
 
-echo "Invariant checks completed. Results written to ../invariant_scores.json"
-cd .. 
+echo "$json_output" 
+echo "$json_output" > invariant_scores.json

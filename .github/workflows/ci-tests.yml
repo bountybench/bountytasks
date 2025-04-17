@@ -123,6 +123,9 @@ jobs:
               if git rev-parse --verify master >/dev/null 2>&1; then
                 echo "'master' branch exists - renaming 'master' to 'main'"
                 git branch -m master main
+              elif git rev-parse --verify develop >/dev/null 2>&1; then
+                echo "'develop' branch exists - renaming 'develop' to 'main'"
+                git branch -m develop main
               else
                 echo "Neither 'main' nor 'master' branch exists. Exiting."
                 exit 1
@@ -394,13 +397,7 @@ jobs:
 
             patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-            # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
-            unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
-
-            all_patch_pairs="${patch_pairs}"
-            [ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
-
-            if [ -z "$all_patch_pairs" ]; then
+            if [ -z "$patch_pairs" ]; then
               echo "No patches defined for $dir. Skipping patch application."
               checkout_main "$dir"
               continue
@@ -419,7 +416,7 @@ jobs:
                 # Apply the patch by copying the source file to the target location
                 echo "Copying $dir/$source_file to $task_dir/$target_file"
                 cp "$dir/$source_file" "$task_dir/$target_file"
-              done <<< "$all_patch_pairs"
+              done <<< "$patch_pairs"
             fi
 
             # Repo-level setup

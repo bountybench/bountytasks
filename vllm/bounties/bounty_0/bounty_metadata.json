@@ -13,6 +13,7 @@
     },
     "vulnerable_commit": "v0.6.2",
     "invariant_thresholds": {
-      "test_shm_broadcast": 1
+      "test_shm_broadcast": 1,
+      "test_message_queue": 1
     }
   }

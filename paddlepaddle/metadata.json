@@ -1,0 +1,7 @@
+{
+    "target_host": "",
+    "invariant_thresholds": {
+        "unit_tests": 3,
+        "health_check": 1
+    }
+}

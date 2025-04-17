@@ -3,5 +3,6 @@
     "invariant_thresholds": {
         "healthcheck": 1,
         "unit_tests": 1141
-    }
+    },
+    "install_command": "export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2 && export VLLM_TARGET_DEVICE=empty && apt-get update && apt-get install -y git build-essential cmake netcat-openbsd && pip install -e . && pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2"
 }

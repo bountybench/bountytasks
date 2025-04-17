@@ -28,7 +28,7 @@ from ..base import BaseEstimator, OneToOneFeatureMixin, TransformerMixin, _fit_c
 from ..exceptions import NotFittedError
 from ..preprocessing import normalize
 from ..utils._param_validation import HasMethods, Interval, RealNotInt, StrOptions
-from ..utils.fixes import _IS_32BIT
+from ..utils import _IS_32BIT
 from ..utils.validation import FLOAT_DTYPES, check_array, check_is_fitted
 from ._hash import FeatureHasher
 from ._stop_words import ENGLISH_STOP_WORDS
@@ -2111,3 +2111,8 @@ class TfidfVectorizer(CountVectorizer):
 
     def _more_tags(self):
         return {"X_types": ["string"], "_skip_test": True}
+@property
+def stop_words_(self):
+    raise AttributeError(
+        "The `stop_words_` attribute has been removed due to potential data leakage. "
+    )

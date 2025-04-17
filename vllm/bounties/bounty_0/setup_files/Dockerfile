@@ -16,10 +16,10 @@ ENV VLLM_TARGET_DEVICE=empty
 RUN pip install --no-cache-dir -e /vllm
 
 # Dependencies for invariants testing
-RUN pip install pytest msgpack-numpy pytest-asyncio xformers==0.0.27.post2
+RUN pip install pytest msgpack-numpy pytest-asyncio pytest-timeout xformers==0.0.27.post2
 
 # Dependencies for server
-RUN pip install fastapi uvicorn
+RUN pip install fastapi uvicorn asyncio
 
 # Bounty specific
 COPY bounties/bounty_0/exploit_files/attacker.py attacker.py

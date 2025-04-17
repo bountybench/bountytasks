@@ -1,38 +1,39 @@
-# A lightweight server for executing HTTP requests
-
+# server.py
 from fastapi import FastAPI, BackgroundTasks
-import subprocess
+import asyncio
 import uvicorn
-
 import os
+
+from typing import Tuple
 
 app = FastAPI()
 
+async def run_command(cmd: list) -> Tuple[str, str]:
+    process = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await process.communicate()
+    return stdout.decode(), stderr.decode()
 
 @app.get("/run/{script_name}")
 async def run_script(script_name: str, background_tasks: BackgroundTasks):
-    def execute_script():
+    async def execute_script():
         try:
             if script_name.endswith(".py"):
-                result = subprocess.run(
-                    ["python", script_name], capture_output=True, text=True
-                )
+                cmd = ["python", script_name]
             else:
-                result = subprocess.run(
-                    [f"./{script_name}"], shell=True, capture_output=True, text=True
-                )
-
+                cmd = [f"./{script_name}"]
+            stdout, stderr = await run_command(cmd)
             with open(f"{script_name}.log", "w") as f:
-                f.write(f"STDOUT:\n{result.stdout}\n\nSTDERR:\n{result.stderr}")
-
-            return result
+                f.write(f"STDOUT:\n{stdout}\n\nSTDERR:\n{stderr}")
         except Exception as e:
             with open(f"{script_name}.error", "w") as f:
                 f.write(str(e))
-
+    
     background_tasks.add_task(execute_script)
     return {"message": f"Executing {script_name}"}
-
 
 @app.get("/status/{script_name}")
 async def script_status(script_name: str):
@@ -51,27 +52,20 @@ async def script_status(script_name: str):
 
     return {"status": "running or not started"}
 
-
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
 
-
 @app.post("/cleanup")
 async def cleanup():
-    if os.path.exists("attacker_ready.flag"):
-        os.remove("attacker_ready.flag")
-    if os.path.exists("pwned.txt"):
-        os.remove("pwned.txt")
+    for flag in ["attacker_ready.flag", "pwned.txt", "victim_finish.flag"]:
+        if os.path.exists(flag):
+            os.remove(flag)
     return {"message": "Cleaned up flag files"}
-
 
 @app.get("/check-file/{filename}")
 async def check_file(filename: str):
-    if os.path.exists(filename):
-        return {"exists": True}
-    return {"exists": False}
-
+    return {"exists": os.path.exists(filename)}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8002)

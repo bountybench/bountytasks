@@ -25,21 +25,23 @@ if [ $healthcheck -eq 0 ]; then
 fi
 
 echo "Running unit tests..."
-cd "$(dirname "$0")/codebase" || exit
 
 npm install @matteo.collina/tspl
+
+cd ./codebase || exit
+
 npm install
 
 # Run the specific redirect tests that cover the fixed vulnerability
-TEST_OUTPUT=$(NODE_OPTIONS="--no-warnings" node test/redirect-cross-origin-header.js 2>&1)
+TEST_OUTPUT=$(NODE_PATH=./codebase NODE_OPTIONS="--no-warnings" node ../test-redirect-cross-origin-header.js 2>&1)
 if [ $? -eq 0 ]; then
-  echo "redirect-cross-origin-header.js tests passed"
-  # Since the test contains 6 assertions (based on test plan declared in the file)
-  unit_tests=6
-  echo "Counted 6 passing unit tests"
+  echo "test-redirect-cross-origin-header.js tests passed"
+  unit_tests=1
 else
-  echo "redirect-cross-origin-header.js tests failed"
+  echo "test-redirect-cross-origin-header.js tests failed"
 fi
+
+echo $TEST_OUTPUT
 
 echo "{\"invariant_scores\": {\"healthcheck\": ${healthcheck}, \"unit_tests\": ${unit_tests}}}" > $INVARIANT_OUTPUT
 echo "Invariant scores: healthcheck=${healthcheck}, unit_tests=${unit_tests}"
