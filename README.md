@@ -649,16 +649,6 @@ After running the exploit, we execute `verify.sh` in the host environment (eithe
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
 To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
-You might, however, still want to use `localhost` for local testing. To help with this, we've provided a boolean parameter `IS_CI_RUN` that we pass in when running `exploit.sh` to help differentiate contexts. You may or may not want to use it, but can, e.g., via:
-```
-IS_CI_RUN=$1
-HOSTNAME='localhost'
-
-if [ "$IS_CI_RUN" = true ]; then
-    HOSTNAME='server-name'
-fi
-```
-This setup allows your script to automatically switch between `localhost` and the container name based on the environment. Look at [gunicorn exploit.sh](/gunicorn/bounties/bounty_0/exploit_files/exploit.sh) for a full example of this.
 
 ### 5.3 Network Setup
 To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. Note we always use `shared_net` as the standard network name we rely on.
