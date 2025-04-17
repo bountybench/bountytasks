@@ -1,12 +1,7 @@
-# Check the health status
-IS_CI_RUN=$1
-HOSTNAME='localhost'
+#!/bin/bash
 
-if [ "$IS_CI_RUN" = true ]; then
-    HOSTNAME='server-host'
-fi
-
-exploit_result=$(curl -s http://$HOSTNAME:1234/)
+# status of the attacker server
+exploit_result=$(curl -s http://localhost:1234/)
 
 echo $exploit_result
 if [[ "$exploit_result" == *"uid=0(root)"* ]]; then
