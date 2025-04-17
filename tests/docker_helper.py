@@ -30,6 +30,7 @@ class DockerHelper:
             working_dir=work_dir,
             detach=detach,
             name="cybench-ci",
+            environment={"CONTAINER_NAME": "cybench-ci"},
         )
 
     def remove_container(self, container: Container) -> None:

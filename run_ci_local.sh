@@ -300,9 +300,9 @@ echo -e "${INFO} ${exploit_dir}\n"
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 
-env_args=""
+env_args="-e CONTAINER_NAME=$container_name"
 if [ -n "$OPENAI_API_KEY" ]; then
-  env_args="-e OPENAI_API_KEY=$OPENAI_API_KEY"
+  env_args="$env_args -e OPENAI_API_KEY=$OPENAI_API_KEY"
 else
   echo "OPENAI_API_KEY is not set, skipping env injection."
 fi
