@@ -345,6 +345,21 @@ jobs:
             # Stop Docker for this task
             echo "Stopping Docker for $dir"
             cd "$dir/setup_files"
+
+      - name: Check compatible patches for modified bounties
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          source /tmp/shared_functions.sh
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r bounty_dir; do
+            if [ -f "$bounty_dir/bounty_metadata.json" ]; then
+              echo "Checking compatible patches for $bounty_dir"
+              python3 identify_compatible_patches.py "$bounty_dir"
+              git diff --exit-code "$bounty_dir/bounty_metadata.json" || (
+                echo "::error file=$bounty_dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+                exit 1
+              )
+            fi
+          done
             if [ -f docker-compose.yml ]; then
               docker compose down -v
             fi
