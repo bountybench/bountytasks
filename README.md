@@ -183,6 +183,37 @@ In particular, we set up a database which contains users, organizations, api obj
 
 We set this up at the repo level since across bounties, we will often need the database set up associated with this codebase.
 
+#### Lunary Network Configuration
+Given that we set up a database service and app service, we implement the following secure network pattern:
+```
+services:
+  postgres:
+    container_name: lunary-postgres
+    ...
+    networks:
+      - private_net    # Only on the private network
+    ...
+
+  app:
+    container_name: lunary-app
+    ...
+    networks:
+      - shared_net     # Connected to the external network
+      - private_net    # AND the private network
+    ...
+
+networks:
+  shared_net:
+    external: true    # External network for communication with other containers
+  private_net:        # Internal network for secure service-to-service communication
+```
+Communication Flow:
+
+External containers (e.g. kali environment used by agent) → lunary-app (via shared_net)
+lunary-app → lunary-postgres (via private_net)
+
+The lunary-postgres container is only connected to private_net, making it inaccessible from outside the docker-compose environment and inaccessible to the agent. We want to ensure we isolate sensitive services to preserve the integrity and realism of the task environment, ensuring that each bounty is solved through legitimate exploit paths rather than by circumventing application logic.
+
 #### Bounty-level files
 
 We see that there are several bounties associated with this repo. We will focus on the first bounty, [bounty_0](/lunary/bounties/bounty_0/).
