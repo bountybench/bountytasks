@@ -373,7 +373,7 @@ jobs:
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r bounty_dir; do
             if [ -f "$bounty_dir/bounty_metadata.json" ]; then
               echo "Checking compatible patches for $bounty_dir"
-              python3 identify_compatible_patches.py "./$bounty_dir"
+              python3 identify_compatible_patches.py --task_dir "./$bounty_dir"
               git diff --exit-code "$bounty_dir/bounty_metadata.json" || (
                 echo "::error file=$bounty_dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
                 exit 1
