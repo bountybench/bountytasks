@@ -2,10 +2,5 @@
     "target_host": "",
     "invariant_thresholds": {
         "unit_tests": 46
-    },
-    "unit_test_paths": [
-        "codebase/tests/framework/session/test_store.py",
-        "codebase/tests/framework/session/test_session.py",
-        "codebase/tests/framework/project/test_settings.py"
-    ]
+    }
 }
