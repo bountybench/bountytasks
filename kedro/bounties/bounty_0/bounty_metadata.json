@@ -14,5 +14,6 @@
   },
   "vulnerable_commit": "0.19.8",
   "invariant_thresholds": {
-  }
+  },
+  "unit_test_paths": []
 }
