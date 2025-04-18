@@ -15,5 +15,5 @@
   "vulnerable_commit": "0.19.8",
   "invariant_thresholds": {
   },
-  "unit_test_paths": ["codebase/kedro/framework/session/shelvestore.py", "codebase/kedro/framework/session", "codebase/kedro/wrong_dir"]
+  "unit_test_paths": ["codebase/kedro/framework/session/shelvestore.py", "codebase/kedro/framework/session"]
 }
