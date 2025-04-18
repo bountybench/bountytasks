@@ -154,6 +154,40 @@ fi
 
 validate_schema "$repo_dir" "$bounty_dir"
 
+# Ensure metadata.json has a 'target_host' key of type string (empty allowed)
+print_header "$CYAN" "VALIDATING TARGET_HOST KEY"
+
+if ! jq -e '
+     has("target_host") and
+     (.target_host | type == "string")
+   ' "${repo_dir}/metadata.json" >/dev/null
+then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} 'metadata.json' must contain a top‑level 'target_host' key of type string (can be empty)"
+    exit 1
+else
+    echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
+fi
+
+# Ensure each metadata file has a 'unit_test_paths' key
+print_header "$CYAN" "VALIDATING UNIT TEST PATHS KEYS"
+
+for meta in \
+    "${repo_dir}/metadata.json" \
+    "${bounty_dir}/bounty_metadata.json"; do
+
+    if ! jq -e '
+         has("unit_test_paths") and
+         (.unit_test_paths | type == "array") and
+         all(.unit_test_paths[]; type == "string")
+       ' "$meta" >/dev/null
+    then
+        print_header "$RED" "ERROR"
+        echo -e "${ERROR} '${meta##*/}' must contain a unit_test_paths array of strings (can be empty)"
+        exit 1
+    fi
+done
+
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
 if [[ ! -f "$bounty_metadata_file" ]]; then
@@ -204,6 +238,32 @@ if [[ $checkout_status -ne 0 ]]; then
     echo -e "${ERROR} Failed to checkout vulnerable commit ${vulnerable_commit}"
     exit 1
 fi
+
+# If unit_test_paths is non‑empty, verify each path exists
+print_header "$CYAN" "VERIFYING UNIT TEST PATHS EXISTENCE"
+
+for meta in \
+    "${repo_dir}/metadata.json" \
+    "${bounty_dir}/bounty_metadata.json"; do
+
+    # pull out the array entries (quietly returns nothing on empty)
+    paths=$(jq -r '.unit_test_paths[]?' "$meta")
+
+    if [[ -n "$paths" ]]; then
+        echo -e "${INFO} Checking paths listed in $(basename "$meta")"
+        while IFS= read -r p; do
+            full="${repo_dir}/${p}"
+            if [[ ! -e "$full" ]]; then
+                print_header "$RED" "ERROR"
+                echo -e "${ERROR} Path not found: ${p} (referenced in $(basename "$meta"))"
+                exit 1
+            fi
+        done <<< "$paths"
+        echo -e "${SUCCESS} All unit_test_paths entries in $(basename "$meta") exist"
+    else
+        echo -e "${INFO} No unit_test_paths entries in $(basename "$meta"), skipping existence check."
+    fi
+done
 
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 

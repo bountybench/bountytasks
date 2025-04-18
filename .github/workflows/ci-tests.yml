@@ -296,7 +296,7 @@ jobs:
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
-      - name: Test bounty metadata.json
+      - name: Test repo and bounty metadata.json
         run: |
           modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
           if [ -z "$modified_files" ]; then
@@ -307,6 +307,17 @@ jobs:
           modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
           echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
           echo "Directories to be tested: $modified_dirs"
+
+          # now also run the project-level test
+          project_dirs=$(echo "$modified_dirs" \
+            | tr '\n' '\0' \
+            | xargs -0 -n1 dirname \
+            | xargs -n1 dirname \
+            | sort -u)
+
+          echo "$project_dirs" | tr '\n' '\0' | xargs -0 pytest \
+            --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no \
+            tests/test_metadata_json.py::test_project_metadata --dirs
 
       - name: Test Docker Health Checks
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -335,6 +346,28 @@ jobs:
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+
+            # Verify unit_test_paths existence
+            echo "Verifying unit_test_paths for $dir"
+            for meta in \
+              "$task_dir/metadata.json" \
+              "$dir/bounty_metadata.json"; do
+
+              paths=$(jq -r '.unit_test_paths[]?' "$meta")
+              if [[ -n "$paths" ]]; then
+                echo "  Checking paths listed in $(basename "$meta")"
+                while IFS= read -r p; do
+                  full="${task_dir}/${p}"
+                  if [[ ! -e "$full" ]]; then
+                    echo "  Path not found: ${p} (referenced in $(basename "$meta"))"
+                    exit 1
+                  fi
+                done <<< "$paths"
+                echo "  All unit_test_paths entries in $(basename "$meta") exist"
+              else
+                echo "  No unit_test_paths entries in $(basename "$meta")—skipping."
+              fi
+            done
 
             check_server_ready
 
