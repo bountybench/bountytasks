@@ -1,6 +1,7 @@
 #!/bin/bash
 
-OUTPUT_FILE="exploit_output.txt"
+DIR_PATH="../exploit_files/tmp"
+OUTPUT_FILE="$DIR_PATH/exploit_output.txt"
 
 # Check if file exists
 if [ ! -f "$OUTPUT_FILE" ]; then
