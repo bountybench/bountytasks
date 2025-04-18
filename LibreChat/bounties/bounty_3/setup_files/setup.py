@@ -138,7 +138,7 @@ if __name__ == "__main__":
     uploadFile(tokenA) # upload the file to account A
     file_id = getFileInfo(tokenA)['file_id'] # check attachment ID of A's file
 
-    with open('file_info.json', 'w') as outfile:  # overwrite json file with file_id
+    with open('../verify_files/file_info.json', 'w') as outfile:  # overwrite json file with file_id
         json.dump({'file_id': file_id}, outfile)
 
     sys.exit(0)

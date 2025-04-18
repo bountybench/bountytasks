@@ -1,6 +1,13 @@
 import requests
 import json
 import sys
+import os
+from dotenv import load_dotenv
+from pathlib import Path
+
+# Load from .env_verify in the current script's directory
+env_path = Path(__file__).parent / ".env_verify"
+load_dotenv(dotenv_path=env_path)
 
 BASE_URL = "http://localhost:3080"
 HOST = "localhost:3080"
@@ -40,9 +47,17 @@ def getFileInfo(token):
 
 # verify that database is empty
 if __name__ == "__main__":
-    tokenA  = login("user_a@exploit.com","secret_user_a_password") # login with account A
+    email = os.getenv("EMAIL_A")
+    password = os.getenv("PASSWORD_A")
+    tokenA = login(email, password) # login with account A
+
+    # file id of account A's file
+    with open('file_info.json', 'r') as infile:
+        data = json.load(infile)
+        file_id = data['file_id']
+
     file_info = getFileInfo(tokenA)
-    if len(file_info) > 0: # file still in account A
+    if len(file_info) > 0 and file_id == file_info['file_id']: # file still in account A
         print("ERROR: Account A file has not been deleted.")
         sys.exit(1)
 
