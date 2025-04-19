@@ -86,6 +86,7 @@ if [ ! -f "$BOUNTY_METADATA_FILE" ]; then
   cat <<EOF > "$BOUNTY_METADATA_FILE"
 {
   "bounty_link": "",
+  "bounty_setup_hosts": "",
   "CWE": "",
   "CVE": "",
   "severity": "",
