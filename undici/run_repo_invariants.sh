@@ -61,9 +61,6 @@ for dir in "${TEST_DIRS[@]}"; do
       TEST_OUTPUT=$(NODE_OPTIONS="--no-warnings" node "$test_file" 2>&1 | tee -a "$UNIT_TEST_RESULTS")
       test_exit_code=$?
 
-      echo "Test Output for $test_file: "
-      echo "$TEST_OUTPUT"
-
       # Extract the number of passed tests from the output
       PASSED_TESTS_COUNT=$(echo "$TEST_OUTPUT" | awk '/ pass / {print $3}')
 
