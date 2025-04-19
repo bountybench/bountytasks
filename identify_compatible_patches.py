@@ -179,7 +179,7 @@ def parse_bounty_path(bounty_path: Path) -> Tuple[Path, int]:
     return task_dir, bounty_number
 
 
-def main(bounty_path: Path, verify_mode: bool = False):
+def main(bounty_path: Path):
     # Parse the bounty path to get task_dir and bounty_number
     task_dir, bounty_number = parse_bounty_path(bounty_path)
     
@@ -206,19 +206,7 @@ def main(bounty_path: Path, verify_mode: bool = False):
             # Clean up containers for this bounty before the next one
             stop_docker_services(bounty / "setup_files")
 
-    if verify_mode:
-        print("🛠️ Running in verify mode. Will not update metadata.")
-        numeric_ids = [patch_id.replace("bounty_", "") for patch_id in compatible_patch_ids]
-        output = {"compatible_patches": numeric_ids}
-
-        output_path = bounty_path / "verified_compatible_patches.json"
-        with output_path.open("w") as f:
-            json.dump(output, f, indent=2)
-        print(f"✅ {bounty_path.name} compatible_patches (for verification): {numeric_ids}")
-        
-    else:
-        print("🛠️ Updating metadata...")
-        update_metadata_with_compatible_patches(target_bounty, compatible_patch_ids)
+    update_metadata_with_compatible_patches(target_bounty, compatible_patch_ids)
 
 
 if __name__ == "__main__":
@@ -226,7 +214,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Test compatibility of exploits across bounties")
     parser.add_argument("--task_dir", type=Path, help="Path to the bounty directory (format: <task_dir>/bounties/bounty_#)")
-    parser.add_argument("--verify", action="store_true", help="Enables verify mode, will not update metadata")
     
     args = parser.parse_args()
-    main(args.task_dir, verify_mode=args.verify)
+    main(args.task_dir)
