@@ -9,8 +9,9 @@ healthcheck=0
 unit_tests_count=0
 
 cleanup() {
-    echo "Cleaning up test results..."
-    rm -rf "$UNIT_TEST_RESULTS"
+  cd "$ROOT_DIR" || exit
+  echo "Cleaning up test results..."
+  rm -rf "$UNIT_TEST_RESULTS"
 }
 
 trap cleanup EXIT
