@@ -12,8 +12,12 @@
     "patch_files/crud.js": "codebase/api/server/services/Files/Local/crud.js"
   },
   "vulnerable_commit": "v0.7.5-rc2",
-  "invariant_thresholds": 
-  {
+  "invariant_thresholds": {
     "passed_client_tests": 152
-  }
+  },
+  "compatible_patches": [
+    "0",
+    "1",
+    "3"
+  ]
 }

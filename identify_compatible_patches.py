@@ -45,8 +45,8 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
         "/bin/bash", "-c",
         f"cd '/app/{relative_path}' && bash exploit.sh true"
     ]
+    result = subprocess.run(cmd, capture_output=True, text=False)
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
     print(result.stdout)
     print(result.stderr)
     return result.returncode
@@ -122,7 +122,7 @@ def test_exploit_and_verify(
 
     print(f"🧼 Resetting codebase for {exploit_bounty_path.name}")
     force_checkout_commit(codebase, target_commit)
-    stop_docker_services(task_dir)  # stop mlflow repo-level containers
+    stop_docker_services(task_dir)  # stop repo-level containers
 
     ensure_docker_network("shared_net")
 
