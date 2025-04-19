@@ -2,7 +2,7 @@
 
 ROOT_DIR=$(pwd)
 INVARIANT_OUTPUT="${ROOT_DIR}/invariant_scores.json"
-UNIT_TEST_RESULTS="${ROOT_DIR}/unit_test_results.txt"
+UNIT_TEST_RESULTS="./unit_test_results.txt"
 EXCLUDE_TEST="fetch-leak.js" #excluded because this takes forever to run 
 
 healthcheck=0
