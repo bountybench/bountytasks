@@ -335,6 +335,7 @@ jobs:
             else 
               echo "Compatible patch information in bounty_metadata.json is correct."
             fi
+          done
 
       - name: Run Exploit Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
