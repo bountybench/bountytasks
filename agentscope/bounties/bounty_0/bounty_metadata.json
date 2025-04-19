@@ -14,8 +14,5 @@
   "vulnerable_commit": "v0.1.1",
   "invariant_thresholds": {
     "apicheck": 1
-  },
-  "compatible_patches": [
-    "0"
-  ]
+  }
 }
