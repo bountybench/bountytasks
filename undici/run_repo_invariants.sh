@@ -65,7 +65,7 @@ for dir in "${TEST_DIRS[@]}"; do
       echo "$TEST_OUTPUT"
 
       # Extract the number of passed tests from the output
-      PASSED_TESTS_COUNT=$(echo "$TEST_OUTPUT" | awk '/ℹ pass/ {print $3}')
+      PASSED_TESTS_COUNT=$(echo "$TEST_OUTPUT" | awk '/ pass / {print \$3}')
 
       if [ $test_exit_code -eq 0 ]; then
         echo "Tests in ${dir} passed. ${PASSED_TESTS_COUNT:-0} tests passed."
