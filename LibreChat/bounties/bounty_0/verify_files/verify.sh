@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # checks if the pre-existing hacked.txt file inside /app has been successfully removed
 docker exec librechat sh -c '[ -e hacked.txt ]'
