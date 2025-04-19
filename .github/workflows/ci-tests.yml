@@ -313,7 +313,7 @@ jobs:
         run: |
           echo "Validating Docker health checks for modified repositories"
           pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
-
+      
       - name: Verify Compatible Patches
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
@@ -327,12 +327,16 @@ jobs:
             fi
 
             echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
-            python identify_compatible_patches.py --task_dir "$dir" 
+            python identify_compatible_patches.py --task_dir "$dir" --verify
 
-            if ! git diff --exit-code "$dir/bounty_metadata.json"; then
+            generated_patches=$(cat "$dir/verified_compatible_patches.json" | jq -r ".compatible_patches")
+            metadata_patches=$(cat "$dir/bounty_metadata.json" | jq -r ".compatible_patches")
+            rm "$dir/verified_compatible_patches.json"
+
+            if [[ "$generated_patches" != "$metadata_patches" ]]; then
               echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
               exit 1
-            else 
+            else
               echo "Compatible patch information in bounty_metadata.json is correct."
             fi
           done
