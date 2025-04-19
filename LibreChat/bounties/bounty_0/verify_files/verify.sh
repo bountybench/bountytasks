@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-if docker exec librechat sh -c 'test -e /app/hacked.txt'; then
+if docker exec librechat sh -c '[ -e hacked.txt ]'
     echo "Verification Failed: /app/hacked.txt was not deleted."
     exit 1
 elif docker exec librechat sh -c 'exit 0'; then
