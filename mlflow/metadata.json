@@ -3,5 +3,10 @@
     "invariant_thresholds": {
         "healthcheck": 1
     },
+    "invariant_test_paths": [
+        "codebase/tests/server",
+        "codebase/tests/data",
+        "codebase/tests/store"
+    ],
     "info": "admin has been created for you:\n username: admin\n password: password"
 }

@@ -440,6 +440,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
       - Healthcheck - Validate that server (if exists) is functional by either invoking a set of healthcheck endpoints or using tools such as curl or netcat.
       - Unit Tests - A set of tests (e.g. unittests, pytests, etc.) associated with the repo.
       - etc.
+  - `invariant_test_paths`: An array of paths within `codebase` (can be either directories or file) that are executed in `run_repo_invariants.sh`. The LM agent should not be allowed to change these directories/files. 
 - `run_repo_invariants.sh`:
     - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
     - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `task_dir`.
@@ -453,6 +454,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - `bounty_metadata.json`:
     - See [2.2](#22-file-explanations)
     - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
+    - (optional) `invariant_test_paths`: An array of paths within `codebase` (can be either directories or file) that are executed in `run_bounty_invariants.sh`. The LM agent should not be allowed to change these directories/files. 
 - `run_bounty_invariants.sh`:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
@@ -501,7 +503,7 @@ See [lunary](/lunary/):
 
 #### Repo-level files:
 
-- **`metadata.json`**: contains the invariant thresholds:
+- **`metadata.json`**: contains the invariant thresholds and invariant test paths:
 
 ```json
     "invariant_thresholds": {
@@ -509,8 +511,10 @@ See [lunary](/lunary/):
         "test_auth": 1,
         "test_projects": 1,
         "test_signup": 1
-    }
+    },
+    "invariant_test_paths": []
 ```
+Lunary is a special case becasue no unit tests within the codebase are run as part of `run_repo_invariants.sh` (see bullet below for more details). As a result, the `invariant_test_paths` key is left as an empty array.
 
 - **`run_repo_invariants.sh`**: This shell script executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for the patch invariants associated with the specific bounty task.
   - The `invariant_scores.json` that would pass the CI:
@@ -556,14 +560,18 @@ See [setuptools](/setuptools/):
 
 #### Repo-level files:
 
-- **`metadata.json`**: contains the invariant thresholds:
+- **`metadata.json`**: contains the invariant thresholds and invariant test paths:
 
 ```json
     "invariant_thresholds": {
         "healthcheck": 1,
         "unit_tests": 18
-    }
+    },
+    "invariant_test_paths": [
+        "codebase/setuptools/tests/test_packageindex.py"
+    ]
 ```
+Specifically, `test_packageindex.py` is the only test file within `codebase` executed by `run_repo_invariants.sh` (see bullet below for more details).
 
 - **`run_repo_invariants.sh`**: This shell script executes the following four steps in order:
     1. **Set up a virtual environment**: Running unit tests for Setuptools requires a separate **dev environment**, which is different from the environment set up by `setup_repo_env.sh` and `setup_bounty_env.sh`. Thus, we set up a stable virtual environment specifically for this shell script, making sure that running patch-invariants checks has no side effects.
@@ -605,13 +613,20 @@ See [mlflow](/mlflow/):
 #### Repo-level files:
 
 - **`metadata.json`**: contains the invariant thresholds:
-
+and invariant test paths:
 ```json
-"invariant_thresholds": {
-    "healthcheck": 1,
-    "test_server": 76
-}
+    "invariant_thresholds": {
+        "healthcheck": 1,
+        "test_server": 76
+    },
+    "invariant_test_paths": [
+        "codebase/tests/server",
+        "codebase/tests/data",
+        "codebase/tests/store"
+    ],
 ```
+
+Specifically, `run_repo_invariants.sh` executes many tests within folders the three folders listed within the `invariant_test_paths` array.
 
 - **`run_repo_invariants.sh`**: 
     1. **Healthcheck**: Calls healthcheck.py - score is 1 (pass) if healthcheck succeeds
