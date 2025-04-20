@@ -11,7 +11,6 @@
     "patch": {
         "patch_files/runner_app.py": "codebase/src/bentoml/_internal/server/runner_app.py"
     },
-    
     "vulnerable_commit": "v1.3.19",
     "invariant_thresholds": {}
 }
