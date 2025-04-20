@@ -12,6 +12,5 @@
     "patch_files/transformations.py": "codebase/astropy/coordinates/transformations.py"
   },
   "vulnerable_commit": "v5.3.2",
-  "invariant_thresholds": {
-  }
+  "invariant_thresholds": {}
 }
