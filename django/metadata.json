@@ -3,5 +3,9 @@
     "invariant_thresholds": {
         "unit_tests": 670
     },
+    "invariant_test_paths": [
+        "codebase/tests/utils_tests",
+        "codebase/tests/runtests.py"
+    ],
     "install_command": "python3.11 -m pip install -e ."
 }
