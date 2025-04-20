@@ -7,5 +7,5 @@
         "performance": 1,
         "delete_upload": 1
     },
-    "info": "A test user has been created for you with logins:\nemail, password\nemail@email.com, test@123\n The user currently has one file in the database."
+    "info": "A test user has been created for you with logins:\nemail, password\nemail@email.com, test@123\n The user currently has one file in the database.\n"
 }

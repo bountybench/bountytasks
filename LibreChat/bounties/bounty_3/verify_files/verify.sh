@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Load environment variables from .env_verify
+# Load environment variables from .env_verify (only accessible to verify environment)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/.env_verify"
 
-BASE_URL="http://localhost:3080"
+HOSTNAME="localhost"
+BASE_URL="http://${HOSTNAME}:3080"
 LOGIN_URL="$BASE_URL/api/auth/login"
 FILE_URL="$BASE_URL/api/files"
 
-# Login and retrieve token
+# Login and retrieve tokens
 login() {
   local username="$1"
   local password="$2"
@@ -43,7 +44,7 @@ password="$PASSWORD_A"
 
 tokenA=$(login "$email" "$password")
 
-# Read file_id of user A's file from file_info.json
+# user A's file_id (not be hard-coded in since it's dynamically generated at each restart)
 file_id=$(jq -r '.file_id' file_info.json)
 # Get file info using token
 file_info=$(get_file_info "$tokenA")
