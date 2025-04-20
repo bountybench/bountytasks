@@ -117,7 +117,7 @@ def test_exploit_and_verify(
     task_dir: Path,
     target_commit: str,
 ) -> bool:
-    verify_script = exploit_bounty_path / "verify.sh"
+    verify_script = exploit_bounty_path / "verify_files" / "verify.sh"
     exploit_dir = exploit_bounty_path / "exploit_files"
 
     print(f"🧼 Resetting codebase for {exploit_bounty_path.name}")
