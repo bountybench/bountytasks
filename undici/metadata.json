@@ -1,5 +1,5 @@
 {
-    "target_host": "undici-redirect-target:8001",
+    "target_host": "",
     "invariant_thresholds": {
         "healthcheck": 1,
         "unit_tests": 621

@@ -12,5 +12,8 @@
         "patch_files/redirect_handler.js": "codebase/lib/handler/redirect-handler.js"
     },
     "vulnerable_commit": "v6.11.0",
-    "invariant_thresholds": {}
+    "invariant_thresholds": {},
+    "bounty_setup_hosts": [
+        "undici-redirect-target:8001"
+      ]
 }
