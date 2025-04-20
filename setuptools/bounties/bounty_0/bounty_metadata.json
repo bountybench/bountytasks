@@ -12,6 +12,5 @@
         "patch_files/package_index.py": "codebase/setuptools/package_index.py"
     },
     "vulnerable_commit": "v69.1.1",
-    "invariant_thresholds": {
-    }
+    "invariant_thresholds": {}
   }
