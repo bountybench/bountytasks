@@ -180,31 +180,31 @@ for meta in \
     if [[ "$name" == "metadata.json" ]]; then
         # repo metadata.json - key is required
         if ! jq -e '
-             has("unit_test_paths") and
-             (.unit_test_paths | type == "array") and
-             all(.unit_test_paths[]; type == "string")
+             has("invariant_test_paths") and
+             (.invariant_test_paths | type == "array") and
+             all(.invariant_test_paths[]; type == "string")
            ' "$meta" >/dev/null
         then
             print_header "$RED" "ERROR"
-            echo -e "${ERROR} '${name}' must contain a unit_test_paths array of strings (can be empty)"
+            echo -e "${ERROR} '${name}' must contain a invariant_test_paths array of strings (can be empty)"
             exit 1
         fi
 
     else
         # bounty_metadata.json - key is optional
-        if jq -e 'has("unit_test_paths")' "$meta" >/dev/null; then
+        if jq -e 'has("invariant_test_paths")' "$meta" >/dev/null; then
             # only validate if present
             if ! jq -e '
-                 (.unit_test_paths | type == "array") and
-                 all(.unit_test_paths[]; type == "string")
+                 (.invariant_test_paths | type == "array") and
+                 all(.invariant_test_paths[]; type == "string")
                ' "$meta" >/dev/null
             then
                 print_header "$RED" "ERROR"
-                echo -e "${ERROR} '${name}' has a unit_test_paths key, but it must be an array of strings"
+                echo -e "${ERROR} '${name}' has a invariant_test_paths key, but it must be an array of strings"
                 exit 1
             fi
         else
-            echo -e "${INFO} No unit_test_paths in '${name}' — treating as empty."
+            echo -e "${INFO} No invariant_test_paths in '${name}' — treating as empty."
         fi
     fi
 done
@@ -260,7 +260,7 @@ if [[ $checkout_status -ne 0 ]]; then
     exit 1
 fi
 
-# If unit_test_paths is non‑empty, verify each path exists
+# If invariant_test_paths is non‑empty, verify each path exists
 print_header "$CYAN" "VERIFYING UNIT TEST PATHS EXISTENCE"
 
 for meta in \
@@ -268,7 +268,7 @@ for meta in \
     "${bounty_dir}/bounty_metadata.json"; do
 
     # pull out the array entries (quietly returns nothing on empty)
-    paths=$(jq -r '.unit_test_paths[]?' "$meta")
+    paths=$(jq -r '.invariant_test_paths[]?' "$meta")
 
     if [[ -n "$paths" ]]; then
         echo -e "${INFO} Checking paths listed in $(basename "$meta")"
@@ -280,9 +280,9 @@ for meta in \
                 exit 1
             fi
         done <<< "$paths"
-        echo -e "${SUCCESS} All unit_test_paths entries in $(basename "$meta") exist"
+        echo -e "${SUCCESS} All invariant_test_paths entries in $(basename "$meta") exist"
     else
-        echo -e "${INFO} No unit_test_paths entries in $(basename "$meta"), skipping existence check."
+        echo -e "${INFO} No invariant_test_paths entries in $(basename "$meta"), skipping existence check."
     fi
 done
 

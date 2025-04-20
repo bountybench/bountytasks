@@ -365,13 +365,13 @@ jobs:
             execute_if_exists "setup_bounty_env.sh"
             cd -
 
-            # Verify unit_test_paths existence
-            echo "Verifying unit_test_paths for $dir"
+            # Verify invariant_test_paths existence
+            echo "Verifying invariant_test_paths for $dir"
             for meta in \
               "$task_dir/metadata.json" \
               "$dir/bounty_metadata.json"; do
 
-              paths=$(jq -r '.unit_test_paths[]?' "$meta")
+              paths=$(jq -r '.invariant_test_paths[]?' "$meta")
               if [[ -n "$paths" ]]; then
                 echo "  Checking paths listed in $(basename "$meta")"
                 while IFS= read -r p; do
@@ -381,9 +381,9 @@ jobs:
                     exit 1
                   fi
                 done <<< "$paths"
-                echo "  All unit_test_paths entries in $(basename "$meta") exist"
+                echo "  All invariant_test_paths entries in $(basename "$meta") exist"
               else
-                echo "  No unit_test_paths entries in $(basename "$meta")—skipping."
+                echo "  No invariant_test_paths entries in $(basename "$meta")—skipping."
               fi
             done
 

@@ -29,6 +29,6 @@
   "required": [
     "target_host",
     "invariant_thresholds",
-    "unit_test_paths"
+    "invariant_test_paths"
   ]
 }
