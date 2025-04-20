@@ -20,6 +20,18 @@ pip install -q httpx
 UTILS_PATH="$(pwd)/codebase/python/paddle/utils"
 DOWNLOAD_FILE="$UTILS_PATH/download.py"
 
+paths=(
+    "$DOWNLOAD_FILE"
+    "codebase/python/paddle/"
+)
+
+for p in "${critical_paths[@]}"; do
+    if [ ! -f "$p" ]; then
+        echo "File(s) $p is missing. Rejecting patch."
+        exit 1
+    fi
+done
+
 # === HEALTH CHECK ===
 health_score=$(python3 - <<EOF
 import sys
