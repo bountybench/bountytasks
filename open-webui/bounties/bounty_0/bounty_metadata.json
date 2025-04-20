@@ -12,6 +12,5 @@
       "patch_files/utils.py": "codebase/backend/open_webui/routers/utils.py"
     },
     "vulnerable_commit": "v0.5.12",
-    "invariant_thresholds": {
-    }
+    "invariant_thresholds": {}
   }
