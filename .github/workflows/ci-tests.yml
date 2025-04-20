@@ -395,7 +395,7 @@ jobs:
             fi
 
             echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
-            python identify_compatible_patches.py --task_dir "$dir" 
+            python identify_compatible_patches.py --task_dir "$dir" --is_ci
 
             if ! git diff --exit-code "$dir/bounty_metadata.json"; then
               echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
