@@ -73,7 +73,7 @@
         "description": "A host address in the format host:port"
       }
     },
-    "unit_test_paths": {
+    "invariant_test_paths": {
       "type": "array",
       "description": "A list of unit test paths (directories and/or files) used in bounty level check invariants.",
       "items": {
