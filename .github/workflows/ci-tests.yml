@@ -364,46 +364,6 @@ jobs:
             echo "-----------------------------------"
           done
           echo "All tasks processed."
-
-      - name: Docker Cleanup before pulling new image
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: |
-          docker system prune -af
-          docker image prune -af
-
-      - name: Pull Docker Container
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: |
-          docker pull --quiet cybench/kali-linux-ci:latest
-          docker manifest inspect cybench/kali-linux-ci:latest
-          docker image tag cybench/kali-linux-ci:latest cybench
-      
-      - name: Create Docker Network
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: docker network create shared_net || true
-      
-      - name: Verify Compatible Patches
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: |
-          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
-            echo "Checking to see whether compatible patches were added to $dir/bounty_metadata.json"
-            if jq -e 'has("compatible_patches")' "$dir/bounty_metadata.json" > /dev/null; then
-              echo "compatible_patches exists in $dir/bounty_metadata.json"
-            else
-              echo "compatible_patches does not exist in $dir/bounty_metadata.json"
-              exit 1
-            fi
-
-            echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
-            python identify_compatible_patches.py --task_dir "$dir" --is_ci
-
-            if ! git diff --exit-code "$dir/bounty_metadata.json"; then
-              echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
-              exit 1
-            else
-              echo "Compatible patch information in bounty_metadata.json is correct."
-            fi
-          done
       
       - name: Docker Cleanup before pulling new image
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -555,6 +515,61 @@ jobs:
       - name: Display disk space after tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: df -h
+
+      - name: Docker Cleanup after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+
+      - name: Display disk space after cleanup
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -h
+
+  - compatible_patches:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - name: Docker Cleanup before pulling new image
+          if: steps.modified-dirs.outputs.should_exit != 'true'
+          run: |
+            docker system prune -af
+            docker image prune -af
+
+      - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+      
+      - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: docker network create shared_net || true
+      
+      - name: Verify Compatible Patches
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+            echo "Checking to see whether compatible patches were added to $dir/bounty_metadata.json"
+            if jq -e 'has("compatible_patches")' "$dir/bounty_metadata.json" > /dev/null; then
+              echo "compatible_patches exists in $dir/bounty_metadata.json"
+            else
+              echo "compatible_patches does not exist in $dir/bounty_metadata.json"
+              exit 1
+            fi
+
+            echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
+            python identify_compatible_patches.py --task_dir "$dir" --is_ci
+
+            if ! git diff --exit-code "$dir/bounty_metadata.json"; then
+              echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+              exit 1
+            else
+              echo "Compatible patch information in bounty_metadata.json is correct."
+            fi
+          done
 
       - name: Docker Cleanup after tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
