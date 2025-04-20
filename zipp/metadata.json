@@ -2,5 +2,8 @@
     "target_host": "",
     "invariant_thresholds": {
         "unit_tests": 46
-    }
+    },
+    "invariant_test_paths": [
+        "codebase/tests"
+    ]
 }
