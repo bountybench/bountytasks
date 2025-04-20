@@ -169,46 +169,6 @@ else
     echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
 fi
 
-print_header "$CYAN" "VALIDATING UNIT TEST PATHS KEYS"
-
-for meta in \
-    "${repo_dir}/metadata.json" \
-    "${bounty_dir}/bounty_metadata.json"; do
-
-    name="$(basename "$meta")"
-
-    if [[ "$name" == "metadata.json" ]]; then
-        # repo metadata.json - key is required
-        if ! jq -e '
-             has("invariant_test_paths") and
-             (.invariant_test_paths | type == "array") and
-             all(.invariant_test_paths[]; type == "string")
-           ' "$meta" >/dev/null
-        then
-            print_header "$RED" "ERROR"
-            echo -e "${ERROR} '${name}' must contain a invariant_test_paths array of strings (can be empty)"
-            exit 1
-        fi
-
-    else
-        # bounty_metadata.json - key is optional
-        if jq -e 'has("invariant_test_paths")' "$meta" >/dev/null; then
-            # only validate if present
-            if ! jq -e '
-                 (.invariant_test_paths | type == "array") and
-                 all(.invariant_test_paths[]; type == "string")
-               ' "$meta" >/dev/null
-            then
-                print_header "$RED" "ERROR"
-                echo -e "${ERROR} '${name}' has a invariant_test_paths key, but it must be an array of strings"
-                exit 1
-            fi
-        else
-            echo -e "${INFO} No invariant_test_paths in '${name}' — treating as empty."
-        fi
-    fi
-done
-
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
 if [[ ! -f "$bounty_metadata_file" ]]; then
@@ -259,32 +219,6 @@ if [[ $checkout_status -ne 0 ]]; then
     echo -e "${ERROR} Failed to checkout vulnerable commit ${vulnerable_commit}"
     exit 1
 fi
-
-# If invariant_test_paths is non‑empty, verify each path exists
-print_header "$CYAN" "VERIFYING UNIT TEST PATHS EXISTENCE"
-
-for meta in \
-    "${repo_dir}/metadata.json" \
-    "${bounty_dir}/bounty_metadata.json"; do
-
-    # pull out the array entries (quietly returns nothing on empty)
-    paths=$(jq -r '.invariant_test_paths[]?' "$meta")
-
-    if [[ -n "$paths" ]]; then
-        echo -e "${INFO} Checking paths listed in $(basename "$meta")"
-        while IFS= read -r p; do
-            full="${repo_dir}/${p}"
-            if [[ ! -e "$full" ]]; then
-                print_header "$RED" "ERROR"
-                echo -e "${ERROR} Path not found: ${p} (referenced in $(basename "$meta"))"
-                exit 1
-            fi
-        done <<< "$paths"
-        echo -e "${SUCCESS} All invariant_test_paths entries in $(basename "$meta") exist"
-    else
-        echo -e "${INFO} No invariant_test_paths entries in $(basename "$meta"), skipping existence check."
-    fi
-done
 
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 
@@ -477,6 +411,58 @@ if [[ "$RUN_PATCH" == true ]]; then
     cd -
 
     if [[ "$CHECK_INVARIANTS" == true ]]; then
+        print_header "$CYAN" "VALIDATING & VERIFYING INVARIANT TEST PATHS"
+
+        for meta in \
+            "${repo_dir}/metadata.json" \
+            "${bounty_dir}/bounty_metadata.json"; do
+
+            name="$(basename "$meta")"
+
+            # 1) Require the key in metadata.json, but make it optional in bounty_metadata.json
+            if [[ "$name" == "metadata.json" ]]; then
+                if ! jq -e 'has("invariant_test_paths")' "$meta" >/dev/null; then
+                    print_header "$RED" "ERROR"
+                    echo -e "${ERROR} '${name}' must contain an invariant_test_paths key"
+                    exit 1
+                fi
+            fi
+
+            # 2) If the key exists (or we’re in metadata.json), validate its type & contents
+            if jq -e 'has("invariant_test_paths")' "$meta" >/dev/null; then
+                if ! jq -e '
+                    (.invariant_test_paths | type == "array") and
+                    all(.invariant_test_paths[]; type == "string")
+                ' "$meta" >/dev/null; then
+                    print_header "$RED" "ERROR"
+                    echo -e "${ERROR} '${name}' → invariant_test_paths must be an array of strings"
+                    exit 1
+                fi
+
+                # 3) Existence check
+                paths=$(jq -r '.invariant_test_paths[]?' "$meta")
+                if [[ -n "$paths" ]]; then
+                    echo -e "${INFO} Checking paths listed in '${name}'"
+                    while IFS= read -r p; do
+                        full="${repo_dir}/${p}"
+                        if [[ ! -e "$full" ]]; then
+                            print_header "$RED" "ERROR"
+                            echo -e "${ERROR} Path not found: ${p} (in '${name}')"
+                            exit 1
+                        fi
+                    done <<< "$paths"
+                    echo -e "${SUCCESS} All invariant_test_paths in '${name}' exist."
+                else
+                    echo -e "${INFO} '${name}' has an empty invariant_test_paths array, skipping existence check."
+                fi
+
+            else
+                # key not present in bounty_metadata.json
+                echo -e "${INFO} No invariant_test_paths in '${name}' — treating as empty."
+            fi
+
+        done
+
         print_header "$CYAN" "RUN REPO INVARIANT CHECK"
         cd "$repo_dir"
         execute_if_exists "run_repo_invariants.sh"
