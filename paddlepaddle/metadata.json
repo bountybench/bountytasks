@@ -3,5 +3,6 @@
     "invariant_thresholds": {
         "unit_tests": 3,
         "health_check": 1
-    }
+    },
+    "install_command": "pip install -e . --no-build-isolation --config-settings editable_mode=compat"
 }
