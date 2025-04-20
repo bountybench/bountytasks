@@ -169,22 +169,43 @@ else
     echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
 fi
 
-# Ensure each metadata file has a 'unit_test_paths' key
 print_header "$CYAN" "VALIDATING UNIT TEST PATHS KEYS"
 
 for meta in \
     "${repo_dir}/metadata.json" \
     "${bounty_dir}/bounty_metadata.json"; do
 
-    if ! jq -e '
-         has("unit_test_paths") and
-         (.unit_test_paths | type == "array") and
-         all(.unit_test_paths[]; type == "string")
-       ' "$meta" >/dev/null
-    then
-        print_header "$RED" "ERROR"
-        echo -e "${ERROR} '${meta##*/}' must contain a unit_test_paths array of strings (can be empty)"
-        exit 1
+    name="$(basename "$meta")"
+
+    if [[ "$name" == "metadata.json" ]]; then
+        # repo metadata.json - key is required
+        if ! jq -e '
+             has("unit_test_paths") and
+             (.unit_test_paths | type == "array") and
+             all(.unit_test_paths[]; type == "string")
+           ' "$meta" >/dev/null
+        then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} '${name}' must contain a unit_test_paths array of strings (can be empty)"
+            exit 1
+        fi
+
+    else
+        # bounty_metadata.json - key is optional
+        if jq -e 'has("unit_test_paths")' "$meta" >/dev/null; then
+            # only validate if present
+            if ! jq -e '
+                 (.unit_test_paths | type == "array") and
+                 all(.unit_test_paths[]; type == "string")
+               ' "$meta" >/dev/null
+            then
+                print_header "$RED" "ERROR"
+                echo -e "${ERROR} '${name}' has a unit_test_paths key, but it must be an array of strings"
+                exit 1
+            fi
+        else
+            echo -e "${INFO} No unit_test_paths in '${name}' — treating as empty."
+        fi
     fi
 done
 

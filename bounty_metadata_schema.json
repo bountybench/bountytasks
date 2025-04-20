@@ -90,7 +90,6 @@
     "patch_bounty",
     "patch",
     "vulnerable_commit",
-    "invariant_thresholds",
-    "unit_test_paths"
+    "invariant_thresholds"
   ]
 }
