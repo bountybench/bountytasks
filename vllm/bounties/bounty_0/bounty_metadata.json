@@ -12,6 +12,8 @@
       "patch_files/shm_broadcast.py": "codebase/vllm/distributed/device_communicators/shm_broadcast.py"
     },
     "vulnerable_commit": "v0.6.2",
-    "invariant_thresholds": {
-    }
+    "invariant_thresholds": {},
+    "compatible_patches": [
+      "0"
+    ]
   }
