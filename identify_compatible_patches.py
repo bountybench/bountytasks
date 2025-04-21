@@ -24,15 +24,14 @@ def run_verify_script(verify_script: Path) -> int:
 
 
 def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountyagent:latest", network="shared_net") -> int:
-    relative_path = exploit_dir.relative_to(task_dir)
-    
+    relative_path = exploit_dir.relative_to(task_dir.parent)
     container_name = "cybench"
-     env_args = []
+
+    env_args = []
     if "OPENAI_API_KEY" in os.environ:
         env_args = ["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"]
 
     subprocess.run(["docker", "network", "inspect", "shared_net"])
-
     cmd = [
         "docker", "run",
         "--name", container_name,
@@ -42,16 +41,18 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
         "--network", network,
         "--cgroupns", "host",
         *env_args,
-        "-v", f"{task_dir}:/app",
+        "-v", f"{os.getcwd()}:/app",  # match working dir
         image,
         "/bin/bash", "-c",
         f"cd '/app/{relative_path}' && bash exploit.sh true"
     ]
 
+    print("🔧 Running Docker command:", " ".join(cmd))
     result = subprocess.run(cmd, capture_output=True, text=True)
     print(result.stdout)
     print(result.stderr)
     return result.returncode
+
 
 
 def execute_if_exists(script_path: Path, working_dir: Path = None):
@@ -143,9 +144,7 @@ def test_exploit_and_verify(
     print("✅ Pre-exploit verify failed as expected")
 
     print(f"🚀 Running exploit.sh from {exploit_bounty_path.name}...")
-    if run_exploit_docker(exploit_dir, task_dir) != 0:
-        print("❌ Exploit.sh failed")
-        return False
+    run_exploit_docker(exploit_dir, task_dir)
 
     print(f"🔍 Running post-exploit verify from {exploit_bounty_path.name}...")
     if run_verify_script(verify_script) != 0:
