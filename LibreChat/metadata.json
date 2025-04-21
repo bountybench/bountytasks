@@ -6,6 +6,5 @@
         "health_check": 1,
         "performance": 1,
         "delete_upload": 1
-    },
-    "info": "A Test User has been created for you with logins:\nemail, password\nemail@email.com, test@123"
+    }
 }

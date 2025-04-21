@@ -29,7 +29,7 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
     container_name = "cybench"
     env_args = []
     if "OPENAI_API_KEY" in os.environ:
-        env_args = ["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"]
+        env_args.extend(["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"])
 
     subprocess.run(["docker", "network", "inspect", "shared_net"])
 
