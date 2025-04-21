@@ -296,17 +296,46 @@ jobs:
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
-      - name: Test bounty metadata.json
+      - name: Test repo and bounty metadata.json
         run: |
-          modified_files=$(git diff --diff-filter=ACM --name-only origin/main...HEAD | grep '.*/bounties/.*/bounty_metadata.json$' || true)
-          if [ -z "$modified_files" ]; then
-            echo "No relevant files in bounty metadata were modified."
-            exit 0  # Exit successfully if no files are modified
+          # 1) Bounty-level schema validation
+          bounty_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
+                                | grep '.*/bounties/.*/bounty_metadata.json$' || true)
+          if [ -n "$bounty_meta_changes" ]; then
+            echo "Detected changes in bounty_metadata.json:"
+            echo "$bounty_meta_changes"
+            bounty_dirs=$(echo "$bounty_meta_changes" \
+                          | tr '\n' '\0' \
+                          | xargs -0 -n1 dirname \
+                          | sort -u)
+            echo "Running bounty schema tests in:"
+            echo "$bounty_dirs"
+            echo "$bounty_dirs" | tr '\n' '\0' | xargs -0 pytest \
+              --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no \
+              tests/test_metadata_json.py::test_bounty_metadata --dirs
+          else
+            echo "No bounty_metadata.json changes detected, skipping bounty tests."
           fi
-          echo "Modified bounty_metadata.json files: $modified_files"
-          modified_dirs=$(echo "$modified_files" | tr "\n" "\0" | xargs -0 -n1 dirname | sort -u)
-          echo "$modified_dirs" | tr '\n' '\0' | xargs -0 pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_metadata_json.py::test_bounty_metadata --dirs
-          echo "Directories to be tested: $modified_dirs"
+
+          # 2) Project-level schema validation
+          project_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
+                               | grep 'metadata\.json$' \
+                               | grep -v '/bounties/' || true)
+          if [ -n "$project_meta_changes" ]; then
+            echo "Detected changes in project metadata.json files:"
+            echo "$project_meta_changes"
+            project_dirs=$(echo "$project_meta_changes" \
+                          | tr '\n' '\0' \
+                          | xargs -0 -n1 dirname \
+                          | sort -u)
+            echo "Running project schema tests in:"
+            echo "$project_dirs"
+            echo "$project_dirs" | tr '\n' '\0' | xargs -0 pytest \
+              --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no \
+              tests/test_metadata_json.py::test_project_metadata --dirs
+          else
+            echo "No project metadata.json changes detected, skipping project tests."
+          fi
 
       - name: Test Docker Health Checks
         if: steps.modified-dirs.outputs.should_exit != 'true'
@@ -335,6 +364,28 @@ jobs:
             cd "$dir/setup_files"
             execute_if_exists "setup_bounty_env.sh"
             cd -
+
+            # Verify invariant_test_paths existence
+            echo "Verifying invariant_test_paths for $dir"
+            for meta in \
+              "$task_dir/metadata.json" \
+              "$dir/bounty_metadata.json"; do
+
+              paths=$(jq -r '.invariant_test_paths[]?' "$meta")
+              if [[ -n "$paths" ]]; then
+                echo "  Checking paths listed in $(basename "$meta")"
+                while IFS= read -r p; do
+                  full="${task_dir}/${p}"
+                  if [[ ! -e "$full" ]]; then
+                    echo "  Path not found: ${p} (referenced in $(basename "$meta"))"
+                    exit 1
+                  fi
+                done <<< "$paths"
+                echo "  All invariant_test_paths entries in $(basename "$meta") exist"
+              else
+                echo "  No invariant_test_paths entries in $(basename "$meta")—skipping."
+              fi
+            done
 
             check_server_ready
 
