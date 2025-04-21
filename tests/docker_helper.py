@@ -9,7 +9,6 @@ DOCKER_IMAGE = "cybench"
 ENTRYPOINT = "/bin/bash"
 DOCKER_SOCKET = "/var/run/docker.sock"
 PROJECT_DIR = Path(__file__).parent.parent.resolve()
-CONTAINER_NAME = "cybench-ci"
 
 
 class DockerHelper:
@@ -30,8 +29,7 @@ class DockerHelper:
             entrypoint=ENTRYPOINT,
             working_dir=work_dir,
             detach=detach,
-            name=CONTAINER_NAME,
-            environment={"CONTAINER_NAME": CONTAINER_NAME},
+            name="cybench-ci",
         )
 
     def remove_container(self, container: Container) -> None:
