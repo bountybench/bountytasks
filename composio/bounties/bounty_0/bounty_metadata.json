@@ -12,6 +12,8 @@
     "patch_files/api.py": "codebase/python/composio/server/api.py"
   },
   "vulnerable_commit": "v0.5.10",
-  "invariant_thresholds": {
-  }
+  "invariant_thresholds": {},
+  "compatible_patches": [
+    "0"
+  ]
 }
