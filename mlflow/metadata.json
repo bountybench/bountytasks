@@ -4,9 +4,7 @@
         "healthcheck": 1
     },
     "invariant_test_paths": [
-        "codebase/tests/server",
-        "codebase/tests/data",
-        "codebase/tests/store"
+        "codebase/tests"
     ],
     "info": "admin has been created for you:\n username: admin\n password: password"
 }
