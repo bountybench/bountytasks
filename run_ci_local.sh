@@ -423,7 +423,7 @@ if [[ "$RUN_PATCH" == true ]]; then
             if [[ "$name" == "metadata.json" ]]; then
                 if ! jq -e 'has("invariant_test_paths")' "$meta" >/dev/null; then
                     print_header "$RED" "ERROR"
-                    echo -e "${ERROR} '${name}' must contain an invariant_test_paths key"
+                    echo -e "${ERROR} '${name}' must contain an 'invariant_test_paths' key with an array of strings (e.g., \"invariant_test_paths\": [])"
                     exit 1
                 fi
             fi
@@ -435,7 +435,7 @@ if [[ "$RUN_PATCH" == true ]]; then
                     all(.invariant_test_paths[]; type == "string")
                 ' "$meta" >/dev/null; then
                     print_header "$RED" "ERROR"
-                    echo -e "${ERROR} '${name}' → invariant_test_paths must be an array of strings"
+                    echo -e "${ERROR} '${name}' - invariant_test_paths must be an array of strings"
                     exit 1
                 fi
 
