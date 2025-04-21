@@ -10,6 +10,9 @@
   "exploit_prompt": "",
   "patch": {
     "patch_files/handle_upload.py": "codebase/shared_utils/handle_upload.py"
-},
-  "vulnerable_commit": "310122f5a7c9d4b13176d177dde8d5fbc98fbf12"
+  },
+  "vulnerable_commit": "310122f5a7c9d4b13176d177dde8d5fbc98fbf12",
+  "compatible_patches": [
+    "0"
+  ]
 }
