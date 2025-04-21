@@ -3,5 +3,12 @@
     "invariant_thresholds": {
         "native_tests": 200
       },
+      "invariant_test_paths": [
+        "codebase/tools/test.py",
+        "codebase/test/pseudo-tty",
+        "codebase/test/sequential",
+        "codebase/test/benchmark",
+        "codebase/test/message"
+      ],
     "is_python": false
 }
