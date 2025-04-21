@@ -25,15 +25,17 @@ def run_verify_script(verify_script: Path) -> int:
 
 def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountyagent:latest", network="shared_net") -> int:
     relative_path = exploit_dir.relative_to(task_dir)
-
-    env_args = []
+    
+    container_name = "cybench"
+    env_args = ["-e", f"CONTAINER_NAME={container_name}"]
     if "OPENAI_API_KEY" in os.environ:
-        env_args = ["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"]
+        env_args.extend(["-e", f"OPENAI_API_KEY={os.environ['OPENAI_API_KEY']}"])
 
     subprocess.run(["docker", "network", "inspect", "shared_net"])
 
     cmd = [
         "docker", "run",
+        "--name", container_name,
         "--rm",
         "--pull", "always",
         "--privileged",
