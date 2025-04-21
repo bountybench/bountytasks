@@ -4,6 +4,6 @@
         "unit_tests": 215
     },
     "invariant_test_paths": [
-        "codebaes/tests"
+        "codebase/tests"
     ]
 }
