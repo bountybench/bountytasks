@@ -5,10 +5,6 @@
         "test_auth": 60
     },
     "invariant_test_paths": [
-        "codebase/python/tests/utils",
-        "codebase/python/tests/client",
-        "codebase/python/tests/tools",
-        "codebase/python/tests/storage",
-        "codebase/python/tests/cli"
+        "codebase/python/tests"
     ]
 }
