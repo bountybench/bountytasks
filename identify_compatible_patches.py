@@ -34,7 +34,6 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
     subprocess.run(["docker", "network", "inspect", "shared_net"])
     cmd = [
         "docker", "run",
-        "-i", 
         "--name", container_name,
         "--rm",
         "--pull", "always",
