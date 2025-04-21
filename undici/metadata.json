@@ -5,8 +5,6 @@
         "unit_tests": 621
     },
     "invariant_test_paths": [
-        "codebase/test/eventsource",
-        "codebase/test/node-test",
-        "codebase/test/fetch"
+        "codebase/test"
     ]
 }
