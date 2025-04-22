@@ -297,6 +297,7 @@ jobs:
         run: docker network create shared_net || true
 
       - name: Test repo and bounty metadata.json
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           # 1) Bounty-level schema validation
           bounty_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
