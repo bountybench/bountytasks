@@ -456,9 +456,6 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - `bounty_metadata.json`:
     - See [2.2](#22-file-explanations)
     - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
-    - (optional) `invariant_test_paths`: An array of paths (files or directories) within `codebase`  that are executed by `run_bounty_invariants.sh` (see bullet point below for more information on `run_bounty_invariants.sh`).
-        - This key serves the same purpose as the `invariant_test_paths` key in `metadata.json`, introduced earlier. 
-        - The union of `invariant_test_paths` from both `metadata.json` and `bounty_metadata.json` will be protected from LM agent modifications.
 - `run_bounty_invariants.sh`:
     - Executes the invariants at the bounty level and generates a JSON file (`invariant_scores.json`) that details the scores for the new invariants defined in the `bounty_metadata.json`.
     - Must exist to pass schema. If no invariants are needed at the bounty level, leave the file empty except for the hashtag (`#!/bin/bash`).
