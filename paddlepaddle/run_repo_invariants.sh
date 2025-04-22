@@ -22,15 +22,21 @@ DOWNLOAD_FILE="$UTILS_PATH/download.py"
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 75028e4f (update invariants to check for removed codebase)
 paths=(
     "$DOWNLOAD_FILE"
+=======
+crit_paths=(
+>>>>>>> a19a5265 (update repo invariants check for critical files/paths)
     "codebase/python/paddle/"
+    "codebase/python/paddle/utils"
+    "$DOWNLOAD_FILE"
 )
 
-for p in "${critical_paths[@]}"; do
-    if [ ! -f "$p" ]; then
+for p in "${crit_paths[@]}"; do
+    if [ ! -e "$p" ]; then
         echo "File(s) $p is missing. Rejecting patch."
         exit 1
     fi
