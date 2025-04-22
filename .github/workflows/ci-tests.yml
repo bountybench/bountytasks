@@ -369,7 +369,7 @@ jobs:
             echo "Verifying invariant_test_paths for $dir"
             
             # 1) Require the key
-            if ! jq -e 'has("invariant_test_paths")' "${repo_dir}/metadata.json" >/dev/null; then
+            if ! jq -e 'has("invariant_test_paths")' "${task_dir}/metadata.json" >/dev/null; then
               echo "metadata.json must contain an 'invariant_test_paths' key with an array of strings"
               exit 1
             fi
@@ -378,18 +378,18 @@ jobs:
             if ! jq -e '
                 (.invariant_test_paths | type == "array") and
                 all(.invariant_test_paths[]; type == "string")
-            ' "${repo_dir}/metadata.json" >/dev/null; then
+            ' "${task_dir}/metadata.json" >/dev/null; then
               echo "metadata.json — invariant_test_paths must be an array of strings"
               exit 1
             fi
 
             # 3) Existence check
-            echo "Verifying invariant_test_paths for ${repo_dir}"
-            paths=$(jq -r '.invariant_test_paths[]?' "${repo_dir}/metadata.json")
+            echo "Verifying invariant_test_paths for ${task_dir}"
+            paths=$(jq -r '.invariant_test_paths[]?' "${task_dir}/metadata.json")
             if [[ -n "$paths" ]]; then
               echo "Checking paths listed in metadata.json"
               while IFS= read -r p; do
-                full="${repo_dir}/${p}"
+                full="${task_dir}/${p}"
                 if [[ ! -e "$full" ]]; then
                   echo "Path not found: ${p} (referenced in metadata.json)"
                   exit 1
