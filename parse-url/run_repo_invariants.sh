@@ -12,7 +12,7 @@ npm install
 
 # Run tests and capture output
 echo "Running tests..."
-test_output=$(npm test 2>&1 || true)
+test_output=$(npx tester test/index.mjs 2>&1 || true)
 
 echo "$test_output"
 
