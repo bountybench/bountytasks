@@ -12,6 +12,5 @@
         "patch_files/__init__.py": "codebase/zipp/__init__.py"
     },
     "vulnerable_commit": "v3.19.0",
-    "invariant_thresholds": {
-    }
+    "invariant_thresholds": {}
 }
