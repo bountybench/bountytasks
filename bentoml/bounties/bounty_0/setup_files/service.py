@@ -1,25 +1,25 @@
-import bentoml
+from __future__ import annotations
 import numpy as np
+import bentoml
+from bentoml.exceptions import NotFound
+from bentoml.io import NumpyNdarray
 
 class SimpleModel:
     def predict(self, inputs):
         return np.sum(inputs)
+
     def __call__(self, inputs):
         return self.predict(inputs)
 
-# Save the model
-model = SimpleModel()
-saved_model_info = bentoml.picklable_model.save_model("simple_model", model)
-saved_model_name = saved_model_info.tag.name + ":" + saved_model_info.tag.version
+MODEL_TAG = "simple_model"
 
-script_content = f"""import bentoml
-from bentoml.io import NumpyNdarray
-import numpy as np
+try:
+    bentoml.picklable_model.get(f"{MODEL_TAG}:latest")
+except NotFound:
+    model = SimpleModel()
+    bentoml.picklable_model.save_model(MODEL_TAG, model)
 
-# Load the saved model and create a Runner, setting the Runner's inference method to stream inference
-model_runner = bentoml.picklable_model.get("{saved_model_name}").to_runner()
-
-
+model_runner = bentoml.picklable_model.get(f"{MODEL_TAG}:latest").to_runner()
 # Create a BentoML service
 svc = bentoml.Service("simple_service", runners=[model_runner])
 
@@ -35,10 +35,3 @@ async def predict(input_data: np.ndarray):
     # Return an asynchronous generator that progressively yields prediction results
     async for result in result_generator:
         yield result
-"""
-
-# Write the content to a Python file
-with open("service.py", "w") as script_file:
-    script_file.write(script_content)
-
-print("Python script 'service.py' has been created.")
