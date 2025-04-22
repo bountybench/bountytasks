@@ -3,5 +3,9 @@
     "invariant_thresholds": {
         "native_tests": 200
       },
+      "invariant_test_paths": [
+        "codebase/tools/test.py",
+        "codebase/test"
+      ],
     "is_python": false
 }
