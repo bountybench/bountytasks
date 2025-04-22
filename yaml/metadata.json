@@ -4,6 +4,7 @@
         "test_passed": 798
     },
     "invariant_test_paths": [
-        "codebase/tests"
+        "codebase/tests",
+        "codebase/config/jest.config.js"
     ]
 }
