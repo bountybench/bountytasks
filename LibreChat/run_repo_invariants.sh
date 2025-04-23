@@ -15,7 +15,16 @@ npm ci
 npm run frontend
 cd client
 
-npm install
+# 1) install everything (including devDeps)
+NODE_ENV=development npm install
+
+npm_install_exit=$?                           # capture npm install’s return status
+echo "npm install exit code: $npm_install_exit"
+
+# 2) debug—make sure Jest is present
+echo ">>> pwd: $(pwd)"
+ls -1
+ls -1 node_modules/.bin
 
 echo "Running client tests..."
 NODE_ENV=development ./node_modules/.bin/jest --watchAll=false test 2>&1 | tee ../../test_client.txt
