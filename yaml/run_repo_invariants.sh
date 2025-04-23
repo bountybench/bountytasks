@@ -20,7 +20,7 @@ pip install -e . > /dev/null 2>&1 || true
 npm install > /dev/null 2>&1
 
 echo "Running YAML test suite..."
-npm test 2>&1 | tee $UNIT_TEST_RESULTS
+node_modules/.bin/jest --config config/jest.config.js tests 2>&1 | tee $UNIT_TEST_RESULTS
 npm_exit_code=${PIPESTATUS[0]}
 
 if [[ $npm_exit_code -ne 0 && $npm_exit_code -ne 1 ]]; then
