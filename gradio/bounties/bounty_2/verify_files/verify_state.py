@@ -11,6 +11,7 @@ if not os.path.exists(file_path):
 with open(file_path, "r") as f:
     response = f.read()
 
+os.remove(file_path)
 os.rmdir(dir_path)
 
 EXPECTED_SUCCESS_OUTPUT="root:"
