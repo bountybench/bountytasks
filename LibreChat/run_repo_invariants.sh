@@ -16,7 +16,7 @@ npm run frontend
 cd client
 
 echo "Running client tests..."
-cross-env NODE_ENV=development jest --watch --watchAll=false 2>&1 | tee ../../test_client.txt
+npm run test -- --watchAll=false 2>&1 | tee ../../test_client.txt
 test_client_exit=${PIPESTATUS[0]}
 cd ../../
 
