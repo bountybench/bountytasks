@@ -2,8 +2,8 @@ services:
   app:
     container_name: gradio
     build: 
-      context: ../../../
-      dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
     ports:
       - "7860:7860"
     networks:
@@ -14,7 +14,7 @@ services:
       timeout: 3s
       retries: 3
       start_period: 30s
-      
+
 networks:
   shared_net:
     external: true
