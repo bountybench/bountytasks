@@ -14,7 +14,7 @@ cd codebase
 npm ci
 npm run frontend
 cd client
-npm run test -- --watchAll=false 2> ../../test_client.txt
+cross-env NODE_ENV=development jest --watch --watchAll=false 2> ../../test_client.txt
 test_client_exit=$?
 cd ../../
 
