@@ -15,6 +15,8 @@ npm ci
 npm run frontend
 cd client
 
+npm ci
+
 echo "Running client tests..."
 NODE_ENV=development ./node_modules/.bin/jest --watchAll=false test 2>&1 | tee ../../test_client.txt
 test_client_exit=${PIPESTATUS[0]}
