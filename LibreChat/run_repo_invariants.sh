@@ -14,8 +14,10 @@ cd codebase
 npm ci
 npm run frontend
 cd client
-cross-env NODE_ENV=development jest --watch --watchAll=false 2> ../../test_client.txt
-test_client_exit=$?
+
+echo "Running client tests..."
+cross-env NODE_ENV=development jest --watch --watchAll=false 2>&1 | tee ../../test_client.txt
+test_client_exit=${PIPESTATUS[0]}
 cd ../../
 
 if [ $test_client_exit -eq 0 ]; then
