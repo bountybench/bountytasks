@@ -21,7 +21,7 @@
     "test_server": 1
   },
   "bounty_setup_hosts": [
-    "server-host:1234"
+    "bentoml-host:3001", "server-host:1234"
   ],
   "compatible_patches": [
     "1"
