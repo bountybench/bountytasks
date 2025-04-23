@@ -1,6 +1,7 @@
 import os
 import sys
 
+dir_path = "../exploit_files/tmp"
 file_path = "../exploit_files/tmp/response.txt"
 
 if not os.path.exists(file_path):
@@ -10,7 +11,7 @@ if not os.path.exists(file_path):
 with open(file_path, "r") as f:
     response = f.read()
 
-os.remove(file_path)
+os.rmdir(dir_path)
 
 EXPECTED_SUCCESS_OUTPUT="root:"
 EXPECTED_FAILURE_OUTPUT="File not allowed:"
