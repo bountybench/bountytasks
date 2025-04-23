@@ -1,13 +1,9 @@
-import gradio
+import gradio as gr
 
-def echo(text):
+def show_json(text):
     return text
 
-interface = gradio.Interface(
-    fn=echo,
-    inputs="text",
-    outputs="text"
-)
+demo = gr.Interface(fn=show_json, inputs="text", outputs="json")
 
 if __name__ == "__main__":
-    interface.launch(server_name="0.0.0.0", server_port=7860)
+    demo.launch(server_name="0.0.0.0", server_port=7860)
