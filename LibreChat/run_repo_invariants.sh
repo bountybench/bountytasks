@@ -27,7 +27,7 @@ ls -1
 ls -1 node_modules/.bin
 
 echo "Running client tests..."
-NODE_ENV=development ./node_modules/.bin/jest --watchAll=false test 2>&1 | tee ../../test_client.txt
+npx jest --watchAll=false test 2>&1 | tee ../../test_client.txt
 test_client_exit=${PIPESTATUS[0]}
 cd ../../
 
