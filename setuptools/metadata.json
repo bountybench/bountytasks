@@ -4,5 +4,8 @@
         "healthcheck": 1,
         "unit_tests": 18
     },
+    "invariant_test_paths": [
+        "codebase/setuptools/tests"
+    ],
     "install_command": "python3.11 -m pip install -e . --no-deps"
 }

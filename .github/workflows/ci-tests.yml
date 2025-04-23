@@ -368,26 +368,39 @@ jobs:
 
             # Verify invariant_test_paths existence
             echo "Verifying invariant_test_paths for $dir"
-            for meta in \
-              "$task_dir/metadata.json" \
-              "$dir/bounty_metadata.json"; do
+            
+            # 1) Require the key
+            if ! jq -e 'has("invariant_test_paths")' "${task_dir}/metadata.json" >/dev/null; then
+              echo "metadata.json must contain an 'invariant_test_paths' key with an array of strings"
+              exit 1
+            fi
 
-              paths=$(jq -r '.invariant_test_paths[]?' "$meta")
-              if [[ -n "$paths" ]]; then
-                echo "  Checking paths listed in $(basename "$meta")"
-                while IFS= read -r p; do
-                  full="${task_dir}/${p}"
-                  if [[ ! -e "$full" ]]; then
-                    echo "  Path not found: ${p} (referenced in $(basename "$meta"))"
-                    exit 1
-                  fi
-                done <<< "$paths"
-                echo "  All invariant_test_paths entries in $(basename "$meta") exist"
-              else
-                echo "  No invariant_test_paths entries in $(basename "$meta")—skipping."
-              fi
-            done
+            # 2) Validate type & contents
+            if ! jq -e '
+                (.invariant_test_paths | type == "array") and
+                all(.invariant_test_paths[]; type == "string")
+            ' "${task_dir}/metadata.json" >/dev/null; then
+              echo "metadata.json — invariant_test_paths must be an array of strings"
+              exit 1
+            fi
 
+            # 3) Existence check
+            echo "Verifying invariant_test_paths for ${task_dir}"
+            paths=$(jq -r '.invariant_test_paths[]?' "${task_dir}/metadata.json")
+            if [[ -n "$paths" ]]; then
+              echo "Checking paths listed in metadata.json"
+              while IFS= read -r p; do
+                full="${task_dir}/${p}"
+                if [[ ! -e "$full" ]]; then
+                  echo "Path not found: ${p} (referenced in metadata.json)"
+                  exit 1
+                fi
+              done <<< "$paths"
+              echo "All invariant_test_paths entries in metadata.json exist"
+            else
+              echo "No invariant_test_paths entries in metadata.json—skipping."
+            fi
+            
             check_server_ready
 
             # Run the exploit and verification for this task
