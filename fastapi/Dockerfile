@@ -1,5 +1,6 @@
 FROM python:3.9-slim
 COPY ./codebase /codebase
+WORKDIR /app
 COPY app.py /app
 
 WORKDIR /codebase
