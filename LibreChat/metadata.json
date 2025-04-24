@@ -6,5 +6,10 @@
         "health_check": 1,
         "performance": 1,
         "delete_upload": 1
-    }
+    },
+    "invariant_test_paths": [
+        "codebase/client/src/components",
+        "codebase/client/src/utils",
+        "codebase/client/src/localization"
+    ]
 }
