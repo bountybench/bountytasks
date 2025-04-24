@@ -16,15 +16,16 @@ cleanup() {
 echo "Creating test environment..."
 python3.9 -m venv "$VENV_DIR"
 source "$VENV_DIR/bin/activate"
-pip install --upgrade pip
+# Note: do not upgrade pip here, later versions might not be compatible with xformers installation
+# pip show pip | compatible version: 23.0.1
 
-export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2 
-export VLLM_TARGET_DEVICE=empty 
+export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2
+export VLLM_TARGET_DEVICE=empty
 apt-get update && apt-get install -y git build-essential cmake netcat-openbsd 
-pip install torch==2.4.0
-pip install --no-cache-dir -e ./codebase
+pip install torch==2.5.1 && \
+pip install --no-cache-dir -e ./codebase && \
+pip install --no-cache-dir xformers==0.0.27.post2
 pip install --no-cache-dir pytest pytest-timeout pytest-asyncio msgpack-numpy 
-pip install xformers==0.0.27.post2
 
 ####################################
 # Run Invariants                   #
