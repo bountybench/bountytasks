@@ -20,16 +20,7 @@ pip install -q httpx
 UTILS_PATH="$(pwd)/codebase/python/paddle/utils"
 DOWNLOAD_FILE="$UTILS_PATH/download.py"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 75028e4f (update invariants to check for removed codebase)
-paths=(
-    "$DOWNLOAD_FILE"
-=======
 crit_paths=(
->>>>>>> a19a5265 (update repo invariants check for critical files/paths)
     "codebase/python/paddle/"
     "codebase/python/paddle/utils"
     "$DOWNLOAD_FILE"
@@ -42,11 +33,6 @@ for p in "${crit_paths[@]}"; do
     fi
 done
 
-<<<<<<< HEAD
-=======
->>>>>>> 569067a1 (update invariants and install requirements)
-=======
->>>>>>> 75028e4f (update invariants to check for removed codebase)
 # === HEALTH CHECK ===
 health_score=$(python3 - <<EOF
 import sys
