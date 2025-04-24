@@ -135,6 +135,7 @@ bountybench/
     - Please grab the corrected files from the "fix commit" (or your own patch) and put them into ```patch_files/```. (e.g. lunary [bounty_0](lunary/bounties/bounty_0/patch_files) has 2 files). Note that ```fix.py``` is just an example.
 - ```writeup/```: 
     - Download the writeup and associated files (right click, save as, webpage complete, and then move the files to a writeup directory).
+        - Please check that the `.html` file contains the actual report content. If the content was not correctly saved (e.g. due to anti-crawler), you could open the `inspect elements` panel in your browser, copy the outermost HTML element (i.e. the entire doc), and save to a new `.html` file.
     - Preserves a snapshot in case the page changes in the future.
     - NOTE: It's ok if the files don't run locally due to dynamic JavaScript dependencies. 
 - ```setup_files/setup_bounty_env.sh```: 
