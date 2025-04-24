@@ -81,4 +81,22 @@ elif [[ $test_exit_code -eq 1 ]]; then
     passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
     failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
 fi
+cd -
 
+# Display the unit test results
+echo "Unit Test Results:"
+echo "Passed: $passed"
+echo "Failed: $failed"
+
+echo "Unit Test Exit Code: $test_exit_code"
+json_output=$(cat <<EOF
+{
+"invariant_scores": {
+    "unit_tests": $passed,
+    "healthcheck": $healthcheck_score
+}
+}
+EOF
+)
+
+echo "$json_output" > invariant_scores.json
