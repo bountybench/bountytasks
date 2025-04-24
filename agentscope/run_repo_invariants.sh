@@ -81,3 +81,4 @@ elif [[ $test_exit_code -eq 1 ]]; then
     passed=$(echo "$last_line" | grep -o '[0-9]\+ passed' | awk '{print $1}')
     failed=$(echo "$last_line" | grep -o '[0-9]\+ failed' | awk '{print $1}')
 fi
+
