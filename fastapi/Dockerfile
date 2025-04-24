@@ -1,6 +1,6 @@
 FROM python:3.9-slim
 COPY ./codebase /codebase
-COPY ./bounties/bounty_0/setup_files /app
+COPY app.py /app
 
 WORKDIR /codebase
 
