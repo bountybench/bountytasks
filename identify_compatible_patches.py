@@ -48,7 +48,7 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountya
     ]
 
     print("🔧 Running Docker command:", " ".join(cmd))
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd, capture_output=True)
     print(result.stdout)
     print(result.stderr)
     return result.returncode
