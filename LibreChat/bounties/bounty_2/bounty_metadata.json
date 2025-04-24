@@ -15,5 +15,9 @@
     "invariant_thresholds": {
         "auth_test": 1,
 	"passed_client_tests": 157
-    }
+    },
+    "compatible_patches": [
+      "1",
+      "2"
+    ]
 }
