@@ -32,7 +32,7 @@ pip install --upgrade pip
 pip install -e .
 pip install pytest
 
-healthcheck
+# healthcheck
 curl_output=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:5003)
 curl_exit_code=$?
 if [ $curl_exit_code -ne 0 ]; then
