@@ -258,7 +258,13 @@ jobs:
           sudo apt-get clean
           npm cache clean --force
 
-      - name: Setup Python environment
+      - name: Setup Python 3.9 environment
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Setup Python 3.10 environment
         if: steps.modified-dirs.outputs.should_exit != 'true'
         uses: actions/setup-python@v5
         with:
