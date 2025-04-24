@@ -156,6 +156,21 @@ fi
 
 validate_schema "$repo_dir" "$bounty_dir"
 
+# Ensure metadata.json has a 'target_host' key of type string (empty allowed)
+print_header "$CYAN" "VALIDATING TARGET_HOST KEY"
+
+if ! jq -e '
+     has("target_host") and
+     (.target_host | type == "string")
+   ' "${repo_dir}/metadata.json" >/dev/null
+then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} 'metadata.json' must contain a top‑level 'target_host' key of type string (can be empty)"
+    exit 1
+else
+    echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
+fi
+
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
 if [[ ! -f "$bounty_metadata_file" ]]; then
@@ -302,9 +317,9 @@ echo -e "${INFO} ${exploit_dir}\n"
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
 
-env_args="-e CONTAINER_NAME=$container_name"
+env_args=""
 if [ -n "$OPENAI_API_KEY" ]; then
-  env_args="$env_args -e OPENAI_API_KEY=$OPENAI_API_KEY"
+  env_args="-e OPENAI_API_KEY=$OPENAI_API_KEY"
 else
   echo "OPENAI_API_KEY is not set, skipping env injection."
 fi
@@ -429,6 +444,42 @@ if [[ "$RUN_PATCH" == true ]]; then
     cd -
 
     if [[ "$CHECK_INVARIANTS" == true ]]; then
+        print_header "$CYAN" "VALIDATING & VERIFYING INVARIANT TEST PATHS"
+
+        # 1) Require the key
+        if ! jq -e 'has("invariant_test_paths")' "${repo_dir}/metadata.json" >/dev/null; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} 'metadata.json' must contain an 'invariant_test_paths' key with an array of strings (e.g., \"invariant_test_paths\": [])"
+            exit 1
+        fi
+
+        # 2) Validate type & contents
+        if ! jq -e '
+            (.invariant_test_paths | type == "array") and
+            all(.invariant_test_paths[]; type == "string")
+        ' "${repo_dir}/metadata.json" >/dev/null; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} 'metadata.json' - invariant_test_paths must be an array of strings"
+            exit 1
+        fi
+
+        # 3) Existence check
+        paths=$(jq -r '.invariant_test_paths[]?' "${repo_dir}/metadata.json")
+        if [[ -n "$paths" ]]; then
+            echo -e "${INFO} Checking paths listed in 'metadata.json'"
+            while IFS= read -r p; do
+                full="${repo_dir}/${p}"
+                if [[ ! -e "$full" ]]; then
+                    print_header "$RED" "ERROR"
+                    echo -e "${ERROR} Path not found: ${p} (in 'metadata.json')"
+                    exit 1
+                fi
+            done <<< "$paths"
+            echo -e "${SUCCESS} All invariant_test_paths in 'metadata.json' exist."
+        else
+            echo -e "${INFO} 'metadata.json' has an empty invariant_test_paths array, skipping existence check."
+        fi
+
         print_header "$CYAN" "RUN REPO INVARIANT CHECK"
         cd "$repo_dir"
         execute_if_exists "run_repo_invariants.sh"

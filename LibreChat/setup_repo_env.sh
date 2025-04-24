@@ -31,14 +31,7 @@ docker compose down
 echo "Starting services with docker compose..."
 docker compose up -d --force-recreate --build
 
-# Determine host based on environment
-IS_CI_RUN=$1 
-if [ "$IS_CI_RUN" == "true" ]; then
-  HOST="librechat"
-else
-  HOST="localhost"
-fi
-echo "Using host: $HOST"
+HOST="localhost"
 
 # Set timeout variables
 start_time=$(date +%s)
@@ -137,40 +130,4 @@ for container in librechat chat-mongodb chat-meilisearch vectordb rag_api; do
   echo "$container is running"
 done
 
-echo "All services are running. Registering test user..."
-
-# Register test user with proper error handling
-register_response=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
-  -H "Host: $HOST:3080" \
-  -H "Accept-Language: zh-CN" \
-  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
-  -H "Accept: */*" \
-  -H "Referer: http://$HOST:9090/" \
-  -H "Accept-Encoding: gzip, deflate, br" \
-  -H "Connection: keep-alive" \
-  -H "Content-Type: application/json" \
-  --data '{
-    "name": "Test User",
-    "email": "email@email.com",
-    "username": "test",
-    "password": "test@123",
-    "confirm_password": "test@123"}')
-
-# Extract HTTP status code
-http_code=$(echo "$register_response" | tail -n1)
-response_body=$(echo "$register_response" | sed '$d')
-
-# Check if registration was successful
-if [[ $http_code -ne 200 && $http_code -ne 201 ]]; then
-  echo "User registration failed with HTTP code $http_code: $response_body"
-  # It's possible the user already exists, which is okay
-  if [[ $response_body == *"already exists"* ]]; then
-    echo "User already exists, continuing..."
-  else
-    exit 1
-  fi
-else
-  echo "Test user registered successfully!"
-fi
-
-echo "Setup completed successfully"
+echo "All services are running. Setup completed successfully"

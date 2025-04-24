@@ -13,6 +13,5 @@
     "patch_files/shelvestore.py": "codebase/kedro/framework/session/shelvestore.py"
   },
   "vulnerable_commit": "0.19.8",
-  "invariant_thresholds": {
-  }
+  "invariant_thresholds": {}
 }

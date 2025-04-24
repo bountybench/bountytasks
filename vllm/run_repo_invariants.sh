@@ -1,84 +1,30 @@
 #!/bin/bash
-rm invariant_scores.json
+UNIT_TEST_RESULTS="./unit_test_results.txt"
 
 set -e
-VENV_NAME="vllm_env"
+VENV_DIR="unit_test_venv"
 
-####################################
-# Environment Setup                #
-####################################
-if ! command -v conda &> /dev/null; then
-    echo "Conda not found in PATH, checking for existing Miniconda installation..."
-    
-    # Detect system architecture
-    ARCH=$(uname -m)
-    OS=$(uname -s)
-    
-    if [ -d "$HOME/miniconda" ]; then
-        echo "Miniconda found at $HOME/miniconda, updating installation..."
-    else
-        echo "Installing Miniconda for $OS on $ARCH..."
-        
-        # Determine the correct Miniconda installer based on architecture
-        case "$OS-$ARCH" in
-            "Linux-x86_64")
-                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" ;;
-            "Linux-aarch64")
-                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh" ;;
-            "Darwin-x86_64")
-                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
-            "Darwin-arm64")
-                MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh" ;;
-            *)
-                echo "Unsupported OS/architecture combination: $OS-$ARCH. Exiting..."
-                exit 1 ;;
-        esac
-        
-        # Download and install Miniconda
-        curl -fsSL "$MINICONDA_URL" -o miniconda.sh
-        bash miniconda.sh -b -p "$HOME/miniconda"
-        rm miniconda.sh
+cleanup() {
+    cd "$root_dir" || exit
+    echo "Cleaning up test results..."
+    rm -rf "$UNIT_TEST_RESULTS"
+    if [[ -d "$VENV_DIR" ]]; then
+        echo "Removing virtual environment at $VENV_DIR"
+        rm -rf "$VENV_DIR"
     fi
-    
-    # Add conda to path for current session
-    export PATH="$HOME/miniconda/bin:$PATH"
-    
-    # Initialize conda for bash/zsh
-    "$HOME/miniconda/bin/conda" init bash
-    "$HOME/miniconda/bin/conda" init zsh 2>/dev/null || true
-    
-    # Source shell configuration
-    source ~/.zshrc 2>/dev/null || source ~/.bashrc 2>/dev/null || true
-fi
+}
+echo "Creating test environment..."
+python3.9 -m venv "$VENV_DIR"
+source "$VENV_DIR/bin/activate"
+# Note: do not upgrade pip here, later versions might not be compatible with xformers installation
+# pip show pip | compatible version: 23.0.1
 
-# Ensure conda is available
-if ! command -v conda &> /dev/null; then
-    echo "Conda is still not available after setup. Exiting..."
-    exit 1
-fi
-
-echo "Conda is available, proceeding with environment setup..."
-
-# Remove any stale virtual environment
-conda env remove -n "$VENV_NAME" -y 2>/dev/null || true
-
-echo "Creating and activating Python virtual environment"
-
-# Create a new virtual environment
-conda create -n "$VENV_NAME" python=3.9 -y
-
-# Ensure conda is properly initialized for the shell
-eval "$(conda shell.bash hook)"
-conda activate "$VENV_NAME"
-
-# Verify activation
-echo "Active conda environment: $(conda info --envs | grep '*' | awk '{print $1}')"
-
-export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2 
-export VLLM_TARGET_DEVICE=empty 
+export SETUPTOOLS_SCM_PRETEND_VERSION=0.6.2
+export VLLM_TARGET_DEVICE=empty
 apt-get update && apt-get install -y git build-essential cmake netcat-openbsd 
-pip install --no-cache-dir -e ./codebase
-pip install --no-cache-dir pytest pytest-timeout pytest-asyncio msgpack-numpy xformers==0.0.27.post2
+pip install -e ./codebase && \
+pip install xformers==0.0.27.post2
+pip install pytest pytest-timeout pytest-asyncio msgpack-numpy 
 
 ####################################
 # Run Invariants                   #
@@ -218,8 +164,3 @@ EOF
 )
 
 echo "$json_output" > invariant_scores.json
-
-echo "Cleaning up: Removing Conda environment '$VENV_NAME'..."
-conda deactivate
-conda env remove -n "$VENV_NAME" -y
-echo "Cleanup complete."

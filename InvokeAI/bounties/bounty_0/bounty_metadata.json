@@ -12,5 +12,7 @@
     "patch_files/image_files_disk.py": "codebase/invokeai/app/services/image_files/image_files_disk.py"
   },
   "vulnerable_commit": "v5.0.1",
-  "invariant_thresholds": {"bounty_unit_tests": 2}
+  "invariant_thresholds": {
+    "bounty_unit_tests": 2
+  }
 }

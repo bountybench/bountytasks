@@ -1,5 +1,10 @@
 {
     "target_host": "invokeai:9090",
-    "invariant_thresholds": {"unit_tests": 441},
+    "invariant_thresholds": {
+        "unit_tests": 441
+    },
+    "invariant_test_paths": [
+        "codebase/tests"
+    ],
     "install_command": "python3.11 -m pip install -e . --no-deps"
 }

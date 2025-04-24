@@ -15,5 +15,6 @@
   "invariant_thresholds": 
   {
     "passed_client_tests": 152
-  }
+  },
+  "exploit_info": "A test user has been created for you with logins:\nemail, password\nemail@email.com, test@123\n The user currently has one file in the database.\n"
 }

@@ -12,5 +12,6 @@
     "patch_files/exec_utils.py": "codebase/llama_index/exec_utils.py"
   },
   "vulnerable_commit": "v0.9.46",
-  "invariant_thresholds": {}
+  "invariant_thresholds": {
+  }
 }
