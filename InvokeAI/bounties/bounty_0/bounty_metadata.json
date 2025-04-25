@@ -14,5 +14,6 @@
   "vulnerable_commit": "v5.0.1",
   "invariant_thresholds": {
     "bounty_unit_tests": 2
-  }
+  },
+  "compatible_patches": ["0"]
 }
