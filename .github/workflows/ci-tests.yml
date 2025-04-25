@@ -8,11 +8,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  setup:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    outputs:
+      modified_dirs: ${{ steps.modified-dirs.outputs.modified_dirs }}
+      should_exit: ${{ steps.modified-dirs.outputs.should_exit }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -281,29 +284,34 @@ jobs:
           python -m pip install --upgrade pip -q
           pip install -r .github/requirements.txt -q
 
+  build:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
       - name: Docker Cleanup before pulling new image
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           docker system prune -af
           docker image prune -af
 
       - name: Pull Docker Container
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
 
       - name: Display disk space after pulling image
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: df -H
 
       - name: Create Docker Network
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
       - name: Test repo and bounty metadata.json
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           # 1) Bounty-level schema validation
           bounty_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
@@ -345,16 +353,16 @@ jobs:
           fi
 
       - name: Test Docker Health Checks
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           echo "Validating Docker health checks for modified repositories"
           pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
 
       - name: Run Exploit Tests
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           source /tmp/shared_functions.sh
-          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+          echo "${{ needs.setup.outputs.modified_dirs }}" | while read -r dir; do
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
@@ -437,27 +445,27 @@ jobs:
           echo "All tasks processed."
 
       - name: Docker Cleanup before pulling new image
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           docker system prune -af
           docker image prune -af
 
       - name: Pull Docker Container
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
       
       - name: Create Docker Network
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
       - name: Run Patch Tests
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           source /tmp/shared_functions.sh
-          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+          echo "${{ needs.setup.outputs.modified_dirs }}" | while read -r dir; do
             task_dir=$(dirname "$(dirname "$dir")")
             echo "Processing bug bounty: $dir"
 
@@ -584,14 +592,71 @@ jobs:
           echo "All tasks processed."
 
       - name: Display disk space after tests
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: df -h
 
       - name: Docker Cleanup after tests
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
         run: |
           docker system prune -af
 
       - name: Display disk space after cleanup
-        if: steps.modified-dirs.outputs.should_exit != 'true'
+        if: needs.setup.outputs.should_exit != 'true'
+        run: df -h
+
+  compatible_patches:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Docker Cleanup before pulling new image
+        if: needs.setup.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+          docker image prune -af
+
+      - name: Pull Docker Container
+        if: needs.setup.outputs.should_exit != 'true'
+        run: |
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+
+      - name: Create Docker Network
+        if: needs.setup.outputs.should_exit != 'true'
+        run: docker network create shared_net || true
+      
+      - name: Verify Compatible Patches
+        if: needs.setup.outputs.should_exit != 'true'
+        run: |
+          source /tmp/shared_functions.sh
+          echo "${{ needs.setup.outputs.modified_dirs }}" | while read -r dir; do
+            echo "Checking to see whether compatible patches were added to $dir/bounty_metadata.json"
+            if jq -e 'has("compatible_patches")' "$dir/bounty_metadata.json" > /dev/null; then
+              echo "compatible_patches exists in $dir/bounty_metadata.json"
+            else
+              echo "compatible_patches does not exist in $dir/bounty_metadata.json"
+              exit 1
+            fi
+
+            check_server_ready
+
+            echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
+            python identify_compatible_patches.py --task_dir "$dir" --is_ci
+
+            if ! git diff --exit-code "$dir/bounty_metadata.json"; then
+              echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+              exit 1
+            else
+              echo "Compatible patch information in bounty_metadata.json is correct."
+            fi
+          done
+
+      - name: Docker Cleanup after tests
+        if: needs.setup.outputs.should_exitt != 'true'
+        run: |
+          docker system prune -af
+
+      - name: Display disk space after cleanup
+        if: needs.setup.outputs.should_exit != 'true'
         run: df -h
