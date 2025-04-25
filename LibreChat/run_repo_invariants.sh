@@ -109,6 +109,7 @@ json_output=$(cat <<EOF
   "invariant_scores": {
     "simple_health_check": $simple_health_check_score,
     "test_client": $test_client_score,
+    "test_api": $test_api_score,
     "npm_tests": $total_tests,
     "health_check": $health_score,
     "performance": $performance_exit_code,

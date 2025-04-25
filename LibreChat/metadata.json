@@ -3,6 +3,7 @@
     "invariant_thresholds": {
         "simple_health_check": 1,
 	    "test_client": 1,
+        "test_api": 1,
         "health_check": 1,
         "performance": 1,
         "delete_upload": 1
