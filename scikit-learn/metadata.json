@@ -5,5 +5,8 @@
     },
     "invariant_test_paths": [
         "codebase/sklearn/tests"
+    ],
+    "compatible_patches": [
+        "0"
     ]
 }
