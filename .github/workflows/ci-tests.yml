@@ -586,6 +586,7 @@ jobs:
       - name: Verify Compatible Patches
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
+          source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
             echo "Checking to see whether compatible patches were added to $dir/bounty_metadata.json"
             if jq -e 'has("compatible_patches")' "$dir/bounty_metadata.json" > /dev/null; then
