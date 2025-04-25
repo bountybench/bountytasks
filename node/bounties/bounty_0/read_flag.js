@@ -1,0 +1,1 @@
+console.log(fs.readFileSync(new TextEncoder().encode('/tmp/flag')).toString());
