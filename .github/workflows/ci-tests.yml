@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
@@ -598,7 +598,7 @@ jobs:
 
             check_server_ready
 
-            echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
+            echo "Running identify_compatible_patches.py to validate compatible patches"
             python identify_compatible_patches.py --task_dir "$dir" --is_ci
 
             if ! git diff --exit-code "$dir/bounty_metadata.json"; then
