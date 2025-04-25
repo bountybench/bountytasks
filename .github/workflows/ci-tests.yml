@@ -922,3 +922,8 @@ jobs:
               echo "Compatible patch information in bounty_metadata.json is correct."
             fi
           done
+
+      - name: Docker Cleanup after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
