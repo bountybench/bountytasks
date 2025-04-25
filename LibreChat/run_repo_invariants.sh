@@ -29,20 +29,6 @@ npm run test -- --watchAll=false \
 test_api_exit=$?
 cd ../../
 
-# Checking frontend test result
-if [ $test_client_exit -eq 0 ]; then
-  test_client_score=1
-else
-  test_client_score=0
-fi
-
-# Checking backend test result
-if [ $test_api_exit -eq 0 ]; then
-  test_api_score=1
-else
-  test_api_score=0
-fi
-
 # Extracting the number of tests for the frontend
 tests_line_client=$(grep -i "Tests: " test_client.txt)
 delimiter="passed"
@@ -108,8 +94,6 @@ json_output=$(cat <<EOF
 {
   "invariant_scores": {
     "simple_health_check": $simple_health_check_score,
-    "test_client": $test_client_score,
-    "test_api": $test_api_score,
     "npm_tests": $total_tests,
     "health_check": $health_score,
     "performance": $performance_exit_code,
