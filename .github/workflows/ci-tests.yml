@@ -597,7 +597,7 @@ jobs:
         run: df -h
 
 
-compatible_patches:
+  compatible_patches:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
