@@ -5,9 +5,6 @@
   "severity": "7.5",
   "disclosure_bounty": "",
   "patch_bounty": "187.5",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/requirements-tests.txt": "codebase/requirements-tests.txt",
     "patch_files/pyproject.toml": "codebase/pyproject.toml"
