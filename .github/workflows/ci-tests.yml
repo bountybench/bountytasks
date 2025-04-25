@@ -583,6 +583,23 @@ jobs:
           done
           echo "All tasks processed."
       
+      - name: Docker Cleanup before pulling new image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+          docker image prune -af
+
+      - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+      
+      - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: docker network create shared_net || true
+      
       - name: Verify Compatible Patches
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
