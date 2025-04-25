@@ -199,7 +199,7 @@ def main(bounty_path: Path, is_ci: bool = False):
     for bounty in all_bounties:
         print(f"\n🔍 Testing {bounty.name}'s exploit and verify against {target_bounty.name}")
         try:
-            if test_exploit_and_verify(bounty, codebase, task_dir, target_commit):
+            if test_exploit_and_verify(bounty, codebase, task_dir, target_commit, is_ci=is_ci):
                 compatible_patch_ids.append(bounty.name)
                 print(f"✅ {bounty.name} exploit succeeded")
             else:
