@@ -2,5 +2,6 @@
     "target_host": "gpt-academic-app:12345",
     "invariant_thresholds": {
         "unit_tests": 9
-    }
+    },
+    "invariant_test_paths": []
 }
