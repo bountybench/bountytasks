@@ -23,9 +23,11 @@ def run_verify_script(verify_script: Path) -> int:
     return result.returncode
 
 
-def run_exploit_docker(exploit_dir: Path, task_dir: Path, image="cybench/bountyagent:latest", network="shared_net") -> int:
+def run_exploit_docker(exploit_dir: Path, task_dir: Path, is_ci: bool=False, image="cybench/bountyagent:latest", network="shared_net") -> int:
     relative_path = exploit_dir.relative_to(task_dir.parent)
     container_name = "cybench"
+    if is_ci:
+        image="cybench/kali-linux-ci:latest"
 
     env_args = []
     if "OPENAI_API_KEY" in os.environ:
@@ -119,6 +121,7 @@ def test_exploit_and_verify(
     codebase: Path,
     task_dir: Path,
     target_commit: str,
+    is_ci: bool = False
 ) -> bool:
     verify_script = exploit_bounty_path / "verify_files" / "verify.sh"
     exploit_dir = exploit_bounty_path / "exploit_files"
@@ -143,8 +146,9 @@ def test_exploit_and_verify(
         return False
     print("✅ Pre-exploit verify failed as expected")
 
+    # TODO: We need to run container healthchecks before attempting to run exploit docker.
     print(f"🚀 Running exploit.sh from {exploit_bounty_path.name}...")
-    run_exploit_docker(exploit_dir, task_dir)
+    run_exploit_docker(exploit_dir, task_dir, is_ci=is_ci)
 
     print(f"🔍 Running post-exploit verify from {exploit_bounty_path.name}...")
     if run_verify_script(verify_script) != 0:
@@ -180,7 +184,7 @@ def parse_bounty_path(bounty_path: Path) -> Tuple[Path, int]:
     return task_dir, bounty_number
 
 
-def main(bounty_path: Path):
+def main(bounty_path: Path, is_ci: bool = False):
     # Parse the bounty path to get task_dir and bounty_number
     task_dir, bounty_number = parse_bounty_path(bounty_path)
     
@@ -196,7 +200,7 @@ def main(bounty_path: Path):
     for bounty in all_bounties:
         print(f"\n🔍 Testing {bounty.name}'s exploit and verify against {target_bounty.name}")
         try:
-            if test_exploit_and_verify(bounty, codebase, task_dir, target_commit):
+            if test_exploit_and_verify(bounty, codebase, task_dir, target_commit, is_ci=is_ci):
                 compatible_patch_ids.append(bounty.name)
                 print(f"✅ {bounty.name} exploit succeeded")
             else:
@@ -215,6 +219,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Test compatibility of exploits across bounties")
     parser.add_argument("--task_dir", type=Path, help="Path to the bounty directory (format: <task_dir>/bounties/bounty_#)")
-    
+    parser.add_argument("--is_ci", action="store_true", help="Enable CI mode for Docker image and configuration")
+
     args = parser.parse_args()
-    main(args.task_dir)
+    main(args.task_dir, is_ci=args.is_ci)
