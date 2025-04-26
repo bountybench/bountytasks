@@ -27,51 +27,563 @@ jobs:
       - name: Fetch main branch
         run: git fetch origin main:refs/remotes/origin/main
 
+      - name: Find modified metadata/bounty directories
+        id: modified-dirs
+        run: |
+          cat << 'EOF' > /tmp/shared_functions.sh
+          execute_if_exists() {
+            local script_path="$1"
+            if [ -f "$script_path" ]; then
+              echo "Executing $script_path"
+              bash "$script_path"
+            else
+              echo "$script_path not found, skipping."
+            fi
+          }
+
+          get_modified_dirs() {
+            git diff --diff-filter=ACMDR --name-only origin/main...HEAD | while read -r file; do
+              ##################################
+              # First part
+              ##################################
+              # If the file path includes "bounties/bounty_{digits}", extract and echo it.
+              if [[ "$file" =~ (.*bounties/bounty_[0-9]+) ]]; then
+                dir="${BASH_REMATCH[1]}"
+                if [[ -d "$dir" ]]; then
+                  echo "$dir"
+                fi
+              fi
+
+              ##################################
+              # Second part
+              ##################################
+              # Skip if it already matches "bounties/bounty_{digits}" or contains metadata.json
+              if [[ "$file" =~ .*/bounties/bounty_[0-9]+ ]] || [[ "$file" =~ metadata.json ]]; then
+                continue
+              else
+                # Get the base directory
+                baseDir="$(dirname "$file")"
+                # Check if baseDir contains "bounties" somewhere
+                if [[ -d "$baseDir/bounties" ]]; then
+                  rootOfBounties="$baseDir/bounties"
+                  # For each bounty subfolder under rootOfBounties, echo if non-essentials check passes
+                  for subDir in "$rootOfBounties"/bounty_[0-9]*; do
+                    if [[ -d "$subDir" && "$subDir" =~ /bounty_[0-9]+$ ]]; then
+                      echo "$subDir"
+                    fi
+                  done
+                fi
+              fi
+            done | sort -u
+          }
+
+          checkout_vulnerable_commit() {
+            local dir="$1"
+            if [[ -f "$dir/bounty_metadata.json" ]]; then
+              vulnerable_commit=$(jq -r '.["vulnerable_commit"]' "$dir/bounty_metadata.json")
+              
+              if [[ -n "$vulnerable_commit" ]]; then
+                echo "Found vulnerable commit: $vulnerable_commit in $dir"
+
+                git submodule update --init "$task_dir"
+                echo "Cleaning repository to remove all changes and untracked files..."
+                checkout_main "$dir"
+
+                task_dir=$(dirname "$(dirname "$dir")")
+                cd "$task_dir/codebase" || exit 1
+
+                # Update the submodule and checkout the vulnerable commit
+                git checkout "$vulnerable_commit"
+
+                cd - || exit 1
+              else
+                echo "No vulnerable commit found in $dir/bounty_metadata.json"
+                exit 1
+              fi
+            else
+              echo "No bounty_metadata.json file found in $dir"
+              exit 1
+            fi
+          }
+
+          checkout_main() {
+            local dir="$1"
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Checking out main branch at $task_dir/codebase"
+            cd "$task_dir/codebase" || exit 1
+            echo "Cleaning up the codebase"
+            git reset --hard HEAD
+            sudo git clean -fdx
+
+            echo "Checking if 'main' branch exists"
+            if git rev-parse --verify main >/dev/null 2>&1; then
+              echo "'main' branch exists"
+            else
+              echo "'main' branch does NOT exist."
+              if git rev-parse --verify master >/dev/null 2>&1; then
+                echo "'master' branch exists - renaming 'master' to 'main'"
+                git branch -m master main
+              elif git rev-parse --verify develop >/dev/null 2>&1; then
+                echo "'develop' branch exists - renaming 'develop' to 'main'"
+                git branch -m develop main
+              else
+                echo "Neither 'main' nor 'master' branch exists. Exiting."
+                exit 1
+              fi
+            fi
+
+            # Checkout 'main' branch
+            echo "Checking out 'main' branch at $task_dir/codebase"
+            git checkout main --force
+            cd - || exit 1
+          }
+
+          check_server_ready() {
+            # Timeout per container in seconds
+            TIMEOUT=${TIMEOUT:-180}
+            # Interval between checks in seconds
+            INTERVAL=${INTERVAL:-1}
+
+            # Get all running containers
+            containers=$(docker ps --format '{{.Names}}')
+
+            for container in $containers; do
+              echo "Checking readiness for $container..."
+
+              # Check if container has a health check
+              has_health=$(docker inspect --format '{{if .Config.Healthcheck}}true{{else}}false{{end}}' "$container")
+              if [ "$has_health" = "true" ]; then
+                echo "Container has a health check. Waiting to become healthy..."
+                elapsed=0
+                success=0
+                while [ $elapsed -lt $TIMEOUT ]; do
+                  status=$(docker inspect --format '{{.State.Health.Status}}' "$container" 2>/dev/null)
+                  if [ "$status" == "healthy" ]; then
+                    success=1
+                    break
+                  fi
+                  sleep "$INTERVAL"
+                  elapsed=$((elapsed + INTERVAL))
+                done
+                if [ $success -eq 1 ]; then
+                  echo "$container is healthy."
+                  continue
+                else
+                  echo "Timeout: $container did not become healthy within $TIMEOUT seconds." >&2
+                  exit 1
+                fi
+              else
+                # Get exposed TCP ports
+                ports=$(docker inspect --format '{{range $p, $conf := .NetworkSettings.Ports}}{{range $conf}}{{.HostPort}} {{end}}{{end}}' "$container")
+                if [ -z "$ports" ]; then
+                  echo "No exposed ports for $container. Skipping readiness check." >&2
+                  continue
+                fi
+
+                elapsed=0
+                all_success=0
+                while [ $elapsed -lt $TIMEOUT ]; do
+                  success=1
+                  for port_spec in $ports; do
+                    port=$(echo "$port_spec" | cut -d'/' -f1)
+                    proto=$(echo "$port_spec" | cut -d'/' -f2)
+                    if [ "$proto" != "tcp" ]; then
+                      continue  # Skip non-TCP ports
+                    fi
+
+                    # Perform TCP check
+                    if ! nc -z -w 1 localhost "$port" &>/dev/null; then
+                      success=0
+                      break
+                    fi
+                  done
+
+                  if [ $success -eq 1 ]; then
+                    all_success=1
+                    break
+                  fi
+
+                  sleep "$INTERVAL"
+                  elapsed=$((elapsed + INTERVAL))
+                done
+
+                if [ $all_success -eq 1 ]; then
+                  echo "$container is ready via port check on all ports."
+                else
+                  echo "Timeout: $container not ready after $TIMEOUT seconds." >&2
+                  exit 1
+                fi
+              fi
+            done
+
+            echo "All containers are ready!"
+          }
+
+          EOF
+          chmod +x /tmp/shared_functions.sh
+          source /tmp/shared_functions.sh
+          modified_dirs=$(get_modified_dirs)
+          if [ -z "$modified_dirs" ]; then
+            echo "No modified directories with essential changes found. Skipping further steps."
+            echo "should_exit=true" >> $GITHUB_OUTPUT
+          else
+            echo "Modified directories:"
+            echo "$modified_dirs"
+
+            # Extract base directories from modified_dirs
+            base_dirs=$(echo "$modified_dirs" | while IFS= read -r line; do
+              # Skip empty lines
+              [[ -z "$line" ]] && continue
+              # Extract the base directory (everything before the first "/")
+              echo "${line%%/*}"
+            done | sort -u)
+
+            echo "$base_dirs" | while IFS= read -r base; do
+              if [ -d "$base" ]; then
+                echo "Initialize submodule for $base"
+                git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $(echo -n "x-access-token:${{ secrets.GH_TOKEN }}" | base64)" submodule update --init "$base"
+              else
+                echo "$base does not exist."
+              fi
+            done
+
+            echo "modified_dirs<<EOF" >> $GITHUB_OUTPUT
+            echo "$modified_dirs" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+
       - name: Clean up before starting
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           sudo apt-get clean
           npm cache clean --force
 
       - name: Setup Python 3.9 environment
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
       - name: Setup Python 3.10 environment
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Create .env file
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
 
       - name: Install dependencies
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           python -m pip install --upgrade pip -q
           pip install -r .github/requirements.txt -q
 
       - name: Docker Cleanup before pulling new image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           docker system prune -af
           docker image prune -af
 
       - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           docker pull --quiet cybench/kali-linux-ci:latest
           docker manifest inspect cybench/kali-linux-ci:latest
           docker image tag cybench/kali-linux-ci:latest cybench
 
+      - name: Display disk space after pulling image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -H
+
       - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
+      - name: Test repo and bounty metadata.json
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          # 1) Bounty-level schema validation
+          bounty_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
+                                | grep '.*/bounties/.*/bounty_metadata.json$' || true)
+          if [ -n "$bounty_meta_changes" ]; then
+            echo "Detected changes in bounty_metadata.json:"
+            echo "$bounty_meta_changes"
+            bounty_dirs=$(echo "$bounty_meta_changes" \
+                          | tr '\n' '\0' \
+                          | xargs -0 -n1 dirname \
+                          | sort -u)
+            echo "Running bounty schema tests in:"
+            echo "$bounty_dirs"
+            echo "$bounty_dirs" | tr '\n' '\0' | xargs -0 pytest \
+              --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no \
+              tests/test_metadata_json.py::test_bounty_metadata --dirs
+          else
+            echo "No bounty_metadata.json changes detected, skipping bounty tests."
+          fi
+
+          # 2) Project-level schema validation
+          project_meta_changes=$(git diff --diff-filter=ACM --name-only origin/main...HEAD \
+                               | grep 'metadata\.json$' \
+                               | grep -v '/bounties/' || true)
+          if [ -n "$project_meta_changes" ]; then
+            echo "Detected changes in project metadata.json files:"
+            echo "$project_meta_changes"
+            project_dirs=$(echo "$project_meta_changes" \
+                          | tr '\n' '\0' \
+                          | xargs -0 -n1 dirname \
+                          | sort -u)
+            echo "Running project schema tests in:"
+            echo "$project_dirs"
+            echo "$project_dirs" | tr '\n' '\0' | xargs -0 pytest \
+              --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no \
+              tests/test_metadata_json.py::test_project_metadata --dirs
+          else
+            echo "No project metadata.json changes detected, skipping project tests."
+          fi
+
       - name: Test Docker Health Checks
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           echo "Validating Docker health checks for modified repositories"
           pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
 
-      - name: Run Invariants
+      - name: Run Exploit Tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
-          ls -la
-          ls -la .github/workflows
-          ./.github/workflows/run_invariants.sh LibreChat/bounties/bounty_1 --patch --check-invariants
+          source /tmp/shared_functions.sh
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Processing bug bounty: $dir"
+
+            checkout_vulnerable_commit "$dir"
+
+            # Repo-level setup
+            echo "Setting up the repo environment for $dir"
+            cd "$task_dir"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
+            cd -
+
+            # Conditional check for invariant thresholds
+            if [ -f "$task_dir/metadata.json" ] && \
+               jq -e '.invariant_thresholds | type == "object"' "$task_dir/metadata.json" > /dev/null; then
+
+              # Repo-level patch invariant checks
+              echo "Running repo-level patch invariant checks for $task_dir"
+              cd "$task_dir"
+              if [ -f "run_repo_invariants.sh" ]; then
+                chmod +x run_repo_invariants.sh
+                bash run_repo_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Repo-level invariant_scores.json is not generated for $task_dir"
+                  exit 1
+                fi
+              else
+                echo "No run_repo_invariants.sh file found in $task_dir"
+                exit 1
+              fi
+              cd -
+
+              # Bounty-level patch invariant checks
+              echo "Running bounty-level patch invariant checks for $dir"
+              cd "$dir"
+              if [ -f "run_bounty_invariants.sh" ]; then
+                chmod +x run_bounty_invariants.sh
+                bash run_bounty_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Bounty-level invariant_scores.json is not generated for $dir"
+                  echo "As this is optional, create a template invariant_scores.json"
+                  echo '{"invariant_scores": {}}' > invariant_scores.json
+                fi
+              else
+                echo "No run_bounty_invariants.sh file found in $dir"
+                exit 1
+              fi
+              cd -
+
+              # Run the check_invariants test for this task
+              python tests/check_invariants.py "$task_dir/metadata.json" "$task_dir/invariant_scores.json" "$dir/bounty_metadata.json" "$dir/invariant_scores.json"
+              if [ $? -ne 0 ]; then
+                echo "Check invariants failed for $dir"
+                exit 1
+              fi
+
+              # Cleanup after successful checks
+              rm "$dir/invariant_scores.json"
+              rm "$task_dir/invariant_scores.json"
+
+            else
+              echo "Skipping patch invariant checks - no valid invariant_thresholds defined"
+            fi
+          done
+          echo "All tasks processed."
+
+      - name: Docker Cleanup before pulling new image
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+          docker image prune -af
+
+      - name: Pull Docker Container
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker pull --quiet cybench/kali-linux-ci:latest
+          docker manifest inspect cybench/kali-linux-ci:latest
+          docker image tag cybench/kali-linux-ci:latest cybench
+      
+      - name: Create Docker Network
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: docker network create shared_net || true
+
+      - name: Run Patch Tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          source /tmp/shared_functions.sh
+          echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
+          
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Processing bug bounty: $dir"
+
+            checkout_vulnerable_commit "$dir"
+
+            # Patch the bug for this task
+            bounty_metadata="$dir/bounty_metadata.json"
+
+            patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+
+            if [ -z "$patch_pairs" ]; then
+              echo "No patches defined for $dir. Skipping patch application."
+              checkout_main "$dir"
+              continue
+            else
+              # Apply the patches by copying local files to their target locations
+              declare -A original_files
+              echo "Applying patches for $dir"
+              while read -r source_file target_file; do
+                # Ensure the target directory exists
+                target_dir=$(dirname "$target_file")
+                if [ ! -d "$task_dir/$target_dir" ]; then
+                  echo "Creating directory $task_dir/$target_dir"
+                  mkdir -p "$task_dir/$target_dir"
+                fi
+
+                # Apply the patch by copying the source file to the target location
+                echo "Copying $dir/$source_file to $task_dir/$target_file"
+                cp "$dir/$source_file" "$task_dir/$target_file"
+              done <<< "$patch_pairs"
+            fi
+
+            # Repo-level setup
+            echo "Setting up the repo environment for $dir"
+            cd "$task_dir"
+            execute_if_exists "setup_repo_env.sh"
+            cd -
+
+            # Bounty-level setup
+            echo "Setting up the bounty environment for $dir"
+            cd "$dir/setup_files"
+            execute_if_exists "setup_bounty_env.sh"
+            cd -
+
+            check_server_ready
+
+            # Conditional check for invariant thresholds
+            if [ -f "$task_dir/metadata.json" ] && \
+               jq -e '.invariant_thresholds | type == "object"' "$task_dir/metadata.json" > /dev/null; then
+
+              # Repo-level patch invariant checks
+              echo "Running repo-level patch invariant checks for $task_dir"
+              cd "$task_dir"
+              if [ -f "run_repo_invariants.sh" ]; then
+                chmod +x run_repo_invariants.sh
+                bash run_repo_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Repo-level invariant_scores.json is not generated for $task_dir"
+                  exit 1
+                fi
+              else
+                echo "No run_repo_invariants.sh file found in $task_dir"
+                exit 1
+              fi
+              cd -
+
+              # Bounty-level patch invariant checks
+              echo "Running bounty-level patch invariant checks for $dir"
+              cd "$dir"
+              if [ -f "run_bounty_invariants.sh" ]; then
+                chmod +x run_bounty_invariants.sh
+                bash run_bounty_invariants.sh
+                if [ ! -f "invariant_scores.json" ]; then
+                  echo "Bounty-level invariant_scores.json is not generated for $dir"
+                  echo "As this is optional, create a template invariant_scores.json"
+                  echo '{"invariant_scores": {}}' > invariant_scores.json
+                fi
+              else
+                echo "No run_bounty_invariants.sh file found in $dir"
+                exit 1
+              fi
+              cd -
+
+              # Run the check_invariants test for this task
+              python tests/check_invariants.py "$task_dir/metadata.json" "$task_dir/invariant_scores.json" "$dir/bounty_metadata.json" "$dir/invariant_scores.json"
+              if [ $? -ne 0 ]; then
+                echo "Check invariants failed for $dir"
+                exit 1
+              fi
+
+              # Cleanup after successful checks
+              rm "$dir/invariant_scores.json"
+              rm "$task_dir/invariant_scores.json"
+
+            else
+              echo "Skipping patch invariant checks - no valid invariant_thresholds defined"
+            fi
+
+            # Run the patch test for this task
+            echo "Running patch test for $dir"
+            pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_patch.py::test_patch_workflow --dirs "$dir"
+
+            # Stop Docker for this task
+            echo "Stopping Docker for $dir"
+            cd "$dir/setup_files"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
+            cd -
+
+            # Stop Docker for this repo
+            echo "Stopping Docker for $task_dir"
+            cd "$task_dir"
+            if [ -f docker-compose.yml ]; then
+              docker compose down -v
+            fi
+            cd -
+
+            checkout_main "$dir"
+
+            echo "Completed processing bug bounty: $dir"
+            echo "-----------------------------------"
+          done
+          echo "All tasks processed."
+
+      - name: Display disk space after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -h
+
+      - name: Docker Cleanup after tests
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: |
+          docker system prune -af
+
+      - name: Display disk space after cleanup
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -h
+
