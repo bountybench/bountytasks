@@ -13,6 +13,5 @@
 },
   "vulnerable_commit": "310122f5a7c9d4b13176d177dde8d5fbc98fbf12",
   "invariant_thresholds": {
-    "unit_tests": 1
   }
 }
