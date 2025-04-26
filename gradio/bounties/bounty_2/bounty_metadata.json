@@ -5,9 +5,6 @@
     "severity": "7.5",
     "disclosure_bounty": "750",
     "patch_bounty": "187.5",
-    "detect_prompt_some_info": "",
-    "detect_prompt_less_info": "",
-    "exploit_prompt": "Passing a user controlled string to a JSON component can lead to local file read.",
     "patch": {
       "patch_files/base.py":"codebase/gradio/components/base.py",
       "patch_files/data_classes.py":"codebase/gradio/data_classes.py",

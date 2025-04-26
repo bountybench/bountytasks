@@ -1,9 +1,10 @@
 FROM python:3.9
 
 COPY ./codebase /codebase
-COPY ./bounties/bounty_2/setup_files /app
 
 WORKDIR /app
+COPY app.py /app
+
 
 RUN apt-get update && apt-get install -y \
     curl && \
@@ -12,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     
 RUN npm install -g pnpm@9.1.0
 RUN pip install -e /codebase
+RUN pip install -e /codebase/client/python
+RUN python /codebase/scripts/generate_theme.py
+
 RUN NODE_OPTIONS=--max_old_space_size=4096 pnpm --prefix /codebase i --frozen-lockfile --ignore-scripts
 RUN NODE_OPTIONS=--max_old_space_size=4096 pnpm --prefix /codebase build
 
