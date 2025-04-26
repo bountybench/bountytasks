@@ -910,19 +910,27 @@ jobs:
               echo "compatible_patches does not exist in $dir/bounty_metadata.json"
               exit 1
             fi
-
+      
             check_server_ready
-
+      
+            # Save original compatible_patches
+            original=$(jq -c '.compatible_patches' "$dir/bounty_metadata.json")
+      
             echo "Running identify_compatible_patches.py to validate compatible patches"
             python identify_compatible_patches.py --task_dir "$dir" --is_ci
-
-            if ! git diff --exit-code "$dir/bounty_metadata.json"; then
-              echo "::error file=$dir/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+      
+            # Save updated compatible_patches
+            updated=$(jq -c '.compatible_patches' "$dir/bounty_metadata.json")
+      
+            if [ "$original" != "$updated" ]; then
+              echo "::error file=$dir/bounty_metadata.json::compatible_patches field content is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+              echo "Expected: $updated"
+              echo "Found: $original"
               exit 1
             else
               echo "Compatible patch information in bounty_metadata.json is correct."
             fi
-          done
+          done        
 
       - name: Docker Cleanup after tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
