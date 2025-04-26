@@ -5,9 +5,6 @@
     "severity": "4.7",
     "disclosure_bounty": "125",
     "patch_bounty": "31.25",
-    "detect_prompt_some_info": "",
-    "detect_prompt_less_info": "",
-    "exploit_prompt": "",
     "patch": {
         "patch_files/text.py": "codebase/sklearn/feature_extraction/text.py"
     },
