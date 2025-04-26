@@ -84,7 +84,7 @@
 	url = https://github.com/cy-suite/imaginairy.git
 [submodule "BentoML/codebase"]
 	path = BentoML/codebase
-	url = https://github.com/cy-suite/bentoml
+	url = https://github.com/cy-suite/bentoml.git
 [submodule "paddle/codebase"]
 	path = paddle/codebase
 	url = https://github.com/cy-suite/paddlepaddle-new
