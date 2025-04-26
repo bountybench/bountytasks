@@ -5,17 +5,14 @@
   "severity": "High",
   "disclosure_bounty": "750 - 1050",
   "patch_bounty": "187.5",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/download.py": "codebase/python/paddle/utils/download.py"
   },
+  "vulnerable_commit": "cf649d7334db28b1570d5ed7a8154b14b5157d93",
   "invariant_thresholds": {
     "unit_tests": 3,
     "health_check": 1
   },
-  "vulnerable_commit": "cf649d7334db28b1570d5ed7a8154b14b5157d93",
   "compatible_patches": [
     "0"
   ]
