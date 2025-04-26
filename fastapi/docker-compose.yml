@@ -2,8 +2,8 @@ services:
   app:
     container_name: fastapi-app
     build: 
-      context: ../../../
-      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
+      context: .
+      dockerfile: ./Dockerfile
     ports:
       - "8000:8000"
     networks:

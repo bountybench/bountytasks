@@ -1,7 +1,7 @@
 import json
 
 try:
-    with open('../exploit_files/tmp/output.json', 'r') as f:
+    with open('../exploit_files/output.json', 'r') as f:
         data = json.load(f)
 
     protocol = data.get('protocol')

@@ -35,9 +35,9 @@ When contributing to this project, please create a branch in the main repository
 
     4.6 [Detailed example: Mlflow](#46-detailed-example-mlflow)
 
-
-5. [Understanding CI Environment vs Local Testing](#5-understanding-ci-environment-vs-local-testing)
-6. [Setting Up Docker](#6-setup-docker-desktop-app)
+5. [Compatible Patches] (#5-compatible-patches) 
+6. [Understanding CI Environment vs Local Testing](#6-understanding-ci-environment-vs-local-testing)
+7. [Setting Up Docker](#7-setup-docker-desktop-app)
 
 ## 1. Adding Target Bug Bounty Repo
 
@@ -681,21 +681,28 @@ Mlflow has 3 bounties, but we will focus on the first two
 
 - **`run_bounty_invariants.sh`**: Left blank because this doesn't have any bounty-specific tests.
 
+## 5. Compatible Patches
+Make sure to run `identify_compatible_patches.py`, which will update the `bounty_metadata.json` with your bounty's compatible patches.
 
-## 5. Understanding CI Environment vs Local Testing
+Compatible patches should be a list of bounty numbers - example ["0", "1", "2"]
+To compute these numbers for a given bounty b, we run all existing exploits from bounty b's repository on bounty b's commit. For each exploit e that succeeds, we add the corresponding bounty number to the list
+
+If you want to check that your compatible patches are updated, you can test by using the following command: ./run_ci_local.sh <task_dir>/bounties/bounty_# [--check-compatible-patches]
+
+## 6. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
 
-### 5.1 CI Setup
+### 6.1 CI Setup
 `setup_repo_env.sh` and `setup_bounty_env.sh` are run in a host environment. For CI local, this is the host machine, for CI github, this is a task docker container. This container acts as a target environment, hosting any necessary servers or services.   
 To test exploit, we create a separate exploit Docker container to run `exploit.sh`. This container will be able to access a copy of the codebase so e.g. can still do any necessary package installations, however this separation is crucial as it prevents the exploit from directly modifying the task environment, which could lead to "gaming" the system and succeeding by altering the source code. 
 After running the exploit, we execute `verify.sh` in the host environment (either your local machine or the task container in CI). This script is run on the host environment to act as an *overseer* with broader access, allowing it to perform checks that the exploit can't, such as examining Docker logs of the task container for some verification condition (see [pytorch](/pytorch-lightning/bounties/bounty_0/verify.sh) for an example of this).
 
-### 5.2 Hostname Challenges
+### 6.2 Hostname Challenges
 Now that the exploit is running in a separate container, we must consider how this exploit Docker container communicates with the host environment, whether it's the local machine or another Docker container - this is where you may encounter key difference between local and CI setups.
 In many bug bounty reports involving servers, you'll see commands using `localhost`, which works fine in your local setup, but in the CI environment, the task container is no longer accessible via `localhost` to the exploit container (and thus the `exploit.sh`).
 To address this, you'll likely need to replace `localhost` with the actual container name when running in CI (the most common place to check/set the container name in the `docker-compose.yml`). 
 
-### 5.3 Network Setup
+### 6.3 Network Setup
 To ensure that your task server allows external connections from the exploit Docker container, you need to add `shared_net` as a network in your `docker-compose.yml` file. Note we always use `shared_net` as the standard network name we rely on.
 
 See the abbreviated [gunicorn docker-compose.yml](/gunicorn/bounties/bounty_0/setup_files/docker-compose.yml) below for an example of setting the container name for [Hostname Challenges](#hostname-challenges) and setting the network for [Network Setup](#network-setup):
@@ -709,7 +716,7 @@ networks:
     external: true
 ```
 
-## 6. Setup Docker Desktop App. 
+## 7. Setup Docker Desktop App. 
 If your bounty involves Docker, you need to install the Docker Desktop App. 
 
 ### Docker Setup

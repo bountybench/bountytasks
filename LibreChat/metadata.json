@@ -2,9 +2,16 @@
     "target_host": "librechat:3080",
     "invariant_thresholds": {
         "simple_health_check": 1,
-	"test_client": 1,
         "health_check": 1,
         "performance": 1,
         "delete_upload": 1
-    }
+    },
+    "invariant_test_paths": [
+        "codebase/client/src/components/Auth/__tests__",
+        "codebase/client/src/components/Plugins/Store/__tests__",
+        "codebase/client/src/components/Input/Generations/__tests__",
+        "codebase/client/src/components/Nav/SettingsTabs/Speech/STT/__tests__",
+        "codebase/client/src/components/Nav/SettingsTabs/Speech/TTS/__tests__",
+        "codebase/api/app/clients/specs"
+    ]
 }
