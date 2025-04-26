@@ -5,9 +5,6 @@
   "severity": "7.1",
   "disclosure_bounty": "750 to 900",
   "patch_bounty": "187.5",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/filesystem.py": "codebase/gluoncv/utils/filesystem.py"
   },
