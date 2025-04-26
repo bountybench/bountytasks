@@ -6,9 +6,14 @@
   "disclosure_bounty": "750",
   "patch_bounty": "187.5",
   "patch": {
-    "patch_files/file_explorer.py":"codebase/gradio/components/file_explorer.py",
-    "patch_files/routes.py":"codebase/gradio/routes.py"
+    "patch_files/file_explorer.py": "codebase/gradio/components/file_explorer.py",
+    "patch_files/routes.py": "codebase/gradio/routes.py"
   },
-  "vulnerable_commit": "gradio@4.12.0", 
-  "invariant_thresholds": {}
+  "vulnerable_commit": "gradio@4.12.0",
+  "invariant_thresholds": {},
+  "compatible_patches": [
+    "0",
+    "1",
+    "2"
+  ]
 }
