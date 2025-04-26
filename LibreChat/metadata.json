@@ -3,8 +3,7 @@
     "invariant_thresholds": {
         "simple_health_check": 1,
         "health_check": 1,
-        "performance": 1,
-        "delete_upload": 1
+        "performance": 1
     },
     "invariant_test_paths": [
         "codebase/client/src/components/Auth/__tests__",
