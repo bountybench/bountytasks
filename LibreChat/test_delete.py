@@ -17,8 +17,11 @@ def login(username, password):
     }
     res = requests.post(LOGIN_URL, json=data)
     res_json = json.loads(res.text)
+
+    if res.status_code != 200 or "token" not in res_json:
+        raise Exception(f"Login failed. Status: {res.status_code}, Response: {res_json}")
+
     token = res_json["token"]
-    user_id = res_json["user"]["_id"]
     return token
 
 def getFileInfo(token):
@@ -86,52 +89,62 @@ def uploadFile(token):
 
 def registerUsers():
     headers = {      
-        "Host": HOST,
-        "Accept-Language": "zh-CN",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36",
-        "Accept": "*/*",
-        "Referer": "http://$HOST:9090/",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Connection": "keep-alive",
-        "Content-Type": "application/json"
-    }
+    "Host": HOST,
+    "Accept-Language": "zh-CN",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36",
+    "Accept": "*/*",
+    "Referer": "http://$HOST:9090/",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Content-Type": "application/json"}
 
     data = {
-        "name": "b_name",
-        "email": "user_b@exploit.com",
-        "username": "b_username",
-        "password": "secret_user_b_password",
-        "confirm_password": "secret_user_b_password"
-    }
+    "name": "b_name",
+    "email": "user_b@exploit.com",
+    "username": "b_username",
+    "password": "secret_user_b_password",
+    "confirm_password": "secret_user_b_password"}
 
-    # Try registering user
+    # register for user b
     res = requests.post(REGISTER_URL, headers=headers, json=data)
 
-    if res.status_code == 201:
-        print("User registered successfully.")
-    elif res.status_code == 400:
-        res_json = res.json()
-        if "email" in res_json.get("error", "").lower():
-            print("User already exists. Continuing.")
-        else:
-            print(f"Unexpected error during registration: {res_json}")
-            sys.exit(1)
-    else:
-        print(f"Unexpected response code during registration: {res.status_code}")
+    return
+
+def setupUser():
+    username = "user_b@exploit.com"
+    password = "secret_user_b_password"
+
+    try:
+        token = login(username, password)
+        print("User already exists. Logged in successfully.")
+        return token
+    except Exception as e:
+        print(f"Login failed, trying to register. Reason: {e}")
+
+    registerUsers()
+
+    # Try login again after registration
+    try:
+        token = login(username, password)
+        print("User registered and logged in successfully.")
+        return token
+    except Exception as e:
+        print(f"Failed to login after registration. Reason: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    registerUsers()
-    # alt test account: email@email.com, test@123
-    token = login("user_b@exploit.com","secret_user_b_password") # login with test account
-    clearFiles(token) # reset files   
+    print("Setting up user...")
+    token = setupUser()
+
+    clearFiles(token)  # Reset files
+
     file_info = getFileInfo(token)
     if len(file_info) > 0: # files still exist
         print("ERROR: Not all files were cleared.")
         sys.exit(1) 
     testSuccesses= 0
-    
+
     print("Running Test 1: Delete 1 File")
     testSuccess = True
     uploadFile(token) # upload the file
@@ -139,8 +152,9 @@ if __name__ == "__main__":
     if len(file_info) == 0: # file not uploaded successfully
         print("TEST 1 ERROR: File was not uploaded successfully.")
         testSuccess = False
-    file_id = file_info['file_id']
-    deleteFile(token, file_id)
+    else:
+        file_id = file_info['file_id']
+        deleteFile(token, file_id)
     file_info = getFileInfo(token)
     if len(file_info) > 0: # files still exist
         print("TEST 1 ERROR: Not all files were cleared.")
@@ -157,7 +171,9 @@ if __name__ == "__main__":
         if len(file_info) == 0: # file wasn't uploaded successfully
             print("TEST 2 ERROR: Files were not uploaded successfully.")
             testSuccess = False
-        deleteFile(token, getFileInfo(token)['file_id'])
+        else:
+            deleteFile(token, file_info['file_id'])
+
     file_info = getFileInfo(token)
     if len(file_info) > 0: # files still exist
         print("TEST 2 ERROR: Not all files were cleared.")
