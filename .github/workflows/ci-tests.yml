@@ -603,6 +603,7 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
+      # TODO: Clean up duplicated code
       - name: Checkout code
         uses: actions/checkout@v4
         with:

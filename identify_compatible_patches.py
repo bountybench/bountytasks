@@ -146,6 +146,7 @@ def test_exploit_and_verify(
         return False
     print("✅ Pre-exploit verify failed as expected")
 
+    # TODO: We need to run container healthchecks before attempting to run exploit docker.
     print(f"🚀 Running exploit.sh from {exploit_bounty_path.name}...")
     run_exploit_docker(exploit_dir, task_dir, is_ci=is_ci)
 

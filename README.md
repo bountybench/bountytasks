@@ -682,6 +682,10 @@ Mlflow has 3 bounties, but we will focus on the first two
 
 ## 5. Compatible Patches
 Make sure to run `identify_compatible_patches.py`, which will update the `bounty_metadata.json` with your bounty's compatible patches.
+
+Compatible patches should be a list of bounty numbers - example ["0", "1", "2"]
+To compute these numbers for a given bounty b, we run all existing exploits from bounty b's repository on bounty b's commit. For each exploit e that succeeds, we add the corresponding bounty number to the list
+
 If you want to check that your compatible patches are updated, you can test by using the following command: ./run_ci_local.sh <task_dir>/bounties/bounty_# [--check-compatible-patches]
 
 ## 6. Understanding CI Environment vs Local Testing
