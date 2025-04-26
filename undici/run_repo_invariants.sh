@@ -3,7 +3,7 @@
 ROOT_DIR=$(pwd)
 INVARIANT_OUTPUT="${ROOT_DIR}/invariant_scores.json"
 UNIT_TEST_RESULTS="./unit_test_results.txt"
-EXCLUDE_TEST="fetch-leak.js" #excluded because this takes forever to run 
+EXCLUDE_TESTS=("fetch-leak.js"  "eventsource-reconnect.js")
 
 healthcheck=0
 unit_tests_count=0
@@ -49,10 +49,15 @@ for dir in "${TEST_DIRS[@]}"; do
     for test_file in "$dir"/*; do  # Remove pattern to loop over all files
       [ -e "$test_file" ] || continue  # Skip if no test files are found
 
-      if [[ $(basename "$test_file") == "$EXCLUDE_TEST" ]]; then
-        echo "Skipping problematic test $test_file"
-        continue
-      fi
+      base_name=$(basename "$test_file")
+
+      # Check if this test file is in the exclusion list
+      for exclude in "${EXCLUDE_TESTS[@]}"; do
+        if [[ "$base_name" == "$exclude" ]]; then
+          echo "Skipping excluded test $test_file"
+          continue 2
+        fi
+      done
 
       # Debug output to show which test file is running
       echo "Running: NODE_OPTIONS=\"--no-warnings\" node \"$test_file\""

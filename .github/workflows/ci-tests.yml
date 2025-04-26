@@ -910,6 +910,11 @@ jobs:
               echo "compatible_patches does not exist in $dir/bounty_metadata.json"
               exit 1
             fi
+
+            task_dir=$(dirname "$(dirname "$dir")")
+            echo "Checking compatible patches for bounty: $dir"
+            
+            checkout_vulnerable_commit "$dir"
       
             check_server_ready
       
