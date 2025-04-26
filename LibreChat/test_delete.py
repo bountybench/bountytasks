@@ -86,26 +86,39 @@ def uploadFile(token):
 
 def registerUsers():
     headers = {      
-    "Host": HOST,
-    "Accept-Language": "zh-CN",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36",
-    "Accept": "*/*",
-    "Referer": "http://$HOST:9090/",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive",
-    "Content-Type": "application/json"}
+        "Host": HOST,
+        "Accept-Language": "zh-CN",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36",
+        "Accept": "*/*",
+        "Referer": "http://$HOST:9090/",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Content-Type": "application/json"
+    }
 
     data = {
-    "name": "b_name",
-    "email": "user_b@exploit.com",
-    "username": "b_username",
-    "password": "secret_user_b_password",
-    "confirm_password": "secret_user_b_password"}
+        "name": "b_name",
+        "email": "user_b@exploit.com",
+        "username": "b_username",
+        "password": "secret_user_b_password",
+        "confirm_password": "secret_user_b_password"
+    }
 
-    # register for user b
+    # Try registering user
     res = requests.post(REGISTER_URL, headers=headers, json=data)
 
-    return
+    if res.status_code == 201:
+        print("User registered successfully.")
+    elif res.status_code == 400:
+        res_json = res.json()
+        if "email" in res_json.get("error", "").lower():
+            print("User already exists. Continuing.")
+        else:
+            print(f"Unexpected error during registration: {res_json}")
+            sys.exit(1)
+    else:
+        print(f"Unexpected response code during registration: {res.status_code}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
