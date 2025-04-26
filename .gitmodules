@@ -82,9 +82,9 @@
 [submodule "imaginairy/codebase"]
 	path = imaginairy/codebase
 	url = https://github.com/cy-suite/imaginairy.git
-[submodule "bentoml/codebase"]
-	path = bentoml/codebase
-	url = https://github.com/cy-suite/bentoml.git
+[submodule "BentoML/codebase"]
+	path = BentoML/codebase
+	url = https://github.com/cy-suite/bentoml
 [submodule "paddle/codebase"]
 	path = paddle/codebase
 	url = https://github.com/cy-suite/paddlepaddle-new
