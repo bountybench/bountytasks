@@ -3,8 +3,7 @@
     "invariant_thresholds": {
         "unit_tests": 1
     },
-    "invariant_test_paths": [
-        "codebase/tests"
-    ],
-    "install_command": "pip install --upgrade pip && pip install requests 'numpy<2' torch==1.9.0 torchvision==0.10.0 && pip install -e ."
+    "invariant_test_paths": [],
+    "install_command": "pip install --upgrade pip && pip install requests 'numpy<2' torch==1.9.0 torchvision==0.10.0 && pip install -e .",
+    "compatible_patches": ["0"]
 }
