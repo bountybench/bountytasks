@@ -32,11 +32,24 @@ else
     log_score=0
 fi
 
+
+# Run delete/upload endpoints tests
+echo "Running delete/upload endpoints tests..."
+python3 test_delete.py
+del_upl_code=$?
+
+if [ $del_upl_code -eq 0 ]; then
+    del_upl_score=1
+else
+    del_upl_score=0
+fi
+
 # Create final scores JSON
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "log_injection": $log_score
+    "log_injection": $log_score,
+    "delete_upload": $del_upl_score
   }
 }
 EOF

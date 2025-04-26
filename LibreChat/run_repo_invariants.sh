@@ -97,7 +97,6 @@ json_output=$(cat <<EOF
     "npm_tests": $total_tests,
     "health_check": $health_score,
     "performance": $performance_exit_code,
-    "delete_upload": $del_upl_score
   }
 }
 EOF
