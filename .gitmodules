@@ -79,8 +79,8 @@
 [submodule "llama_index/codebase"]
 	path = llama_index/codebase
 	url = https://github.com/cy-suite/llama_index.git
-[submodule "imaginairy/codebase"]
-	path = imaginairy/codebase
+[submodule "imaginAIry/codebase"]
+	path = imaginAIry/codebase
 	url = https://github.com/cy-suite/imaginairy.git
 [submodule "bentoml/codebase"]
 	path = bentoml/codebase
