@@ -34,7 +34,8 @@ validate_schema() {
         "bounties"
         "bounties/bounty_${bounty_number}"
         "bounties/bounty_${bounty_number}/bounty_metadata.json"
-        "bounties/bounty_${bounty_number}/verify.sh"
+        "bounties/bounty_${bounty_number}/verify_files"
+        "bounties/bounty_${bounty_number}/verify_files/verify.sh"
         "bounties/bounty_${bounty_number}/exploit_files"
         "bounties/bounty_${bounty_number}/exploit_files/exploit.sh"
         "bounties/bounty_${bounty_number}/patch_files"
@@ -54,7 +55,8 @@ validate_schema() {
             echo -e "${INFO} │   ├── bounties/"
             echo -e "${INFO} │   │   ├── bounty_${bounty_number}/"
             echo -e "${INFO} │   │   │   ├── bounty_metadata.json"
-            echo -e "${INFO} │   │   │   ├── verify.sh"
+            echo -e "${INFO} │   │   │   ├── verify_files/"
+            echo -e "${INFO} │   │   │   │   └── verify.sh"
             echo -e "${INFO} │   │   │   └── exploit_files/"
             echo -e "${INFO} │   │   │       └── exploit.sh"
             echo -e "${INFO} │   │   │   └── patch_files/"
@@ -108,7 +110,7 @@ validate_schema() {
 
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants]"
+    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants] [--check-compatible-patches]"
     exit 1
 fi
 
@@ -132,12 +134,14 @@ shift
 
 RUN_PATCH=false
 CHECK_INVARIANTS=false
+CHECK_COMPATIBLE_PATCHES=false
 
 # Loop through arguments
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         --patch) RUN_PATCH=true ;;
         --check-invariants) CHECK_INVARIANTS=true ;;
+        --check-compatible-patches) CHECK_COMPATIBLE_PATCHES=true ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
     shift
@@ -151,6 +155,21 @@ if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
 fi
 
 validate_schema "$repo_dir" "$bounty_dir"
+
+# Ensure metadata.json has a 'target_host' key of type string (empty allowed)
+print_header "$CYAN" "VALIDATING TARGET_HOST KEY"
+
+if ! jq -e '
+     has("target_host") and
+     (.target_host | type == "string")
+   ' "${repo_dir}/metadata.json" >/dev/null
+then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} 'metadata.json' must contain a top‑level 'target_host' key of type string (can be empty)"
+    exit 1
+else
+    echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
+fi
 
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
@@ -205,7 +224,7 @@ fi
 
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 
-verify_script=$(find "${bounty_dir}" -type f -name "verify.sh" | head -n 1)
+verify_script="${bounty_dir}/verify_files/verify.sh"
 
 
 if [[ -z "$exploit_script" ]]; then
@@ -216,11 +235,11 @@ fi
 
 if [[ -z "$verify_script" ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}"
+    echo -e "${ERROR} Could not find verify.sh in ${bounty_dir}/verify_files"
     exit 1
 fi
 
-verify_dir=$(dirname "$verify_script")
+verify_dir="${bounty_dir}/verify_files"
 
 
 
@@ -297,6 +316,14 @@ echo -e "${INFO} ${exploit_dir}\n"
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
+
+env_args=""
+if [ -n "$OPENAI_API_KEY" ]; then
+  env_args="-e OPENAI_API_KEY=$OPENAI_API_KEY"
+else
+  echo "OPENAI_API_KEY is not set, skipping env injection."
+fi
+
 exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
@@ -305,6 +332,7 @@ exploit_log=$(docker run \
     --privileged \
     --network "${network_name}" \
     --cgroupns host \
+    ${env_args} \
     -v "$(pwd)":/app \
     "${image_name}" \
     /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
@@ -334,6 +362,37 @@ echo -e "${INFO} ${final_log}\n"
 print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
 echo -e "${SUCCESS} Verify script after exploit completed successfully."
 
+# Clean untracked files in codebase before compatible patch test
+print_header "$CYAN" "CLEANING BEFORE COMPATIBLE PATCH"
+cd "${repo_dir}/codebase"
+git clean -fdx
+git reset --hard "$vulnerable_commit"
+cd -
+
+if [[ "$CHECK_COMPATIBLE_PATCHES" == true ]]; then
+    print_header "$CYAN" "CHECKING COMPATIBLE PATCHES"
+
+    if jq -e 'has("compatible_patches")' "${bounty_dir}/bounty_metadata.json" > /dev/null; then
+        echo "${INFO} compatible_patches exists in ${bounty_dir}/bounty_metadata.json"
+    else
+        echo "${ERROR} compatible_patches does not exist in ${bounty_dir}/bounty_metadata.json"
+        exit 1
+    fi
+
+    echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
+    python identify_compatible_patches.py --task_dir "${bounty_dir}"
+
+    if ! git diff --exit-code "${bounty_dir}/bounty_metadata.json"; then
+        echo "${ERROR} ::error file=${bounty_dir}/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+        exit 1
+    else
+        echo "${SUCCESS} Compatible patch information in ${bounty_dir}/bounty_metadata.json is correct."
+    fi
+
+else
+    print_header "$CYAN" "SKIP COMPATIBLE PATCH CHECK"
+fi
+
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
@@ -351,13 +410,6 @@ if [[ "$RUN_PATCH" == true ]]; then
     if [[ -f "$bounty_metadata" ]]; then
         patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-        # Retrieve patch pairs from the optional "unit_test_patch" key (if present)
-        unit_test_patch_pairs=$(jq -r 'if has("unit_test_patch") then .unit_test_patch | to_entries[] | "\(.key) \(.value)" else empty end' "$bounty_metadata")
-        
-        all_patch_pairs="${patch_pairs}"
-        # If unit_test_patch_pairs is not empty, append it to all_patch_pairs
-        [ -n "$unit_test_patch_pairs" ] && all_patch_pairs="${all_patch_pairs}"$'\n'"${unit_test_patch_pairs}"
-
         echo -e "${INFO} Applying patches for $patched_bounty_dir"
         while read -r source_file target_file; do
             target_dir=$(dirname "$target_file")
@@ -368,7 +420,7 @@ if [[ "$RUN_PATCH" == true ]]; then
 
             echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
             cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-        done <<< "$all_patch_pairs"
+        done <<< "$patch_pairs"
     else
         print_header "$YELLOW" "WARNING"
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
@@ -392,6 +444,42 @@ if [[ "$RUN_PATCH" == true ]]; then
     cd -
 
     if [[ "$CHECK_INVARIANTS" == true ]]; then
+        print_header "$CYAN" "VALIDATING & VERIFYING INVARIANT TEST PATHS"
+
+        # 1) Require the key
+        if ! jq -e 'has("invariant_test_paths")' "${repo_dir}/metadata.json" >/dev/null; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} 'metadata.json' must contain an 'invariant_test_paths' key with an array of strings (e.g., \"invariant_test_paths\": [])"
+            exit 1
+        fi
+
+        # 2) Validate type & contents
+        if ! jq -e '
+            (.invariant_test_paths | type == "array") and
+            all(.invariant_test_paths[]; type == "string")
+        ' "${repo_dir}/metadata.json" >/dev/null; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} 'metadata.json' - invariant_test_paths must be an array of strings"
+            exit 1
+        fi
+
+        # 3) Existence check
+        paths=$(jq -r '.invariant_test_paths[]?' "${repo_dir}/metadata.json")
+        if [[ -n "$paths" ]]; then
+            echo -e "${INFO} Checking paths listed in 'metadata.json'"
+            while IFS= read -r p; do
+                full="${repo_dir}/${p}"
+                if [[ ! -e "$full" ]]; then
+                    print_header "$RED" "ERROR"
+                    echo -e "${ERROR} Path not found: ${p} (in 'metadata.json')"
+                    exit 1
+                fi
+            done <<< "$paths"
+            echo -e "${SUCCESS} All invariant_test_paths in 'metadata.json' exist."
+        else
+            echo -e "${INFO} 'metadata.json' has an empty invariant_test_paths array, skipping existence check."
+        fi
+
         print_header "$CYAN" "RUN REPO INVARIANT CHECK"
         cd "$repo_dir"
         execute_if_exists "run_repo_invariants.sh"

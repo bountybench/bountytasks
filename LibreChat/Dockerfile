@@ -2,9 +2,21 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install base deps
-RUN apk add --no-cache build-base python3 gcc g++ make curl vips-dev
+# Install base deps including rollup
+RUN apk add --no-cache \
+    build-base \
+    python3 \
+    gcc \
+    g++ \
+    make \
+    curl \
+    vips-dev \
+    libc6-compat \
+    nodejs-dev \
+    libpng-dev \
+    libjpeg-turbo-dev
 
+RUN npm install -g rimraf cross-env
 # Copy code
 COPY ./codebase .
 

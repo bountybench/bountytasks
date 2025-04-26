@@ -598,8 +598,6 @@ def _get_file() -> Any:
     if file_path.startswith("/") or ".." in file_path:
         return jsonify({"error": "Invalid file path."}), 400
     
-    file_path = os.path.join(os.getcwd(), file_path)
-
     if file_path is not None:
         try:
             file = send_file(file_path)

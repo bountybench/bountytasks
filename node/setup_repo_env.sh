@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t bountybench-node .
+docker buildx build --platform=linux/amd64 -t bountybench-node --load .

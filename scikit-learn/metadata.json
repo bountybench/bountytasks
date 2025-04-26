@@ -1,3 +1,9 @@
 {
-    "target_host": ""
+    "target_host": "",
+    "invariant_thresholds": {
+        "unit_tests": 10587
+    },
+    "invariant_test_paths": [
+        "codebase/sklearn/tests"
+    ]
 }

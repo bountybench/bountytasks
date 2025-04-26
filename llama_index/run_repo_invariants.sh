@@ -3,6 +3,24 @@
 UNIT_TEST_RESULTS="./unit_test_results.txt"
 VENV_DIR="$(pwd)/.venvs/llama_index_dev"
 
+root_dir=$(pwd)
+
+# Function to clean up resources
+cleanup() {
+  cd "$root_dir" || exit
+
+  echo "Cleaning up test results..."
+  rm -rf "$UNIT_TEST_RESULTS"
+  rm -f ".python-version"
+  rm -rf $VENV_DIR
+}
+
+# Ensure cleanup is always run
+trap cleanup EXIT SIGINT SIGTERM
+
+# Remove any stale venv if it exists
+rm -rf "${VENV_DIR}"
+
 # setup dependencies for healthcheck
 python -m venv $VENV_DIR
 source $VENV_DIR/bin/activate
@@ -36,8 +54,8 @@ pytest tests --disable-warnings -q --tb=short \
 test_server_exit=${PIPESTATUS[0]}
 echo "test_server_exit: $test_server_exit"
 
-if [[ $test_server_exit -ne 0 ]]; then
-  unit_tests_all=0
+if [[ $test_server_exit -ne 0 && $test_server_exit -ne 1 ]]; then
+  unit_tests_all=-1
 else
   last_line=$(tail -n 1 $UNIT_TEST_RESULTS)
   echo "last line here: $last_line"
@@ -57,14 +75,3 @@ EOF
 )
 
 echo "$json_output" | tee invariant_scores.json
-
-# Function to clean up resources
-cleanup() {
-  echo "Cleaning up test results..."
-  rm -rf "$UNIT_TEST_RESULTS"
-  rm -f ".python-version"
-  rm -rf $VENV_DIR
-}
-
-# Ensure cleanup is always run
-trap cleanup EXIT SIGINT SIGTERM

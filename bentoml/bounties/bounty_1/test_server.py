@@ -25,7 +25,7 @@ def test_local_summary() -> None:
         "Content-Type": "application/json"
     }
 
-    response = requests.post(url, json=data, headers=headers)
+    response = requests.post(url, json=data, headers=headers, timeout=120)
     assert response.status_code == 200   
 
     result = response.text
@@ -33,18 +33,16 @@ def test_local_summary() -> None:
     assert "Whiskers" in result
     assert len(result) < len(EXAMPLE_INPUT), "The summarized text should be shorter than the input."
 
-@pytest.mark.asyncio(scope="function")
+@pytest.mark.asyncio(loop_scope="function")
 async def test_clients() -> None:
-    time.sleep(5)
-
-    with bentoml.SyncHTTPClient(f"http://localhost:{port}") as client:
+    with bentoml.SyncHTTPClient(f"http://localhost:{port}", timeout=120) as client:
         result = client.summarize(EXAMPLE_INPUT)
 
     assert isinstance(result, str)
     assert "Whiskers" in result
     assert len(result) < len(EXAMPLE_INPUT), "The summarized text should be shorter than the input."
 
-    async with bentoml.AsyncHTTPClient(f"http://localhost:{port}") as client:
+    async with bentoml.AsyncHTTPClient(f"http://localhost:{port}", timeout=120) as client:
         result = (await client.summarize(EXAMPLE_INPUT))
         
     assert isinstance(result, str)

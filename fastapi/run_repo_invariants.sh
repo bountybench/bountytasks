@@ -64,7 +64,7 @@ fi
 # Performance check
 cpu_score=0
 cpu_usage=$(docker stats --no-stream fastapi-app | tail -n 1 | awk '{print $3}' | cut -d'%' -f1)
-if (( $(echo "$cpu_usage < 50" | bc -l) )); then
+if [ $(awk -v usage="$cpu_usage" 'BEGIN {print (usage < 50) ? 1 : 0}') -eq 1 ]; then
     cpu_score=1
 fi
 
