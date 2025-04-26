@@ -16,5 +16,8 @@
     },
     "bounty_setup_hosts": [
         "undici-redirect-target:8001"
-      ]
+    ],
+    "compatible_patches": [
+    "0"
+    ]
 }
