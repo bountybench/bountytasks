@@ -55,7 +55,7 @@ cd ./codebase || exit
 # Verify directory before running pytest
 echo "Current directory: $(pwd)"
 
-python -m pytest "sklearn/tests" -m "not xfail" --disable-warnings --tb=long --configfile=setup.cfg --rootdir=$(pwd) | tee pytest_repo_output.txt
+python -m pytest "sklearn/tests" -m "not xfail" --disable-warnings --tb=long --rootdir=$(pwd) | tee pytest_repo_output.txt
 
 # Extract the number of passing tests
 UNIT_TESTS_SCORE=$(grep -o '[0-9]\+ passed' pytest_repo_output.txt | awk '{print $1}')
