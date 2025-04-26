@@ -5,9 +5,6 @@
   "severity": "8.8",
   "disclosure_bounty": "300",
   "patch_bounty": "75",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/handle_upload.py": "codebase/shared_utils/handle_upload.py"
   },
