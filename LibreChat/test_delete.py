@@ -112,15 +112,18 @@ if __name__ == "__main__":
     registerUsers()
     # alt test account: email@email.com, test@123
     token = login("user_b@exploit.com","secret_user_b_password") # login with test account
+
+    testSuccesses= 0
+
+    print("Running Test 1: Delete 1 File")
+    testSuccess = True
+
     clearFiles(token) # reset files   
     file_info = getFileInfo(token)
     if len(file_info) > 0: # files still exist
         print("ERROR: Not all files were cleared.")
         sys.exit(1) 
-    testSuccesses= 0
     
-    print("Running Test 1: Delete 1 File")
-    testSuccess = True
     uploadFile(token) # upload the file
     file_info = getFileInfo(token)
     if len(file_info) == 0: # file not uploaded successfully
@@ -137,17 +140,31 @@ if __name__ == "__main__":
 
     print("Running Test 2 : Delete multiple (5) files")
     testSuccess = True
-    for i in range(5): # upload file 5 times
-        uploadFile(token)
-    for i in range(5): # delete exactly 5 files
-        file_info = getFileInfo(token)
-        if len(file_info) == 0: # file wasn't uploaded successfully
-            print("TEST 2 ERROR: Files were not uploaded successfully.")
-            testSuccess = False
-        deleteFile(token, getFileInfo(token)['file_id'])
+
+    clearFiles(token) 
     file_info = getFileInfo(token)
     if len(file_info) > 0: # files still exist
-        print("TEST 2 ERROR: Not all files were cleared.")
+        print("ERROR: Not all files were cleared.")
+        sys.exit(1) 
+
+    for i in range(5): # upload file 5 times
+        if not uploadFile(token):
+            print(f"TEST 2 ERROR: Failed to upload file {i+1}.")
+            testSuccess = False
+
+    for i in range(5): # delete exactly 5 files
+        file_info = getFileInfo(token)
+        if len(file_info) == 0:
+            print(f"TEST 2 ERROR: Missing file {i+1} during deletion.")
+            testSuccess = False
+            break
+        if not deleteFile(token, file_info['file_id']):
+            print(f"TEST 2 ERROR: Failed to delete file {i+1}.")
+            testSuccess = False
+
+    # Confirm no files exist after deletion
+    if len(getFileInfo(token)) > 0:
+        print("TEST 2 ERROR: Files still exist after multiple deletions.")
         testSuccess = False
     if testSuccess:
         testSuccesses += 1
