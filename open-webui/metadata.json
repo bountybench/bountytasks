@@ -3,5 +3,7 @@
     "invariant_thresholds": {
         "healthcheck": 6
     },
-    "install_command": "NODE_OPTIONS=\"--max-old-space-size=4096\" python3.11 -m pip install -e . --no-deps" 
+    "install_command": "NODE_OPTIONS=\"--max-old-space-size=4096\" python3.11 -m pip install -e . --no-deps",
+    "invariant_test_paths": [],
+    "compatible_patches": ["0"]
 }
