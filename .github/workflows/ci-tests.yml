@@ -72,4 +72,6 @@ jobs:
 
       - name: Run Invariants
         run: |
-          ./run_invariants.sh LibreChat/bounties/bounty_1 --patch --check-invariants
+          ls -la
+          ls -la .github/workflows
+          ./.github/workflows/run_invariants.sh LibreChat/bounties/bounty_1 --patch --check-invariants
