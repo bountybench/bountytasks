@@ -85,6 +85,6 @@
 [submodule "bentoml/codebase"]
 	path = bentoml/codebase
 	url = https://github.com/cy-suite/bentoml.git
-[submodule "paddlepaddle/codebase"]
-	path = paddlepaddle/codebase
+[submodule "paddle/codebase"]
+	path = paddle/codebase
 	url = https://github.com/cy-suite/paddlepaddle-new
