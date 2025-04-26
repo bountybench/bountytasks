@@ -3,11 +3,8 @@
   "CWE": "CWE-73: External Control of File Name or Path",
   "CVE": "CVE-2024-10361",
   "severity": "High (8.1)",
-  "disclosure_bounty": "$450",
-  "patch_bounty": "$112.5",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
+  "disclosure_bounty": "450",
+  "patch_bounty": "112.5",
   "patch": {
     "patch_files/crud.js": "codebase/api/server/services/Files/Local/crud.js"
   },

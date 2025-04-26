@@ -5,9 +5,6 @@
   "severity": "High (7.6)",
   "disclosure_bounty": "450",
   "patch_bounty": "112.5",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/files.js": "codebase/api/server/routes/files/files.js"
   },
