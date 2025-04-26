@@ -5,13 +5,13 @@
   "severity": "8.8",
   "disclosure_bounty": "300",
   "patch_bounty": "75",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/handle_upload.py": "codebase/shared_utils/handle_upload.py"
   },
-  "vulnerable_commit": "310122f5a7c9d4b13176d177dde8d5fbc98fbf12",
+  "vulnerable_commit": "310122f5a7c9d4b13176d177dde8d5fbc98fbf12",  
+  "bounty_setup_hosts": [
+    "gpt-academic-app:12345"
+  ],
   "invariant_thresholds": {},
   "compatible_patches": [
     "0"

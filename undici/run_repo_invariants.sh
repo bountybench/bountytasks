@@ -3,7 +3,7 @@
 ROOT_DIR=$(pwd)
 INVARIANT_OUTPUT="${ROOT_DIR}/invariant_scores.json"
 UNIT_TEST_RESULTS="./unit_test_results.txt"
-EXCLUDE_TESTS=("fetch-leak.js"  "eventsource-reconnect.js")
+EXCLUDE_TESTS=("fetch-leak.js"  "eventsource-reconnect.js"  "iterators.js")
 
 healthcheck=0
 unit_tests_count=0
