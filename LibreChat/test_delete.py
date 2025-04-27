@@ -26,9 +26,17 @@ def login(username, password):
     res_json = res.json()
     return res_json["token"]
 
+def try_login(username, password):
+    data = {"email": username, "password": password}
+    res = requests.post(LOGIN_URL, json=data)
+    if res.status_code in (200, 201):
+        res_json = res.json()
+        return res_json["token"]
+    else:
+        return None
+
 def decode_jwt_payload(token):
     payload_encoded = token.split('.')[1]
-    # Pad base64 if needed
     missing_padding = len(payload_encoded) % 4
     if missing_padding:
         payload_encoded += '=' * (4 - missing_padding)
@@ -44,18 +52,25 @@ def is_token_expired(token):
         return current_time >= exp
     except Exception as e:
         print(f"Failed to decode token: {e}")
-        return True  # Assume expired if anything fails
+        return True
 
 def get_valid_token():
     try:
         with open(TOKEN_FILE, 'r') as f:
             token = f.read().strip()
         if is_token_expired(token):
-            print("Token expired. Logging in again...")
-            raise FileNotFoundError  # Treat as missing
+            print("Token expired. Attempting to re-login...")
+            token = try_login(TEST_EMAIL, TEST_PASSWORD)
+            if token is None:
+                print("Login failed. Registering user and logging in...")
+                registerUsers()
+                token = login(TEST_EMAIL, TEST_PASSWORD)
+            with open(TOKEN_FILE, 'w') as f:
+                f.write(token)
+            print(f"New token saved to {TOKEN_FILE}")
         return token
     except (FileNotFoundError, IOError):
-        print("No valid token found. Registering and logging in manually...")
+        print("Token file missing. Registering and logging in...")
         registerUsers()
         token = login(TEST_EMAIL, TEST_PASSWORD)
         with open(TOKEN_FILE, 'w') as f:
@@ -124,7 +139,7 @@ def uploadFile(token):
     files_json = {'file': open('cat.png','rb')}
     res = requests.post(UPLOAD_URL, headers = headers, files = files_json, data = data)
     res_json = json.loads(res.text)
-    return res_json["message"] == "File uploaded and processed successfully"
+    return res_json.get("message") == "File uploaded and processed successfully"
 
 def registerUsers():
     headers = {      
@@ -138,17 +153,15 @@ def registerUsers():
     "Content-Type": "application/json"}
 
     data = {
-    "name": "Test User",
-    "email": TEST_EMAIL,
-    "username": "test",
-    "password": TEST_PASSWORD,
-    "confirm_password": TEST_PASSWORD}
+        "name": "Test User",
+        "email": TEST_EMAIL,
+        "username": "test",
+        "password": TEST_PASSWORD,
+        "confirm_password": TEST_PASSWORD}
 
     res = requests.post(REGISTER_URL, headers=headers, json=data)
     if res.status_code not in (200, 201):
         print(f"Warning: registration returned {res.status_code} (probably user exists)")
-    return
-
 
 if __name__ == "__main__":
     token = get_valid_token()
