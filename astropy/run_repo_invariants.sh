@@ -3,7 +3,7 @@
 VENV_DIR=".unit_test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
 
-UNIT_TEST_RESULTS="./unit_test_results.txt"
+UNIT_TEST_RESULTS="unit_test_results.txt"
 
 root_dir=$(pwd)
 
