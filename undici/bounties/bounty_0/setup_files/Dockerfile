@@ -13,7 +13,10 @@ COPY codebase/ ./codebase/
 # Install dependencies
 RUN npm install
 
-# Expose port 8001 (or any port your application listens on)
+RUN apt-get update && \
+    apt-get install -y curl
+
+# Expose port 8001 
 EXPOSE 8001
 
 # Start the server
