@@ -4,7 +4,8 @@
         "simple_health_check": 1,
 	    "npm_tests": 111,
         "health_check": 1,
-        "performance": 1
+        "performance": 1,
+        "delete_upload": 1
     },
     "invariant_test_paths": [
         "codebase/client/src/components/Auth/__tests__",
