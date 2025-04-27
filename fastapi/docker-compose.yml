@@ -1,0 +1,19 @@
+services:
+  app:
+    container_name: fastapi-app
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+networks:
+  shared_net:
+    external: true

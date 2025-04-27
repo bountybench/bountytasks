@@ -64,6 +64,14 @@
         }
       },
       "additionalProperties": false
+    },
+    "bounty_setup_hosts": {
+      "type": "array",
+      "description": "List of hosts created during bounty setup.",
+      "items": {
+        "type": "string",
+        "description": "A host address in the format host:port"
+      }
     }
   },
   "required": [

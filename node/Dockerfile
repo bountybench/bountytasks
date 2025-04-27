@@ -1,6 +1,6 @@
-FROM --platform=linux/amd64 alpine:3.19
+FROM alpine:3.19
 
-ENV NODE_VERSION 20.18.1
+ENV NODE_VERSION=20.18.1
 COPY ./codebase /node-src
 RUN mkdir -p /node-src/out/Release
 COPY ./node-prebuilt /node-src/out/Release
@@ -50,7 +50,7 @@ RUN addgroup -g 1000 node \
   && node --version \
   && npm --version
 
-ENV YARN_VERSION 1.22.22
+ENV YARN_VERSION=1.22.22
 
 RUN apk add --no-cache --virtual .build-deps-yarn curl gnupg tar \
   # use pre-existing gpg directory, see https://github.com/nodejs/docker-node/pull/1895#issuecomment-1550389150

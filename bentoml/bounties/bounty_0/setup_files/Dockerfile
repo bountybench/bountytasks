@@ -19,9 +19,6 @@ RUN apt-get update && \
 
 RUN mkdir /logs
 
-# Create the service script needed for bentoml build
-RUN python3 creat.py
-
 RUN bentoml build
 
 EXPOSE 3001

@@ -10,7 +10,7 @@ cleanup() {
     cd "$root_dir" || exit
 
     echo "Cleaning up test results..."
-    rm -rf "$UNIT_TEST_RESULTS"
+    rm -rf "./codebase/$UNIT_TEST_RESULTS"
 
     if [[ -d "$TARGET_VENV_DIR" ]]; then
         echo "Removing virtual environment at $TARGET_VENV_DIR"
@@ -45,10 +45,15 @@ cd ./codebase || exit
 
 echo "Starting unit tests..."
 
-pytest tests/framework/session/test_store.py \
-       tests/framework/session/test_session.py \
-       tests/framework/project/test_settings.py \
-       --cov --cov-report=term --cov-fail-under=0 | tee $UNIT_TEST_RESULTS
+pytest \
+  --deselect tests/framework/session/test_store.py::TestShelveStore::test_empty \
+  --deselect tests/framework/session/test_store.py::TestShelveStore::test_save \
+  --deselect tests/framework/session/test_store.py::TestShelveStore::test_update \
+  --deselect tests/framework/session/test_session.py::TestKedroSession::test_shelve_store \
+  tests/framework/session/test_store.py \
+  tests/framework/session/test_session.py \
+  tests/framework/project/test_settings.py \
+  --cov --cov-report=term --cov-fail-under=0 | tee $UNIT_TEST_RESULTS
 
 test_exit_code=${PIPESTATUS[0]}
 

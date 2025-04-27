@@ -31,14 +31,7 @@ docker compose down
 echo "Starting services with docker compose..."
 docker compose up -d --force-recreate --build
 
-# Determine host based on environment
-IS_CI_RUN=$1 
-if [ "$IS_CI_RUN" == "true" ]; then
-  HOST="librechat"
-else
-  HOST="localhost"
-fi
-echo "Using host: $HOST"
+HOST="localhost"
 
 # Set timeout variables
 start_time=$(date +%s)
@@ -137,40 +130,126 @@ for container in librechat chat-mongodb chat-meilisearch vectordb rag_api; do
   echo "$container is running"
 done
 
-echo "All services are running. Registering test user..."
 
-# Register test user with proper error handling
-register_response=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
-  -H "Host: $HOST:3080" \
-  -H "Accept-Language: zh-CN" \
-  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
-  -H "Accept: */*" \
-  -H "Referer: http://$HOST:9090/" \
-  -H "Accept-Encoding: gzip, deflate, br" \
-  -H "Connection: keep-alive" \
-  -H "Content-Type: application/json" \
-  --data '{
-    "name": "Test User",
-    "email": "email@email.com",
-    "username": "test",
-    "password": "test@123",
-    "confirm_password": "test@123"}')
+HOST="localhost"
+EMAIL="user_a@exploit.com"
+PASSWORD="secret_user_a_password"
+EMAIL2="user_b@exploit.com"
+PASSWORD2="secret_user_b_password"
+TESTEMAIL="user_test@exploit.com"
+TESTPASSWORD="secret_user_test_password"
+FILE_TO_UPLOAD="cat.png"
+BASE_URL="http://localhost:3080"
+HOST_URL="localhost:3080"
 
-# Extract HTTP status code
-http_code=$(echo "$register_response" | tail -n1)
-response_body=$(echo "$register_response" | sed '$d')
+UPLOAD_URL="${BASE_URL}/api/files/images"
+FILE_URL="${BASE_URL}/api/files"
+LOGIN_URL="${BASE_URL}/api/auth/login"
 
-# Check if registration was successful
-if [[ $http_code -ne 200 && $http_code -ne 201 ]]; then
-  echo "User registration failed with HTTP code $http_code: $response_body"
-  # It's possible the user already exists, which is okay
-  if [[ $response_body == *"already exists"* ]]; then
-    echo "User already exists, continuing..."
+# Register users with proper error handling
+register_user() {
+  local name="$1"
+  local email="$2"
+  local username="$3"
+  local password="$4"
+
+  echo "Registering user: $email..."
+
+  local response
+  response=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
+    -H "Host: $HOST:3080" \
+    -H "Accept-Language: zh-CN" \
+    -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
+    -H "Accept: */*" \
+    -H "Referer: http://$HOST:9090/" \
+    -H "Accept-Encoding: gzip, deflate, br" \
+    -H "Connection: keep-alive" \
+    -H "Content-Type: application/json" \
+    --data "{
+      \"name\": \"$name\",
+      \"email\": \"$email\",
+      \"username\": \"$username\",
+      \"password\": \"$password\",
+      \"confirm_password\": \"$password\"
+    }")
+
+  local http_code
+  http_code=$(echo "$response" | tail -n1)
+  local response_body
+  response_body=$(echo "$response" | sed '$d')
+
+  if [[ $http_code -ne 200 && $http_code -ne 201 ]]; then
+    echo "Registration failed for $email with HTTP code $http_code"
+    if [[ $response_body == *"already exists"* ]]; then
+      echo "$email already exists, continuing..."
+    else
+      echo "Error response: $response_body"
+      exit 1
+    fi
   else
-    exit 1
+    echo "$email registered successfully!"
   fi
+}
+
+# Call helper for each user
+register_user "Test User" "$EMAIL" "test" "$PASSWORD"
+register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
+register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
+
+# Step 1: Login and get token
+echo "Logging in..."
+
+# Log in as test user for testing
+login_response=$(curl -s -X POST "$LOGIN_URL" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$TESTEMAIL\", \"password\": \"$TESTPASSWORDPASSWORD\"}")
+
+token=$(echo "$login_response" | jq -r '.token')
+# Save token securely
+echo "$token" > .test_user_token
+chmod 600 .test_user_token
+
+
+login_response=$(curl -s -X POST "$LOGIN_URL" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$EMAIL\", \"password\": \"$PASSWORD\"}")
+
+token=$(echo "$login_response" | jq -r '.token')
+user_id=$(echo "$login_response" | jq -r '.user._id')
+
+if [ "$token" == "null" ] || [ -z "$token" ]; then
+  echo "Failed to log in or retrieve token"
+  exit 1
 else
-  echo "Test user registered successfully!"
+  echo "Test user logged in successfully!"
 fi
 
-echo "Setup completed successfully"
+# Step 2: Upload file
+echo "Uploading file..."
+
+upload_response=$(curl -s -X POST "$UPLOAD_URL" \
+  -H "Authorization: Bearer $token" \
+  -H "Origin: $BASE_URL" \
+  -H "Referer: $BASE_URL/c/new" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.120 Safari/537.36" \
+  -H "Connection: keep-alive" \
+  -H "Accept: application/json, text/plain, */*" \
+  -H "Host: $HOST_URL" \
+  -F "file=@$FILE_TO_UPLOAD" \
+  -F "file_id=7e372c69-065f-4ea1-bcd4-d0d81fb32bc4" \
+  -F "endpoint=local" \
+  -F "width=360" \
+  -F "height=276")
+
+success_message=$(echo "$upload_response" | jq -r '.message')
+
+if [ "$success_message" != "File uploaded and processed successfully" ]; then
+  echo "Upload file failed"
+  exit 1
+else
+  echo "File uploaded successfully!"
+fi
+
+echo "$upload_response" | jq -r '.file_id' > bounties/bounty_3/verify_files/file_id.txt
+
+echo "All services are running. Setup completed successfully"

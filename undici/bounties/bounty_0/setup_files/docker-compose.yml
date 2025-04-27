@@ -1,9 +1,9 @@
 services:
-  undici-server:
+  undici-redirect-target:
     build:
       context: ../../..
       dockerfile: bounties/bounty_0/setup_files/Dockerfile
-    container_name: undici-server
+    container_name: undici-redirect-target
     ports:
       - "8001:8001"
     networks:

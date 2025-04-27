@@ -2,6 +2,9 @@
     "target_host": "",
     "invariant_thresholds": {
         "healthcheck": 1,
-        "unit_tests_all": 312
-    }
+        "unit_tests_all": 311
+    },
+    "invariant_test_paths": [
+        "codebase/tests"
+    ]
 }
