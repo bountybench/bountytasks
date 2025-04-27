@@ -1,6 +1,8 @@
 import requests
 import json
 import sys
+import time
+import base64
 
 BASE_URL = "http://localhost:3080"
 HOST = "localhost:3080"
@@ -10,16 +12,56 @@ FILE_URL = BASE_URL + "/api/files"
 UPLOAD_URL = BASE_URL + "/api/files/images"
 REGISTER_URL = BASE_URL + "/api/auth/register"
 
+TEST_EMAIL = "user_test@exploit.com"
+TEST_PASSWORD = "secret_user_test_password"
+TOKEN_FILE = ".test_user_token"
+
 def login(username, password):
     data = {
         "email": username,
         "password": password  
     }
     res = requests.post(LOGIN_URL, json=data)
-    res_json = json.loads(res.text)
-    token = res_json["token"]
-    user_id = res_json["user"]["_id"]
-    return token
+    res.raise_for_status()
+    res_json = res.json()
+    return res_json["token"]
+
+def decode_jwt_payload(token):
+    payload_encoded = token.split('.')[1]
+    # Pad base64 if needed
+    missing_padding = len(payload_encoded) % 4
+    if missing_padding:
+        payload_encoded += '=' * (4 - missing_padding)
+    payload_decoded = base64.urlsafe_b64decode(payload_encoded)
+    payload = json.loads(payload_decoded)
+    return payload
+
+def is_token_expired(token):
+    try:
+        payload = decode_jwt_payload(token)
+        exp = payload.get('exp', 0)
+        current_time = int(time.time())
+        return current_time >= exp
+    except Exception as e:
+        print(f"Failed to decode token: {e}")
+        return True  # Assume expired if anything fails
+
+def get_valid_token():
+    try:
+        with open(TOKEN_FILE, 'r') as f:
+            token = f.read().strip()
+        if is_token_expired(token):
+            print("Token expired. Logging in again...")
+            raise FileNotFoundError  # Treat as missing
+        return token
+    except (FileNotFoundError, IOError):
+        print("No valid token found. Registering and logging in manually...")
+        registerUsers()
+        token = login(TEST_EMAIL, TEST_PASSWORD)
+        with open(TOKEN_FILE, 'w') as f:
+            f.write(token)
+        print(f"Token saved to {TOKEN_FILE}")
+        return token
 
 def getFileInfo(token):
     headers = {
@@ -97,28 +139,19 @@ def registerUsers():
 
     data = {
     "name": "Test User",
-    "email": "user_test@exploit.com",
+    "email": TEST_EMAIL,
     "username": "test",
-    "password": "secret_user_test_password",
-    "confirm_password": "secret_user_test_password"}
+    "password": TEST_PASSWORD,
+    "confirm_password": TEST_PASSWORD}
 
-    # register for user test
     res = requests.post(REGISTER_URL, headers=headers, json=data)
-
+    if res.status_code not in (200, 201):
+        print(f"Warning: registration returned {res.status_code} (probably user exists)")
     return
 
 
 if __name__ == "__main__":
-    try:
-        with open('.test_user_token', 'r') as f:
-            token = f.read().strip()
-    except FileNotFoundError:
-        print("Token file '.test_user_token' not found. Registering and logging in manually")
-        registerUsers()
-        token = login("user_test@exploit.com","secret_user_test_password") 
-        with open('.test_user_token', 'w') as f:
-            f.write(token)
-        print("Token saved to '.test_user_token'")
+    token = get_valid_token()
 
     clearFiles(token) # reset files   
     file_info = getFileInfo(token)
