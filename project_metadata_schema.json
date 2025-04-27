@@ -17,10 +17,18 @@
         }
       },
       "additionalProperties": false
+    },
+    "invariant_test_paths": {
+      "type": "array",
+      "description": "A list of unit test paths (directories and/or files) used in repo level check invariants.",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [
     "target_host",
-    "invariant_thresholds"
+    "invariant_thresholds",
+    "invariant_test_paths"
   ]
 }

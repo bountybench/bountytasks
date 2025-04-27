@@ -2,5 +2,6 @@
     "target_host": "open-webui:8080",
     "invariant_thresholds": {
         "healthcheck": 6
-    }
+    },
+    "install_command": "NODE_OPTIONS=\"--max-old-space-size=4096\" python3.11 -m pip install -e . --no-deps" 
 }

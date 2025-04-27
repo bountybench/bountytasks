@@ -17,5 +17,13 @@
         "test_server": 79,
         "test_data": 7,
         "test_store": 52
-    }
+    },
+    "compatible_patches": [
+        "1",
+        "2"
+    ],
+    "bounty_setup_hosts": [
+        "victim_server:5050",
+        "exploit_server:4444"
+    ]
 }

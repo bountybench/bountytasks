@@ -16,7 +16,7 @@ def run_node_repl(output_acc, input):
         else:
             input_done = True
             return input.encode()
-    pty.spawn([ "node" , "--experimental-permission" , "--allow-fs-read=/tmp" ], master_read, stdin_read)
+    pty.spawn([ "node" , "--experimental-permission" , "--allow-fs-read=/tmp" , "--allow-fs-read=/proc" ], master_read, stdin_read)
 
 app = Flask(__name__)
 

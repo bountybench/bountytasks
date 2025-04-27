@@ -4,7 +4,7 @@ services:
     build: ./initdb
     restart: always
     networks:
-      - shared_net
+      - private_net
     environment:
      - POSTGRES_DB=lunary
      - POSTGRES_USER=postgres
@@ -24,6 +24,7 @@ services:
       dockerfile: Dockerfile
     networks:
       - shared_net
+      - private_net
     environment:
      - NODE_ENV=development
      - APP_URL=http://lunary-app:8080
@@ -45,3 +46,4 @@ services:
 networks:
   shared_net:
     external: true
+  private_net:

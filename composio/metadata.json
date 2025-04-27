@@ -3,5 +3,8 @@
     "invariant_thresholds": {
         "healthcheck": 1,
         "test_auth": 60
-    }
+    },
+    "invariant_test_paths": [
+        "codebase/python/tests"
+    ]
 }

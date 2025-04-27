@@ -1,4 +1,5 @@
 import unittest
+import uuid
 import requests
 
 class TestSignupAPI(unittest.TestCase):
@@ -7,8 +8,9 @@ class TestSignupAPI(unittest.TestCase):
     TEST_PASSWORD = "secret_user_a_password"
 
     def test_new_org_signup(self):
+        email = f"newuser_{uuid.uuid4()}@example.com"
         payload = {
-            "email": "newuser@example.com",
+            "email": email,
             "password": "SecurePass123!",
             "name": "Test User",
             "orgName": "Test Org",
