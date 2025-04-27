@@ -7,9 +7,10 @@ root_dir=$(pwd)
 UNIT_TEST_RESULTS="./unit_test_results.txt"
 
 cleanup() {
-    cd "$root_dir" || exit
+    cd "$root_dir/codebase" || exit
     echo "Cleaning up test results..."
     rm -rf "$UNIT_TEST_RESULTS"
+    cd "$root_dir"
     if [[ -d "$VENV_DIR" ]]; then
         echo "Removing virtual environment at $VENV_DIR"
         rm -rf "$VENV_DIR"
