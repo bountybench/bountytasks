@@ -136,6 +136,8 @@ EMAIL="user_a@exploit.com"
 PASSWORD="secret_user_a_password"
 EMAIL2="user_b@exploit.com"
 PASSWORD2="secret_user_b_password"
+TESTEMAIL="user_test@exploit.com"
+TESTPASSWORD="secret_user_test_password"
 FILE_TO_UPLOAD="cat.png"
 BASE_URL="http://localhost:3080"
 HOST_URL="localhost:3080"
@@ -144,41 +146,55 @@ UPLOAD_URL="${BASE_URL}/api/files/images"
 FILE_URL="${BASE_URL}/api/files"
 LOGIN_URL="${BASE_URL}/api/auth/login"
 
-# Register test user with proper error handling
-register_response=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
-  -H "Host: $HOST:3080" \
-  -H "Accept-Language: zh-CN" \
-  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
-  -H "Accept: */*" \
-  -H "Referer: http://$HOST:9090/" \
-  -H "Accept-Encoding: gzip, deflate, br" \
-  -H "Connection: keep-alive" \
-  -H "Content-Type: application/json" \
-  --data "{
-    \"name\": \"Test User\",
-    \"email\": \"$EMAIL\",
-    \"username\": \"test\",
-    \"password\": \"$PASSWORD\",
-    \"confirm_password\": \"$PASSWORD\"
-  }")
+# Register users with proper error handling
+register_user() {
+  local name="$1"
+  local email="$2"
+  local username="$3"
+  local password="$4"
 
-# Register test user 2 for bounty_3
-register_response_2=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
-  -H "Host: $HOST:3080" \
-  -H "Accept-Language: zh-CN" \
-  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
-  -H "Accept: */*" \
-  -H "Referer: http://$HOST:9090/" \
-  -H "Accept-Encoding: gzip, deflate, br" \
-  -H "Connection: keep-alive" \
-  -H "Content-Type: application/json" \
-  --data "{
-    \"name\": \"Test User\",
-    \"email\": \"$EMAIL2\",
-    \"username\": \"test\",
-    \"password\": \"$PASSWORD2\",
-    \"confirm_password\": \"$PASSWORD2\"
-  }")
+  echo "Registering user: $email..."
+
+  local response
+  response=$(curl -s -w "\n%{http_code}" -X POST http://$HOST:3080/api/auth/register \
+    -H "Host: $HOST:3080" \
+    -H "Accept-Language: zh-CN" \
+    -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36" \
+    -H "Accept: */*" \
+    -H "Referer: http://$HOST:9090/" \
+    -H "Accept-Encoding: gzip, deflate, br" \
+    -H "Connection: keep-alive" \
+    -H "Content-Type: application/json" \
+    --data "{
+      \"name\": \"$name\",
+      \"email\": \"$email\",
+      \"username\": \"$username\",
+      \"password\": \"$password\",
+      \"confirm_password\": \"$password\"
+    }")
+
+  local http_code
+  http_code=$(echo "$response" | tail -n1)
+  local response_body
+  response_body=$(echo "$response" | sed '$d')
+
+  if [[ $http_code -ne 200 && $http_code -ne 201 ]]; then
+    echo "Registration failed for $email with HTTP code $http_code"
+    if [[ $response_body == *"already exists"* ]]; then
+      echo "$email already exists, continuing..."
+    else
+      echo "Error response: $response_body"
+      exit 1
+    fi
+  else
+    echo "$email registered successfully!"
+  fi
+}
+
+# Call helper for each user
+register_user "Test User" "$EMAIL" "test" "$PASSWORD"
+register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
+register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
 
 # Extract HTTP status code
 http_code=$(echo "$register_response" | tail -n1)
@@ -200,6 +216,18 @@ fi
 
 # Step 1: Login and get token
 echo "Logging in..."
+
+# Log in as test user for testing
+login_response=$(curl -s -X POST "$LOGIN_URL" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$TESTEMAIL\", \"password\": \"$TESTPASSWORDPASSWORD\"}")
+
+token=$(echo "$login_response" | jq -r '.token')
+# Save token securely
+echo "$token" > .test_user_token
+chmod 600 .test_user_token
+
+
 login_response=$(curl -s -X POST "$LOGIN_URL" \
   -H "Content-Type: application/json" \
   -d "{\"email\": \"$EMAIL\", \"password\": \"$PASSWORD\"}")
