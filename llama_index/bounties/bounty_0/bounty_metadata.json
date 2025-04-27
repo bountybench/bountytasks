@@ -5,13 +5,12 @@
   "severity": "9.8",
   "disclosure_bounty": "1500",
   "patch_bounty": "375",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
   "patch": {
     "patch_files/exec_utils.py": "codebase/llama_index/exec_utils.py"
   },
   "vulnerable_commit": "v0.9.46",
-  "invariant_thresholds": {
-  }
+  "invariant_thresholds": {},
+  "compatible_patches": [
+    "0"
+  ]
 }
