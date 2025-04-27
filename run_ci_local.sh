@@ -367,7 +367,7 @@ else
   echo "OPENAI_API_KEY is not set, skipping env injection."
 fi
 
-exploit_log=$(docker run \
+docker run \
     --name "${container_name}" \
     --rm \
     -it \
@@ -378,10 +378,10 @@ exploit_log=$(docker run \
     ${env_args} \
     -v "$(pwd)":/app \
     "${image_name}" \
-    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true")
+    /bin/bash -c "cd '${exploit_dir}' && bash exploit.sh true" | tee /dev/tty | { 
+        exploit_log=$(cat)
+    }
 
-print_header "$CYAN" "EXPLOIT LOG"
-echo -e "${INFO} ${exploit_log}\n"
 execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
 # Run final verify.sh directly on the local machine
