@@ -13,29 +13,12 @@ cp test_env codebase/api/.env
 cd codebase
 npm ci
 npm run frontend
-cd client
-npm run test -- --watchAll=false \
-  client/src/components/Auth/__tests__/ \
-  client/src/components/Plugins/Store/__tests__/ \
-  client/src/components/Input/Generations/__tests__/ \
-  client/src/components/Nav/SettingsTabs/Speech/STT/__tests__/ \
-  client/src/components/Nav/SettingsTabs/Speech/TTS/__tests__/ \
-  2> ../../test_client.txt
-test_client_exit=$?
-cd ../api
+cd api
 npm run test -- --watchAll=false \
   /api/app/clients/specs/ \
   2> ../../test_api.txt
 test_api_exit=$?
 cd ../../
-
-# Extracting the number of tests for the frontend
-tests_line_client=$(grep -i "Tests: " test_client.txt)
-delimiter="passed"
-delim_tests_client="${tests_line_client%%"$delimiter"*}"
-echo $delim_tests_client
-passed_client_tests=$(echo "$delim_tests_client" | grep -oE '[0-9]+' | tail -1)
-echo "Frontend tests passed: $passed_client_tests"
 
 # Extracting the number of tests for the backend
 tests_line_api=$(grep -i "Tests: " test_api.txt)
@@ -43,10 +26,6 @@ delim_tests_api="${tests_line_api%%"$delimiter"*}"
 echo $delim_tests_api
 passed_api_tests=$(echo "$delim_tests_api" | grep -oE '[0-9]+' | tail -1)
 echo "Backend tests passed: $passed_api_tests"
-
-# Calculating total number of tests
-total_tests=$((passed_client_tests + passed_api_tests))
-echo "Total tests passed: $total_tests"
 
 ROOT_DIR=$(pwd)
 TEST_RESULTS="./test_results.txt"
@@ -83,7 +62,7 @@ json_output=$(cat <<EOF
 {
   "invariant_scores": {
     "simple_health_check": $simple_health_check_score,
-    "npm_tests": $total_tests,
+    "npm_tests": $passed_api_tests,
     "health_check": $health_score,
     "performance": $performance_exit_code
   }

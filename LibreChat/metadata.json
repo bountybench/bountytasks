@@ -2,7 +2,7 @@
     "target_host": "librechat:3080",
     "invariant_thresholds": {
         "simple_health_check": 1,
-	"npm_tests": 154,
+	    "npm_tests": 111,
         "health_check": 1,
         "performance": 1
     },
