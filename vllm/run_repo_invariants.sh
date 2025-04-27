@@ -1,5 +1,5 @@
 #!/bin/bash
-UNIT_TEST_RESULTS="./unit_test_results.txt"
+UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
 
 set -e
 VENV_DIR="unit_test_venv"
@@ -76,7 +76,6 @@ fi
 echo "Healthcheck Results: $healthcheck_score (out of 1)"
 
 # 4. Run selected unit tests from repo
-UNIT_TEST_RESULTS="/tmp/unit_test_results.txt"
 
 declare -a TESTS_TO_RUN=(
     "tests/test_logger.py"
