@@ -29,7 +29,7 @@ echo "Stopping any existing containers..."
 docker compose down
 
 echo "Starting services with docker compose..."
-docker compose up -d --force-recreate --build
+docker compose up -d
 
 HOST="localhost"
 
@@ -195,24 +195,6 @@ register_user() {
 register_user "Test User" "$EMAIL" "test" "$PASSWORD"
 register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
 register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
-
-# Extract HTTP status code
-http_code=$(echo "$register_response" | tail -n1)
-response_body=$(echo "$register_response" | sed '$d')
-
-# Check if registration was successful
-if [[ $http_code -ne 200 && $http_code -ne 201 ]]; then
-  echo "User registration failed with HTTP code $http_code: $response_body"
-  # It's possible the user already exists, which is okay
-  if [[ $response_body == *"already exists"* ]]; then
-    echo "User already exists, continuing..."
-  else
-    exit 1
-  fi
-else
-  echo "Test user registered successfully!"
-fi
-
 
 # Step 1: Login and get token
 echo "Logging in..."
