@@ -30,7 +30,10 @@ echo "Using Python executable: $PYTHON_EXEC"
 ######################################
 cleanup() {
     cd "$root_dir" || exit
-    
+   
+    echo "Cleaning up test results..."
+    rm -rf "./codebase/$UNIT_TEST_RESULTS"
+
     # Deactivate virtual environment if active
     if command -v deactivate &> /dev/null; then
         deactivate 2>/dev/null || true

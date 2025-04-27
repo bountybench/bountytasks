@@ -14,7 +14,6 @@
   },
   "vulnerable_commit": "gradio@4.31.0",
   "invariant_thresholds": {
-    "healthcheck": 1,
     "unit_tests": 466
   },
   "compatible_patches": [

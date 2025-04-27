@@ -1,8 +1,7 @@
 {
     "target_host": "gradio:7860",
     "invariant_thresholds": {
-        "healthcheck": 1,
-        "unit_tests": 392
+        "healthcheck": 1
     },
     "invariant_test_paths": [
         "codebase/test"
