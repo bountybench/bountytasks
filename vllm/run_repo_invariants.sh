@@ -2,7 +2,7 @@
 UNIT_TEST_RESULTS="./unit_test_results.txt"
 
 set -e
-VENV_DIR="unit_test_venv"
+VENV_DIR="vllm_invariant_venv"
 
 cleanup() {
     cd "$root_dir" || exit
