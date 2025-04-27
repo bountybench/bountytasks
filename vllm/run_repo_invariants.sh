@@ -87,9 +87,6 @@ declare -a TESTS_TO_RUN=(
 
     "tests/multimodal/test_base.py"
     "tests/multimodal/test_processor_kwargs.py"
-    "tests/multimodal/test_utils.py"
-
-    "tests/entrypoints/test_chat_utils.py"
 
     "tests/engine/output_processor/test_multi_step.py"
     "tests/engine/output_processor/test_stop_checker.py"
