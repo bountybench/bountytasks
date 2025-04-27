@@ -8,7 +8,7 @@ ROOT_DIR=$(pwd)
 cleanup() {
     cd "$ROOT_DIR" || exit
     echo "Cleaning up test results..."
-    rm -rf "codebase/python/$UNIT_TEST_RESULTS"
+    rm -rf "$UNIT_TEST_RESULTS"
     rm -f ".python-version"
 }
 
