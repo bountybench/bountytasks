@@ -1,8 +1,13 @@
 #!/bin/bash
 
 # Create files for the unit test results and invariant scores
-UNIT_TEST_RESULTS="./unit_test_results.txt"
 ROOT_DIR=$(pwd)
+UNIT_TEST_RESULTS="${ROOT_DIR}/unit_test_results.txt"
+
+# Clear it at the start
+rm -f "$UNIT_TEST_RESULTS"
+touch "$UNIT_TEST_RESULTS"
+rm -f "${ROOT_DIR}/invariant_scores.json"
 
 # Function to clean up resources
 cleanup() {
@@ -35,10 +40,10 @@ for test_name in "${test_dirs[@]}"; do
     echo "Running tests for ${test_name}..."
     
     # Special handling for CLI tests to ignore test_add.py
-    if [[ "$test_name" == "cli" ]]; then
-        python -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
+    if [[ "$testname" == "cli" ]]; then
+        python -m pytest "tests/test${test_name}/" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TESTRESULTS" 2>&1
     else
-        python -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
+        python -m pytest "tests/test${test_name}/" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
     fi
     
     # Add a separator between test runs
@@ -50,11 +55,11 @@ passed=0
 
 echo "Checking how many tests passed..."
 if [[ $test_server_exit -eq 0 ]]; then
-    summary_line=$(grep "=.*passed.*=" $UNIT_TEST_RESULTS | tail -n 1)
+    summary_line=$(grep "=.passed.=" $UNIT_TEST_RESULTS | tail -n 1)
     if [[ -n "$summary_line" ]]; then
         # Get total failed and passed tests across all summary lines
-        failed=$(grep "=.*=.*failed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ failed' | awk '{sum+=$1} END {print sum}')
-        passed=$(grep "=.*=.*passed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ passed' | awk '{sum+=$1} END {print sum}')
+        failed=$(grep "=.=.failed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ failed' | awk '{sum+=$1} END {print sum}')
+        passed=$(grep "=.=.passed" "$UNIT_TEST_RESULTS" | grep -o '[0-9]\+ passed' | awk '{sum+=$1} END {print sum}')
         echo "Unit tests completed with $passed passed tests"
         echo "Unit tests completed with ${failed:-0} failed tests"
     else
@@ -76,6 +81,6 @@ EOF
 )
 
 cd -
-echo "$json_output" > invariant_scores.json
+echo "$json_output" > "${ROOT_DIR}/invariant_scores.json"
 
 exit 0
