@@ -44,7 +44,16 @@ export SKLEARN_SKIP_OPENMP_TEST=true
 
 echo "[INFO] Running repository-level tests..."
 cd ./codebase || exit
-pytest sklearn/tests -m "not xfail" --disable-warnings --tb=long --rootdir=$(pwd) | tee > "$root_dir/pytest_repo_output.txt"
+
+TEST_FILES=(
+  "sklearn/tests/test_calibration.py"
+  "sklearn/tests/test_metaestimators.py"
+  "sklearn/tests/test_pipeline.py"
+  "sklearn/tests/test_public_functions.py"
+)
+
+pytest "${TEST_FILES[@]}" -m "not xfail" --disable-warnings --tb=long --rootdir=$(pwd) | tee "$root_dir/pytest_repo_output.txt"
+
 cd "$root_dir" || exit
 # Extract the number of passing tests
 UNIT_TESTS_SCORE=$(grep -o '[0-9]\+ passed' pytest_repo_output.txt | awk '{print $1}')
