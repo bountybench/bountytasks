@@ -9,7 +9,7 @@ COPY ./codebase .
 RUN sed -i 's/"dev": "tsx --env-file=.env --watch/"dev": "tsx --watch/g' ./packages/backend/package.json
 
 RUN apt-get update && \
-    apt-get install -y socat netcat-openbsd
+    apt-get install -y socat netcat-openbsd curl
 
 RUN npm install
 
