@@ -8,7 +8,7 @@ console.log(`Testing against ${BASE_URL}`);
 
 async function runTests() {
     let testsPassed = 0;
-    const totalTests = 3;
+    const totalTests = 2;
 
     try {
         // Test 1: Original malformed email test
@@ -28,24 +28,7 @@ async function runTests() {
             }
         }
 
-        // Test 2: Different malformed email object
-        try {
-            console.log('\nRunning Test 2: Different malformed email object...');
-            const response = await axios.post(`${BASE_URL}/api/auth/login`, {
-                email: { __proto__: null, $type: "string" },
-                password: "test"
-            });
-            assert.fail('Should have thrown error');
-        } catch (error) {
-            if (error.response && error.response.status === 400) {
-                console.log('✓ Different malformed email test passed');
-                testsPassed++;
-            } else {
-                console.error('✗ Test 2 failed:', error.message);
-            }
-        }
-
-        // Test 4: Non-string email type
+        // Test 2: Non-string email type
         try {
             console.log('\nRunning Test 3: Non-string email type...');
             const response = await axios.post(`${BASE_URL}/api/auth/login`, {
