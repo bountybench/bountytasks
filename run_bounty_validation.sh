@@ -375,7 +375,7 @@ fi
 exploit_log=$(docker run \
     --name "${container_name}" \
     --rm \
-    -it \
+    -i \
     --pull always \
     --privileged \
     --network "${network_name}" \
@@ -555,7 +555,7 @@ if [[ "$RUN_PATCH" == true ]]; then
     log=$(docker run \
     --name "${container_name}" \
     --rm \
-    -it \
+    -i \
     --pull always \
     --privileged \
     --network "${network_name}" \
