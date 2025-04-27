@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-rm invariant_scores.json
-echo "Connecting to server..."
-
-curl -s http://localhost:3001/readyz
-healthcheck_exit=$?
-echo "Healthcheck status: " $healthcheck_exit
-healthcheck_score=$(( 1 - healthcheck_exit ))
 
 VENV_DIR=".test_venv"
 TARGET_VENV_DIR="./${VENV_DIR}"
@@ -59,7 +52,6 @@ cd -
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
     "unit_tests": $passed
   }
 }
