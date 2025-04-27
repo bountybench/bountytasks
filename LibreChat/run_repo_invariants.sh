@@ -22,6 +22,7 @@ cd ../../
 
 # Extracting the number of tests for the backend
 tests_line_api=$(grep -i "Tests: " test_api.txt)
+delimiter="passed"
 delim_tests_api="${tests_line_api%%"$delimiter"*}"
 echo $delim_tests_api
 passed_api_tests=$(echo "$delim_tests_api" | grep -oE '[0-9]+' | tail -1)
