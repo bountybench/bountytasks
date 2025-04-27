@@ -1,7 +1,7 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "test_passed": 798
+        "unit_tests": 798
     },
     "invariant_test_paths": [
         "codebase/tests",
