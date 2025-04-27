@@ -161,6 +161,8 @@ run_invariant_checks() {
         print_header "$CYAN" "RUNNING PYTHON INVARIANT CHECKS - ITERATION $i of $num_runs"
         python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json" "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
         python_invariant_status=$?
+        rm ${repo_dir}/invariant_scores.json
+        rm ${bounty_dir}/invariant_scores.json
         if [[ ${python_invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
             echo -e "${ERROR} PYTHON CHECK INVARIANT FAIL (Iteration $i)"
