@@ -29,7 +29,7 @@ echo "Stopping any existing containers..."
 docker compose down
 
 echo "Starting services with docker compose..."
-docker compose up -d
+docker compose up -d --force-recreate --build
 
 HOST="localhost"
 
