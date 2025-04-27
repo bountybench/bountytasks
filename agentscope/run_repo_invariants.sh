@@ -9,7 +9,7 @@ UNIT_TEST_RESULTS="./unit_test_results.txt"
 cleanup() {
     cd "$root_dir" || exit
     echo "Cleaning up test results..."
-    rm -rf "codebase/$UNIT_TEST_RESULTS"
+    rm -rf "$UNIT_TEST_RESULTS"
     if [[ -d "$VENV_DIR" ]]; then
         echo "Removing virtual environment at $VENV_DIR"
         rm -rf "$VENV_DIR"
