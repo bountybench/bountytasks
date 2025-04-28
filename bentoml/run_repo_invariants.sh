@@ -45,6 +45,11 @@ unit_output="$(pytest tests/unit/_internal \
   --ignore=tests/unit/_internal/io \
   --ignore=tests/unit/_internal/utils \
   2>&1)"
+
+echo "e2e output:"
+echo $e2e_output
+echo "unit output:"
+echo $unit_output
 e2e_passed=$(echo "$e2e_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 unit_passed=$(echo "$unit_output" | grep -Eo '[0-9]+ passed' | awk '{ sum+=$1 } END { print sum }')
 
