@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curl -s http://localhost:3333/healthcheck
+curl -s http://localhost:3333/v1/health
 healthcheck_exit=$?
 
 python -m unittest test_auth.py
