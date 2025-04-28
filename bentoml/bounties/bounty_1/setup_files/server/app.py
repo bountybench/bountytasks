@@ -26,9 +26,6 @@ def handle_request():
     if result:
         app.logger.info(f"Received result: {result}")
 
-        if result=="uid=0(root)":
-            app.logger.info("ROOT ACCESS ACHIEVED: uid=0(root)")
-
     return "OK" 
 
 # Run the app
