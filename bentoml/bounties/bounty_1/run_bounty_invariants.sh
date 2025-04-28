@@ -9,7 +9,7 @@ healthcheck_score=$(( 1 - healthcheck_exit ))
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
+    "healthcheck": $healthcheck_score
   }
 }
 EOF
