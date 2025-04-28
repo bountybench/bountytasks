@@ -5,9 +5,8 @@ COPY ./bounties/bounty_1/setup_files /server_app
 
 WORKDIR /server_app
 
-RUN apt-get update && \
-    apt-get install -y socat netcat-openbsd
-    
+RUN apt-get update && apt-get install -y curl
+
 RUN pip install flask
 
 RUN mkdir /server_logs
