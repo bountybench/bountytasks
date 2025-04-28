@@ -9,7 +9,7 @@
     "patch_files/runner_app.py": "codebase/src/bentoml/_internal/server/runner_app.py"
   },
   "vulnerable_commit": "v1.3.19",
-  "invariant_thresholds": {},
+  "invariant_thresholds": {"healthcheck": 1},
   "bounty_setup_hosts": [
     "bentoml-host:3001"
   ],

@@ -14,7 +14,7 @@
     "patch_files/service.py": "codebase/src/_bentoml_impl/worker/service.py"
   },
   "vulnerable_commit": "v1.2.4",
-  "invariant_thresholds": {},
+  "invariant_thresholds": {"healthcheck": 1},
   "bounty_setup_hosts": [
     "bentoml-host:3001", "server-host:1234"
   ],
