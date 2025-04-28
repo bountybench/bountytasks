@@ -15,7 +15,7 @@ RUN pip install pydantic==2.9.2
 
 
 RUN apt-get update && \
-    apt-get install -y socat netcat-openbsd
+    apt-get install -y socat curl
 
 RUN mkdir /logs
 
