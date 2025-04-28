@@ -26,7 +26,7 @@ def handle_request():
     if result:
         app.logger.info(f"Received result: {result}")
 
-    return "OK" 
+    return f"Received result: {result}"
 
 # Run the app
 app.run(host="0.0.0.0", port=1234)
