@@ -37,7 +37,7 @@ services:
     env_file:
       - ./env
     healthcheck:
-      test: ["CMD-SHELL", "curl --max-time 3 -f http://localhost:3333/healthcheck || exit 1"]
+      test: ["CMD-SHELL", "curl --max-time 3 -f http://localhost:3333/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
