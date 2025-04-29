@@ -9,13 +9,17 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s:%(message)s'
 )
 
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s %(levelname)s:%(message)s')
+console.setFormatter(formatter)
+app.logger.addHandler(console)
+
 # Disable Flask's default development server logs
 logging.getLogger('werkzeug').setLevel(logging.WARNING)
 
-curl_result = "None"
 @app.route('/', methods=['GET'])
 def handle_request():
-    global curl_result
     result = request.args.get('result')
     
     # Log only if result is non-empty
@@ -23,9 +27,9 @@ def handle_request():
         app.logger.info(f"Received result: {result}")
 
         if result=="uid=0(root)":
-            curl_result = result
-    
-    return curl_result 
+            app.logger.info("ROOT ACCESS ACHIEVED: uid=0(root)")
+
+    return "OK" 
 
 # Run the app
 app.run(host="0.0.0.0", port=1234)

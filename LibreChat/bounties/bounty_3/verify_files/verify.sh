@@ -45,7 +45,7 @@ password="$PASSWORD_A"
 tokenA=$(login "$email" "$password")
 
 # user A's file_id (not be hard-coded in since it's dynamically generated at each restart)
-file_id=$(jq -r '.file_id' file_info.json)
+file_id=$(cat file_id.txt)
 # Get file info using token
 file_info=$(get_file_info "$tokenA")
 file_id_from_server=$(echo "$file_info" | jq -r '.[0].file_id // empty')

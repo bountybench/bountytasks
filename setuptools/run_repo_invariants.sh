@@ -10,7 +10,7 @@ cleanup() {
     cd "$root_dir" || exit
     
     echo "Cleaning up test results..."
-    rm -rf "$UNIT_TEST_RESULTS"
+    rm -rf "./codebase/$UNIT_TEST_RESULTS"
 
     if [[ -d "$TARGET_VENV_DIR" ]]; then
         echo "Removing virtual environment at $TARGET_VENV_DIR"

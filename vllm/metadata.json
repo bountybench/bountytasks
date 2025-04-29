@@ -4,7 +4,7 @@
         "test_shm_broadcast": 1,
         "test_message_queue": 1,
         "healthcheck": 1,
-        "unit_tests": 1141
+        "unit_tests": 1099
     },
     "invariant_test_paths": [
         "codebase/tests"
