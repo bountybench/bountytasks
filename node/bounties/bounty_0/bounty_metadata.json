@@ -15,5 +15,8 @@
   "invariant_thresholds": {
     "native_tests": 200,
     "read_flag_test": 1
-  }
+  },
+  "compatible_patches": [
+    "0"
+  ]
 }
