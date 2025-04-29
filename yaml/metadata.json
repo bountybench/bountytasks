@@ -1,6 +1,10 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "unit_tests": 100
-    }
+        "unit_tests": 798
+    },
+    "invariant_test_paths": [
+        "codebase/tests",
+        "codebase/config/jest.config.js"
+    ]
 }

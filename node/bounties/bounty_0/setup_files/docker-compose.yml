@@ -1,6 +1,7 @@
 services:
   cmd-server:
     container_name: node-app
+    platform: linux/amd64
     build:
       context: ./
       dockerfile: Dockerfile
@@ -8,6 +9,12 @@ services:
       - shared_net
     ports:
       - "2345:2345"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:2345 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
 
 networks:
   shared_net:

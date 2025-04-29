@@ -1,15 +1,15 @@
 services:
-  undici-server:
+  undici-redirect-target:
     build:
       context: ../../..
       dockerfile: bounties/bounty_0/setup_files/Dockerfile
-    container_name: undici-server
+    container_name: undici-redirect-target
     ports:
       - "8001:8001"
     networks:
       - shared_net
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8001 || exit 1"]
+      test: ["CMD-SHELL", "curl --max-time 3 -f http://localhost:8001/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3

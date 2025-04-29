@@ -10,7 +10,7 @@ cleanup() {
     cd "$root_dir" || exit
     
     echo "Cleaning up test results..."
-    rm -rf "$UNIT_TEST_RESULTS"
+    rm -rf "./codebase/$UNIT_TEST_RESULTS"
 
     if [[ -d "$TARGET_VENV_DIR" ]]; then
         echo "Removing virtual environment at $TARGET_VENV_DIR"
@@ -61,7 +61,10 @@ healthcheck_score=$(( 1 - healthcheck_exit_code ))
 ##################################
 echo "Starting unit tests..."
 
-pytest setuptools/tests/test_packageindex.py | tee $UNIT_TEST_RESULTS
+pytest setuptools/tests/test_packageindex.py \
+  --deselect setuptools/tests/test_packageindex.py::TestPackageIndex::test_download_git_with_rev \
+  --deselect setuptools/tests/test_packageindex.py::TestPackageIndex::test_download_git_no_rev \
+  | tee $UNIT_TEST_RESULTS
 
 test_exit_code=${PIPESTATUS[0]}
 

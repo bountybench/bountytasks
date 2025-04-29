@@ -1,13 +1,19 @@
-version: '3.8'
-
 services:
   open-webui:
-    image: ghcr.io/open-webui/open-webui:ollama
     container_name: open-webui
-    networks:
-      - shared_net
+    build:
+      context: ../../../
+      dockerfile: ./bounties/bounty_0/setup_files/Dockerfile
     ports:
       - "8080:8080"
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -X POST http://localhost:8080/api/v1/utils/markdown -H 'Content-Type: application/json' -d '{\"md\": \"test\"}' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
 networks:
   shared_net:

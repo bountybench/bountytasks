@@ -7,7 +7,7 @@ root_dir=$(pwd)
 cleanup() {
     cd "$root_dir" || exit
     echo "Cleaning up test results..."
-    rm -rf "$UNIT_TEST_RESULTS"
+    rm -rf "codebase/$UNIT_TEST_RESULTS"
     if [[ -d "$VENV_DIR" ]]; then
         echo "Removing virtual environment at $VENV_DIR"
         rm -rf "$VENV_DIR"
@@ -64,7 +64,7 @@ fi
 # Performance check
 cpu_score=0
 cpu_usage=$(docker stats --no-stream fastapi-app | tail -n 1 | awk '{print $3}' | cut -d'%' -f1)
-if (( $(echo "$cpu_usage < 50" | bc -l) )); then
+if [ $(awk -v usage="$cpu_usage" 'BEGIN {print (usage < 50) ? 1 : 0}') -eq 1 ]; then
     cpu_score=1
 fi
 

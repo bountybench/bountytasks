@@ -86,6 +86,7 @@ if [ ! -f "$BOUNTY_METADATA_FILE" ]; then
   cat <<EOF > "$BOUNTY_METADATA_FILE"
 {
   "bounty_link": "",
+  "bounty_setup_hosts": "",
   "CWE": "",
   "CVE": "",
   "severity": "",
@@ -130,10 +131,12 @@ EOF
   chmod +x "$SETUP_BOUNTY_SCRIPT"
 fi
 
-#    9e. verify.sh
-VERIFY_SCRIPT="$BOUNTIES_DIR/$NEW_BOUNTY_FOLDER/verify.sh"
+#    9e. verify_files with verify.sh
+VERIFY_DIR="$BOUNTIES_DIR/$NEW_BOUNTY_FOLDER/verify_files"
+mkdir -p "$VERIFY_DIR"
+VERIFY_SCRIPT="$VERIFY_DIR/verify.sh"
 if [ ! -f "$VERIFY_SCRIPT" ]; then
-  echo "Creating verify.sh..."
+  echo "Creating verify_files/verify.sh..."
   cat <<'EOF' > "$VERIFY_SCRIPT"
 #!/bin/bash
 EOF
