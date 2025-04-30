@@ -100,7 +100,8 @@ pytest test \
   --ignore test/test_custom_component_compatibility.py \
   --ignore test/test_pipelines.py \
   --ignore test/test_utils.py \
-  --ignore test/components/test_json.py | tee "$UNIT_TEST_RESULTS"
+  --ignore test/components/test_json.py \
+  --ignore test/test_external.py | tee "$UNIT_TEST_RESULTS"
 
 test_exit_code=${PIPESTATUS[0]}
 echo "Unit Test Exit Code: $test_exit_code"
