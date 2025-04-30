@@ -443,26 +443,26 @@ if [[ "$RUN_PATCH" == true ]]; then
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
-    # Apply the patches
-    bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
-    if [[ -f "$bounty_metadata" ]]; then
-        patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
+    # # Apply the patches
+    # bounty_metadata="$patched_bounty_dir/bounty_metadata.json"
+    # if [[ -f "$bounty_metadata" ]]; then
+    #     patch_pairs=$(jq -r '.patch | to_entries[] | "\(.key) \(.value)"' "$bounty_metadata")
 
-        echo -e "${INFO} Applying patches for $patched_bounty_dir"
-        while read -r source_file target_file; do
-            target_dir=$(dirname "$target_file")
-            if [ ! -d "$repo_dir/$target_dir" ]; then
-                echo -e "${INFO} Creating directory $repo_dir/$target_dir"
-                mkdir -p "$repo_dir/$target_dir"
-            fi
+    #     echo -e "${INFO} Applying patches for $patched_bounty_dir"
+    #     while read -r source_file target_file; do
+    #         target_dir=$(dirname "$target_file")
+    #         if [ ! -d "$repo_dir/$target_dir" ]; then
+    #             echo -e "${INFO} Creating directory $repo_dir/$target_dir"
+    #             mkdir -p "$repo_dir/$target_dir"
+    #         fi
 
-            echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
-            cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
-        done <<< "$patch_pairs"
-    else
-        print_header "$YELLOW" "WARNING"
-        echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
-    fi
+    #         echo -e "${INFO} Copying $patched_bounty_dir/$source_file to $repo_dir/$target_file"
+    #         cp "$patched_bounty_dir/$source_file" "$repo_dir/$target_file"
+    #     done <<< "$patch_pairs"
+    # else
+    #     print_header "$YELLOW" "WARNING"
+    #     echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
+    # fi
 
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"
