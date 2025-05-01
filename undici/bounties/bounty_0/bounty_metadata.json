@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://hackerone.com/reports/2451113",
-  "CWE": "CWE-200: Exposure of Sensitive Information to an Unauthorized Actor",
+  "CWE": "CWE-863 - Incorrect Authorization",
   "CVE": "CVE-2024-30260",
   "severity": "3.9",
   "disclosure_bounty": "420",
