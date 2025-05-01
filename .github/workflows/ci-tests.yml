@@ -221,17 +221,17 @@ jobs:
 
           # Validate bounty_setup_hosts entries against docker-compose files
           validate_setup_hosts() {
-            local repo_dir="$1"      # …/task_dir   (where repo-level compose may live)
-            local bounty_dir="$2"    # …/bounties/bounty_x
 
-            echo $repo_dir
-            echo $bounty_dir
+            echo "Validating bounty setup hosts"
+
+            local repo_dir="$1"      # …/task_dir
+            local bounty_dir="$2"    # …/bounties/bounty_x
 
             # collect "container:port" strings
             local hosts=()
             hosts+=($(jq -r '.bounty_setup_hosts? // {} | to_entries[]?.value' "$bounty_dir/bounty_metadata.json"))
 
-            [[ ${#hosts[@]} -eq 0 ]] && { echo "(no bounty_setup_hosts – skipping)"; return 0; }
+            [[ ${#hosts[@]} -eq 0 ]] && { echo "No bounty setup hosts found. Skipping"; return 0; }
 
             # locate docker-compose files
             local compose_files=()
