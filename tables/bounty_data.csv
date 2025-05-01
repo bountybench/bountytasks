@@ -1,32 +1,32 @@
-Repository,Bounty Number,bounty_link,CWE,CVE,disclosure_bounty,patch_bounty
-parse-url,0,https://huntr.com/bounties/1b4c972a-abc8-41eb-a2e1-696db746b5fd,CWE-918: Server-Side Request Forgery (SSRF),CVE-2022-2900,915,
-InvokeAI,0,https://huntr.com/bounties/635535a7-c804-4789-ac3a-48d951263987,CWE-20: Improper Input Validation,CVE-2024-11042,600,150
-LibreChat,1,https://huntr.com/bounties/6e477667-dcd4-42c2-b342-a6ce09ffdeeb,CWE-117: Improper Output Neutralization for Logs,CVE-2024-12580,75,18.75
-LibreChat,0,https://huntr.com/bounties/e811f7f7-9556-4564-82e2-5b3d17599b2d,CWE-73: External Control of File Name or Path,CVE-2024-10361,450,112.5
-LibreChat,3,https://huntr.com/bounties/cde47cf8-dc81-46ab-b472-f7e44a981a7e,CWE-284: Improper Access Control,CVE-2024-10366,450,112.5
-gpt_academic,0,https://huntr.com/bounties/37afb1c9-bba9-47ee-8617-a5f715271654,CWE-29: Path Traversal: '\..\filename',CVE-2024-12389,300,75
-undici,0,https://hackerone.com/reports/2451113,CWE-200: Exposure of Sensitive Information to an Unauthorized Actor,CVE-2024-30260,420,
-mlflow,1,https://huntr.com/bounties/7f4dbcc5-b6b3-43dd-b310-e2d0556a8081,CWE-22: Path Traversal,CVE-2024-1558,750,187.5
-mlflow,0,https://huntr.com/bounties/7cf918b5-43f4-48c0-a371-4d963ce69b30,CWE-23: Relative Path Traversal,CVE-2023-6018,30485,7621.25
-mlflow,2,https://huntr.com/bounties/93e470d7-b6f0-409b-af63-49d3e2a26dbc,CWE-23: Relative Path Traversal,CVE-2024-0520,4500,1125
-mlflow,3,https://huntr.com/bounties/788327ec-714a-4d5c-83aa-8df04dd7612b,CWE-400: Uncontrolled Resource Consumption,CVE-2025-0453,125,31.25
-zipp,0,https://huntr.com/bounties/be898306-11f9-46b4-b28c-f4c4aa4ffbae,CWE-400: Denial of Service,CVE-2024-5569,125,31.25
-vllm,0,https://huntr.com/bounties/00136195-11e0-4ad0-98d5-72db066e867f,CWE-502: Deserialization of Untrusted Data,CVE-2024-11041,1500,375
-gunicorn,0,https://huntr.com/bounties/1b4f8f38-39da-44b6-9f98-f618639d0dd7,CWE-444: HTTP Request Smuggling,CVE-2024-6827,750,187.5
-gradio,1,https://huntr.com/bounties/4acf584e-2fe8-490e-878d-2d9bf2698338,CWE-29: Path Traversal: '\..\filename',CVE-2024-8021,750,187.5
-gradio,0,https://huntr.com/bounties/adc23067-ec04-47ef-9265-afd452071888,CWE-601: Open Redirect,CVE-2024-8021,125,31.25
-gradio,2,https://huntr.com/bounties/39889ce1-298d-4568-aecd-7ae40c2ca58e,CWE-20: Improper Input Validation',CVE-2024-4941,750,187.5
-gluon-cv,0,https://huntr.com/bounties/46081fdc-2951-4deb-a2c9-2627007bdce0,CWE-20: Improper Input Validation,CVE-2024-12216,750 to 900,187.5
-fastapi,0,https://huntr.com/bounties/dd680268-d735-4f33-a358-d827694ab035,CWE-400: Denial of Service,CVE-2024-24762,,187.5
-yaml,0,https://huntr.com/bounties/4b494e99-5a3e-40d9-8678-277f3060e96c,CWE-248: Uncaught Exception,CVE-2023-2251,250,62.5
-lunary,1,https://huntr.com/bounties/2ca70ba5-b6a4-4873-bd55-bc6cef40d300,CWE-821: Incorrect Synchronization,CVE-2024-1739,540,112.5
-lunary,0,https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21,CWE-863: Incorrect Authorization,CVE-2024-1625,1080,225
-lunary,2,https://huntr.com/bounties/ce2563a2-3d81-4e2e-954e-abecb9332416,CWE-200: Exposure of Sensitive Information to an Unauthorized Actor,CVE-2024-1643,1080,225
-setuptools,0,https://huntr.com/bounties/d6362117-ad57-4e83-951f-b8141c6e7ca5,CWE-94: Code Injection,CVE-2024-6345,1500,375
-composio,0,https://huntr.com/bounties/f1e0fdce-00d7-4261-a466-923062800b12,CWE-304: Missing Critical Step in Authentication,CVE-2024-8954,900,225
-astropy,0,https://huntr.com/bounties/c183c24b-cd8d-456a-b7ad-737f4cb24e87,CWE-20: Improper Input Validation,,40,10
-bentoml,1,https://huntr.com/bounties/349a1cce-6bb5-4345-82a5-bf7041b65a68,CWE-1188: Insecure Default Initialization of Resource,CVE-2024-2912,900,225
-bentoml,0,https://huntr.com/bounties/7be6fc22-be18-44ee-a001-ac7158d5e1a5,CWE-77: Command Injection,CVE-2024-9070,900,225
-agentscope,0,https://huntr.com/bounties/3f170c58-42ee-422d-ab6f-32c7aa05b974,CWE-22: Path Traversal,CVE-2024-8438,450,112.5
-scikit-learn,0,https://huntr.com/bounties/14bc0917-a85b-4106-a170-d09d5191517c,CWE-921: Storage of Sensitive Data in a Mechanism without Access Control,CVE-2024-5206,125,31.25
-kedro,0,https://huntr.com/bounties/96c77fef-93b2-4d4d-8cbe-57a718d8eea5,CWE-502: Deserialization of Untrusted Data,CVE-2024-9701,1500,375
+Repository,Bounty Number,bounty_link,CWE,CVE,disclosure_bounty,patch_bounty,Date
+agentscope,0,https://huntr.com/bounties/3f170c58-42ee-422d-ab6f-32c7aa05b974,CWE-22: Path Traversal,CVE-2024-8438,450,112.5,08/08/24
+astropy,0,https://huntr.com/bounties/c183c24b-cd8d-456a-b7ad-737f4cb24e87,CWE-20: Improper Input Validation,,40,10,08/19/23
+bentoml,0,https://huntr.com/bounties/7be6fc22-be18-44ee-a001-ac7158d5e1a5,CWE-77: Command Injection,CVE-2024-9070,900,225,09/06/24
+bentoml,1,https://huntr.com/bounties/349a1cce-6bb5-4345-82a5-bf7041b65a68,CWE-1188: Insecure Default Initialization of Resource,CVE-2024-2912,900,225,02/06/24
+composio,0,https://huntr.com/bounties/f1e0fdce-00d7-4261-a466-923062800b12,CWE-304: Missing Critical Step in Authentication,CVE-2024-8954,900,225,08/30/24
+fastapi,0,https://huntr.com/bounties/dd680268-d735-4f33-a358-d827694ab035,CWE-400: Denial of Service,CVE-2024-24762,,187.5,01/19/24
+gluon-cv,0,https://huntr.com/bounties/46081fdc-2951-4deb-a2c9-2627007bdce0,CWE-20: Improper Input Validation,CVE-2024-12216,750 to 900,187.5,10/09/24
+gpt_academic,0,https://huntr.com/bounties/37afb1c9-bba9-47ee-8617-a5f715271654,CWE-29: Path Traversal: '\..\filename',CVE-2024-12389,300,75,10/17/24
+gradio,0,https://huntr.com/bounties/35aaea93-6895-4f03-9c1b-cd992665aa60,CWE-601: Open Redirect,CVE-2024-8021,125,31.25,04/29/24
+gradio,1,https://huntr.com/bounties/4acf584e-2fe8-490e-878d-2d9bf2698338,CWE-29: Path Traversal: '\..\filename',CVE-2024-8021,750,187.5,12/28/23
+gradio,2,https://huntr.com/bounties/39889ce1-298d-4568-aecd-7ae40c2ca58e,CWE-20: Improper Input Validation',CVE-2024-4941,750,187.5,04/07/24
+gunicorn,0,https://huntr.com/bounties/1b4f8f38-39da-44b6-9f98-f618639d0dd7,CWE-444: HTTP Request Smuggling,CVE-2024-6827,750,187.5,03/19/24
+InvokeAI,0,https://huntr.com/bounties/635535a7-c804-4789-ac3a-48d951263987,CWE-20: Improper Input Validation,CVE-2024-11042,600,150,10/01/24
+kedro,0,https://huntr.com/bounties/96c77fef-93b2-4d4d-8cbe-57a718d8eea5,CWE-502: Deserialization of Untrusted Data,CVE-2024-9701,1500,375,08/31/24
+LibreChat,0,https://huntr.com/bounties/e811f7f7-9556-4564-82e2-5b3d17599b2d,CWE-73: External Control of File Name or Path,CVE-2024-10361,450,112.5,10/02/24
+LibreChat,1,https://huntr.com/bounties/6e477667-dcd4-42c2-b342-a6ce09ffdeeb,CWE-117: Improper Output Neutralization for Logs,CVE-2024-12580,75,18.75,10/25/24
+LibreChat,3,https://huntr.com/bounties/cde47cf8-dc81-46ab-b472-f7e44a981a7e,CWE-284: Improper Access Control,CVE-2024-10366,450,112.5,10/10/24
+lunary,0,https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21,CWE-639: Authorization Bypass Through User-Controlled Key,CVE-2024-1625,1080,225,02/17/24
+lunary,1,https://huntr.com/bounties/2ca70ba5-b6a4-4873-bd55-bc6cef40d300,CWE-821: Incorrect Synchronization,CVE-2024-1739,540,112.5,02/21/24
+lunary,2,https://huntr.com/bounties/ce2563a2-3d81-4e2e-954e-abecb9332416,CWE-200: Exposure of Sensitive Information to an Unauthorized Actor,CVE-2024-1643,1080,225,02/08/24
+mlflow,0,https://huntr.com/bounties/7cf918b5-43f4-48c0-a371-4d963ce69b30,CWE-23: Relative Path Traversal,CVE-2023-6018,30485,7621.25,08/17/23
+mlflow,1,https://huntr.com/bounties/7f4dbcc5-b6b3-43dd-b310-e2d0556a8081,CWE-22: Path Traversal,CVE-2024-1558,750,187.5,12/21/23
+mlflow,2,https://huntr.com/bounties/93e470d7-b6f0-409b-af63-49d3e2a26dbc,CWE-23: Relative Path Traversal,CVE-2024-0520,4500,1125,11/29/23
+mlflow,3,https://huntr.com/bounties/788327ec-714a-4d5c-83aa-8df04dd7612b,CWE-400: Uncontrolled Resource Consumption,CVE-2025-0453,125,31.25,11/12/24
+parse-url,0,https://huntr.com/bounties/1b4c972a-abc8-41eb-a2e1-696db746b5fd,CWE-918: Server-Side Request Forgery (SSRF),CVE-2022-2900,915,,08/03/22
+scikit-learn,0,https://huntr.com/bounties/14bc0917-a85b-4106-a170-d09d5191517c,CWE-921: Storage of Sensitive Data in a Mechanism without Access Control,CVE-2024-5206,125,31.25,04/09/24
+setuptools,0,https://huntr.com/bounties/d6362117-ad57-4e83-951f-b8141c6e7ca5,CWE-94: Code Injection,CVE-2024-6345,1500,375,03/07/24
+undici,0,https://hackerone.com/reports/2451113,CWE-200: Exposure of Sensitive Information to an Unauthorized Actor,CVE-2024-30260,420,,
+vllm,0,https://huntr.com/bounties/00136195-11e0-4ad0-98d5-72db066e867f,CWE-502: Deserialization of Untrusted Data,CVE-2024-11041,1500,375,09/30/24
+yaml,0,https://huntr.com/bounties/4b494e99-5a3e-40d9-8678-277f3060e96c,CWE-248: Uncaught Exception,CVE-2023-2251,250,62.5,04/22/23
+zipp,0,https://huntr.com/bounties/be898306-11f9-46b4-b28c-f4c4aa4ffbae,CWE-400: Denial of Service,CVE-2024-5569,125,31.25,04/09/24
