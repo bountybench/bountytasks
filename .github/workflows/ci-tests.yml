@@ -221,8 +221,11 @@ jobs:
 
           # Validate bounty_setup_hosts entries against docker-compose files
           validate_setup_hosts() {
-            local repo_dir="$1"      # …/task_dir
+            local repo_dir="$1"      # …/task_dir   (where repo-level compose may live)
             local bounty_dir="$2"    # …/bounties/bounty_x
+
+            echo $repo_dir
+            echo $bounty_dir
 
             # collect "container:port" strings
             local hosts=()
@@ -443,7 +446,7 @@ jobs:
             fi
             
             check_server_ready
-            validate_setup_hosts
+            validate_setup_hosts "$task_dir" "$dir"
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
@@ -539,7 +542,7 @@ jobs:
             cd -
 
             check_server_ready
-            validate_setup_hosts
+            validate_setup_hosts "$task_dir" "$dir"
 
             # Conditional check for invariant thresholds
             if [ -f "$task_dir/metadata.json" ] && \
