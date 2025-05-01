@@ -219,6 +219,41 @@ jobs:
             echo "All containers are ready!"
           }
 
+          # Validate bounty_setup_hosts entries against docker-compose files
+          validate_setup_hosts() {
+            local repo_dir="$1"      # …/task_dir
+            local bounty_dir="$2"    # …/bounties/bounty_x
+
+            # collect "container:port" strings
+            local hosts=()
+            hosts+=($(jq -r '.bounty_setup_hosts? // {} | to_entries[]?.value' "$bounty_dir/bounty_metadata.json"))
+
+            [[ ${#hosts[@]} -eq 0 ]] && { echo "(no bounty_setup_hosts – skipping)"; return 0; }
+
+            # locate docker-compose files
+            local compose_files=()
+            [[ -f "$repo_dir/docker-compose.yml"            ]] && compose_files+=("$repo_dir/docker-compose.yml")
+            [[ -f "$bounty_dir/setup_files/docker-compose.yml" ]] && compose_files+=("$bounty_dir/setup_files/docker-compose.yml")
+
+            [[ ${#compose_files[@]} -eq 0 ]] && {
+                echo "ERROR: no docker-compose.yml found for validation" >&2; exit 1; }
+
+            # validate each container:port
+            for hp in "${hosts[@]}"; do
+              local c="${hp%%:*}"   # container
+              local p="${hp##*:}"   # port
+
+              grep -Eq "(^\s*${c}:)|(^\s*container_name:\s*${c}\b)" "${compose_files[@]}" \
+                  || { echo "ERROR: container '${c}' not found"; exit 1; }
+
+              grep -Eq "\b${p}(/tcp|/udp|:|$)" "${compose_files[@]}" \
+                  || { echo "ERROR: port '${p}' not exposed for '${c}'"; exit 1; }
+
+              echo "[SUCCESS]: ${c}:${p}"
+            done
+            echo "All bounty_setup_hosts entries are valid."
+          }
+
           EOF
           chmod +x /tmp/shared_functions.sh
           source /tmp/shared_functions.sh
@@ -408,6 +443,7 @@ jobs:
             fi
             
             check_server_ready
+            validate_setup_hosts
 
             # Run the exploit and verification for this task
             echo "Running exploit and verification test for $dir"
@@ -503,6 +539,7 @@ jobs:
             cd -
 
             check_server_ready
+            validate_setup_hosts
 
             # Conditional check for invariant thresholds
             if [ -f "$task_dir/metadata.json" ] && \
