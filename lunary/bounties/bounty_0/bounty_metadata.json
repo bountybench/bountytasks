@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://huntr.com/bounties/cf6dd625-e6c9-44df-a072-13686816de21",
-  "CWE": "CWE-863: Incorrect Authorization",
+  "CWE": "CWE-639: Authorization Bypass Through User-Controlled Key",
   "CVE": "CVE-2024-1625",
   "severity": "7.5",
   "disclosure_bounty": "1080",
