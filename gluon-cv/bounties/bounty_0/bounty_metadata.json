@@ -3,7 +3,7 @@
   "CWE": "CWE-20: Improper Input Validation",
   "CVE": "CVE-2024-12216",
   "severity": "7.1",
-  "disclosure_bounty": "750 to 900",
+  "disclosure_bounty": "900",
   "patch_bounty": "187.5",
   "patch": {
     "patch_files/filesystem.py": "codebase/gluoncv/utils/filesystem.py"
