@@ -1,108 +1,141 @@
 import os
 import json
 import csv
+import argparse
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import List, Dict, Any
 
-root_dir = '..'
+def bounty_iterate_parser(bounties: Dict, metadata_fields: List,
+                    root_dir: str, output_file: str) -> Dict:
+    rows = {}
+    for repo in os.listdir(root_dir):
+        repo_path = os.path.join(root_dir, repo, "bounties")
+        if repo in bounties.keys():
+            if os.path.isdir(repo_path):
+                for bounty_folder in os.listdir(repo_path):
+                    bounty_num = -1
+                    try:
+                        bounty_num = int(bounty_folder.split('_')[1])
+                    except (IndexError, ValueError):
+                        continue
 
-bounties_used = {
-    'InvokeAI': [0],
-    'LibreChat': [0, 1, 3],
-    'agentscope': [0],
-    'astropy': [0],
-    'bentoml': [0, 1],
-    'composio': [0],
-    'fastapi': [0],
-    'gluon-cv': [0],
-    'gpt_academic': [0],
-    'gradio': [0, 1, 2],
-    'gunicorn': [0],
-    'kedro': [0],
-    'lunary': [0, 1, 2],
-    'mlflow': [0, 1, 2, 3],
-    'parse-url': [0],
-    'scikit-learn': [0],
-    'setuptools': [0],
-    'undici': [0],
-    'vllm': [0],
-    'yaml': [0],
-    'zipp': [0]
-}
+                    if bounty_num in bounties[repo]:
+                        bounty_path = os.path.join(repo_path, bounty_folder)
+                        if repo not in rows.keys():
+                            rows[repo] = {}
+                        
+                        if bounty_num not in rows[repo].keys():
+                            rows[repo][str(bounty_num)] = {}
 
-output_csv = 'bounty_data.csv'
-
-# Desired fields from metadata
-metadata_fields = ["bounty_link", "CWE", "CVE", "disclosure_bounty", "patch_bounty"]
-
-# CSV Header
-csv_header = ["Repository", "Bounty Number"]
-csv_header.extend(metadata_fields)
-csv_header.append("Date")
-
-# Collect data
-rows = []
-
-for repo in os.listdir(root_dir):
-    repo_path = os.path.join(root_dir, repo, "bounties")
-    if repo in bounties_used.keys():
-        if os.path.isdir(repo_path):
-            for bounty_folder in os.listdir(repo_path):
-                try:
-                    bounty_num = int(bounty_folder.split('_')[1])
-                except (IndexError, ValueError):
-                    continue  # Skip folders that don't match the expected pattern
-
-                if bounty_num in bounties_used[repo]:
-
-                    bounty_path = os.path.join(repo_path, bounty_folder)
-
-                    metadata_values = [""] * len(metadata_fields)
-                    report_date = ""  # Default if not found
-
-                    # Get metadata from JSON
-                    metadata_path = os.path.join(bounty_path, "bounty_metadata.json")
-                    if os.path.isfile(metadata_path):
                         try:
-                            with open(metadata_path, 'r') as f:
-                                metadata = json.load(f)
-                                metadata_values = [metadata.get(field, "") for field in metadata_fields]
-                        except Exception as e:
-                            print(f"Error reading metadata from {metadata_path}: {e}")
+                            metadata_values = bounty_metadata_parser(bounty_path, metadata_fields)
+                            metadata_values.update(bounty_writeup_parser(bounty_path, metadata_fields))
+                            rows[repo][str(bounty_num)].update(metadata_values)
+                        except OSError as e:   
+                            print("Error in" + repo + " " + bounty_folder + ": " + e)
+    
 
-                    # Get date from writeup HTML
-                    writeup_path = os.path.join(bounty_path, "writeup/writeup.html")
-                    if os.path.isfile(writeup_path):
+    csv_header = ["Repository", "Bounty Number"]
+    csv_header.extend(metadata_fields)
+    save_bounties_to_sorted_csv(bounties, rows, csv_header, output_file)
+    
+    return rows
+
+
+def save_bounties_to_sorted_csv(bounties: Dict, rows: Dict, csv_header: List, output_file: str):
+
+    csv_rows = []
+    for (bounty, numbers) in bounties.items():
+        for number in numbers:
+            csv_rows.append([bounty, number])
+            csv_rows[-1].extend(f for f in rows[bounty][str(number)].values())
+
+    csv_rows.sort(key=lambda x: (x[0].lower(), int(x[1])))
+
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(csv_header)
+        writer.writerows(csv_rows)
+    
+
+def bounty_writeup_parser(bounty_path: str, metadata_fields: List) -> Dict:
+    writeup_path = os.path.join(bounty_path, "writeup/writeup.html")
+    metadata_values = {}
+    if os.path.isfile(writeup_path):
+        if 'Date' in metadata_fields:
+            try:
+                with open(writeup_path, 'r', encoding='utf-8') as f:
+                    soup = BeautifulSoup(f, 'html.parser')
+                    text = soup.get_text()
+                    
+                    date_match = re.search(r'Reported on (\w+ \d{1,2})(?:st|nd|rd|th)? (\d{4})', text)
+                    
+                    if date_match:
+                        month_day = date_match.group(1)  # e.g., 'Apr 7'
+                        year = date_match.group(2)       # e.g., '2024'
+                        date_str = f"{month_day} {year}" # 'Apr 7 2024'
+
                         try:
-                            with open(writeup_path, 'r', encoding='utf-8') as f:
-                                soup = BeautifulSoup(f, 'html.parser')
-                                text = soup.get_text()
-                                
-                                date_match = re.search(r'Reported on (\w+ \d{1,2})(?:st|nd|rd|th)? (\d{4})', text)
-                                print(date_match)
-                                
-                                if date_match:
-                                    month_day = date_match.group(1)  # e.g., 'Apr 7'
-                                    year = date_match.group(2)       # e.g., '2024'
-                                    date_str = f"{month_day} {year}" # 'Apr 7 2024'
+                            date_obj = datetime.strptime(date_str, '%b %d %Y')
+                            report_date = date_obj.strftime('%m/%d/%y')
+                            metadata_values['Date'] = report_date
+                        except ValueError:
+                            pass
 
-                                    try:
-                                        date_obj = datetime.strptime(date_str, '%b %d %Y')
-                                        report_date = date_obj.strftime('%m/%d/%y')
-                                    except ValueError:
-                                        pass
-                        except Exception as e:
-                            print(f"Error parsing writeup HTML from {writeup_path}: {e}")
+            except Exception as e:
+                print(f"Error parsing writeup HTML from {writeup_path}: {e}")
+    else:
+        raise OSError("No writeup HTML file from bounty")
+    return metadata_values
 
-                    # Build final row
-                    row = [repo, str(bounty_num)] + metadata_values + [report_date]
-                    rows.append(row)
 
-# Sort and write to CSV
-rows.sort(key=lambda x: (x[0].lower(), int(x[1])))
+def bounty_metadata_parser(bounty_path: str, metadata_fields: List) -> Dict:
+    metadata_path = os.path.join(bounty_path, "bounty_metadata.json")
+    metadata_values = {}
+    try:
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        metadata_values = {field: metadata[field] for field in metadata_fields 
+                            if field in metadata.keys()}
+    except OSError:
+        raise OSError("Could not find bounty metadata for bounty")
 
-with open(output_csv, 'w', newline='', encoding='utf-8') as f:
-    writer = csv.writer(f)
-    writer.writerow(csv_header)
-    writer.writerows(rows)
+    return metadata_values
+
+def save_bounty_metadata(root_dir: str, output_csv: str):
+    bounties_used = {
+        'InvokeAI': [0],
+        'LibreChat': [0, 1, 3],
+        'agentscope': [0],
+        'astropy': [0],
+        'bentoml': [0, 1],
+        'composio': [0],
+        'fastapi': [0],
+        'gluon-cv': [0],
+        'gpt_academic': [0],
+        'gradio': [0, 1, 2],
+        'gunicorn': [0],
+        'kedro': [0],
+        'lunary': [0, 1, 2],
+        'mlflow': [0, 1, 2, 3],
+        'parse-url': [0],
+        'scikit-learn': [0],
+        'setuptools': [0],
+        'undici': [0],
+        'vllm': [0],
+        'yaml': [0],
+        'zipp': [0]
+    }
+    metadata_fields = ["bounty_link", "CWE", "CVE", "disclosure_bounty", "patch_bounty", "Date"]
+
+    rows = bounty_iterate_parser(bounties_used, metadata_fields, "..", output_csv)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Scrape CSV metadata")
+    parser.add_argument('--root_dir', default='..', help='relative location to bounties')
+    parser.add_argument('--output_file_path', default='bounty_data.csv', help='where the csv will be created')
+    args = parser.parse_args()
+
+    save_bounty_metadata(args.root_dir, args.output_file_path)
