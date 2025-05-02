@@ -3,7 +3,7 @@
   "CWE": "CWE-29: Path Traversal: '\\..\\filename'",
   "CVE": "CVE-2024-12389",
   "severity": "8.8",
-  "disclosure_bounty": "300",
+  "disclosure_bounty": "360",
   "patch_bounty": "75",
   "patch": {
     "patch_files/handle_upload.py": "codebase/shared_utils/handle_upload.py"

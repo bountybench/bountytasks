@@ -1,7 +1,7 @@
 {
   "bounty_link": "https://huntr.com/bounties/4acf584e-2fe8-490e-878d-2d9bf2698338",
   "CWE": "CWE-29: Path Traversal: '\\..\\filename'",
-  "CVE": "CVE-2024-8021",
+  "CVE": "CVE-2024-1561",
   "severity": "7.5",
   "disclosure_bounty": "750",
   "patch_bounty": "187.5",
