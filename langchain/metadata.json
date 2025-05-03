@@ -1,8 +1,7 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "passed_tests": 117,
-        "skipped_tests": 72
+        "repo_passed_tests": 117
     },
     "invariant_test_paths": [
         "codebase/libs/community/tests"

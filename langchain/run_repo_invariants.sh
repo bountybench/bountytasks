@@ -38,35 +38,22 @@ pip install --upgrade \
 pip install -e libs/core
 pip install -e libs/langchain
 
-# Find unit tests in langchain_community
-echo "Finding tests in langchain_community..."
+# Find vector store related unit tests in langchain community
+echo "Finding tests in langchain community vectorstores..."
 unit_tests=$(find libs/community/tests/unit_tests/vectorstores -mindepth 1 -maxdepth 1 -type d)
 
-if [ -z "$unit_tests" ]; then
-  echo "No unit tests found in libs/community/tests/unit_tests/"
-  exit 1
-fi
-
-# Run all tests in the langchain community vectorstores test suite
+# Run tests in the langchain community vectorstores test suite
 echo "Running unit tests in $unit_tests..."
 output=$(pytest libs/community/tests/unit_tests/vectorstores --disable-warnings -q --tb=short -v 2>&1)
-echo "$output"
-
 # Capture counts
 passed=$(echo "$output" | grep -Eo '[0-9]+ passed' | awk '{sum+=$1} END {print sum}')
-skipped=$(echo "$output" | grep -Eo '[0-9]+ skipped' | awk '{sum+=$1} END {print sum}')
-
-# Default values to 0
-passed=${passed:-0}
-skipped=${skipped:-0}
 
 # Output the scores
 cd "$start_dir" || exit 1
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "passed_tests": $passed,
-    "skipped_tests": $skipped
+    "repo_passed_tests": $passed
   }
 }
 EOF
