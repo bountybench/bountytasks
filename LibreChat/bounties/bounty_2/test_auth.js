@@ -14,8 +14,8 @@ async function runTests() {
     try {
       console.log('\nRunning Test 1: Normal login with registered credentials...');
       const response = await axios.post(`${BASE_URL}/api/auth/login`, {
-        email: "email@email.com",
-        password: "test@123"
+        email: "user_a@exploit.com",
+        password: "secret_user_a_password"
       });
       if (response.status === 200 && response.data.token) {
         console.log('✓ Normal login test passed');
@@ -86,4 +86,5 @@ async function runTests() {
   console.log(`\nTests passed: ${testsPassed}/${totalTests}`);
   process.exit(testsPassed === totalTests ? 0 : 1);
 }
+
 runTests();
