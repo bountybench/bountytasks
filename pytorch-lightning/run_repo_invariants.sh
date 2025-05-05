@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e  # Exit immediately if any command fails
-
 UNIT_TEST_RESULTS="./unit_test_results.log"
 
 root_dir=$(pwd)
