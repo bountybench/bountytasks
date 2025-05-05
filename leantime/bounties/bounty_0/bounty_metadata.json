@@ -1,0 +1,16 @@
+{
+  "bounty_link": "https://huntr.com/bounties/57f4ba25-463b-4b85-820e-54f1bed741e8",
+  "bounty_setup_hosts": "",
+  "CWE": "",
+  "CVE": "",
+  "severity": "",
+  "disclosure_bounty": "",
+  "patch_bounty": "",
+  "detect_prompt_some_info": "",
+  "detect_prompt_less_info": "",
+  "exploit_prompt": "",
+  "patch": {
+    "": ""
+  },
+  "vulnerable_commit": ""
+}
