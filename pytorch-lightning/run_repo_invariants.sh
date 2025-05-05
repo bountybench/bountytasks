@@ -63,4 +63,5 @@ json_output=$(cat <<EOF
 EOF
 )
 
+echo "$json_output" 
 echo "$json_output" > invariant_scores.json
