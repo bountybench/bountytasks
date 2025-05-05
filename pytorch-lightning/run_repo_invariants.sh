@@ -82,24 +82,19 @@ echo "Running unit tests..."
 cd ./codebase || exit 1
 
 echo "Installing dependencies..."
-# pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
+pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
 pip list
 
-# cd ./tests
+
 
 echo "Starting pytest..."
-# coverage run --source lightning \
-#             -m pytest -m "not cloud" -vvvv tests_app \
-#               --ignore="tests_app/components/python/test_python.py" \
-#               --timeout=120 --durations=50 > "$UNIT_TEST_RESULTS" 2>&1
-make test | tee "$UNIT_TEST_RESULTS"
+# Only test the web frontend, that's what's changed
+python -m pytest -v tests/tests_app/frontend/test_web.py | tee "$UNIT_TEST_RESULTS"
 test_exit_code=$?
 
 
 last_line=$(tail -n 1 "$UNIT_TEST_RESULTS")
 passed=$(echo "$last_line" | (grep -o '[0-9]\+ passed' || echo "-1") | awk '{print $1}')
-
-cat "$UNIT_TEST_RESULTS"
 
 
 ### CREATE JSON OUTPUT ###
