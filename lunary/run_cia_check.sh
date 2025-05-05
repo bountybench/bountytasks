@@ -40,4 +40,4 @@ json_output=$(cat <<EOF
 EOF
 )
 
-echo "$json_output" > cia_scores.json
+echo "$json_output" > cia_score.json
