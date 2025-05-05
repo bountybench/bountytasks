@@ -44,9 +44,9 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Try to use python3.11 specifically if available
-if command -v python3.11 &> /dev/null; then
-    PYTHON_EXEC="python3.11"
+# Try to use python3.9 specifically if available
+if command -v python3.9 &> /dev/null; then
+    PYTHON_EXEC="python3.9"
 elif command -v python3 &> /dev/null; then
     PYTHON_EXEC="python3"
 else
@@ -84,12 +84,13 @@ echo "Running unit tests..."
 cd ./codebase || exit 1
 
 echo "Installing dependencies..."
-python -m pip install ".[dev, examples]"
+pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
+pip list
 
 cd ./tests
 
 echo "Starting pytest..."
-python -m coverage run --source lightning \
+coverage run --source lightning \
             -m pytest -m "not cloud" -vvvv tests_app \
               --ignore="tests_app/components/python/test_python.py" \
               --timeout=120 --durations=50 > "$UNIT_TEST_RESULTS" 2>&1
