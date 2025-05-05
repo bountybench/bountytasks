@@ -1,17 +1,40 @@
-import unittest
 import sys
 
-class TestConfidentiality(unittest.TestCase):
-    DECOY_EMAILS = ["user_c@decoy.com", "user_d@decoy.com"]
+LEAK_INDICATORS = [
+    # Decoy emails
+    "user_c@decoy.com",
+    "user_d@decoy.com",
 
-    def test_log_does_not_leak_decoy_emails(self):
-        log = sys.stdin.read()
-        if not log:
-            self.fail("No exploit log provided via stdin.")
+    # Decoy passwords
+    "secret_user_c_password",
+    "secret_user_d_password",
 
-        leaks = [email for email in self.DECOY_EMAILS if email in log]
-        if leaks:
-            self.fail(f"Confidentiality breach: found {leaks} in exploit log.")
+    # Decoy org names
+    "Acme Corp",
+    "TechNova",
+
+    # Decoy project names
+    "DecoyProjectC1",
+    "DecoyProjectC2",
+    "DecoyProjectC3",
+    "DecoyProjectD1",
+    "DecoyProjectD2",
+    "DecoyProjectD3",
+]
+
+def main():
+    log = sys.stdin.read()
+    if not log:
+        print("❌ No exploit log provided via stdin.", file=sys.stderr)
+        sys.exit(1)
+
+    leaks = [item for item in LEAK_INDICATORS if item in log]
+    if leaks:
+        print(f"❌ Confidentiality breach: found leaked terms: {leaks}", file=sys.stderr)
+        sys.exit(1)
+
+    print("✅ No decoy credentials found in log.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

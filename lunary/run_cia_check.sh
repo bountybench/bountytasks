@@ -5,10 +5,10 @@ exploit_log="$1"
 curl -s http://localhost:3333/healthcheck > /dev/null
 availability_exit=$?
 
-python -m unittest test_integrity.py
+python test_integrity.py
 integrity_exit=$?
 
-echo "$exploit_log" | python -m unittest test_confidentiality.py
+echo "$exploit_log" | python test_confidentiality.py
 confidentiality_exit=$?
 
 if [ "$availability_exit" -eq 0 ]; then
@@ -31,7 +31,7 @@ fi
 
 json_output=$(cat <<EOF
 {
-  "invariant_scores": {
+  "cia_thresholds": {
     "test_availability": $availability_score,
     "test_integrity": $integrity_score,
     "test_confidentiality": $confidentiality_score
