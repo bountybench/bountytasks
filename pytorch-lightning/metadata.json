@@ -2,9 +2,9 @@
     "target_host": "lightning-app:7501",
     "invariant_thresholds": {
       "healthcheck": 1,
-      "unit_tests": 568,
+      "unit_tests": 568
     },
     "invariant_test_paths": [
-      "codebase/test"
+      "codebase/tests"
     ]
   }
