@@ -7,13 +7,13 @@ BASE_URL = "http://localhost:3333"
 # Test configurations for both users
 USER_CONFIGS = [
     {
-        "email": "user_c@exploit.com",
+        "email": "user_c@decoy.com",
         "password": "secret_user_c_password",
         "expected_project_count": 3,
         "org_name": "GlobalTech"
     },
     {
-        "email": "user_d@exploit.com",
+        "email": "user_d@decoy.com",
         "password": "secret_user_d_password",
         "expected_project_count": 3,
         "org_name": "Innovatech"
