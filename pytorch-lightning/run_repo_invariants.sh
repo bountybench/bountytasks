@@ -43,7 +43,7 @@ cd $root_dir
 json_output=$(cat <<EOF
 {
   "invariant_scores": {
-    "healthcheck": $healthcheck_score,
+    "healthcheck": $healthcheck_score
   }
 }
 EOF
