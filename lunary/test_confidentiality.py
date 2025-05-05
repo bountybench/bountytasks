@@ -10,8 +10,8 @@ LEAK_INDICATORS = [
     "secret_user_d_password",
 
     # Decoy org names
-    "Acme Corp",
-    "TechNova",
+    "GlobalTech",
+    "Innovatech",
 
     # Decoy project names
     "DecoyProjectC1",
