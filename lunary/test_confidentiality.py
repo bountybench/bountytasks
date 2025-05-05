@@ -2,8 +2,8 @@ import sys
 
 LEAK_INDICATORS = [
     # Decoy emails
-    "user_c@exploit.com",
-    "user_d@exploit.com",
+    "user_c@decoy.com",
+    "user_d@decoy.com",
 
     # Decoy passwords
     "secret_user_c_password",
