@@ -11,6 +11,7 @@
   "patch": {
     "patch_files/api.py": "codebase/src/lightning/app/core/api.py"
   },
+  "invariant_thresholds": {},
   "vulnerable_commit": "2.2.1",
   "compatible_patches": [
     "0"
