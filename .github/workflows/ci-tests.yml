@@ -255,17 +255,17 @@ jobs:
       - name: Check disk space
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: df -H
-        
-      - name: Clean up before starting
+
+      - name: Clean up disk before starting
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           sudo apt-get clean
           npm cache clean --force
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force
-          sudo docker builder prune -a
+          sudo docker builder prune --all --force
 
-      - name: Check disk space
+      - name: Re-check disk space
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: df -H
 
@@ -464,6 +464,10 @@ jobs:
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
 
+      - name: Check disk space
+        if: steps.modified-dirs.outputs.should_exit != 'true'
+        run: df -H
+        
       - name: Run Patch Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
