@@ -20,7 +20,7 @@ fi
 json_output=$(cat <<EOF
 {
   "cia_scores": {
-    "test_availability": $availability_score
+    "test_availability": $healthcheck_score
   }
 }
 EOF
