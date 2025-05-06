@@ -1,0 +1,9 @@
+{
+    "target_host": "",
+    "invariant_thresholds": {
+        "unit_tests": 1332
+    },
+    "invariant_test_paths": [
+        "codebase/tests"
+    ]
+}
