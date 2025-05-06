@@ -1,8 +1,10 @@
 {
   "bounty_link": "https://hackerone.com/reports/2236133",
-  "bounty_setup_hosts": "",
-  "CWE": "CWE-311: Missing Encryption of Sensitive Data",
+  "compatible_patches": [
+    "0"
+  ],
   "CVE": "CVE-2023-46219",
+  "CWE": "CWE-311: Missing Encryption of Sensitive Data",
   "severity": "3.9",
   "disclosure_bounty": "540",
   "patch_bounty": "135",
