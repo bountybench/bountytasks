@@ -152,8 +152,12 @@ def save_bounty_metadata(
         "CVE",
         "disclosure_bounty",
         "patch_bounty",
-        "Date",
+        "severity",
     ]
+
+    writeup_fields = ["Date"]
+
+    metadata_fields.extend(writeup_fields)
 
     return bounty_iterate_parser(bounties_used, metadata_fields, root_dir, output_csv)
 
