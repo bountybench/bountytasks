@@ -34,7 +34,7 @@ def bounty_iterate_parser(
                             rows[repo] = {}
 
                         if bounty_num not in rows[repo].keys():
-                            rows[repo][str(bounty_num)] = {}
+                            rows[repo][bounty_num] = {}
 
                         try:
                             metadata_values = bounty_metadata_parser(
@@ -43,9 +43,11 @@ def bounty_iterate_parser(
                             metadata_values.update(
                                 bounty_writeup_parser(bounty_path, metadata_fields)
                             )
-                            rows[repo][str(bounty_num)].update(metadata_values)
+                            rows[repo][bounty_num].update(metadata_values)
                         except OSError as e:
-                            print("Error in" + repo + " " + bounty_folder + ": " + e)
+                            print(
+                                "Error in" + repo + " " + bounty_folder + ": " + str(e)
+                            )
 
     csv_header = ["Repository", "Bounty Number"]
     csv_header.extend(metadata_fields)
@@ -63,9 +65,11 @@ def save_bounties_to_sorted_csv(
 
     csv_rows = []
     for bounty, numbers in bounties.items():
-        for number in numbers:
-            csv_rows.append([bounty, number])
-            csv_rows[-1].extend(f for f in rows[bounty][str(number)].values())
+        if bounty in rows.keys():
+            for number in numbers:
+                if number in rows[bounty].keys():
+                    csv_rows.append([bounty, number])
+                    csv_rows[-1].extend(f for f in rows[bounty][number].values())
 
     csv_rows.sort(key=lambda x: (x[0].lower(), int(x[1])))
 
@@ -126,40 +130,22 @@ def bounty_metadata_parser(bounty_path: str, metadata_fields: List) -> Dict:
             for field in metadata_fields
             if field in metadata.keys()
         }
-    except OSError:
+    except (OSError, json.JSONDecodeError):
         raise OSError("Could not find bounty metadata for bounty")
 
     return metadata_values
 
 
-def save_bounty_metadata(root_dir: str, output_csv: str):
+def save_bounty_metadata(
+    root_dir: str, output_csv: str, bounty_list: str = "bounty_list.json"
+) -> Dict:
     """
     Uses the set of 32 bounties as determined by the spreadsheet,
     and the headers of the data table we want to include to generate the table
     """
-    bounties_used = {
-        "InvokeAI": [0],
-        "LibreChat": [0, 1, 3],
-        "agentscope": [0],
-        "astropy": [0],
-        "bentoml": [0, 1],
-        "composio": [0],
-        "fastapi": [0],
-        "gluon-cv": [0],
-        "gpt_academic": [0],
-        "gradio": [0, 1, 2],
-        "gunicorn": [0],
-        "kedro": [0],
-        "lunary": [0, 1, 2],
-        "mlflow": [0, 1, 2, 3],
-        "parse-url": [0],
-        "scikit-learn": [0],
-        "setuptools": [0],
-        "undici": [0],
-        "vllm": [0],
-        "yaml": [0],
-        "zipp": [0],
-    }
+    with open(bounty_list, "r") as f:
+        bounties_used = json.load(f)
+
     metadata_fields = [
         "bounty_link",
         "CWE",
@@ -169,12 +155,14 @@ def save_bounty_metadata(root_dir: str, output_csv: str):
         "Date",
     ]
 
-    rows = bounty_iterate_parser(bounties_used, metadata_fields, "..", output_csv)
+    return bounty_iterate_parser(bounties_used, metadata_fields, root_dir, output_csv)
 
 
 if __name__ == "__main__":
     """
     This allows you to specify the input/output file paths to generate the CSV
+
+    You can generate the CSV in this folder by navigating to the table director and running python extract_bounty_info.py.
     """
     parser = argparse.ArgumentParser(description="Scrape CSV metadata")
     parser.add_argument(
@@ -187,4 +175,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    save_bounty_metadata(args.root_dir, args.output_file_path)
+    # Can use the JSON format of the rows if wanted as well
+    rows = save_bounty_metadata(args.root_dir, args.output_file_path)
