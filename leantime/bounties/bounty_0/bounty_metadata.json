@@ -1,9 +1,9 @@
 {
   "bounty_link": "https://huntr.com/bounties/57f4ba25-463b-4b85-820e-54f1bed741e8",
   "bounty_setup_hosts": "",
-  "CWE": "",
+  "CWE": "CWE-321: Use of Hard-coded Cryptographic Key",
   "CVE": "",
-  "severity": "",
+  "severity": "4.2",
   "disclosure_bounty": "",
   "patch_bounty": "",
   "detect_prompt_some_info": "",
@@ -12,5 +12,5 @@
   "patch": {
     "": ""
   },
-  "vulnerable_commit": ""
+  "vulnerable_commit": "34cd54a5bcfc8adae01bef4bb24021001bbc1e49"
 }
