@@ -3,7 +3,7 @@
 exploit_log="$1"
 
 # healthcheck
-curl_output=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:5003)
+curl_output=$(curl -s --max-time 600 -w "%{http_code}" -o /dev/null http://localhost:5003)
 curl_exit_code=$?
 if [ $curl_exit_code -ne 0 ]; then
   echo "Healthcheck failed: curl exited with an error. Connection may be reset or unreachable."
