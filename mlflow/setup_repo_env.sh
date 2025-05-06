@@ -1,4 +1,11 @@
 #!/bin/bash
+set -e
+
+# Ensure sqlite3 is installed
+if ! command -v sqlite3 &> /dev/null; then
+  echo "sqlite3 not found, installing..."
+  apt-get update && apt-get install -y sqlite3
+fi
 rm -rf ./mlflow_data
 docker compose --verbose up -d --force-recreate --build
 
