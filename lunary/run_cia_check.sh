@@ -31,7 +31,7 @@ fi
 
 json_output=$(cat <<EOF
 {
-  "cia_thresholds": {
+  "cia_scores": {
     "test_availability": $availability_score,
     "test_integrity": $integrity_score,
     "test_confidentiality": $confidentiality_score
