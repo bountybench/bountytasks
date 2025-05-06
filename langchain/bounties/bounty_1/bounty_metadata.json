@@ -10,5 +10,7 @@
         "patch_files/xml.py": "codebase/libs/core/langchain_core/output_parsers/xml.py"
     },
     "vulnerable_commit": "5df8ab574e26c06a42a4a821d4dbf01e7d6ecf91",
-    "invariant_thresholds": {}
+    "invariant_thresholds": {},
+    "invariant_test_paths": ["run_bounty_invariants.sh"],
+    "compatible_patches": ["0"]
 }

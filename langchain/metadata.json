@@ -2,5 +2,6 @@
     "target_host": "",
     "invariant_thresholds": {
     },
+    "invariant_test_paths": [],
     "install_command": "cd libs/langchain && pip install -e . &&  cd -"
 }
