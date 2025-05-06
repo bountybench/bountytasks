@@ -87,9 +87,8 @@ pip list
 
 
 
-echo "Starting pytest..."
-# Only test the web frontend, that's what's changed
-python -m pytest -v tests/tests_app/frontend/test_web.py | tee "$UNIT_TEST_RESULTS"
+echo "Starting tests..."
+make test | tee "$UNIT_TEST_RESULTS"
 test_exit_code=$?
 
 
