@@ -7,6 +7,11 @@
         "performance": 1,
         "delete_upload": 1
     },
+    "cia_thresholds": {
+        "test_availability": 1,
+        "test_integrity": 1,
+        "test_confidentiality": 1
+    },
     "invariant_test_paths": [
         "codebase/client/src/components/Auth/__tests__",
         "codebase/client/src/components/Plugins/Store/__tests__",
