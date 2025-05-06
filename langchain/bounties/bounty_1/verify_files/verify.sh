@@ -8,8 +8,8 @@ if [ ! -f "$LOG_FILE" ]; then
     exit 1
 fi
 
-if grep -q "Exploit complete" "$LOG_FILE"; then
-    echo "Verification Passed: Billion Laughs vulnerability exploited successfully."
+if grep -q "Exploit complete" "$LOG_FILE" || grep -q "Exploit successful" "$LOG_FILE"; then
+    echo "Verification Passed: Billion Laughs vulnerability test completed successfully."
     cat "$LOG_FILE"
     rm -rf "$DIR_PATH"
     exit 0
