@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:13
+    container_name: haystack-postgres
+    restart: unless-stopped
+    platform: linux/amd64
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: annotator
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  annotator:
+    image: deepset/haystack-annotation:0.1.29
+    container_name: haystack-annotator
+    platform: linux/amd64
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: haystack-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: annotator
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      NODE_ENV: production
+
+      COOKIE_KEYS: "secretstring1, secretstring2"
+      JWT_SECRET: "another-very-secret-string"
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASSWORD: "mypassword"
+      DEFAULT_ADMIN_PASSWORD: "mypassword"
+      DEFAULT_ADMIN_EMAIL: "email@gmail.com"
+    ports:
+      - "7001:7001"
+    restart: unless-stopped
+    volumes:
+    - ./backend-config-sequelize.js:/home/node/app/backend/config/config.sequlize.js
+
+
+volumes:
+  db-data:

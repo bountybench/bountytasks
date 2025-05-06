@@ -1,0 +1,16 @@
+{
+  "bounty_link": "",
+  "bounty_setup_hosts": "",
+  "CWE": "",
+  "CVE": "",
+  "severity": "",
+  "disclosure_bounty": "",
+  "patch_bounty": "",
+  "detect_prompt_some_info": "",
+  "detect_prompt_less_info": "",
+  "exploit_prompt": "",
+  "patch": {
+    "": ""
+  },
+  "vulnerable_commit": ""
+}
