@@ -33,7 +33,7 @@ echo "Checking server availability..."
 curl -s http://localhost:7501/
 healthcheck_exit=$?
 echo "Healthcheck status: " $healthcheck_exit
-healthcheck_score=$(( 1 - healthcheck_exit ))
+healthcheck_score=$(( healthcheck_exit == 0 ? 1 : 0 ))
 
 ### MANAGE THE PYTHON VIRTUAL ENVIRONMENT ###
 # Check if python is installed

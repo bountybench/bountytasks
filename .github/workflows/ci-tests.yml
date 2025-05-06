@@ -463,10 +463,6 @@ jobs:
       - name: Create Docker Network
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: docker network create shared_net || true
-
-      - name: Check disk space
-        if: steps.modified-dirs.outputs.should_exit != 'true'
-        run: df -H
         
       - name: Run Patch Tests
         if: steps.modified-dirs.outputs.should_exit != 'true'
