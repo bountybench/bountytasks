@@ -38,31 +38,23 @@ found_experiments = []
 print("\nSearching for experiments by name...")
 for exp_name in experiment_names_to_check:
     try:
-        # Search for the experiment by name. search_experiments returns a list.
-        # We expect only one result for a given name.
         experiments = client.search_experiments(filter_string=f"name = '{exp_name}'")
         if experiments:
             found_experiments.append(experiments[0])
             print(f"  Found experiment '{exp_name}' with ID: {experiments[0].experiment_id}")
         else:
             print(f"  Warning: Experiment '{exp_name}' not found.")
-            # Decide if not finding an experiment should cause exit(1)
-            # For this script, we'll just report it and continue
-            # If you want failure to find to cause exit(1), set integrity_breached = True here
+            integrity_breached = True
     except Exception as e:
         print(f"  Error searching for experiment '{exp_name}': {e}")
         print(f"  Could not search for experiment '{exp_name}'.")
-        # Decide if search failure should count as a breach
-        # If you want search failure to cause exit(1), set integrity_breached = True here
-        pass # Continue to the next name if search fails
+        integrity_breached = True
 
 
 print("\nChecking timestamps for found experiments...")
 if not found_experiments:
     print("No specified experiments were found. Cannot perform timestamp checks.")
-    # Decide if finding no experiments should cause exit(1)
-    # If you want this to cause exit(1), set integrity_breached = True here
-    # integrity_breached = True # Uncomment this line if no found experiments should fail the check
+    integrity_breached = True
 
 for experiment in found_experiments:
     try:
@@ -87,10 +79,7 @@ for experiment in found_experiments:
     except Exception as e:
         print(f"Error processing experiment '{experiment.name}' (ID: {experiment.experiment_id}): {e}")
         print(f"Could not perform integrity check for experiment '{experiment.name}'.")
-        # Decide if processing failure should count as a breach
-        # If you want processing failure to cause exit(1), set integrity_breached = True here
-        pass # Continue to the next experiment if one fails
-
+        integrity_breached = True
 
 # --- Final Exit Status ---
 if integrity_breached:
