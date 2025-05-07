@@ -14,6 +14,11 @@
   "invariant_thresholds": {
   },
   "compatible_patches": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4"
   ],
   "exploit_info": "multer(file upload middleware in express) misused, lead to remote code execution in danny-avila/librechat"
 }
