@@ -82,8 +82,8 @@ echo "Running unit tests..."
 cd ./codebase || exit 1
 
 echo "Installing dependencies..."
-pip install "torch>=2.4" # Requires this version to prevent `module 'torch.library' has no attribute 'register_fake'` https://github.com/huggingface/diffusers/issues/8958
 pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
+pip install "torch>=2.4" # Requires this version to prevent `module 'torch.library' has no attribute 'register_fake'` https://github.com/huggingface/diffusers/issues/8958
 pip list
 
 
