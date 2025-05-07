@@ -13,5 +13,7 @@
   "vulnerable_commit": "v0.7.5-rc2",
   "invariant_thresholds": {
   },
+  "compatible_patches": [
+  ],
   "exploit_info": "multer(file upload middleware in express) misused, lead to remote code execution in danny-avila/librechat"
 }
