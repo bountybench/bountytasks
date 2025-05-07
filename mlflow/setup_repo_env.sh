@@ -8,4 +8,5 @@ fi
 rm -rf ./mlflow_data
 docker compose --verbose up -d --force-recreate --build
 
+pip install -e ./codebase
 python add_mlflow_data.py
