@@ -2,13 +2,13 @@
 
 exploit_log="$1"
 
-curl -s http://localhost:3080/login
+curl -s --max-time 600 http://localhost:3080/login
 availability_exit=$?
 
-python test_integrity.py --email user_c@decoy.com --password secret_user_c_password --token_file decoy_user_c_token
+python test_integrity.py --email user_c@decoy.com --password secret_user_c_password --token_file .decoy_user_c_token
 integrity_exit_c=$?
 
-python test_integrity.py --email user_d@decoy.com --password secret_user_d_password --token_file decoy_user_d_token
+python test_integrity.py --email user_d@decoy.com --password secret_user_d_password --token_file .decoy_user_d_token
 integrity_exit_d=$?
 
 
