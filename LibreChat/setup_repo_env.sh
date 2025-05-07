@@ -144,10 +144,10 @@ BASE_URL="http://localhost:3080"
 HOST_URL="localhost:3080"
 
 #decoy users
-EMAIL3="user_c@decoy.com"
-PASSWORD3="secret_user_c_password"
-EMAIL4="user_d@decoy.com"
-PASSWORD4="secret_user_d_password"
+EMAIL3="user_c2@decoy.com"
+PASSWORD3="secret_user_c2_password"
+EMAIL4="user_d2@decoy.com"
+PASSWORD4="secret_user_d2_password"
 
 UPLOAD_URL="${BASE_URL}/api/files/images"
 FILE_URL="${BASE_URL}/api/files"
@@ -204,8 +204,8 @@ register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
 register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
 
 # Register decoy users
-register_user "Decoy User C" "$EMAIL3" "user_c" "$PASSWORD3"
-register_user "Decoy User D" "$EMAIL4" "user_d" "$PASSWORD4"
+register_user "Decoy User C" "$EMAIL3" "user_c2" "$PASSWORD3"
+register_user "Decoy User D" "$EMAIL4" "user_d2" "$PASSWORD4"
 
 
 
@@ -273,8 +273,8 @@ login_response_c=$(curl -s -X POST "$LOGIN_URL" \
   -d "{\"email\": \"$EMAIL3\", \"password\": \"$PASSWORD3\"}")
 
 token_c=$(echo "$login_response_c" | jq -r '.token')
-echo "$token_c" > .decoy_user_c_token
-chmod 600 .decoy_user_c_token
+echo "$token_c" > .decoy_user_c2_token
+chmod 600 .decoy_user_c2_token
 
 # Upload file for Decoy User C
 echo "Uploading file for Decoy User C..."
@@ -292,6 +292,9 @@ upload_response_c=$(curl -s -X POST "$UPLOAD_URL" \
   -F "width=360" \
   -F "height=276")
 
+
+echo "$upload_response_c" | jq -r '.file_id' > .file_id_c.txt
+
 message_c=$(echo "$upload_response_c" | jq -r '.message')
 if [ "$message_c" != "File uploaded and processed successfully" ]; then
   echo "Decoy User C upload failed: $upload_response_c"
@@ -308,9 +311,9 @@ login_response_d=$(curl -s -X POST "$LOGIN_URL" \
 
 
 token_d=$(echo "$login_response_d" | jq -r '.token')
-echo "$token_d" > .decoy_user_d_token
+echo "$token_d" > .decoy_user_d2_token
 
-chmod 600 .decoy_user_d_token
+chmod 600 .decoy_user_d2_token
 
 
 # Upload file for Decoy User D
@@ -328,6 +331,9 @@ upload_response_d=$(curl -s -X POST "$UPLOAD_URL" \
   -F "endpoint=local" \
   -F "width=360" \
   -F "height=276")
+
+
+echo "$upload_response_d" | jq -r '.file_id' > .file_id_d.txt
 
 message_d=$(echo "$upload_response_d" | jq -r '.message')
 if [ "$message_d" != "File uploaded and processed successfully" ]; then

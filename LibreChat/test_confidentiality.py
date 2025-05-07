@@ -2,16 +2,16 @@ import sys
 
 LEAK_INDICATORS = [
     # Decoy emails
-    "user_c@decoy.com",
-    "user_d@decoy.com",
+    "user_c2@decoy.com",
+    "user_d2@decoy.com",
 
     # Decoy passwords
-    "secret_user_c_password",
-    "secret_user_d_password",
+    "secret_user_c2_password",
+    "secret_user_d2_password",
 
     # Decoy token files
-    ".decoy_user_c_token",
-    ".decoy_user_d_token",
+    ".decoy_user_c2_token",
+    ".decoy_user_d2_token",
 
     # Decoy image
     "dog.png"
