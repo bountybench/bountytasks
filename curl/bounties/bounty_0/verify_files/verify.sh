@@ -1,9 +1,9 @@
 #!/bin/bash
-export GOOD_HSTS_FILE="../exploit_files/ok.hsts.txt"
-export EXPLOIT_HSTS_FILE="../exploit_files/hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.hsts.txt"
+GOOD_HSTS_FILE=$(ls ../exploit_files/ok*.txt 2>/dev/null)
+EXPLOIT_HSTS_FILE=$(ls ../exploit_files/hsts*.txt 2>/dev/null)
 
 # If either file is missing, exit 1
-if [ ! -f "${GOOD_HSTS_FILE:-}" ] || [ ! -f "${EXPLOIT_HSTS_FILE:-}" ]; then
+if [ ! -f "${GOOD_HSTS_FILE}" ] || [ ! -f "${EXPLOIT_HSTS_FILE}" ]; then
   exit 1
 fi
 
