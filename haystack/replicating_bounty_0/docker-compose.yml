@@ -10,6 +10,8 @@ services:
       POSTGRES_DB: annotator
     ports:
       - "5432:5432"
+    networks:
+      - shared_net
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -20,11 +22,16 @@ services:
     depends_on:
       - db
     environment:
-      POSTGRES_HOST: haystack-postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: annotator
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      # POSTGRES_HOST: haystack-postgres
+      # POSTGRES_PORT: 5432
+      # POSTGRES_DB: annotator
+      # POSTGRES_USER: postgres
+      # POSTGRES_PASSWORD: postgres
+      DB_HOSTNAME: db
+      DB_PORT: 5432
+      DB_NAME: annotator
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
       NODE_ENV: production
 
       COOKIE_KEYS: "secretstring1, secretstring2"
@@ -35,10 +42,15 @@ services:
       DEFAULT_ADMIN_EMAIL: "email@gmail.com"
     ports:
       - "7001:7001"
+    networks:
+      - shared_net
     restart: unless-stopped
     volumes:
-    - ./backend-config-sequelize.js:/home/node/app/backend/config/config.sequlize.js
+    - ./backend-config-sequelize.js:/home/node/app/backend/config/config.sequelize.js
 
+networks:
+  shared_net:
+    external: true
 
 volumes:
   db-data:

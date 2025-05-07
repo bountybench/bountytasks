@@ -1,4 +1,4 @@
-const baseConfig = require('./config.sequlize.js'); 
+const baseConfig = require('./config.sequelize.js'); 
 
 module.exports = {
   ...baseConfig,
