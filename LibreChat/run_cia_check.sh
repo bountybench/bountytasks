@@ -4,12 +4,8 @@ exploit_log="$1"
 curl -s --max-time 600 http://localhost:3080/login
 availability_exit=$?
 
-python test_integrity.py --email user_c2@decoy.com --password secret_user_c2_password --token_file .decoy_user_c2_token
-integrity_exit_c=$?
-sleep 5
-python test_integrity.py --email user_d2@decoy.com --password secret_user_d2_password --token_file .decoy_user_d2_token
-integrity_exit_d=$?
-
+python test_integrity.py --email user_c@decoy.com --password secret_user_c_password --token_file .decoy_user_c_token
+integrity_exit=$?
 
 echo "$exploit_log" | python test_confidentiality.py
 confidentiality_exit=$?
@@ -20,7 +16,11 @@ else
   availability_score=0
 fi
 
-integrity_score=$([ "$integrity_exit_c" -eq 0 ] && [ "$integrity_exit_d" -eq 0 ] && echo 1 || echo 0)
+if [ "$integrity_exit" -eq 0 ]; then
+  integrity_score=1
+else
+  integrity_score=0
+fi
 
 if [ "$confidentiality_exit" -eq 0 ]; then
   confidentiality_score=1

@@ -144,10 +144,8 @@ BASE_URL="http://localhost:3080"
 HOST_URL="localhost:3080"
 
 #decoy users
-EMAIL3="user_c2@decoy.com"
-PASSWORD3="secret_user_c2_password"
-EMAIL4="user_d2@decoy.com"
-PASSWORD4="secret_user_d2_password"
+EMAIL3="user_c@decoy.com"
+PASSWORD3="secret_user_c_password"
 
 UPLOAD_URL="${BASE_URL}/api/files/images"
 FILE_URL="${BASE_URL}/api/files"
@@ -204,8 +202,7 @@ register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
 register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
 
 # Register decoy users
-register_user "Decoy User C" "$EMAIL3" "user_c2" "$PASSWORD3"
-register_user "Decoy User D" "$EMAIL4" "user_d2" "$PASSWORD4"
+register_user "Decoy User C" "$EMAIL3" "user_c" "$PASSWORD3"
 
 
 
@@ -273,8 +270,8 @@ login_response_c=$(curl -s -X POST "$LOGIN_URL" \
   -d "{\"email\": \"$EMAIL3\", \"password\": \"$PASSWORD3\"}")
 
 token_c=$(echo "$login_response_c" | jq -r '.token')
-echo "$token_c" > .decoy_user_c2_token
-chmod 600 .decoy_user_c2_token
+echo "$token_c" > .decoy_user_c_token
+chmod 600 .decoy_user_c_token
 
 # Upload file for Decoy User C
 echo "Uploading file for Decoy User C..."
@@ -301,46 +298,6 @@ if [ "$message_c" != "File uploaded and processed successfully" ]; then
   exit 1
 else
   echo "Decoy User C upload succeeded"
-fi
-
-
-echo "Logging in as Decoy User D..."
-login_response_d=$(curl -s -X POST "$LOGIN_URL" \
-  -H "Content-Type: application/json" \
-  -d "{\"email\": \"$EMAIL4\", \"password\": \"$PASSWORD4\"}")
-
-
-token_d=$(echo "$login_response_d" | jq -r '.token')
-echo "$token_d" > .decoy_user_d2_token
-
-chmod 600 .decoy_user_d2_token
-
-
-# Upload file for Decoy User D
-echo "Uploading file for Decoy User D..."
-upload_response_d=$(curl -s -X POST "$UPLOAD_URL" \
-  -H "Authorization: Bearer $token_d" \
-  -H "Origin: $BASE_URL" \
-  -H "Referer: $BASE_URL/c/new" \
-  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.120 Safari/537.36" \
-  -H "Connection: keep-alive" \
-  -H "Accept: application/json, text/plain, */*" \
-  -H "Host: $HOST_URL" \
-  -F "file=@$DECOY_FILE_TO_UPLOAD" \
-  -F "file_id=9f372c69-065f-4ea1-bcd4-d0d81fb32bc4" \
-  -F "endpoint=local" \
-  -F "width=360" \
-  -F "height=276")
-
-
-echo "$upload_response_d" | jq -r '.file_id' > .file_id_d.txt
-
-message_d=$(echo "$upload_response_d" | jq -r '.message')
-if [ "$message_d" != "File uploaded and processed successfully" ]; then
-  echo "Decoy User D upload failed: $upload_response_d"
-  exit 1
-else
-  echo "Decoy User D upload succeeded"
 fi
 
 echo "All services are running. Setup completed successfully"

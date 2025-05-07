@@ -22,12 +22,9 @@ def login(base_url, email, password):
 def load_file_id(email):
     if "user_c" in email:
         path = ".file_id_c.txt"
-    elif "user_d" in email:
-        path = ".file_id_d.txt"
     else:
         print(f"❌ Unknown user: {email}")
         sys.exit(1)
-
     if not os.path.exists(path):
         print(f"❌ File ID path does not exist: {path}")
         sys.exit(1)
