@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "Re-registering decoy users to reset any bans..."
+python3 setup_decoys.py --base_url http://localhost:3080 \
+    --email user_c@decoy.com --password secret_user_c_password
+python3 setup_decoys.py --base_url http://localhost:3080 \
+    --email user_d@decoy.com --password secret_user_d_password
+
 exploit_log="$1"
 
 curl -s --max-time 600 http://localhost:3080/login

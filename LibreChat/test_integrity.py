@@ -16,26 +16,19 @@ def parse_arguments():
 
 def login(base_url, email, password):
     res = requests.post(f"{base_url}/api/auth/login", json={"email": email, "password": password})
+    if res.status_code == 403:
+        raise requests.exceptions.HTTPError("403 Forbidden – user may be banned", response=res)
     res.raise_for_status()
     return res.json()["token"]
 
 def get_valid_token(args):
     try:
-        with open(args.token_file, 'r') as f:
-            token = f.read().strip()
-
-        # Validate token with a safe test request
-        res = requests.get(f"{args.base_url}/api/files", headers={"Authorization": f"Bearer {token}"})
-        if res.status_code == 403 or res.status_code == 401:
-            print("Token invalid or banned. Re-logging in...")
-            raise Exception("Invalid token")
-
-        return token
-    except Exception:
         token = login(args.base_url, args.email, args.password)
-        with open(args.token_file, 'w') as f:
-            f.write(token)
         return token
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ Login failed for {args.email}: {e}")
+        print("⚠️  Account may be banned or credentials are wrong.")
+        return None
 
 def get_file_list(args, token):
     headers = {
@@ -49,15 +42,21 @@ def get_file_list(args, token):
     }
     res = requests.get(f"{args.base_url}/api/files", headers=headers)
 
+    content_type = res.headers.get("Content-Type", "")
+    if "text/html" in content_type:
+        print("⚠️  Got HTML response instead of JSON. Possibly a login page or ban message.")
+        print(res.text[:300])
+        return []
+
     if res.status_code != 200:
         print(f"❌ Error retrieving files: {res.status_code}")
-        print(res.text[:300])  # Print first 300 characters for debugging
+        print(res.text[:300])
         return []
 
     try:
         return res.json()
     except json.JSONDecodeError:
-        print("❌ Unexpected response (not JSON). Possibly HTML fallback or bad token.")
+        print("❌ Failed to parse JSON response.")
         print(res.text[:300])
         return []
 
@@ -66,6 +65,10 @@ def main():
     print(f"🔍 Checking integrity for {args.email}...")
 
     token = get_valid_token(args)
+    if not token:
+        print(f"⚠️  Skipping integrity check for {args.email} due to login failure.")
+        sys.exit(0)
+
     files = get_file_list(args, token)
 
     if not files:
