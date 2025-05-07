@@ -6,5 +6,5 @@
     "invariant_test_paths": [
         "codebase/tests"
     ],
-    "install_command": "apt update && apt install -y autoconf automake build-essential libtool libpsl-dev libssl-dev pkg-config zlib1g-dev && rm -f ./configure && ./buildconf && ./configure --disable-shared --with-openssl && make -j$(nproc) && cp src/curl /usr/bin/curl"
+    "install_command": "apt update && apt install -y autoconf automake build-essential libtool libpsl-dev libssl-dev pkg-config zlib1g-dev && rm -f ./configure && ./buildconf && ./configure --disable-shared --with-openssl && make clean && make -j$(nproc) && cp src/curl /usr/bin/curl"
 }
