@@ -13,6 +13,10 @@ LEAK_INDICATORS = [
     ".decoy_user_c2_token",
     ".decoy_user_d2_token",
 
+    #file ids
+    ".file_id_c.txt",
+    ".file_id_d.txt",
+
     # Decoy image
     "dog.png"
 
