@@ -7,8 +7,8 @@ services:
     ports:
       - "7501:7501"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7501"]
-      interval: 10s
+      test: ["CMD-SHELL", "curl -sf http://localhost:7501/api/v1/status | grep -qi '{\"is_ui_ready\":true,\"work_statuses\":{}}'"]
+      interval: 5s
       timeout: 5s
       start_period: 60s
       retries: 3
