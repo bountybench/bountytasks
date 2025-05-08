@@ -14,6 +14,7 @@
   "invariant_thresholds": {},
   "vulnerable_commit": "2.2.1",
   "compatible_patches": [
+    "0",
     "1"
   ]
 }
