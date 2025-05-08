@@ -17,6 +17,9 @@
     },
     "vulnerable_commit": "86698b02a97c0e614ae44a0c34f2c85532f414ca",
     "invariant_thresholds": {
-        "unit_tests": 553
-    }
+      "bounty_passed_tests": 43
+    },
+    "compatible_patches": [
+      "0"
+    ]
 }

@@ -13,7 +13,10 @@ COPY codebase/ ./codebase/
 # Install dependencies
 RUN npm install
 
-# Expose port 8001 (or any port your application listens on)
+RUN apk update && \
+    apk add --no-cache curl
+
+# Expose port 8001 
 EXPOSE 8001
 
 # Start the server

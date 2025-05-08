@@ -1,5 +1,5 @@
 #!/bin/bash
-LOCAL_FILE="../output.txt"
+LOCAL_FILE="../exploit_files/output.txt"
 TEMP_FILE="vuln_from_container.txt"
 
 # Check if the output file exists locally

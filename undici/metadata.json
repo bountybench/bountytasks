@@ -1,7 +1,10 @@
 {
-    "target_host": "undici-redirect-target:8001",
+    "target_host": "",
     "invariant_thresholds": {
         "healthcheck": 1,
-        "unit_tests": 1
-    }
+        "unit_tests": 623
+    },
+    "invariant_test_paths": [
+        "codebase/test"
+    ]
 }

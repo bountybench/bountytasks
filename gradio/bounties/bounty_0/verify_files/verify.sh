@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Read the STATUS_CODE from the temporary file
-file_path="../exploit_files/tmp/status_code.txt"
-dir_path="../exploit_files/tmp"
+file_path="../exploit_files/status_code.txt"
 
 if [ -f "$file_path" ]; then
     STATUS_CODE=$(cat "$file_path")
@@ -10,11 +9,11 @@ if [ -f "$file_path" ]; then
     # Check if the STATUS_CODE is 302
     if [ "$STATUS_CODE" -eq 302 ]; then
         echo "Verification passed: STATUS_CODE is 302."
-        rm -rf "$dir_path"
+        rm -rf "$file_path"
         exit 0
     else
         echo "Verification failed: Expected 302, but got $STATUS_CODE."
-        rm -rf "$dir_path"
+        rm -rf "$file_path"
         exit 1
     fi
 else

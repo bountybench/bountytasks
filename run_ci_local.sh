@@ -110,19 +110,70 @@ validate_schema() {
 
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants]"
+    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants] [--check-compatible-patches] [--invariant-runs=N]"
     exit 1
 fi
-
 
 execute_if_exists() {
   local script_path="$1"
   if [ -f "$script_path" ]; then
     echo "Executing $script_path"
     bash "$script_path"
+    return $?
   else
     echo "$script_path not found, skipping."
+    return 0
   fi
+}
+
+Run invariant checks multiple times
+run_invariant_checks() {
+    local repo_dir="$1"
+    local bounty_dir="$2"
+    local num_runs="$3"
+    
+    for ((i=1; i<=$num_runs; i++)); do
+        print_header "$CYAN" "RUN REPO INVARIANT CHECK - ITERATION $i of $num_runs"
+        cd "$repo_dir"
+        execute_if_exists "run_repo_invariants.sh"
+        repo_invariant_status=$?
+        if [[ ${repo_invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} CHECK REPO INVARIANT FAIL (Iteration $i)"
+            return 1
+        fi
+        sleep 5
+        cd -
+
+        print_header "$CYAN" "RUN BOUNTY INVARIANT CHECK - ITERATION $i of $num_runs"
+        cd "${bounty_dir}"
+        execute_if_exists "run_bounty_invariants.sh"
+        bounty_invariant_status=$?
+        if [[ ${bounty_invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL (Iteration $i)"
+            return 1
+        fi
+        sleep 5
+        cd -
+
+        # Run Python invariant checks
+        print_header "$CYAN" "RUNNING PYTHON INVARIANT CHECKS - ITERATION $i of $num_runs"
+        python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json" "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
+        python_invariant_status=$?
+        if [[ ${python_invariant_status} -ne 0 ]]; then
+            print_header "$RED" "ERROR"
+            echo -e "${ERROR} PYTHON CHECK INVARIANT FAIL (Iteration $i)"
+            return 1
+        fi
+        
+        # Only print success for each iteration if we're doing multiple runs
+        if [[ ${num_runs} -gt 1 ]]; then
+            print_header "$GREEN" "INVARIANT CHECKS SUCCESSFUL - ITERATION $i of $num_runs"
+        fi
+    done
+    
+    return 0
 }
 
 base_dir=$(pwd)
@@ -134,12 +185,16 @@ shift
 
 RUN_PATCH=false
 CHECK_INVARIANTS=false
+CHECK_COMPATIBLE_PATCHES=false
+INVARIANT_RUNS=3  # Default to 3 runs
 
 # Loop through arguments
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
         --patch) RUN_PATCH=true ;;
         --check-invariants) CHECK_INVARIANTS=true ;;
+        --check-compatible-patches) CHECK_COMPATIBLE_PATCHES=true ;;
+        --invariant-runs=*) INVARIANT_RUNS="${1#*=}" ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
     shift
@@ -153,6 +208,21 @@ if [[ ! "${bounty_dir}" =~ /bounty_[0-9]+/?$ ]]; then
 fi
 
 validate_schema "$repo_dir" "$bounty_dir"
+
+# Ensure metadata.json has a 'target_host' key of type string (empty allowed)
+print_header "$CYAN" "VALIDATING TARGET_HOST KEY"
+
+if ! jq -e '
+     has("target_host") and
+     (.target_host | type == "string")
+   ' "${repo_dir}/metadata.json" >/dev/null
+then
+    print_header "$RED" "ERROR"
+    echo -e "${ERROR} 'metadata.json' must contain a top‑level 'target_host' key of type string (can be empty)"
+    exit 1
+else
+    echo -e "${SUCCESS} 'target_host' key validated in metadata.json"
+fi
 
 # Get vulnerable commit from bounty metadata
 bounty_metadata_file="${bounty_dir}/bounty_metadata.json"
@@ -184,7 +254,6 @@ git checkout "$vulnerable_commit"
 checkout_status=$?
 cd -
 
-
 print_header "$CYAN" "EXECUTING REPO ENVIRONMENT SETUP"
 cd "$repo_dir"
 execute_if_exists "setup_repo_env.sh"
@@ -198,7 +267,6 @@ execute_if_exists "setup_bounty_env.sh"
 sleep 10
 cd -
 
-
 if [[ $checkout_status -ne 0 ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Failed to checkout vulnerable commit ${vulnerable_commit}"
@@ -208,7 +276,6 @@ fi
 exploit_dir="${bounty_dir}/exploit_files"
 exploit_script="${exploit_dir}/exploit.sh" 
 verify_script="${bounty_dir}/verify_files/verify.sh"
-
 
 if [[ -z "$exploit_script" ]]; then
     print_header "$RED" "ERROR"
@@ -223,9 +290,6 @@ if [[ -z "$verify_script" ]]; then
 fi
 
 verify_dir="${bounty_dir}/verify_files"
-
-
-
 
 print_header "$CYAN" "CHECKING IF EXPLOIT AND VERIFY SCRIPTS EXIST"
 echo -e "${SUCCESS} Found exploit script at: ${exploit_script}"
@@ -251,8 +315,6 @@ stop_docker() {
         echo -e "${INFO} No docker-compose.yml found in ${compose_dir}"
     fi
 }
-
-
 
 cleanup() {
     print_header "$CYAN" "CLEANUP PROCESS"
@@ -280,7 +342,6 @@ if ! docker network ls | grep -q "${network_name}"; then
     docker network create "${network_name}"
 fi
 
-
 # Exploit mode flow
 print_header "$CYAN" "RUNNING VERIFY SCRIPT BEFORE EXPLOIT"
 initial_log=$(cd "${verify_dir}" && ./verify.sh)
@@ -295,7 +356,6 @@ fi
 
 echo -e "${INFO} ${initial_log}\n"
 echo -e "${INFO} ${exploit_dir}\n"
-
 
 echo -e "${SUCCESS} Initial verification failed as expected. Running exploit.sh..."
 print_header "$CYAN" "RUNNING EXPLOIT SCRIPT"
@@ -324,13 +384,10 @@ print_header "$CYAN" "EXPLOIT LOG"
 echo -e "${INFO} ${exploit_log}\n"
 execution_output=$(echo "${exploit_log}" | tail -n 1 | tr -d '[:space:]')
 
-
 # Run final verify.sh directly on the local machine
 print_header "$CYAN" "RUNNING VERIFY SCRIPT AFTER EXPLOIT"
 final_log=$(cd "${verify_dir}" && ./verify.sh)
 final_status=$?
-
-
 
 if [[ ${final_status} -ne 0 ]]; then
     print_header "$RED" "ERROR"
@@ -345,6 +402,36 @@ echo -e "${INFO} ${final_log}\n"
 print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
 echo -e "${SUCCESS} Verify script after exploit completed successfully."
 
+# Clean untracked files in codebase before compatible patch test
+print_header "$CYAN" "CLEANING BEFORE COMPATIBLE PATCH"
+cd "${repo_dir}/codebase"
+git clean -fdx
+git reset --hard "$vulnerable_commit"
+cd -
+
+if [[ "$CHECK_COMPATIBLE_PATCHES" == true ]]; then
+    print_header "$CYAN" "CHECKING COMPATIBLE PATCHES"
+
+    if jq -e 'has("compatible_patches")' "${bounty_dir}/bounty_metadata.json" > /dev/null; then
+        echo "${INFO} compatible_patches exists in ${bounty_dir}/bounty_metadata.json"
+    else
+        echo "${ERROR} compatible_patches does not exist in ${bounty_dir}/bounty_metadata.json"
+        exit 1
+    fi
+
+    echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
+    python identify_compatible_patches.py --task_dir "${bounty_dir}"
+
+    if ! git diff --exit-code "${bounty_dir}/bounty_metadata.json"; then
+        echo "${ERROR} ::error file=${bounty_dir}/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+        exit 1
+    else
+        echo "${SUCCESS} Compatible patch information in ${bounty_dir}/bounty_metadata.json is correct."
+    fi
+else
+    print_header "$CYAN" "SKIP COMPATIBLE PATCH CHECK"
+fi
+
 # Clean untracked files in codebase before patch test
 print_header "$CYAN" "CLEANING BEFORE PATCH"
 cd "${repo_dir}/codebase"
@@ -353,7 +440,6 @@ git reset --hard "$vulnerable_commit"
 cd -
 
 if [[ "$RUN_PATCH" == true ]]; then
-
     print_header "$CYAN" "APPLYING PATCH"
     patched_bounty_dir="${repo_dir}/bounties/$(basename "$bounty_dir")"
 
@@ -378,7 +464,6 @@ if [[ "$RUN_PATCH" == true ]]; then
         echo -e "${WARNING} No bounty_metadata.json found, skipping patch application."
     fi
 
-
     stop_docker "${repo_dir}" 
     stop_docker "${requirements_dir}"
 
@@ -396,40 +481,57 @@ if [[ "$RUN_PATCH" == true ]]; then
     cd -
 
     if [[ "$CHECK_INVARIANTS" == true ]]; then
-        print_header "$CYAN" "RUN REPO INVARIANT CHECK"
-        cd "$repo_dir"
-        execute_if_exists "run_repo_invariants.sh"
-        invariant_status=$?
-        if [[ ${invariant_status} -ne 0 ]]; then
+        print_header "$CYAN" "VALIDATING & VERIFYING INVARIANT TEST PATHS"
+
+        # 1) Require the key
+        if ! jq -e 'has("invariant_test_paths")' "${repo_dir}/metadata.json" >/dev/null; then
             print_header "$RED" "ERROR"
-            echo -e "${ERROR} CHECK REPO INVARIANT FAIL"
+            echo -e "${ERROR} 'metadata.json' must contain an 'invariant_test_paths' key with an array of strings (e.g., \"invariant_test_paths\": [])"
             exit 1
         fi
-        sleep 10
-        cd -
 
-        print_header "$CYAN" "RUN BOUNTY INVARIANT CHECK"
-        cd "${bounty_dir}"
-        execute_if_exists "run_bounty_invariants.sh"
-        invariant_status=$?
-        if [[ ${invariant_status} -ne 0 ]]; then
+        # 2) Validate type & contents
+        if ! jq -e '
+            (.invariant_test_paths | type == "array") and
+            all(.invariant_test_paths[]; type == "string")
+        ' "${repo_dir}/metadata.json" >/dev/null; then
             print_header "$RED" "ERROR"
-            echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            echo -e "${ERROR} 'metadata.json' - invariant_test_paths must be an array of strings"
             exit 1
         fi
-        sleep 10
-        cd -
 
-        python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json"  "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
+        # 3) Existence check
+        paths=$(jq -r '.invariant_test_paths[]?' "${repo_dir}/metadata.json")
+        if [[ -n "$paths" ]]; then
+            echo -e "${INFO} Checking paths listed in 'metadata.json'"
+            while IFS= read -r p; do
+                full="${repo_dir}/${p}"
+                if [[ ! -e "$full" ]]; then
+                    print_header "$RED" "ERROR"
+                    echo -e "${ERROR} Path not found: ${p} (in 'metadata.json')"
+                    exit 1
+                fi
+            done <<< "$paths"
+            echo -e "${SUCCESS} All invariant_test_paths in 'metadata.json' exist."
+        else
+            echo -e "${INFO} 'metadata.json' has an empty invariant_test_paths array, skipping existence check."
+        fi
+
+        # Run invariant checks multiple times
+        print_header "$CYAN" "RUNNING INVARIANT CHECKS $INVARIANT_RUNS TIMES"
+        run_invariant_checks "$repo_dir" "${bounty_dir}" "$INVARIANT_RUNS"
         invariant_status=$?
+        
         if [[ ${invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
-            echo -e "${ERROR} CHECK BOUNTY INVARIANT FAIL"
+            echo -e "${ERROR} INVARIANT CHECKS FAILED"
             exit 1
+        else
+            print_header "$GREEN" "INVARIANT CHECKS SUCCEEDED"
+            echo -e "${SUCCESS} All $INVARIANT_RUNS invariant check iterations passed successfully"
         fi
     else
-        print_header "$CYAN" "SKIP REPO INVARIANT CHECK"
-        print_header "$CYAN" "SKIP BOUNTY INVARIANT CHECK"
+        print_header "$CYAN" "SKIP INVARIANT CHECKS"
     fi
 
     print_header "$CYAN" "VERIFYING BEFORE EXPLOIT"
@@ -437,15 +539,12 @@ if [[ "$RUN_PATCH" == true ]]; then
     final_status=$?
     echo -e "${INFO} Verify script exit status: ${final_status}"
 
-
-
     if [[ ${final_status} -eq 0 ]]; then
         print_header "$RED" "ERROR"
         echo -e "${ERROR} Verify script should fail (return 1) after patch, but it returned ${final_status}"
         echo -e "${ERROR} ========= Error log ========= \n\n ${final_log}"
         exit 1
     fi
-
 
     print_header "$CYAN" "RUNNING EXPLOIT.SH"
     log=$(docker run \
@@ -468,8 +567,6 @@ if [[ "$RUN_PATCH" == true ]]; then
     final_log=$(cd "${verify_dir}" && ./verify.sh)
     final_status=$?
     echo -e "${INFO} Verify script exit status: ${final_status}"
-
-
 
     if [[ ${final_status} -eq 0 ]]; then
         print_header "$RED" "ERROR"

@@ -1,8 +1,14 @@
 #!/bin/bash
 
 # Create files for the unit test results and invariant scores
-UNIT_TEST_RESULTS="./unit_test_results.txt"
 ROOT_DIR=$(pwd)
+UNIT_TEST_RESULTS="${ROOT_DIR}/unit_test_results.txt"
+
+
+# Clear it at the start
+rm -f "$UNIT_TEST_RESULTS"
+touch "$UNIT_TEST_RESULTS"
+rm -f "${ROOT_DIR}/invariant_scores.json"
 
 # Function to clean up resources
 cleanup() {
@@ -76,6 +82,6 @@ EOF
 )
 
 cd -
-echo "$json_output" > invariant_scores.json
+echo "$json_output" > "${ROOT_DIR}/invariant_scores.json"
 
 exit 0
