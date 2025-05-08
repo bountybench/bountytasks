@@ -60,11 +60,18 @@ def run_exploit_docker(exploit_dir: Path, task_dir: Path, is_ci: bool=False, ima
 def execute_if_exists(script_path: Path, working_dir: Path = None):
     if script_path.exists():
         print(f"⚙️  Executing: {script_path}")
-        subprocess.run(
-            ["bash", str(script_path)],
-            cwd=str(working_dir or script_path.parent),
-            check=True
-        )
+        try:
+            subprocess.run(
+                ["bash", str(script_path)],
+                cwd=str(working_dir or script_path.parent),
+                check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"💥 Error executing {script_path}: {e}")
+            if e.stdout:
+                print(f"{script_path} stdout (on error):\n{e.stdout}")
+            if e.stderr:
+                print(f"{script_path} stderr (on error):\n{e.stderr}")
         time.sleep(10)
     else:
         print(f"⚠️  Script not found: {script_path}, skipping.")
@@ -73,14 +80,28 @@ def execute_if_exists(script_path: Path, working_dir: Path = None):
 def stop_docker_services(compose_dir: Path):
     if (compose_dir / "docker-compose.yml").exists():
         print(f"🖑 Stopping Docker containers in {compose_dir}")
-        subprocess.run(["docker", "compose", "down", "-v"], cwd=compose_dir)
+        try:
+            subprocess.run(["docker", "compose", "down", "-v"], cwd=compose_dir, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"💥 Error stopping Docker containers: {e}")
+            if e.stdout:
+                print(f"Docker compose down stdout (on error):\n{e.stdout}")
+            if e.stderr:
+                print(f"Docker compose down stderr (on error):\n{e.stderr}")
 
 
 def ensure_docker_network(name: str):
-    result = subprocess.run(["docker", "network", "ls"], capture_output=True, text=True)
-    if name not in result.stdout:
-        print(f"🛠️  Creating Docker network: {name}")
-        subprocess.run(["docker", "network", "create", name], check=True)
+    try:
+        result = subprocess.run(["docker", "network", "ls"], capture_output=True, text=True, check=True)
+        if name not in result.stdout:
+            print(f"🛠️  Creating Docker network: {name}")
+            subprocess.run(["docker", "network", "create", name], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"💥 Error listing Docker networks: {e}")
+        if e.stdout:
+            print(f"Docker network ls stdout (on error):\n{e.stdout}")
+        if e.stderr:
+            print(f"Docker network ls stderr (on error):\n{e.stderr}")
 
 
 def extract_vulnerable_commit(bounty_path: Path) -> str:
@@ -97,17 +118,33 @@ def extract_patch_ids(bounty_path: Path) -> List[str]:
 
 def force_checkout_commit(codebase: Path, commit: str):
     print("🧹 Cleaning repo and checking out vulnerable commit...")
-    # Log detailed output for git clean
-    clean_result = subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True, capture_output=True, text=True)
-    print(f"Git clean stdout:\n{clean_result.stdout}")
-    if clean_result.stderr:
-        print(f"Git clean stderr:\n{clean_result.stderr}")
+    try:
+        # Log detailed output for git clean
+        clean_result = subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True, capture_output=True, text=True)
+        print(f"Git clean stdout:\n{clean_result.stdout}")
+        if clean_result.stderr:
+            print(f"Git clean stderr:\n{clean_result.stderr}")
+    except subprocess.CalledProcessError as e:
+        print(f"💥 Error during 'git clean -fdx': {e}")
+        if e.stdout:
+            print(f"Git clean stdout (on error):\n{e.stdout}")
+        if e.stderr:
+            print(f"Git clean stderr (on error):\n{e.stderr}")
+        raise # Re-raise the exception to maintain original error behavior
 
-    # Log detailed output for git checkout
-    checkout_result = subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True, capture_output=True, text=True)
-    print(f"Git checkout stdout:\n{checkout_result.stdout}")
-    if checkout_result.stderr:
-        print(f"Git checkout stderr:\n{checkout_result.stderr}")
+    try:
+        # Log detailed output for git checkout
+        checkout_result = subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True, capture_output=True, text=True)
+        print(f"Git checkout stdout:\n{checkout_result.stdout}")
+        if checkout_result.stderr:
+            print(f"Git checkout stderr:\n{checkout_result.stderr}")
+    except subprocess.CalledProcessError as e:
+        print(f"💥 Error during 'git checkout --force {commit}': {e}")
+        if e.stdout:
+            print(f"Git checkout stdout (on error):\n{e.stdout}")
+        if e.stderr:
+            print(f"Git checkout stderr (on error):\n{e.stderr}")
+        raise # Re-raise the exception
 
     print(f"🎯 Target commit: {commit}")
 
