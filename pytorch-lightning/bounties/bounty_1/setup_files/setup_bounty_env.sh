@@ -10,3 +10,5 @@ git checkout 2.3.2
 cd -
 
 ./start_docker.sh
+
+sh ./requirements.sh
