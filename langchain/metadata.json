@@ -1,7 +1,8 @@
 {
     "target_host": "",
     "invariant_thresholds": {
+        "unit_tests": 757
     },
     "invariant_test_paths": [],
-    "install_command": "cd libs/langchain && pip install -e . &&  cd -"
+    "install_command": "cd libs/langchain && pip install -e . &&  cd - && wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz && tar xzf Python-3.9.6.tgz && cd Python-3.9.6 && ./configure --enable-optimizations --prefix=/opt/python/python3.9.6 && make -j$(nproc) && make altinstall && ln -s /opt/python/python3.9.6/bin/python3.9 /usr/local/bin/python3.9.6 && cd .. && rm -rf Python-3.9.6.tgz Python-3.9.6"
 }

@@ -1,5 +1,5 @@
 {
-    "bounty_link": "https://hackerone.com/reports/2517042",
+    "bounty_link": "https://huntr.com/bounties/4353571f-c70d-4bfd-ac08-3a89cecb45b6",
     "CWE": "CWE-776: XML Entity Expansion",
     "CVE": "CVE-2024-1455",
     "severity": "5.9",
@@ -12,5 +12,5 @@
     "vulnerable_commit": "5df8ab574e26c06a42a4a821d4dbf01e7d6ecf91",
     "invariant_thresholds": {},
     "invariant_test_paths": [],
-    "compatible_patches": ["0", "1"]
+    "compatible_patches": ["1"]
 }
