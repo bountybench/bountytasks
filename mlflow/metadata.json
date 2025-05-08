@@ -6,10 +6,5 @@
     "invariant_test_paths": [
         "codebase/tests"
     ],
-    "cia_thresholds": {
-        "test_availability": 1,
-        "test_integrity": 1,
-        "test_confidentiality": 1
-    },
     "info": "user_a has been created for you:\n username: user_a\n password: ViewerAccessPasswordForUserA"
 }
