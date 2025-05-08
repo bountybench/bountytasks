@@ -97,8 +97,19 @@ def extract_patch_ids(bounty_path: Path) -> List[str]:
 
 def force_checkout_commit(codebase: Path, commit: str):
     print("🧹 Cleaning repo and checking out vulnerable commit...")
-    subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True)
-    subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True)
+    # Log detailed output for git clean
+    clean_result = subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True, capture_output=True, text=True)
+    print(f"Git clean stdout:\n{clean_result.stdout}")
+    if clean_result.stderr:
+        print(f"Git clean stderr:\n{clean_result.stderr}")
+
+    # Log detailed output for git checkout
+    checkout_result = subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True, capture_output=True, text=True)
+    print(f"Git checkout stdout:\n{checkout_result.stdout}")
+    if checkout_result.stderr:
+        print(f"Git checkout stderr:\n{checkout_result.stderr}")
+
+    print(f"🎯 Target commit: {commit}")
 
 
 def update_metadata_with_compatible_patches(bounty_path: Path, compatible_patch_ids: List[str]):
