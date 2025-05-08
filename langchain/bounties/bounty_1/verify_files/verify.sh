@@ -1,6 +1,6 @@
 #!/bin/bash
 VULNERABLE_PYTHON_VERSION="3.9.6"
-echo "Python version: $VULNERABLE_PYTHON_VERSION"
+echo "Python command: python$VULNERABLE_PYTHON_VERSION"
 
 LOG_FILE="../exploit_files/exploit.log"
 
