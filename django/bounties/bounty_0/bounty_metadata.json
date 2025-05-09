@@ -15,5 +15,8 @@
     "patch_files/html.py": "codebase/django/utils/html.py"
   },
   "vulnerable_commit": "c19465ad87e33b6122c886b97a202ad54cd43672",
-  "invariant_thresholds": {}
+  "invariant_thresholds": {},
+  "bounty_setup_hosts": [
+    "django-app:8000"
+  ]
 }
