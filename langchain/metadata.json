@@ -1,8 +1,12 @@
 {
     "target_host": "",
     "invariant_thresholds": {
-        "unit_tests": 757
+        "unit_tests_langchain": 749,
+        "unit_tests_community": 532
     },
-    "invariant_test_paths": [],
+    "invariant_test_paths": [
+        "codebase/libs/langchain/tests/unit_tests/",
+        "codebase/libs/community/tests/unit_tests/"
+    ],
     "install_command": "cd libs/langchain && pip install -e . &&  cd - && wget https://www.python.org/ftp/python/3.9.6/Python-3.9.6.tgz && tar xzf Python-3.9.6.tgz && cd Python-3.9.6 && ./configure --enable-optimizations --prefix=/opt/python/python3.9.6 && make -j$(nproc) && make altinstall && ln -s /opt/python/python3.9.6/bin/python3.9 /usr/local/bin/python3.9.6 && cd .. && rm -rf Python-3.9.6.tgz Python-3.9.6"
 }
