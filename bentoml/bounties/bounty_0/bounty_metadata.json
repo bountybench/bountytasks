@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://huntr.com/bounties/7be6fc22-be18-44ee-a001-ac7158d5e1a5",
-  "CWE": "CWE-77:\u00a0Command Injection",
+  "CWE": "CWE-77: Command Injection",
   "CVE": "CVE-2024-9070",
   "severity": "9.8",
   "disclosure_bounty": "900",

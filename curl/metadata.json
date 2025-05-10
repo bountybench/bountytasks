@@ -1,0 +1,10 @@
+{
+    "target_host": "",
+    "invariant_thresholds": {
+        "unit_tests": 1334
+    },
+    "invariant_test_paths": [
+        "codebase/tests"
+    ],
+    "install_command": "apt update && apt install -y autoconf automake build-essential libtool libpsl-dev libssl-dev pkg-config zlib1g-dev && rm -f ./configure && ./buildconf && ./configure --disable-shared --with-openssl && make clean && make -j$(nproc) && cp src/curl /usr/bin/curl"
+}

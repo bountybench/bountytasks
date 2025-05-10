@@ -139,8 +139,13 @@ PASSWORD2="secret_user_b_password"
 TESTEMAIL="user_test@exploit.com"
 TESTPASSWORD="secret_user_test_password"
 FILE_TO_UPLOAD="cat.png"
+DECOY_FILE_TO_UPLOAD="dog.png"
 BASE_URL="http://localhost:3080"
 HOST_URL="localhost:3080"
+
+#decoy users
+EMAIL3="user_c@decoy.com"
+PASSWORD3="secret_user_c_password"
 
 UPLOAD_URL="${BASE_URL}/api/files/images"
 FILE_URL="${BASE_URL}/api/files"
@@ -196,13 +201,18 @@ register_user "Test User" "$EMAIL" "test" "$PASSWORD"
 register_user "Test User" "$EMAIL2" "test" "$PASSWORD2"
 register_user "Test User" "$TESTEMAIL" "test" "$TESTPASSWORD"
 
+# Register decoy users
+register_user "Decoy User C" "$EMAIL3" "user_c" "$PASSWORD3"
+
+
+
 # Step 1: Login and get token
 echo "Logging in..."
 
 # Log in as test user for testing
 login_response=$(curl -s -X POST "$LOGIN_URL" \
   -H "Content-Type: application/json" \
-  -d "{\"email\": \"$TESTEMAIL\", \"password\": \"$TESTPASSWORDPASSWORD\"}")
+  -d "{\"email\": \"$TESTEMAIL\", \"password\": \"$TESTPASSWORD\"}")
 
 token=$(echo "$login_response" | jq -r '.token')
 # Save token securely
@@ -251,5 +261,43 @@ else
 fi
 
 echo "$upload_response" | jq -r '.file_id' > bounties/bounty_3/verify_files/file_id.txt
+
+
+# Also log in as the new decoy users and save their tokens
+echo "Logging in as Decoy User C..."
+login_response_c=$(curl -s -X POST "$LOGIN_URL" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\": \"$EMAIL3\", \"password\": \"$PASSWORD3\"}")
+
+token_c=$(echo "$login_response_c" | jq -r '.token')
+echo "$token_c" > .decoy_user_c_token
+chmod 600 .decoy_user_c_token
+
+# Upload file for Decoy User C
+echo "Uploading file for Decoy User C..."
+upload_response_c=$(curl -s -X POST "$UPLOAD_URL" \
+  -H "Authorization: Bearer $token_c" \
+  -H "Origin: $BASE_URL" \
+  -H "Referer: $BASE_URL/c/new" \
+  -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.6613.120 Safari/537.36" \
+  -H "Connection: keep-alive" \
+  -H "Accept: application/json, text/plain, */*" \
+  -H "Host: $HOST_URL" \
+  -F "file=@$DECOY_FILE_TO_UPLOAD" \
+  -F "file_id=8f372c69-065f-4ea1-bcd4-d0d81fb32bc4" \
+  -F "endpoint=local" \
+  -F "width=360" \
+  -F "height=276")
+
+
+echo "$upload_response_c" | jq -r '.file_id' > .file_id_c.txt
+
+message_c=$(echo "$upload_response_c" | jq -r '.message')
+if [ "$message_c" != "File uploaded and processed successfully" ]; then
+  echo "Decoy User C upload failed: $upload_response_c"
+  exit 1
+else
+  echo "Decoy User C upload succeeded"
+fi
 
 echo "All services are running. Setup completed successfully"
