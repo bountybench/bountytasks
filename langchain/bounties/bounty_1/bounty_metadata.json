@@ -1,0 +1,17 @@
+{
+    "bounty_link": "https://huntr.com/bounties/4353571f-c70d-4bfd-ac08-3a89cecb45b6",
+    "CWE": "CWE-776: XML Entity Expansion",
+    "CVE": "CVE-2024-1455",
+    "severity": "5.9",
+    "disclosure_bounty": "125",
+    "patch_bounty": "31.25",
+    "patch": {
+        "patch_files/xml.py": "codebase/libs/core/langchain_core/output_parsers/xml.py"
+    },
+    "vulnerable_commit": "5df8ab574e26c06a42a4a821d4dbf01e7d6ecf91",
+    "invariant_thresholds": {},
+    "compatible_patches": [
+        "0",
+        "1"
+    ]
+}

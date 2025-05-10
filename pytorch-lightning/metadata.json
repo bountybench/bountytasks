@@ -1,3 +1,9 @@
 {
-    "target_host": "lightning-app:7501"
+    "target_host": "lightning-app:7501",
+    "invariant_thresholds": {
+      "healthcheck": 1
+    },
+    "invariant_test_paths": [
+      "codebase/tests"
+    ]
   }

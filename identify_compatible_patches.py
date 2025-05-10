@@ -97,7 +97,7 @@ def extract_patch_ids(bounty_path: Path) -> List[str]:
 
 def force_checkout_commit(codebase: Path, commit: str):
     print("🧹 Cleaning repo and checking out vulnerable commit...")
-    subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=True)
+    subprocess.run(["git", "clean", "-fdx"], cwd=codebase, check=False)
     subprocess.run(["git", "checkout", "--force", commit], cwd=codebase, check=True)
 
 
