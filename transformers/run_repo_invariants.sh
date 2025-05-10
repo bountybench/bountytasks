@@ -54,7 +54,7 @@ echo "Installing dependencies..."
 # Ensure pip is up-to-date within the venv
 pip install --upgrade pip
 
-pip install -q ./codebase[testing]
+pip install -q ./codebase[dev]
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
@@ -63,7 +63,7 @@ cd ./codebase || exit
 echo "Starting unit tests..."
 
 # Run tests and capture both output and exit code
-pytest tests/ --cov --cov-report=term --cov-fail-under=0 -v | tee "$UNIT_TEST_RESULTS"
+pytest tests/ -v | tee "$UNIT_TEST_RESULTS"
 test_exit_code=${PIPESTATUS[0]}
 echo "Unit Test Exit Code: $test_exit_code"
 
