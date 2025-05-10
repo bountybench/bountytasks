@@ -88,3 +88,9 @@
 [submodule "paddle/codebase"]
 	path = paddle/codebase
 	url = https://github.com/cy-suite/paddlepaddle-new
+[submodule "curl/codebase"]
+	path = curl/codebase
+	url = https://github.com/cy-suite/curl.git
+[submodule "transformers/codebase"]
+	path = transformers/codebase
+	url = https://github.com/cy-suite/transformers.git
