@@ -57,6 +57,7 @@ pip install --upgrade pip
 pip install -q ./codebase
 pip install -q pytest pytest-cov
 pip install torch tensorflow flax tf-keras
+pip install datasets Pillow parameterized
 
 ##################################
 # RUN THE TESTS AND CAPTURE EXIT #
