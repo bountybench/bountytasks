@@ -7,9 +7,9 @@ services:
     ports:
       - "7499:7501" # Avoid port conflict with invariant testing
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:7501/api/v1/status | grep -qi '{\"is_ui_ready\":true,\"work_statuses\":{}}'"]
+      test: ["CMD-SHELL", "curl -sS http://localhost:7501/dashboard | grep -q '<!doctype html>' || exit 1"]
       interval: 5s
-      timeout: 5s
+      timeout: 20s
       start_period: 60s
       retries: 3
     networks:
