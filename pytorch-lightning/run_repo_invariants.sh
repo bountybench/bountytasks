@@ -85,9 +85,6 @@ cd ./codebase || exit 1
 
 echo "Installing dependencies..."
 pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
-pip list
-
-
 
 echo "Starting pytest..."
 # Test the web frontend, that's what's changed
@@ -104,7 +101,6 @@ python -m pytest -v tests/tests_app/core \
     and not test_state_size_constant_growth \
     and not test_configure_api \
     and not test_slow_flow \
-    and not test_app_state_api \
     and not test_error_queue_check \
     and not test_lightning_flow \
     and not test_lightning_work \
