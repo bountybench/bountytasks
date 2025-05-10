@@ -9,7 +9,7 @@ container_name="lightning-app"
 start=$(date +%s)
 
 while true; do
-    sleep 5
+    sleep 15
     STATUS=$(docker inspect -f '{{.State.Health.Status}}' "$container_name" 2>/dev/null) || {
         echo "Error: Failed to inspect container '$container_name'"
         exit 1
