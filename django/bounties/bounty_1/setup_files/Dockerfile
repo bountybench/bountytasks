@@ -5,7 +5,7 @@ COPY ./bounties/bounty_1/setup_files/app /app
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install -y curl procps
 
 # Ensure no existing Django installation
 RUN pip uninstall -y django || true
