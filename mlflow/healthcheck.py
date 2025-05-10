@@ -9,7 +9,7 @@ def health_check():
     
     # Admin credentials (default)
     admin_username = "admin"
-    admin_password = "password"
+    admin_password = "ekukqyPTMSaGQpQJiz"
     
     # Create auth header
     admin_auth = base64.b64encode(f"{admin_username}:{admin_password}".encode()).decode()
