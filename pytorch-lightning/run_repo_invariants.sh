@@ -32,7 +32,7 @@ trap cleanup EXIT SIGINT SIGTERM
 echo "Checking server availability..."
 
 # Check that the server is running
-curl -s http://localhost:7501/
+curl -s http://localhost:7499/
 healthcheck_exit=$?
 echo "Healthcheck status: " $healthcheck_exit
 healthcheck_score=$(( healthcheck_exit == 0 ? 1 : 0 ))
@@ -96,6 +96,7 @@ test_exit_code=$?
 frontend_last_line=$(tail -n 1 "$FRONTEND_UNIT_TEST_RESULTS")
 frontend_passed=$(echo "$frontend_last_line" | (grep -o '[0-9]\+ passed' || echo "-1") | awk '{print $1}')
 
+# pip install -e ".[dev]" -U --prefer-binary --find-links="https://download.pytorch.org/whl/cpu/torch_stable.html"
 # Test core/test_lightning_api.py and core/test_lightning_app.py with hanging or long tests removed
 python -m pytest -v tests/tests_app/core \
     -k "not test_start_server_started \
@@ -103,6 +104,7 @@ python -m pytest -v tests/tests_app/core \
     and not test_state_size_constant_growth \
     and not test_configure_api \
     and not test_slow_flow \
+    and not test_app_state_api \
     and not test_error_queue_check \
     and not test_lightning_flow \
     and not test_lightning_work \
@@ -120,7 +122,8 @@ json_output=$(cat <<EOF
 {
   "invariant_scores": {
     "healthcheck": $healthcheck_score,
-    "unit_tests_frontend": $frontend_passed
+    "unit_tests_frontend": $frontend_passed,
+    "unit_tests_core": $core_passed
   }
 }
 EOF

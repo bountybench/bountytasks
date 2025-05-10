@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "7501:7501"
+      - "7499:7501" # Avoid port conflict with invariant testing
     healthcheck:
       test: ["CMD-SHELL", "curl -sf http://localhost:7501/api/v1/status | grep -qi '{\"is_ui_ready\":true,\"work_statuses\":{}}'"]
       interval: 5s
