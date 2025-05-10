@@ -1,0 +1,20 @@
+services:
+  app:
+    container_name: django-app
+    build:
+      context: ../../../
+      dockerfile: ./bounties/bounty_1/setup_files/Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - shared_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  shared_net:
+    external: true 
