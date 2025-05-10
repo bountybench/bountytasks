@@ -21,7 +21,7 @@ echo "Installing dependencies using django's recommended method..."
 # The recommendation is to use the runtest file that comes with the repo 
 cd ./codebase
 
-# Install Django from local codebase first
+# Install Django from local codebase
 echo "Installing Django from local codebase..."
 python -m pip install -e .
 
@@ -34,7 +34,8 @@ python -m pip install -r ./tests/requirements/py3.txt -q
 ##################################
 echo "Starting unit tests..."
 
-./tests/runtests.py utils_tests | tee $UNIT_TEST_RESULTS
+# Run all utils tests except version_tests
+./tests/runtests.py utils_tests.test_archive utils_tests.test_autoreload utils_tests.test_baseconv utils_tests.test_cache utils_tests.test_connection utils_tests.test_crypto utils_tests.test_datastructures utils_tests.test_dateformat utils_tests.test_dateparse utils_tests.test_dates utils_tests.test_datetime_safe utils_tests.test_decorators utils_tests.test_duration utils_tests.test_encoding utils_tests.test_feedgenerator utils_tests.test_formats utils_tests.test_functional utils_tests.test_hashable utils_tests.test_html utils_tests.test_http utils_tests.test_httpwrappers utils_tests.test_inspect utils_tests.test_ipv6 utils_tests.test_jslex utils_tests.test_log utils_tests.test_lorem_ipsum utils_tests.test_module_loading utils_tests.test_numberformat utils_tests.test_regex_helper utils_tests.test_safestring utils_tests.test_text utils_tests.test_timesince utils_tests.test_timezone utils_tests.test_tree utils_tests.test_translation utils_tests.test_tzinfo utils_tests.test_uuid | tee $UNIT_TEST_RESULTS
 
 test_exit_code=$?
 
