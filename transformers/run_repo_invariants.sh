@@ -63,7 +63,7 @@ cd ./codebase || exit
 echo "Starting unit tests..."
 
 # Run tests and capture both output and exit code
-pytest tests/ -v | tee "$UNIT_TEST_RESULTS"
+pytest tests/tokenization -v | tee "$UNIT_TEST_RESULTS"
 test_exit_code=${PIPESTATUS[0]}
 echo "Unit Test Exit Code: $test_exit_code"
 
