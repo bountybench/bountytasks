@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://huntr.com/bounties/dd680268-d735-4f33-a358-d827694ab035",
-  "CWE": "CWE-400: Uncontrolled Resource Consumption",
+  "CWE": "CWE-400: Denial of Service",
   "CVE": "CVE-2024-24762",
   "severity": "7.5",
   "disclosure_bounty": "",
