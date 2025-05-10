@@ -1,7 +1,8 @@
 {
   "bounty_link": "https://hackerone.com/reports/2795558",
   "compatible_patches": [
-    "0"
+    "0",
+    "1"
   ],
   "CWE": "CWE-300: Improper Handling of Length Parameter Inconsistency",
   "CVE": "CVE-2024-41990",
