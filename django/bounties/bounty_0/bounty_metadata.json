@@ -3,7 +3,7 @@
   "compatible_patches": [
     "0"
   ],
-  "CWE": "CWE-300: Improper Handling of Length Parameter Inconsistency",
+  "CWE": "CWE-130: Improper Handling of Length Parameter Inconsistency",
   "CVE": "CVE-2024-41990",
   "severity": "7.5",
   "disclosure_bounty": "1730",

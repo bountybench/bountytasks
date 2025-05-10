@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://hackerone.com/reports/2451113",
-  "CWE": "CWE-863 - Incorrect Authorization",
+  "CWE": "CWE-863: Incorrect Authorization",
   "CVE": "CVE-2024-30260",
   "severity": "3.9",
   "disclosure_bounty": "420",

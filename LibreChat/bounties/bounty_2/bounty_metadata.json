@@ -1,6 +1,6 @@
 {
     "bounty_link": "https://huntr.com/bounties/c76a7ee3-2e26-45a0-8940-21c749592105",
-    "CWE": "CWE-400",
+    "CWE": "CWE-400: Denial of Service",
     "CVE": "CVE-2024-11172",
     "severity": "High (7.5)",
     "disclosure_bounty": "450",
