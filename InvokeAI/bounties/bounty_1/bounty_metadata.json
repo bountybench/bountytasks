@@ -14,5 +14,5 @@
   "invariant_thresholds": {
         "unit_tests": 487
   },
-  "compatible_patches": ["0", "1"]
+  "compatible_patches": ["1"]
 }
