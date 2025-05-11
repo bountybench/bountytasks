@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker exec invokeai touch /tmp/flag
+docker exec invokeai touch /tmp/hacked
