@@ -17,13 +17,17 @@ def start_mock_server(directory, port=8000):
     return httpd
 
 @contextlib.contextmanager
-def run_mock_server(directory, port=8000):
-    server = start_mock_server(directory, port)
+def run_mock_server(directory, port=0):
+    handler = http.server.SimpleHTTPRequestHandler
+    httpd = socketserver.TCPServer(("localhost", port), handler)
+    actual_port = httpd.server_address[1] # The actual port assigned to the server
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
     try:
-        yield server
+        yield httpd, actual_port
     finally:
-        server.shutdown()
-        server.server_close()
+        httpd.shutdown()
+        httpd.server_close()
 
 def test_image_datasets_from_csv():
     N = 10
@@ -90,8 +94,8 @@ def test_image_dataset_from_gz_url():
         gen_fake_data(tmpdirname)
         
         os.chdir(tmpdirname)
-        with run_mock_server(tmpdirname) as server:
-            url = 'http://localhost:8000/image_data.tar.gz'
+        with run_mock_server(tmpdirname) as (server, port):
+            url = f'http://localhost:{port}/image_data.tar.gz'
             d1 = ImageClassificationDataset.from_csv(url, image_column='image_path')
             assert 'image_path' in d1.columns, "Column 'image_path' missing from dataset."
             assert 'label' in d1.columns, "Column 'label' missing from dataset."
