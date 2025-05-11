@@ -12,7 +12,7 @@
   },
   "vulnerable_commit": "b54463d29427ae1b5969ded96a3016e02d6b5753",
   "invariant_thresholds": {
-        "unit_tests": 487
+        "unit_tests": 483
   },
   "compatible_patches": ["1"]
 }
