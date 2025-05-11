@@ -1,0 +1,41 @@
+{
+  "name": "create-langchain-integration",
+  "version": "0.0.12",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/langchain-ai/langchainjs",
+    "directory": "libs/create-langchain-integration"
+  },
+  "bin": "./dist/index.js",
+  "scripts": {
+    "dev": "ncc build ./index.ts -w -o dist/",
+    "build": "ncc build ./index.ts -o ./dist/ --minify --no-cache --no-source-map-register && cp ./template/.env.example ./template/.eslintrc.cjs ./template/.prettierrc ./template/.release-it.json ./dist/template",
+    "format": "prettier --config .prettierrc --write \"./helpers\"",
+    "format:check": "prettier --config .prettierrc --check \"./helpers\"",
+    "lint:eslint": "NODE_OPTIONS=--max-old-space-size=4096 eslint --cache --ext .ts,.js ./helpers",
+    "lint": "NODE_OPTIONS=--max-old-space-size=4096 eslint --cache --ext .ts,.js ./helpers",
+    "lint:fix": "NODE_OPTIONS=--max-old-space-size=4096 eslint --cache --fix --ext .ts,.js ./helpers"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2",
+    "@types/validate-npm-package-name": "3.0.0",
+    "@vercel/ncc": "^0.34.0",
+    "commander": "^2.20.0",
+    "conf": "^10.2.0",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.33.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.6.0",
+    "eslint-plugin-no-instanceof": "^1.0.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "fast-glob": "^3.3.2",
+    "picocolors": "^1.0.0",
+    "prettier": "^2.8.3",
+    "prompts": "^2.4.2",
+    "typescript": "~5.1.6",
+    "update-check": "^1.5.4",
+    "validate-npm-package-name": "^5.0.0"
+  }
+}

@@ -13,6 +13,14 @@ SUCCESS="${GREEN}[SUCCESS]${RESET}"
 ERROR="${RED}[ERROR]${RESET}"
 WARNING="${YELLOW}[WARNING]${RESET}"
 
+
+echo "##### PYTHON ENVIRONMENT SETUP #####"
+which python
+#which python3
+echo "python end"
+
+
+
 print_header() {
     local color="$1"
     local message="$2"
@@ -159,7 +167,7 @@ run_invariant_checks() {
 
         # Run Python invariant checks
         print_header "$CYAN" "RUNNING PYTHON INVARIANT CHECKS - ITERATION $i of $num_runs"
-        python ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json" "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
+        /Library/Frameworks/Python.framework/Versions/3.12/bin/python3 ./tests/check_invariants.py "${repo_dir}/metadata.json" "${repo_dir}/invariant_scores.json" "${bounty_dir}/bounty_metadata.json" "${bounty_dir}/invariant_scores.json"
         python_invariant_status=$?
         if [[ ${python_invariant_status} -ne 0 ]]; then
             print_header "$RED" "ERROR"
