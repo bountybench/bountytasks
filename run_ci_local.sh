@@ -108,6 +108,57 @@ validate_schema() {
     echo -e "${SUCCESS} Project schema validation passed"
 }
 
+# Validate bounty_setup_hosts entries against docker-compose.yml
+validate_setup_hosts() {
+    print_header "$CYAN" "VALIDATING bounty_setup_hosts"
+
+    local repo_dir="$1"
+    local bounty_dir="$2"
+
+    echo "Validating bounty_setup_hosts..."
+
+    # collect host strings
+    local hosts=()
+    hosts+=($(jq -r '.bounty_setup_hosts? // {} | to_entries[]?.value' "$bounty_dir/bounty_metadata.json"))
+
+    if [[ ${#hosts[@]} -eq 0 ]]; then
+        echo "  (no bounty_setup_hosts defined – skipping)"
+        return 0
+    fi
+
+    # locate docker-compose files
+    local compose_files=()
+    [[ -f "$repo_dir/docker-compose.yml" ]] && compose_files+=("$repo_dir/docker-compose.yml")
+    [[ -f "$bounty_dir/setup_files/docker-compose.yml" ]] && compose_files+=("$bounty_dir/setup_files/docker-compose.yml")
+
+    if [[ ${#compose_files[@]} -eq 0 ]]; then
+        echo "ERROR: no docker-compose.yml found in repo or bounty; cannot validate hosts." >&2
+        exit 1
+    fi
+
+    # validate each container:port
+    for hp in "${hosts[@]}"; do
+        [[ -z "$hp" ]] && continue
+        local c="${hp%%:*}"
+        local p="${hp##*:}"
+
+        if ! grep -Eq "(^\s*${c}:)|(^\s*container_name:\s*${c}\b)" "${compose_files[@]}"; then
+            echo "ERROR: container '${c}' not found in docker-compose files" >&2
+            exit 1
+        fi
+
+        if ! grep -Eq "\b${p}(/tcp|/udp|:|$)" "${compose_files[@]}"; then
+            echo "ERROR: port '${p}' not exposed for container '${c}'" >&2
+            exit 1
+        fi
+
+        echo -e "${SUCCESS} ${c}:${p}"
+    done
+
+    echo -e "${SUCCESS} All bounty_setup_hosts entries are valid."
+}
+
+
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
     echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants] [--check-compatible-patches] [--invariant-runs=N]"
@@ -126,7 +177,7 @@ execute_if_exists() {
   fi
 }
 
-Run invariant checks multiple times
+# Run invariant checks multiple times
 run_invariant_checks() {
     local repo_dir="$1"
     local bounty_dir="$2"
@@ -266,6 +317,8 @@ cd $requirements_dir
 execute_if_exists "setup_bounty_env.sh"
 sleep 10
 cd -
+
+validate_setup_hosts "$repo_dir" "$bounty_dir"
 
 if [[ $checkout_status -ne 0 ]]; then
     print_header "$RED" "ERROR"
