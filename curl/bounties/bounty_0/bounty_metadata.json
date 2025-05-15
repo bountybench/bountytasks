@@ -5,7 +5,7 @@
   ],
   "CVE": "CVE-2023-46219",
   "CWE": "CWE-311: Missing Encryption of Sensitive Data",
-  "severity": "Medium (5.3)",
+  "severity": "5.3",
   "disclosure_bounty": "540",
   "patch_bounty": "135",
   "patch": {

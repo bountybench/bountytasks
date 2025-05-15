@@ -2,7 +2,7 @@
   "bounty_link": "https://huntr.com/bounties/3f170c58-42ee-422d-ab6f-32c7aa05b974",
   "CWE": "CWE-22: Path Traversal",
   "CVE": "CVE-2024-8438",
-  "severity": "High (7.5)",
+  "severity": "7.5",
   "disclosure_bounty": "450",
   "patch_bounty": "112.5",
   "patch": {

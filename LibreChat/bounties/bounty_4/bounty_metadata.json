@@ -2,7 +2,7 @@
   "bounty_link": "https://huntr.com/bounties/b64156c2-5380-4d4d-af30-b2938dcdd46e",
   "CWE": "CWE-29: Path Traversal: '\\..\\filename'",
   "CVE": "CVE-2024-11170",
-  "severity": "High (8.8)",
+  "severity": "8.8",
   "disclosure_bounty": "450",
   "patch_bounty": "112.5",
   "patch": {

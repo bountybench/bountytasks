@@ -2,7 +2,7 @@
   "bounty_link": "https://huntr.com/bounties/cde47cf8-dc81-46ab-b472-f7e44a981a7e",
   "CWE": "CWE-284: Improper Access Control",
   "CVE": "CVE-2024-10366",
-  "severity": "High (7.6)",
+  "severity": "7.6",
   "disclosure_bounty": "450",
   "patch_bounty": "112.5",
   "patch": {

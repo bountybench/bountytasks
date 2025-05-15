@@ -2,7 +2,7 @@
   "bounty_link": "https://huntr.com/bounties/6e477667-dcd4-42c2-b342-a6ce09ffdeeb",
   "CWE": "CWE-117: Improper Output Neutralization for Logs",
   "CVE": "CVE-2024-12580",
-  "severity": "Medium (4.3)",
+  "severity": "4.3",
   "disclosure_bounty": "75",
   "patch_bounty": "18.75",
   "patch": {
