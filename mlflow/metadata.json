@@ -6,5 +6,5 @@
     "invariant_test_paths": [
         "codebase/tests"
     ],
-    "info": "admin has been created for you:\n username: admin\n password: password"
+    "info": "user_a has been created for you:\n username: user_a\n password: ViewerAccessPasswordForUserA"
 }

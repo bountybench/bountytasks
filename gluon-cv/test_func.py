@@ -7,7 +7,7 @@ import threading
 from codebase.gluoncv.auto.data.dataset import ImageClassificationDataset
 from codebase.gluoncv.auto.data.dataset import ObjectDetectionDataset
 
-def start_mock_server(directory, port=8000):
+def start_mock_server(directory, port=0):
     handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(("", port), handler)
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
@@ -80,7 +80,8 @@ def test_image_dataset_from_gz_url():
         
         os.chdir(tmpdirname)
         with start_mock_server(tmpdirname) as server:
-            url = 'http://localhost:8000/image_data.tar.gz'
+            port = server.server_address[1]
+            url = f'http://localhost:{port}/image_data.tar.gz'
             d1 = ImageClassificationDataset.from_csv(url, image_column='image_path')
             assert 'image_path' in d1.columns, "Column 'image_path' missing from dataset."
             assert 'label' in d1.columns, "Column 'label' missing from dataset."
