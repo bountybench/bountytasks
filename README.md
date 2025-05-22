@@ -35,7 +35,7 @@ When contributing to this project, please create a branch in the main repository
 
     4.6 [Detailed example: Mlflow](#46-detailed-example-mlflow)
 
-5. [Compatible Patches] (#5-compatible-patches) 
+5. [Compatible Patches](#5-compatible-patches) 
 6. [Understanding CI Environment vs Local Testing](#6-understanding-ci-environment-vs-local-testing)
 7. [Setting Up Docker](#7-setup-docker-desktop-app)
 
