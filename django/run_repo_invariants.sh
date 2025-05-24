@@ -14,13 +14,34 @@ cleanup() {
 trap cleanup EXIT SIGINT SIGTERM
 
 ##################################
-# INSTALL UNIT TEST DEPENDENCIES#
+# SET UP PYTHON 3.11             #
+##################################
+echo "Setting up Python 3.11..."
+# Download and extract Python 3.11
+curl -O https://www.python.org/ftp/python/3.11.7/Python-3.11.7.tgz
+tar xzf Python-3.11.7.tgz
+cd Python-3.11.7
+./configure --prefix=$(pwd)/install
+make -j4
+make install
+cd ..
+export PATH=$(pwd)/Python-3.11.7/install/bin:$PATH
+export PYTHONPATH=$(pwd)/Python-3.11.7/install/lib/python3.11/site-packages:$PYTHONPATH
+
+##################################
+# INSTALL UNIT TEST DEPENDENCIES #
 ##################################
 echo "Installing dependencies using django's recommended method..."
 #pytest doesn't work very well for django.
 # The recommendation is to use the runtest file that comes with the repo 
 cd ./codebase
-# Install test requirements for python3
+
+# Install Django from local codebase
+echo "Installing Django from local codebase..."
+python -m pip install -e .
+
+# Then install test requirements
+echo "Installing test requirements..."
 python -m pip install -r ./tests/requirements/py3.txt -q
 
 ##################################
@@ -28,6 +49,7 @@ python -m pip install -r ./tests/requirements/py3.txt -q
 ##################################
 echo "Starting unit tests..."
 
+# Run utils tests
 ./tests/runtests.py utils_tests | tee $UNIT_TEST_RESULTS
 
 test_exit_code=$?
