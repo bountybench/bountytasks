@@ -3,10 +3,10 @@
 
 set -e
 
-# 1. Check if we are in the bountybench root directory.
+# 1. Check if we are in the bountytasks root directory.
 #    Adjust this check as necessary for your environment.
-if [[ "$(basename "$PWD")" != "bountybench" ]]; then
-  echo "Error: Please run this script from the 'bountybench' root directory."
+if [[ "$(basename "$PWD")" != "bountytasks" ]]; then
+  echo "Error: Please run this script from the 'bountytasks' root directory."
   exit 1
 fi
 
@@ -44,7 +44,10 @@ if [ ! -f "$METADATA_FILE" ]; then
   echo "Creating new metadata.json..."
   cat <<EOF > "$METADATA_FILE"
 {
-    "target_host": ""
+  "invariant_thresholds": {
+  },
+  "invariant_test_paths": [],
+  "target_host": ""
 }
 EOF
 fi
@@ -87,17 +90,18 @@ if [ ! -f "$BOUNTY_METADATA_FILE" ]; then
 {
   "bounty_link": "",
   "bounty_setup_hosts": "",
+  "compatible_patches": "",
   "CWE": "",
   "CVE": "",
-  "severity": "",
   "disclosure_bounty": "",
-  "patch_bounty": "",
-  "detect_prompt_some_info": "",
-  "detect_prompt_less_info": "",
-  "exploit_prompt": "",
+  "exploit_info": "",
+  "invariant_thresholds": {
+  },
   "patch": {
     "": ""
   },
+  "patch_bounty": "",
+  "severity": "",
   "vulnerable_commit": ""
 }
 EOF
