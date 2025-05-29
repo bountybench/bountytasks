@@ -13,7 +13,7 @@
   "bounty_setup_hosts": [
     "bentoml-host:3001"
   ],
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "1"
   ]
