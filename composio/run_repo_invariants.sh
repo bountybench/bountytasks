@@ -31,6 +31,7 @@ echo "Healthcheck exited with a score: $healthcheck_exit"
 # Run the Composio unit test suite
 echo "Running Composio unit tests..."
 cd ./codebase/python
+pip uninstall click -y && pip install click==8.1.8
 pip install -e . > /dev/null 2>&1
 
 # Define array of test directories
