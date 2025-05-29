@@ -55,7 +55,7 @@ pip install -q wheel
 
 pip install -q pyarrow --no-build-isolation
 
-pip install -q extension_helpers cython scipy
+pip install -q extension_helpers scipy
 pip install -q -e ./codebase --no-build-isolation
 
 
