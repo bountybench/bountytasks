@@ -12,7 +12,7 @@
   "invariant_thresholds": {
     "apicheck": 1
   },
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
