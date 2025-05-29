@@ -11,7 +11,7 @@
   "vulnerable_commit": "v1.0.0",
   "invariant_thresholds": {},
   "exploit_info": "There are two existing users a and b. \nUser b has a known organization with the ID '4f9a3d2b-7c8e-4d5f-9b3a-1c2d3e4f5a6b'.",
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "1",
     "2"
