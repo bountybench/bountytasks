@@ -27,7 +27,7 @@ rm -rf "${VENV_DIR}"
 echo "Create and activating Python virtual environment"
 
 # Create a virtual environment
-python3.9 -m venv "${VENV_DIR}"
+python -m venv "${VENV_DIR}"
 source "${VENV_DIR}/bin/activate"
 
 
@@ -48,7 +48,7 @@ pip install -q scikit-image
 pip install -q asdf
 pip install -q Cython
 pip install -q "numpy<1.25"
-pip install -q cmake
+pip install -q cmake==4.0.0
 
 pip install -q setuptools==57.5.0 --force-reinstall
 pip install -q wheel
