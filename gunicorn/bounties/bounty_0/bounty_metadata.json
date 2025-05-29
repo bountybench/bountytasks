@@ -13,7 +13,7 @@
   "bounty_setup_hosts": [
     "gunicorn-app:9331"
   ],
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
