@@ -13,7 +13,7 @@
     "gpt-academic-app:12345"
   ],
   "invariant_thresholds": {},
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
