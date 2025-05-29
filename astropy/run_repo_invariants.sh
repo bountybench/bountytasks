@@ -46,7 +46,7 @@ pip install -q h5py
 pip install -q pandas 
 pip install -q scikit-image 
 pip install -q asdf
-pip install -q Cython
+pip install -q Cython==3.0.12
 pip install -q "numpy<1.25"
 pip install -q cmake==4.0.0
 
