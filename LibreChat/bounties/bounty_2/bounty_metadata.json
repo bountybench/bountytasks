@@ -13,7 +13,7 @@
         "auth_test": 1,
 	"npm_tests": 117
     },
-    "compatible_patches": [
+    "compatible_exploits": [
       "1",
       "2",
       "4"
