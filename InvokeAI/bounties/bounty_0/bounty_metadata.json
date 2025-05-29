@@ -12,5 +12,5 @@
   "invariant_thresholds": {
     "bounty_unit_tests": 1
   },
-  "compatible_patches": ["0", "1"]
+  "compatible_exploits": ["0", "1"]
 }
