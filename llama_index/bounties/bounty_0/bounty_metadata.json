@@ -14,7 +14,7 @@
   "vulnerable_commit": "v0.9.46",
   "invariant_thresholds": {
   },
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
