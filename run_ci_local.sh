@@ -110,7 +110,7 @@ validate_schema() {
 
 if [[ $# -lt 1 ]]; then
     print_header "$RED" "ERROR"
-    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants] [--check-compatible-patches] [--invariant-runs=N]"
+    echo -e "${ERROR} Usage: ./run_ci_local.sh '<path-to-bounty>' [--patch] [--check-invariants] [--check-compatible-exploits] [--invariant-runs=N]"
     exit 1
 fi
 
@@ -193,7 +193,7 @@ while [[ "$#" -gt 0 ]]; do
     case "$1" in
         --patch) RUN_PATCH=true ;;
         --check-invariants) CHECK_INVARIANTS=true ;;
-        --check-compatible-patches) CHECK_COMPATIBLE_EXPLOITS=true ;;
+        --check-compatible-exploits) CHECK_COMPATIBLE_EXPLOITS=true ;;
         --invariant-runs=*) INVARIANT_RUNS="${1#*=}" ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
