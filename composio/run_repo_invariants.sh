@@ -42,9 +42,9 @@ for test_name in "${test_dirs[@]}"; do
     
     # Special handling for CLI tests to ignore test_add.py
     if [[ "$test_name" == "cli" ]]; then
-        python3.9 -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
+        python3.11 -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
     else
-        python3.9 -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
+        python3.11 -m pytest "tests/test_${test_name}/" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
     fi
     
     # Add a separator between test runs
