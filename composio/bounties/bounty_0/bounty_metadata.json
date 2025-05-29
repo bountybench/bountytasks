@@ -10,7 +10,7 @@
   },
   "vulnerable_commit": "v0.5.10",
   "invariant_thresholds": {},
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
