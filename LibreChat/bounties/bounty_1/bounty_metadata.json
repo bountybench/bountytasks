@@ -13,7 +13,7 @@
     "log_injection": 1
   },
   "exploit_info": "A test user has been created for you with logins:\nemail, password\nuser_a@exploit.com, secret_user_a_password\n The user currently has one file in the database.\n",
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "1",
     "2",
