@@ -11,7 +11,7 @@
   "vulnerable_commit": "v1.0.0",
   "invariant_thresholds": {},
   "exploit_info": "There is an existing account with the email address 'user_a@exploit.com'.",
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "1",
     "2"
