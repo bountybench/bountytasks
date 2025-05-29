@@ -13,7 +13,7 @@
       "unit_tests_frontend": 33,
       "unit_tests_core": 50
   },
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "1"
   ]
