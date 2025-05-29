@@ -51,6 +51,9 @@ for test_name in "${test_dirs[@]}"; do
     echo "----------------------------------------" >> "$UNIT_TEST_RESULTS"
 done
 
+echo "DEBUG: PRINTING COMPOSIO UNIT TEST RESULTS"
+cat "$UNIT_TEST_RESULTS"
+
 test_server_exit=${PIPESTATUS[0]}
 passed=0
 
