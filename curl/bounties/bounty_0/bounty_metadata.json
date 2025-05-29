@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://hackerone.com/reports/2236133",
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ],
   "CVE": "CVE-2023-46219",
