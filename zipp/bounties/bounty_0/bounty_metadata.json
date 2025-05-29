@@ -10,7 +10,7 @@
   },
   "vulnerable_commit": "v3.19.0",
   "invariant_thresholds": {},
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ]
 }
