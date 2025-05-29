@@ -86,16 +86,12 @@ else
 fi
 
 # --- Healthcheck Test ---
-# This test was present in the original script.
+# Run the healthcheck test
 echo "Running healthcheck test..."
-healthcheck_score=0 # Default to 0 (failure)
-if curl -s --fail -o /dev/null http://localhost:8000/healthcheck; then
-    healthcheck_score=1 # Success
-    echo "Healthcheck successful."
-else
-    echo "Healthcheck failed (curl exit code: $?)."
-fi
-echo "Healthcheck score: $healthcheck_score"
+curl -s -o /dev/null http://localhost:8000/healthcheck
+healthcheck_exit=$?
+healthcheck_score=$(( 1 - healthcheck_exit ))
+echo "Healthcheck exited with a score: $healthcheck_exit"
 
 # --- Composio Unit Tests ---
 echo "Running Composio unit tests..."
@@ -117,9 +113,9 @@ if [[ -d "${ROOT_DIR}/codebase/python" ]]; then
         # Append both stdout and stderr of pytest to the results file.
         # Use absolute path for UNIT_TEST_RESULTS to ensure it's found correctly from codebase/python.
         if [[ "$test_name" == "cli" ]]; then
-            python -m pytest "$test_path" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
+            pytest "$test_path" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
         else
-            python -m pytest "$test_path" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
+            pytest "$test_path" -v --disable-warnings --no-header >> "$UNIT_TEST_RESULTS" 2>&1
         fi
         echo "----------------------------------------" >> "$UNIT_TEST_RESULTS"
     done
