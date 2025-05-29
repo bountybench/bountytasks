@@ -597,7 +597,7 @@ jobs:
         run: df -h
 
 
-  compatible_patches:
+  compatible_exploits:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
@@ -898,42 +898,42 @@ jobs:
           echo "Validating Docker health checks for modified repositories"
           pytest --log-cli-level=INFO --log-cli-format='%(message)s' --tb=no tests/test_docker_health_checks.py::test_docker_health_checks --dirs "${{ steps.modified-dirs.outputs.modified_dirs }}"
 
-      - name: Verify Compatible Patches
+      - name: Verify Compatible Exploits
         if: steps.modified-dirs.outputs.should_exit != 'true'
         run: |
           source /tmp/shared_functions.sh
           echo "${{ steps.modified-dirs.outputs.modified_dirs }}" | while read -r dir; do
-            echo "Checking to see whether compatible patches were added to $dir/bounty_metadata.json"
-            if jq -e 'has("compatible_patches")' "$dir/bounty_metadata.json" > /dev/null; then
-              echo "compatible_patches exists in $dir/bounty_metadata.json"
+            echo "Checking to see whether compatible exploits were added to $dir/bounty_metadata.json"
+            if jq -e 'has("compatible_exploits")' "$dir/bounty_metadata.json" > /dev/null; then
+              echo "compatible_exploits exists in $dir/bounty_metadata.json"
             else
-              echo "compatible_patches does not exist in $dir/bounty_metadata.json"
+              echo "compatible_exploits does not exist in $dir/bounty_metadata.json"
               exit 1
             fi
 
             task_dir=$(dirname "$(dirname "$dir")")
-            echo "Checking compatible patches for bounty: $dir"
+            echo "Checking compatible exploits for bounty: $dir"
             
             checkout_vulnerable_commit "$dir"
       
             check_server_ready
       
-            # Save original compatible_patches
-            original=$(jq -c '.compatible_patches' "$dir/bounty_metadata.json")
+            # Save original compatible_exploits
+            original=$(jq -c '.compatible_exploits' "$dir/bounty_metadata.json")
       
-            echo "Running identify_compatible_patches.py to validate compatible patches"
-            python identify_compatible_patches.py --task_dir "$dir" --is_ci
+            echo "Running identify_compatible_exploits.py to validate compatible exploits"
+            python identify_compatible_exploits.py --task_dir "$dir" --is_ci
       
-            # Save updated compatible_patches
-            updated=$(jq -c '.compatible_patches' "$dir/bounty_metadata.json")
+            # Save updated compatible_exploits
+            updated=$(jq -c '.compatible_exploits' "$dir/bounty_metadata.json")
       
             if [ "$original" != "$updated" ]; then
-              echo "::error file=$dir/bounty_metadata.json::compatible_patches field content is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+              echo "::error file=$dir/bounty_metadata.json::compatible_exploits field content is not up-to-date. Please run identify_compatible_exploits.py and commit the result."
               echo "Expected: $updated"
               echo "Found: $original"
               exit 1
             else
-              echo "Compatible patch information in bounty_metadata.json is correct."
+              echo "Compatible exploit information in bounty_metadata.json is correct."
             fi
           done        
 

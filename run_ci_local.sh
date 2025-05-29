@@ -185,7 +185,7 @@ shift
 
 RUN_PATCH=false
 CHECK_INVARIANTS=false
-CHECK_COMPATIBLE_PATCHES=false
+CHECK_COMPATIBLE_EXPLOITS=false
 INVARIANT_RUNS=3  # Default to 3 runs
 
 # Loop through arguments
@@ -193,7 +193,7 @@ while [[ "$#" -gt 0 ]]; do
     case "$1" in
         --patch) RUN_PATCH=true ;;
         --check-invariants) CHECK_INVARIANTS=true ;;
-        --check-compatible-patches) CHECK_COMPATIBLE_PATCHES=true ;;
+        --check-compatible-patches) CHECK_COMPATIBLE_EXPLOITS=true ;;
         --invariant-runs=*) INVARIANT_RUNS="${1#*=}" ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
@@ -402,34 +402,34 @@ echo -e "${INFO} ${final_log}\n"
 print_header "$GREEN" "EXPLOIT MODE SUCCEEDED"
 echo -e "${SUCCESS} Verify script after exploit completed successfully."
 
-# Clean untracked files in codebase before compatible patch test
-print_header "$CYAN" "CLEANING BEFORE COMPATIBLE PATCH"
+# Clean untracked files in codebase before compatible exploits test
+print_header "$CYAN" "CLEANING BEFORE COMPATIBLE EXPLOIT"
 cd "${repo_dir}/codebase"
 git clean -fdx
 git reset --hard "$vulnerable_commit"
 cd -
 
-if [[ "$CHECK_COMPATIBLE_PATCHES" == true ]]; then
-    print_header "$CYAN" "CHECKING COMPATIBLE PATCHES"
+if [[ "$CHECK_COMPATIBLE_EXPLOITS" == true ]]; then
+    print_header "$CYAN" "CHECKING COMPATIBLE EXPLOITS"
 
-    if jq -e 'has("compatible_patches")' "${bounty_dir}/bounty_metadata.json" > /dev/null; then
-        echo "${INFO} compatible_patches exists in ${bounty_dir}/bounty_metadata.json"
+    if jq -e 'has("compatible_exploits")' "${bounty_dir}/bounty_metadata.json" > /dev/null; then
+        echo "${INFO} compatible_exploits exists in ${bounty_dir}/bounty_metadata.json"
     else
-        echo "${ERROR} compatible_patches does not exist in ${bounty_dir}/bounty_metadata.json"
+        echo "${ERROR} compatible_exploits does not exist in ${bounty_dir}/bounty_metadata.json"
         exit 1
     fi
 
-    echo "Running identify_compatible_patches.py in verify mode to validate compatible patches"
-    python identify_compatible_patches.py --task_dir "${bounty_dir}"
+    echo "Running identify_compatible_exploits.py in verify mode to validate compatible exploits"
+    python identify_compatible_exploits.py --task_dir "${bounty_dir}"
 
     if ! git diff --exit-code "${bounty_dir}/bounty_metadata.json"; then
-        echo "${ERROR} ::error file=${bounty_dir}/bounty_metadata.json::compatible_patches field is not up-to-date. Please run identify_compatible_patches.py and commit the result."
+        echo "${ERROR} ::error file=${bounty_dir}/bounty_metadata.json::compatible_exploits field is not up-to-date. Please run identify_compatible_exploits.py and commit the result."
         exit 1
     else
-        echo "${SUCCESS} Compatible patch information in ${bounty_dir}/bounty_metadata.json is correct."
+        echo "${SUCCESS} Compatible exploit information in ${bounty_dir}/bounty_metadata.json is correct."
     fi
 else
-    print_header "$CYAN" "SKIP COMPATIBLE PATCH CHECK"
+    print_header "$CYAN" "SKIP COMPATIBLE EXPLOIT CHECK"
 fi
 
 # Clean untracked files in codebase before patch test

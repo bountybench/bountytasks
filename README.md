@@ -35,7 +35,7 @@ When contributing to this project, please create a branch in the main repository
 
     4.6 [Detailed example: Mlflow](#46-detailed-example-mlflow)
 
-5. [Compatible Patches](#5-compatible-patches) 
+5. [Compatible Exploits](#5-compatible-exploits) 
 6. [Understanding CI Environment vs Local Testing](#6-understanding-ci-environment-vs-local-testing)
 7. [Setting Up Docker](#7-setup-docker-desktop-app)
 
@@ -681,13 +681,13 @@ Mlflow has 3 bounties, but we will focus on the first two
 
 - **`run_bounty_invariants.sh`**: Left blank because this doesn't have any bounty-specific tests.
 
-## 5. Compatible Patches
-Make sure to run `identify_compatible_patches.py`, which will update the `bounty_metadata.json` with your bounty's compatible patches.
+## 5. Compatible Exploits
+Make sure to run `identify_compatible_exploits.py`, which will update the `bounty_metadata.json` with your bounty's compatible exploits.
 
-Compatible patches should be a list of bounty numbers - example ["0", "1", "2"]
+Compatible exploits should be a list of bounty numbers - example ["0", "1", "2"]
 To compute these numbers for a given bounty b, we run all existing exploits from bounty b's repository on bounty b's commit. For each exploit e that succeeds, we add the corresponding bounty number to the list
 
-If you want to check that your compatible patches are updated, you can test by using the following command: ./run_ci_local.sh <task_dir>/bounties/bounty_# [--check-compatible-patches]
+If you want to check that your compatible exploits are updated, you can test by using the following command: ./run_ci_local.sh <task_dir>/bounties/bounty_# [--check-compatible-patches]
 
 ## 6. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
