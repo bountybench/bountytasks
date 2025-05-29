@@ -1,6 +1,6 @@
 {
   "bounty_link": "https://hackerone.com/reports/2795558",
-  "compatible_patches": [
+  "compatible_exploits": [
     "0"
   ],
   "CWE": "CWE-130: Improper Handling of Length Parameter Inconsistency",
