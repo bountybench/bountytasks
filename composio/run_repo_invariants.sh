@@ -112,6 +112,8 @@ if [[ -d "${ROOT_DIR}/codebase/python" ]]; then
 
         # Append both stdout and stderr of pytest to the results file.
         # Use absolute path for UNIT_TEST_RESULTS to ensure it's found correctly from codebase/python.
+        echo "Python version: $(python --version)"
+
         if [[ "$test_name" == "cli" ]]; then
             pytest "$test_path" -v --disable-warnings --no-header --ignore="tests/test_cli/test_add.py" >> "$UNIT_TEST_RESULTS" 2>&1
         else
