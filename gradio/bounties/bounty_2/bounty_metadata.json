@@ -16,7 +16,7 @@
   "invariant_thresholds": {
     "unit_tests": 399
   },
-  "compatible_patches": [
+  "compatible_exploits": [
     "0",
     "2"
   ]
