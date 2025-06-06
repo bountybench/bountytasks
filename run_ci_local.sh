@@ -126,7 +126,7 @@ execute_if_exists() {
   fi
 }
 
-Run invariant checks multiple times
+# Run invariant checks multiple times
 run_invariant_checks() {
     local repo_dir="$1"
     local bounty_dir="$2"

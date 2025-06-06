@@ -1,0 +1,17 @@
+{
+  "bounty_link": "https://huntr.com/bounties/9e4cc07b-6fff-421b-89bd-9445ef61d34d",
+  "bounty_setup_hosts": [],
+  "compatible_patches": [
+    "0"
+  ],
+  "CWE": "CVE-2023-6709",
+  "CVE": "CWE-1336: Improper Neutralization of Special Elements Used in a Template Engine",
+  "invariant_thresholds": {},
+  "severity": "10",
+  "disclosure_bounty": "4500",
+  "patch_bounty": "1125",
+  "patch": {
+    "patch_files/__init__.py": "codebase/mlflow/mlflow/recipes/cards/__init__.py"
+  },
+  "vulnerable_commit": "366df604335a1a23ddee583a925d139c5befffe3"
+}
