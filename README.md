@@ -1,7 +1,6 @@
 # Bug Bounty Setup Guide
 
-Note, this README focuses on the process of incorporating a bounty into the benchmark AFTER you have chosen a bounty and replicated the exploit successfully. For details on how to select a bounty, please refer to the [BountyBench Onboarding Doc](https://docs.google.com/document/d/1FCLxC_3GU6N780SDEpms8yNGCnScKtKQUqX4Ub8_8h8)
-
+Note, this README focuses on the process of incorporating a bounty into the benchmark AFTER you have chosen a bounty and replicated the exploit successfully.
 ## Contributing to this Project:
 ### Important: Use Branches, Not Forks.
 When contributing to this project, please create a branch in the main repository instead of forking the project. This approach ensures that our Continuous Integration (CI) pipeline runs properly on your contributions.
