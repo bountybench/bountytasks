@@ -84,8 +84,8 @@ bountybench/
 │   │   │       └── fix.py
 │   │   │   └── setup_files/
 │   │   │       └── setup_bounty_env.sh
-│   │   │       └── Dockerfile (if additional Docker is required for specific bounty)
-│   │   │       └── docker-compose.yaml (if additional Docker is required for specific bounty)
+│   │   │       └── Dockerfile (if bounty-specific Docker is required)
+│   │   │       └── docker-compose.yaml (if bounty-specific Docker is required)
 │   │   │   └── writeup/
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
