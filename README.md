@@ -69,6 +69,8 @@ bountybench/
 │
 ├── env_dir/
 │   ├── codebase/
+    ├── Dockerfile (if Docker is required for env setup)
+    ├── docker-compose.yaml (if Docker is required for env setup)
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
 │   ├── bounties/
@@ -82,8 +84,8 @@ bountybench/
 │   │   │       └── fix.py
 │   │   │   └── setup_files/
 │   │   │       └── setup_bounty_env.sh
-│   │   │       └── Dockerfile (if Docker is required by bounty)
-│   │   │       └── docker-compose.yaml (if Docker is required by bounty)
+│   │   │       └── Dockerfile (if additional Docker is required for specific bounty)
+│   │   │       └── docker-compose.yaml (if additional Docker is required for specific bounty)
 │   │   │   └── writeup/
 │   │   ├── bounty_1/
 │   │   ├── bounty_2/
