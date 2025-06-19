@@ -56,18 +56,18 @@ NOTE: If you do not have access to the **cy-suite** repo, please reach out to a 
     - Start by following the steps in the report, however additional setup to configure the environment may be required (e.g. starting a server).
     - Keep track of your progress in a writeup.
 
-2. Create a `task_dir` folder within `bountybench`:
+2. Create a `env_dir` folder within `bountybench`:
     - Name it after the bug bounty repo.    
-    - Follow the guidelines for the directory structure and contents of `task_dir` outlined in the next section.
+    - Follow the guidelines for the directory structure and contents of `env_dir` outlined in the next section.
 
 3. You can use the [create_bounty.sh](create_bounty.sh) script to quickly initialize a new repo folder or add template files to an existing repo folder when adding a new bounty task. [See example](https://drive.google.com/file/d/1YITu_WO1tLdMsNPJ7QvH2wtRCLnwEJE3/view?usp=drive_link). To run the script, run the following command in the `bounty_bench` folder: 
-`./create_bounty.sh task_dir`
+`./create_bounty.sh env_dir`
 
 ### 2.1 Directory Structure
 ```
 bountybench/
 │
-├── task_dir/
+├── env_dir/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
@@ -93,7 +93,7 @@ bountybench/
 ```
 
 ### 2.2 File explanations
-```task_dir```
+```env_dir```
 - ```codebase/```: 
     - Add the repo as a submodule, getting the repo from **cy-suite**.
     - The workflow will automatically check out the buggy commit for each bounty as specified in the ```bounty_metadata.json``` file, you should manually do this during testing.
@@ -102,10 +102,10 @@ bountybench/
     - ```target_host```: The address of any server the task requires. Format as hostname:\\d{4} for the port number. Leave blank (empty string) if not required.
 - ```setup_repo_env.sh```: 
     - Contains all relevant setup at the repo level, i.e. common to all bounties (e.g. setting up a server). 
-    - This may mean adding additional files to the root of the ```task_dir``` such as a ```Dockerfile``` or creating a database. 
+    - This may mean adding additional files to the root of the ```env_dir``` such as a ```Dockerfile``` or creating a database. 
     - Must exist to pass schema. If no setup is required, leave the file empty except for the hashtag (`#!/bin/bash`).
-- ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```task_dir/bounties``` will contain N bounties.
-```task_dir/bounties/bounty_#/```
+- ```bounties/bounty_#/```: Each bounty will have its own ```bounty_#/``` folder. The ```env_dir/bounties``` will contain N bounties.
+```env_dir/bounties/bounty_#/```
 - ```bounty_metadata.json```: Refer to gunicorn [metadata](gunicorn/bounties/bounty_0/bounty_metadata.json) for an example (**don't worry about any prompt fields that you may see in bounty_metadata.json**). Fields include:
     - ```CWE``` (Common Weakness Enumeration): May or may not be assigned to the bounty. Obtained from the bounty report.
     - ```CVE```: May or may not be assigned to the bounty. Obtained from the bounty report.
@@ -375,7 +375,7 @@ We expect the following minimum file tree structure:
 ```
 bountybench/
 │
-├── task_dir/
+├── env_dir/
 │   ├── codebase/
 |   ├── metadata.json
 │   ├── setup_repo_env.sh
@@ -395,7 +395,7 @@ bountybench/
 - CI is triggered when you open a PR and for each subsequent push to the origin/branch. 
 - To test and validate that your code will pass CI locally, use the provided `run_ci_local.sh` script:
 ```
-./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch]
+./run_ci_local.sh <env_dir>/bounties/bounty_# [--patch]
 ```
 Adding the `--patch` flag will also verify that applying the patch files prevents the exploit from succeeding. If you do not add the flag, only the exploit will be tested.
 
@@ -433,7 +433,7 @@ For any issues, please report them on our [GitHub Issues page](https://github.co
 
 Structurally, adding invariants involves two components: updating the metadata.json and writing a `run_{x}_invariants.sh` script, where {x} can be repo or bounty, similar to the structure of adding bounties. That is, invariants can exist at the repo level (i.e. shared across bounties, such as a healthcheck to ensure a common server is alive) or the bounty level (i.e. checking for a bounty-specific feature).
 
-`task_dir`:
+`env_dir`:
 - `metadata.json`:
   - ```target_host```: See [2.2](#22-file-explanations)
   - ```invariant_thresholds```: A set of thresholds corresponding to the invariants at the repository level. The thresholds should be defined by the bounty adders. Some types of invariants are:
@@ -445,14 +445,14 @@ Structurally, adding invariants involves two components: updating the metadata.j
     - These paths should be made as general as possible. For example, if `run_repo_invariants.sh` only runs `codebase/tests/test_feature_a/test_feature_a.py`, prefer setting `invariant_test_paths: ["codebase/tests"]` instead of more specific file paths whenever possible.
 - `run_repo_invariants.sh`:
     - Executes repository-level invariant checks and generates a JSON file (`invariant_scores.json`) that details the scores for all invariants defined in the `metadata.json` file.
-    - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `task_dir`.
+    - This may mean adding additional files (e.g. health checks, unit tests files etc.) to the root of the `env_dir`.
       - If the number of passing unit tests is available, use that as the score (in case agent tries to delete tests). Skip tests with uninstallable dependencies.
     - In CI, `run_repo_invariants.sh` is run per bounty after patch is applied and setup scripts have been completed.
     - Only bounty specific tests (i.e. tests that succeed for a specific bounty, but the feature associated with the unit test is removed and not part of other bounties) should be moved to the bounty level invariants. All other tests should be on the repo level.
     - Must exist to pass schema. If no invariants are available at the repo level, should generate an empty `invariant_scores.json` file.
     - Deciding on reasonable invariants can be tricky - post any questions to [this Github Issue](https://github.com/cybench/bountybench/issues/143)
 
-`task_dir/bounties/bounty_#/`:
+`env_dir/bounties/bounty_#/`:
 - `bounty_metadata.json`:
     - See [2.2](#22-file-explanations)
     - `invariant_thresholds`: A set of thresholds corresponding to the invariants at the bounty level. Bounty level thresholds will override repo level thresholds, allowing us to accommodate changes in scores due to applied patches.
@@ -465,7 +465,7 @@ Structurally, adding invariants involves two components: updating the metadata.j
 - To test and validate that your invariants change will pass CI locally, use the provided `run_ci_local.sh` script:
 
 ```bash
-./run_ci_local.sh <task_dir>/bounties/bounty_# [--patch] [--check-invariants]
+./run_ci_local.sh <env_dir>/bounties/bounty_# [--patch] [--check-invariants]
 ```
 
 - `--check-invariants`: Requires `--patch`. Runs `run_repo_invariants` and `run_bounty_invariants` and checks scores are greater than or equal to thresholds.
@@ -611,7 +611,7 @@ See [mlflow](/mlflow/):
 │       └── bounty_0/...
 ```
 
-#### Repo-level files:
+#### Repo-level (Environment) files:
 
 - **`metadata.json`**: contains the invariant thresholds and invariant test paths:
 ```json
@@ -644,7 +644,7 @@ Specifically, `run_repo_invariants.sh` executes many tests within the `codebase/
 - **`healthcheck.py`**: Calls 3 basic apis for mlflow - list experiements, create experiment, and delete experiment
 
 
-#### Bounty-level files:
+#### Bounty-level (Task) files:
 
 Mlflow has 3 bounties, but we will focus on the first two
 
@@ -686,7 +686,7 @@ Make sure to run `identify_compatible_exploits.py`, which will update the `bount
 Compatible exploits should be a list of bounty numbers - example ["0", "1", "2"]
 To compute these numbers for a given bounty b, we run all existing exploits from bounty b's repository on bounty b's commit. For each exploit e that succeeds, we add the corresponding bounty number to the list
 
-If you want to check that your compatible exploits are updated, you can test by using the following command: ./run_ci_local.sh <task_dir>/bounties/bounty_# [--check-compatible-exploits]
+If you want to check that your compatible exploits are updated, you can test by using the following command: ./run_ci_local.sh <env_dir>/bounties/bounty_# [--check-compatible-exploits]
 
 ## 6. Understanding CI Environment vs Local Testing
 If you are able to locally reproduce the exploit, but are failing CI (GitHub and/or local CI), it is important to understand the difference between environments. This is particularly relevant for bounties involving servers.
