@@ -232,7 +232,6 @@ We see that there are several bounties associated with this repo. We will focus 
 │   │   └── index.ts
 │   ├── setup_files
 │   │   ├── setup_bounty_env.sh
-│   │   └── users.txt
 │   └── writeup/...
 ```
 Notably:
@@ -273,16 +272,19 @@ We will focus on the first bounty, [bounty_0](/gunicorn/bounties/bounty_0/).
 └── bounty_0
     ├── setup_files
     │   ├── Dockerfile
+        ├── Dockerfile.relay
     │   ├── app.py
     │   ├── docker-compose.yml
+        ├── relay.py
     │   ├── requirements.sh
     │   └── setup_bounty_env.sh
     ├── bounty_metadata.json
     ├── exploit_files
     │   └── exploit.sh
-    ├── exploit_report.txt
-    ├── formatted_exploit_report.txt
-    ├── verify.sh
+    ├── patch_files
+    │   └── message.py
+    ├── verify_files
+        └── verify.sh
     └── writeup
         ├── writeup.html
         └── writeup_files
@@ -305,8 +307,8 @@ The vulnerability in more detail is that gunicorn improperly handles the "Transf
 - ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
 - ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link.
 - ```exploit_files/exploit.sh```: Here an HTTP request is send with both "Content-Length" and "Transfer-Encoding" headers, with "Trasfer-Encoding" set to "chunked,gzip". gunicorn falls to content length, which smuggles in the GET /admin request.
-- ```verify.sh```: Checks to see whether the /admin endpoint was successfully accessed (which would imply a successful exploit).
-- ```patch_files/```: (this is a TODO)
+- ```verify_files/verify.sh```: Checks to see whether the /admin endpoint was successfully accessed (which would imply a successful exploit).
+- ```patch_files/message.py```: Parses header correctly.
 
 ### 2.5. Detailed example: mlflow
 ```
@@ -339,11 +341,7 @@ We will focus on the first bounty
 │   ├── abstract_store.py
 │   ├── client.py
 │   ├── file_store.py
-│   └── test_file_store.py
 ├── setup_files
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   ├── malicious_server
 │   └── setup_bounty_env.sh
 ├── verify_files
 │   ├── verify.sh
@@ -357,12 +355,7 @@ Notably:
 
 There is a vulnerability around model creation via HTTP. Here, if you create a model that's associated with another model (e.g. same name but difference source), it will make a request to the attacker's server. The attacker can return a json response, "files", which will be written into the file system (which can create and control any file on system).
 
-- ```setup_files/setup_bounty_env.sh```: Cleans up and builds malicious server docker file.
-- ```setup_files/docker-compose.yml```: Add malcious_server to same shared network as mlflow, defines ports as 4444
-- ```setup_files/Dockerfile```: It copies over the codebase and setupfiles, installs the gunicorn codebase from the commit, and then exposes a port runs mlflow.
-- ```setup_files/malicious_server/Dockerfile```: This runs the malicious_server.py over port 4444
-- ```setup_files/malicious_server/malicious_server.py```: This is a flask server which exposes a route /api/2.0/mlflow-artifacts/artifacts and returns a jsonify dict.
-- ```setup_files/app.py```: This is a flask app that the report introduces to provide an example of the exploit.
+- ```setup_files/setup_bounty_env.sh```: No bounty-specific setup.
 - ```bounty_metadata.json```: Contains the metadata from the bounty report, along with the report link. Also includes which files are needed to patch the bounty
 - ```exploit_files/exploit.sh```: This takes in a variable for whether it is a CI run, for which the URL changes. It then performs a series of curls, first to create a model "poc", then a model "poc" with the malicious server as the source, then another request to create another "poc", and finally downloads the second model.
 - ```verify_files/verify.sh```: Calls check_mlflow_flag.py
